@@ -27,13 +27,10 @@ private struct ExtensionGroup: Identifiable {
 struct ContentView: View {
     @StateObject private var model = CleanerViewModel()
     @StateObject private var permissions = PermissionManager()
-    @StateObject private var onDeviceAI = OnDeviceAI()
     @State private var expandedGroups: Set<String> = []
     @State private var applicationSearch = ""
     @State private var softwareTab: SoftwareTab = .all
     @State private var selectedCommandLineTool: CommandLineTool?
-    @State private var naturalLanguageInstruction = ""
-    @State private var aiContextKey = ""
     @State private var hoveredSoftwareID: String?
     @State private var inventorySearch = ""
 
@@ -48,6 +45,7 @@ struct ContentView: View {
                 case .uninstall: uninstallView
                 case .files: filesView
                 case .loginItems: loginItemsView
+                case .backgroundActivity: backgroundActivityView
                 case .extensions: extensionsView
                 }
             }
@@ -73,11 +71,29 @@ struct ContentView: View {
         } message: {
             Text("应用程序和已勾选的关联文件都会移入废纸篓。")
         }
-        .confirmationDialog("移除这个登录项？", isPresented: $model.showLoginItemRemovalConfirmation) {
-            Button("移入废纸篓", role: .destructive, action: model.removeLoginItemConfirmed)
+        .confirmationDialog("移除这个登录项？", isPresented: $model.showLoginApplicationRemovalConfirmation) {
+            Button("移除", role: .destructive, action: model.removeLoginApplicationConfirmed)
             Button("取消", role: .cancel) {}
         } message: {
-            Text(loginItemRemovalMessage)
+            Text(loginApplicationRemovalMessage)
+        }
+        .confirmationDialog("移除这个后台项目？", isPresented: $model.showBackgroundItemRemovalConfirmation) {
+            Button("移入废纸篓", role: .destructive, action: model.removeBackgroundItemConfirmed)
+            Button("取消", role: .cancel) {}
+        } message: {
+            Text(backgroundItemRemovalMessage)
+        }
+        .confirmationDialog("永久移除这个后台残留？", isPresented: $model.showRegisteredBackgroundTaskRemovalConfirmation) {
+            Button("永久移除", role: .destructive, action: model.removeRegisteredBackgroundTaskConfirmed)
+            Button("取消", role: .cancel) {}
+        } message: {
+            Text(registeredBackgroundTaskRemovalMessage)
+        }
+        .confirmationDialog("重建全部后台任务数据库？", isPresented: $model.showBackgroundDatabaseResetConfirmation) {
+            Button("重建数据库", role: .destructive, action: model.resetBackgroundTaskDatabaseConfirmed)
+            Button("取消", role: .cancel) {}
+        } message: {
+            Text("这会重置全部登录项和后台活动记录，不只清理当前残留。仍然安装的 App 之后会重新登记，部分允许或禁止状态可能需要重新确认。完成后需要重启 Mac。")
         }
         .confirmationDialog("移除这个扩展？", isPresented: $model.showExtensionRemovalConfirmation) {
             Button("移入废纸篓", role: .destructive, action: model.removeExtensionConfirmed)
@@ -85,7 +101,7 @@ struct ContentView: View {
         } message: {
             Text(extensionRemovalMessage)
         }
-        .alert("无法移除", isPresented: $model.showRemovalFailure) {
+        .alert("操作失败", isPresented: $model.showRemovalFailure) {
             Button("好", role: .cancel) {}
         } message: {
             Text(model.removalFailureMessage)
@@ -102,8 +118,7 @@ struct ContentView: View {
             sideButton(.junk, icon: "paintbrush.fill")
             sideButton(.uninstall, icon: "app.badge.checkmark")
             sideButton(.files, icon: "internaldrive")
-            sideButton(.loginItems, icon: "person.badge.key.fill")
-            sideButton(.extensions, icon: "puzzlepiece.extension.fill")
+            systemInventorySideButton
             Spacer()
             Button(action: {}) {
                 VStack(spacing: 5) {
@@ -159,6 +174,33 @@ struct ContentView: View {
         }.buttonStyle(.plain)
     }
 
+    private var systemInventorySideButton: some View {
+        let isSelected = [.loginItems, .backgroundActivity, .extensions].contains(model.mode)
+        return Button {
+            inventorySearch = ""
+            if !isSelected { model.changeMode(.loginItems) }
+        } label: {
+            VStack(spacing: 5) {
+                Image(systemName: "switch.2").font(.system(size: 17, weight: .medium))
+                Text("登录项与扩展").font(.system(size: 9))
+            }
+            .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
+            .frame(width: 68, height: 56)
+            .background {
+                if isSelected {
+                    RoundedRectangle(cornerRadius: 8).fill(Color.accentColor.opacity(0.10))
+                }
+            }
+            .overlay(alignment: .leading) {
+                if isSelected {
+                    Capsule().fill(Color.accentColor).frame(width: 3, height: 28).offset(x: -2)
+                }
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
     private var homeView: some View {
         ScrollView {
             VStack(spacing: 14) {
@@ -171,7 +213,8 @@ struct ContentView: View {
                     homeTile(title: "软件卸载", subtitle: "查找应用与关联残留", icon: "app.badge.checkmark", mode: .uninstall)
                     homeTile(title: "大文件", subtitle: "查找超过 500 MB 的文件", icon: "doc.badge.ellipsis", mode: .files)
                     homeTile(title: "开发工具缓存", subtitle: "npm、Python、Cargo、Xcode", icon: "chevron.left.forwardslash.chevron.right", mode: .junk)
-                    homeTile(title: "登录项", subtitle: "查看开机启动与后台项目", icon: "person.badge.key", mode: .loginItems)
+                    homeTile(title: "登录项", subtitle: "管理登录时自动打开的 App", icon: "person.badge.key", mode: .loginItems)
+                    homeTile(title: "后台活动", subtitle: "检查后台代理与服务", icon: "waveform.path.ecg", mode: .backgroundActivity)
                     homeTile(title: "扩展", subtitle: "盘点应用、系统与浏览器扩展", icon: "puzzlepiece.extension", mode: .extensions)
                 }
             }.padding(18)
@@ -274,9 +317,6 @@ struct ContentView: View {
                 )
             )
                 .padding(18)
-            Divider()
-            aiInstructionBar
-            Divider()
             if model.isScanning {
                 scanningView
             } else if model.items.isEmpty {
@@ -289,44 +329,6 @@ struct ContentView: View {
                     Spacer()
                     cleanSelectionButton
                 }.padding(12)
-            }
-        }
-    }
-
-    private var aiInstructionBar: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 10) {
-                Image(systemName: "apple.intelligence")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(Color.accentColor)
-                TextField("用自然语言描述，例如：只清理安全缓存，保留登录状态", text: $naturalLanguageInstruction)
-                    .textFieldStyle(.plain)
-                    .onSubmit(submitNaturalLanguageInstruction)
-                if onDeviceAI.isGenerating && aiContextKey == "junk" {
-                    ProgressView().controlSize(.small)
-                } else {
-                    Button("生成方案", action: submitNaturalLanguageInstruction)
-                        .buttonStyle(.borderedProminent).controlSize(.small)
-                }
-            }
-            .padding(.horizontal, 14).frame(height: 48)
-
-            if aiContextKey == "junk", !onDeviceAI.answer.isEmpty {
-                HStack(alignment: .top, spacing: 9) {
-                    Image(systemName: "sparkles").foregroundStyle(Color.accentColor).padding(.top, 2)
-                    Text(onDeviceAI.answer).font(.system(size: 12)).textSelection(.enabled)
-                    Spacer()
-                    Button { aiContextKey = "" } label: { Image(systemName: "xmark") }
-                        .buttonStyle(.plain).foregroundStyle(.secondary)
-                }
-                .padding(12)
-                .background(Color.accentColor.opacity(0.06))
-            } else if !onDeviceAI.isAvailable {
-                HStack {
-                    Text(onDeviceAI.availabilityText).font(.caption2).foregroundStyle(.secondary)
-                    Spacer()
-                }
-                .padding(.horizontal, 14).padding(.bottom, 8)
             }
         }
     }
@@ -372,7 +374,7 @@ struct ContentView: View {
                 HStack(spacing: 9) {
                     Image(systemName: "magnifyingglass")
                         .font(.system(size: 14, weight: .bold))
-                    Text("开始智能扫描")
+                    Text("开始扫描")
                         .font(.system(size: 14, weight: .semibold))
                     Image(systemName: "arrow.right")
                         .font(.system(size: 12, weight: .bold))
@@ -576,7 +578,6 @@ struct ContentView: View {
                 )
             )
                 .padding(18)
-            Divider()
             if model.applications.isEmpty && model.isScanning {
                 VStack(spacing: 14) {
                     ProgressView().controlSize(.large)
@@ -821,23 +822,6 @@ struct ContentView: View {
                     detailValue(title: "Bundle ID", value: app.bundleIdentifier ?? "未知")
                     detailValue(title: "安装位置", value: app.bundleURL.path)
                     detailValue(title: "应用大小", value: formatted(app.bytes))
-                    HStack {
-                        Button {
-                            explainApplication(app)
-                        } label: {
-                            Label("AI 解释这个应用和关联数据", systemImage: "apple.intelligence")
-                        }
-                        .buttonStyle(.bordered)
-                        .disabled(onDeviceAI.isGenerating)
-                        if onDeviceAI.isGenerating && aiContextKey == app.id { ProgressView().controlSize(.small) }
-                    }
-                    .padding(.vertical, 5)
-                    if aiContextKey == app.id, !onDeviceAI.answer.isEmpty {
-                        Text(onDeviceAI.answer)
-                            .font(.system(size: 12)).textSelection(.enabled)
-                            .padding(10).frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color.accentColor.opacity(0.07), in: RoundedRectangle(cornerRadius: 8))
-                    }
                     Divider().padding(.vertical, 5)
                     if model.uninstallResidues.isEmpty {
                         Text("没有发现关联残留文件。").font(.caption).foregroundStyle(.secondary).padding(.vertical, 8)
@@ -901,36 +885,6 @@ struct ContentView: View {
             ?? "无法确认包归属，请手动检查后处理"
     }
 
-    private func submitNaturalLanguageInstruction() {
-        let inventory = model.junkGroups.map {
-            "\($0.title)：\($0.items.count) 项，\(formatted($0.bytes))，风险 \($0.risk.rawValue)"
-        }.joined(separator: "\n")
-        aiContextKey = "junk"
-        onDeviceAI.ask("""
-            用户的清理要求：\(naturalLanguageInstruction)
-            当前扫描结果：
-            \(inventory.isEmpty ? "尚未扫描。请说明扫描后应该如何选择，不要假装已有结果。" : inventory)
-            请解释用户意图，并给出安全、可人工确认的清理方案。不要声称已勾选或删除文件。
-            """)
-    }
-
-    private func explainApplication(_ app: InstalledApplication) {
-        let residues = model.uninstallResidues.map {
-            "\($0.kind.rawValue)：\($0.url.path)，\(formatted($0.bytes))，风险 \($0.risk.rawValue)"
-        }.joined(separator: "\n")
-        aiContextKey = app.id
-        onDeviceAI.ask("""
-            请解释这个 macOS 应用及卸载影响：
-            名称：\(app.name)
-            Bundle ID：\(app.bundleIdentifier ?? "未知")
-            版本：\(app.version ?? "未知")
-            安装位置：\(app.bundleURL.path)
-            关联目录：
-            \(residues.isEmpty ? "未发现" : residues)
-            重点说明哪些通常可安全清理，哪些可能包含用户设置或数据。
-            """)
-    }
-
     private func uninstallItem(title: String, detail: String, bytes: Int64, selected: Binding<Bool>) -> some View {
         HStack(spacing: 10) {
             Toggle("", isOn: selected).labelsHidden()
@@ -956,8 +910,8 @@ struct ContentView: View {
     private var loginItemsView: some View {
         VStack(spacing: 0) {
             header(
-                title: "登录项",
-                subtitle: "查看登录时启动的代理与后台服务",
+                title: "登录项与扩展",
+                subtitle: "管理登录项、后台活动与应用扩展",
                 trailing: AnyView(
                     Button(action: model.scanLoginItems) {
                         Label("刷新", systemImage: "arrow.clockwise")
@@ -966,30 +920,154 @@ struct ContentView: View {
                 )
             )
             .padding(18)
-            Divider()
+
+            systemInventoryTabs
 
             inventoryManagementBanner(
-                icon: "lock.shield",
-                title: "由 macOS 管理启用状态",
-                detail: "这里读取 LaunchAgents 与 LaunchDaemons 配置；开关登录项请前往系统设置。",
+                icon: "person.badge.key",
+                title: "与 macOS 登录项保持一致",
+                detail: "这里显示登录后自动打开的 App；部分新式项目只能在系统设置中管理。",
                 buttonTitle: "打开登录项设置"
             )
 
-            inventorySearchField(placeholder: "搜索登录项、标签或路径")
+            inventorySearchField(placeholder: "搜索登录项或应用路径")
 
-            if model.isScanning && model.loginItems.isEmpty {
+            if model.isScanning && model.loginApplications.isEmpty {
                 inventoryLoadingView(title: "正在读取登录项…")
-            } else if filteredLoginItemGroups.isEmpty {
+            } else if let error = model.loginApplicationsError, model.loginApplications.isEmpty {
+                compactInventoryEmptyState(
+                    title: "无法读取登录项",
+                    detail: error,
+                    icon: "exclamationmark.triangle"
+                )
+            } else if filteredLoginApplications.isEmpty {
+                compactInventoryEmptyState(
+                    title: inventorySearch.isEmpty ? "没有登录项" : "没有匹配的登录项",
+                    detail: inventorySearch.isEmpty ? "可以在系统设置中添加登录时打开的 App" : "请尝试其他关键词",
+                    icon: "person.badge.key"
+                )
+            } else {
+                ScrollView {
+                    VStack(spacing: 0) {
+                        inventorySectionHeader(
+                            title: "登录时打开",
+                            subtitle: "登录当前账户后自动打开",
+                            count: filteredLoginApplications.count
+                        )
+                        Divider()
+                        ForEach(filteredLoginApplications) { item in
+                            loginApplicationRow(item)
+                            if item.id != filteredLoginApplications.last?.id { Divider().padding(.leading, 66) }
+                        }
+                    }
+                    .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 11))
+                    .padding(.horizontal, 16).padding(.bottom, 16)
+                }
+            }
+        }
+    }
+
+    private var filteredLoginApplications: [LoginApplication] {
+        let query = inventorySearch.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return model.loginApplications }
+        return model.loginApplications.filter {
+            $0.name.localizedCaseInsensitiveContains(query)
+                || ($0.applicationURL?.path.localizedCaseInsensitiveContains(query) ?? false)
+        }
+    }
+
+    private func loginApplicationRow(_ item: LoginApplication) -> some View {
+        HStack(spacing: 12) {
+            Image(nsImage: NSWorkspace.shared.icon(forFile: item.applicationURL?.path ?? "/Applications"))
+                .resizable().aspectRatio(contentMode: .fit).frame(width: 38, height: 38)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(item.name).font(.system(size: 13, weight: .medium)).lineLimit(1)
+                Text(item.applicationURL?.path ?? "路径不可用")
+                    .font(.caption2).foregroundStyle(.secondary).lineLimit(1)
+            }
+            Spacer()
+            if item.assessment == .likelyResidue {
+                missingBadge("文件不存在")
+            }
+            if item.isHidden {
+                inventoryBadge("启动后隐藏", color: .secondary)
+            }
+            if let url = item.applicationURL {
+                Button("显示") { reveal(url) }
+                    .buttonStyle(.borderless).font(.caption).fixedSize()
+            }
+            Button("移除", role: .destructive) { model.requestLoginApplicationRemoval(item) }
+                .buttonStyle(.borderless).font(.caption).fixedSize()
+        }
+        .padding(.horizontal, 14).padding(.vertical, 9)
+    }
+
+    private var backgroundActivityView: some View {
+        VStack(spacing: 0) {
+            header(
+                title: "登录项与扩展",
+                subtitle: "管理登录项、后台活动与应用扩展",
+                trailing: AnyView(
+                    HStack(spacing: 10) {
+                        Button(role: .destructive) {
+                            model.showBackgroundDatabaseResetConfirmation = true
+                        } label: {
+                            Label("重建数据库", systemImage: "arrow.triangle.2.circlepath")
+                        }
+                        Button(action: model.scanBackgroundActivity) {
+                            Label("刷新", systemImage: "arrow.clockwise")
+                        }
+                    }
+                    .disabled(model.isScanning)
+                )
+            )
+            .padding(18)
+
+            systemInventoryTabs
+
+            inventoryManagementBanner(
+                icon: "waveform.path.ecg",
+                title: "后台活动说明",
+                detail: "“自动启动”表示配置加载后启动；“退出后重启”表示进程退出后 launchd 会尝试再次启动。",
+                buttonTitle: "打开后台设置"
+            )
+
+            inventorySearchField(placeholder: "搜索后台项目、标签或路径")
+
+            if model.isScanning && model.backgroundItems.isEmpty && model.registeredBackgroundTasks.isEmpty {
+                inventoryLoadingView(title: "正在读取后台活动…")
+            } else if filteredBackgroundItemGroups.isEmpty && filteredRegisteredBackgroundTasks.isEmpty {
                 ContentUnavailableView(
-                    inventorySearch.isEmpty ? "没有发现启动配置" : "没有匹配的登录项",
-                    systemImage: "person.badge.key",
-                    description: Text(inventorySearch.isEmpty ? "App 注册的新式登录项仍可在系统设置中查看" : "请尝试其他关键词")
+                    inventorySearch.isEmpty ? "没有发现后台项目" : "没有匹配的后台项目",
+                    systemImage: "waveform.path.ecg",
+                    description: Text(model.backgroundTaskScanError ?? (inventorySearch.isEmpty ? "没有发现后台任务或 launchd 配置" : "请尝试其他关键词"))
                 )
             } else {
                 ScrollView {
                     LazyVStack(spacing: 14) {
-                        ForEach(filteredLoginItemGroups) { group in
-                            loginItemSection(group)
+                        if let notice = model.backgroundDatabaseNotice {
+                            HStack(spacing: 9) {
+                                Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
+                                Text(notice).font(.caption).foregroundStyle(.secondary)
+                                Spacer()
+                            }
+                            .padding(12)
+                            .background(Color.green.opacity(0.08), in: RoundedRectangle(cornerRadius: 9))
+                        }
+                        if let error = model.backgroundTaskScanError {
+                            HStack(spacing: 9) {
+                                Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)
+                                Text(error).font(.caption).foregroundStyle(.secondary)
+                                Spacer()
+                            }
+                            .padding(12)
+                            .background(Color.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 9))
+                        }
+                        if !filteredRegisteredBackgroundTasks.isEmpty {
+                            registeredBackgroundTaskSection
+                        }
+                        ForEach(filteredBackgroundItemGroups) { group in
+                            backgroundItemSection(group)
                         }
                     }
                     .padding(.horizontal, 16).padding(.bottom, 16)
@@ -998,9 +1076,63 @@ struct ContentView: View {
         }
     }
 
-    private var filteredLoginItemGroups: [LoginItemGroup] {
+    private var filteredRegisteredBackgroundTasks: [RegisteredBackgroundTask] {
         let query = inventorySearch.trimmingCharacters(in: .whitespacesAndNewlines)
-        let matches = query.isEmpty ? model.loginItems : model.loginItems.filter {
+        guard !query.isEmpty else { return model.registeredBackgroundTasks }
+        return model.registeredBackgroundTasks.filter {
+            $0.name.localizedCaseInsensitiveContains(query)
+                || ($0.bundleIdentifier?.localizedCaseInsensitiveContains(query) ?? false)
+                || ($0.teamIdentifier?.localizedCaseInsensitiveContains(query) ?? false)
+                || ($0.applicationURL?.path.localizedCaseInsensitiveContains(query) ?? false)
+        }
+    }
+
+    private var registeredBackgroundTaskSection: some View {
+        VStack(spacing: 0) {
+            inventorySectionHeader(
+                title: "App 后台活动",
+                subtitle: "macOS 后台任务管理数据库中的 App 记录",
+                count: filteredRegisteredBackgroundTasks.count
+            )
+            Divider()
+            ForEach(filteredRegisteredBackgroundTasks) { item in
+                registeredBackgroundTaskRow(item)
+                if item.id != filteredRegisteredBackgroundTasks.last?.id { Divider().padding(.leading, 66) }
+            }
+        }
+        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 11))
+    }
+
+    private func registeredBackgroundTaskRow(_ item: RegisteredBackgroundTask) -> some View {
+        HStack(spacing: 12) {
+            Image(nsImage: NSWorkspace.shared.icon(forFile: item.applicationURL?.path ?? "/Applications"))
+                .resizable().aspectRatio(contentMode: .fit).frame(width: 38, height: 38)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(item.name).font(.system(size: 13, weight: .medium)).lineLimit(1)
+                Text(item.applicationURL?.path ?? item.bundleIdentifier ?? "系统记录")
+                    .font(.caption2).foregroundStyle(.secondary).lineLimit(1)
+            }
+            Spacer()
+            if item.assessment == .likelyResidue {
+                missingBadge(item.isRemovableTrashResidue(home: FileManager.default.homeDirectoryForCurrentUser)
+                    ? "废纸篓记录"
+                    : "应用不存在")
+            }
+            if let url = item.applicationURL {
+                Button("显示") { reveal(url) }
+                    .buttonStyle(.borderless).font(.caption).fixedSize()
+            }
+            if item.isRemovableTrashResidue(home: FileManager.default.homeDirectoryForCurrentUser) {
+                Button("移除", role: .destructive) { model.requestRegisteredBackgroundTaskRemoval(item) }
+                    .buttonStyle(.borderless).font(.caption).fixedSize()
+            }
+        }
+        .padding(.horizontal, 14).padding(.vertical, 9)
+    }
+
+    private var filteredBackgroundItemGroups: [LoginItemGroup] {
+        let query = inventorySearch.trimmingCharacters(in: .whitespacesAndNewlines)
+        let matches = query.isEmpty ? model.backgroundItems : model.backgroundItems.filter {
             $0.label.localizedCaseInsensitiveContains(query)
                 || $0.configURL.path.localizedCaseInsensitiveContains(query)
                 || ($0.executableURL?.path.localizedCaseInsensitiveContains(query) ?? false)
@@ -1012,7 +1144,7 @@ struct ContentView: View {
         }
     }
 
-    private func loginItemSection(_ group: LoginItemGroup) -> some View {
+    private func backgroundItemSection(_ group: LoginItemGroup) -> some View {
         VStack(spacing: 0) {
             inventorySectionHeader(
                 title: group.domain.rawValue,
@@ -1021,14 +1153,14 @@ struct ContentView: View {
             )
             Divider()
             ForEach(group.items) { item in
-                loginItemRow(item)
+                backgroundItemRow(item)
                 if item.id != group.items.last?.id { Divider().padding(.leading, 66) }
             }
         }
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 11))
     }
 
-    private func loginItemRow(_ item: LoginItem) -> some View {
+    private func backgroundItemRow(_ item: LoginItem) -> some View {
         HStack(spacing: 12) {
             Image(nsImage: NSWorkspace.shared.icon(forFile: item.executableURL?.path ?? item.configURL.path))
                 .resizable().aspectRatio(contentMode: .fit).frame(width: 38, height: 38)
@@ -1038,17 +1170,21 @@ struct ContentView: View {
                     .font(.caption2).foregroundStyle(.secondary).lineLimit(1)
             }
             Spacer()
-            assessmentBadge(item.assessment)
+            if item.assessment == .likelyResidue {
+                missingBadge("文件不存在")
+            }
             if item.runsAtLoad {
-                inventoryBadge("登录时运行", color: .blue)
+                inventoryBadge("自动启动", color: .blue)
+                    .help("配置被 launchd 加载后自动启动。用户代理通常在登录时加载，后台服务通常在开机时加载。")
             }
             if item.keepsAlive {
-                inventoryBadge("保持运行", color: .orange)
+                inventoryBadge("退出后重启", color: .orange)
+                    .help("进程退出或崩溃后，launchd 会根据条件尝试再次启动。")
             }
             Button("显示") { reveal(item.configURL) }
-                .buttonStyle(.borderless).font(.caption)
-            Button("移除…", role: .destructive) { model.requestLoginItemRemoval(item) }
-                .buttonStyle(.borderless).font(.caption)
+                .buttonStyle(.borderless).font(.caption).fixedSize()
+            Button("移除", role: .destructive) { model.requestBackgroundItemRemoval(item) }
+                .buttonStyle(.borderless).font(.caption).fixedSize()
         }
         .padding(.horizontal, 14).padding(.vertical, 9)
         .contentShape(Rectangle())
@@ -1058,8 +1194,8 @@ struct ContentView: View {
     private var extensionsView: some View {
         VStack(spacing: 0) {
             header(
-                title: "扩展",
-                subtitle: "盘点应用内置的系统、网络与功能扩展",
+                title: "登录项与扩展",
+                subtitle: "管理登录项、后台活动与应用扩展",
                 trailing: AnyView(
                     Button(action: model.scanExtensions) {
                         Label("刷新", systemImage: "arrow.clockwise")
@@ -1068,7 +1204,8 @@ struct ContentView: View {
                 )
             )
             .padding(18)
-            Divider()
+
+            systemInventoryTabs
 
             inventoryManagementBanner(
                 icon: "puzzlepiece.extension",
@@ -1144,22 +1281,24 @@ struct ContentView: View {
                 .font(.caption2).foregroundStyle(.secondary).lineLimit(1)
             }
             Spacer()
-            assessmentBadge(item.assessment)
+            if item.assessment == .likelyResidue {
+                missingBadge("所属应用不存在")
+            }
             if let identifier = item.bundleIdentifier {
                 Text(identifier).font(.caption2).foregroundStyle(.tertiary).lineLimit(1)
                     .frame(maxWidth: 190, alignment: .trailing)
             }
             Button("显示") { reveal(item.bundleURL) }
-                .buttonStyle(.borderless).font(.caption)
+                .buttonStyle(.borderless).font(.caption).fixedSize()
             if item.ownerApplicationURL == nil {
-                Button("移除…", role: .destructive) { model.requestExtensionRemoval(item) }
-                    .buttonStyle(.borderless).font(.caption)
+                Button("移除", role: .destructive) { model.requestExtensionRemoval(item) }
+                    .buttonStyle(.borderless).font(.caption).fixedSize()
             } else {
-                Button("卸载应用…") {
+                Button("卸载应用") {
                     applicationSearch = item.ownerName ?? ""
                     model.changeMode(.uninstall)
                 }
-                .buttonStyle(.borderless).font(.caption)
+                .buttonStyle(.borderless).font(.caption).fixedSize()
             }
         }
         .padding(.horizontal, 14).padding(.vertical, 9)
@@ -1187,6 +1326,25 @@ struct ContentView: View {
         .padding(.horizontal, 16).padding(.top, 12)
     }
 
+    private var systemInventoryTabs: some View {
+        Picker("项目类型", selection: Binding(
+            get: { model.mode },
+            set: { newMode in
+                inventorySearch = ""
+                model.changeMode(newMode)
+            }
+        )) {
+            Text("登录项").tag(FeatureMode.loginItems)
+            Text("后台活动").tag(FeatureMode.backgroundActivity)
+            Text("扩展").tag(FeatureMode.extensions)
+        }
+        .pickerStyle(.segmented)
+        .labelsHidden()
+        .frame(maxWidth: 420)
+        .padding(.horizontal, 16)
+        .padding(.top, 12)
+    }
+
     private func inventorySearchField(placeholder: String) -> some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
@@ -1210,6 +1368,27 @@ struct ContentView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
+    private func compactInventoryEmptyState(title: String, detail: String, icon: String) -> some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 12) {
+                Image(systemName: icon)
+                    .font(.system(size: 20, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 30)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title).font(.system(size: 13, weight: .semibold))
+                    Text(detail).font(.caption).foregroundStyle(.secondary)
+                }
+                Spacer()
+            }
+            .frame(maxWidth: .infinity)
+            .padding(15)
+            .background(Color.secondary.opacity(0.055), in: RoundedRectangle(cornerRadius: 10))
+            .padding(.horizontal, 16)
+            Spacer(minLength: 0)
+        }
+    }
+
     private func inventorySectionHeader(title: String, subtitle: String, count: Int) -> some View {
         HStack(alignment: .firstTextBaseline) {
             VStack(alignment: .leading, spacing: 2) {
@@ -1229,22 +1408,30 @@ struct ContentView: View {
             .background(color.opacity(0.10), in: Capsule())
     }
 
-    private func assessmentBadge(_ assessment: ComponentAssessment) -> some View {
-        let color: Color = switch assessment {
-        case .present: .green
-        case .likelyResidue: .orange
-        case .unknown: .secondary
-        }
-        return inventoryBadge(assessment.rawValue, color: color)
-            .help(assessment.explanation)
+    private func missingBadge(_ title: String) -> some View {
+        inventoryBadge(title, color: .red)
+            .help("没有在记录路径或已安装应用中找到对应文件，可能是卸载残留。")
     }
 
-    private var loginItemRemovalMessage: String {
-        guard let item = model.loginItemRemovalCandidate else { return "启动配置将移入废纸篓。" }
+    private var loginApplicationRemovalMessage: String {
+        guard let item = model.loginApplicationRemovalCandidate else { return "将从 macOS 登录项中移除。" }
+        let missing = item.assessment == .likelyResidue ? "对应文件已经不存在。" : ""
+        return "\(missing)“\(item.name)”将从登录项中移除，此操作不会删除应用文件。"
+    }
+
+    private var backgroundItemRemovalMessage: String {
+        guard let item = model.backgroundItemRemovalCandidate else { return "启动配置将移入废纸篓。" }
         let assessment = item.assessment == .likelyResidue
             ? "没有找到目标程序，可能是卸载残留。"
             : item.assessment.explanation + "。"
         return "\(assessment)“\(item.label)”的启动配置将移入废纸篓；已运行的进程不会被强制终止。"
+    }
+
+    private var registeredBackgroundTaskRemovalMessage: String {
+        guard let item = model.registeredBackgroundTaskRemovalCandidate else {
+            return "废纸篓中的 App 残留将被永久删除。"
+        }
+        return "“\(item.name)”已经位于废纸篓。继续会永久删除该 App 残留，无法撤销；macOS 的后台记录可能要重新登录后才会消失。"
     }
 
     private var extensionRemovalMessage: String {

@@ -41,11 +41,21 @@ final class CleanerViewModel: ObservableObject {
     @Published var items: [ScanItem] = []
     @Published var applications: [InstalledApplication] = []
     @Published var commandLineTools: [CommandLineTool] = []
-    @Published var loginItems: [LoginItem] = []
+    @Published var loginApplications: [LoginApplication] = []
+    @Published var loginApplicationsError: String?
+    @Published var backgroundItems: [LoginItem] = []
+    @Published var registeredBackgroundTasks: [RegisteredBackgroundTask] = []
+    @Published var backgroundTaskScanError: String?
+    @Published var backgroundDatabaseNotice: String?
     @Published var installedExtensions: [InstalledExtension] = []
-    @Published var loginItemRemovalCandidate: LoginItem?
+    @Published var loginApplicationRemovalCandidate: LoginApplication?
+    @Published var registeredBackgroundTaskRemovalCandidate: RegisteredBackgroundTask?
+    @Published var backgroundItemRemovalCandidate: LoginItem?
     @Published var extensionRemovalCandidate: InstalledExtension?
-    @Published var showLoginItemRemovalConfirmation = false
+    @Published var showLoginApplicationRemovalConfirmation = false
+    @Published var showRegisteredBackgroundTaskRemovalConfirmation = false
+    @Published var showBackgroundDatabaseResetConfirmation = false
+    @Published var showBackgroundItemRemovalConfirmation = false
     @Published var showExtensionRemovalConfirmation = false
     @Published var showRemovalFailure = false
     @Published var removalFailureMessage = ""
@@ -77,7 +87,8 @@ final class CleanerViewModel: ObservableObject {
     private var scanTask: Task<Void, Never>?
     private var inventoryTask: Task<Void, Never>?
     private var hasScannedApplications = false
-    private var hasScannedLoginItems = false
+    private var hasScannedLoginApplications = false
+    private var hasScannedBackgroundItems = false
     private var hasScannedExtensions = false
     private var selectedCountByGroup: [String: Int] = [:]
     private var itemByID: [UUID: ScanItem] = [:]
@@ -173,7 +184,7 @@ final class CleanerViewModel: ObservableObject {
                 selectedIDs = []
                 rebuildJunkGroups()
                 status = "找到 \(found.count) 个超过 500 MB 的文件。大文件不代表垃圾。"
-            case .loginItems, .extensions:
+            case .loginItems, .backgroundActivity, .extensions:
                 break
             }
             lastScanAt = Date()
@@ -226,11 +237,18 @@ final class CleanerViewModel: ObservableObject {
             }
         case .files: status = "请选择要分析的大文件目录。"
         case .loginItems:
-            if hasScannedLoginItems {
-                status = "已缓存 \(loginItems.count) 个启动配置；点击刷新可重新扫描。"
+            if hasScannedLoginApplications {
+                status = "已缓存 \(loginApplications.count) 个登录项；点击刷新可重新扫描。"
             } else {
-                status = "正在读取登录项与后台启动配置…"
+                status = "正在读取登录项…"
                 scanLoginItems()
+            }
+        case .backgroundActivity:
+            if hasScannedBackgroundItems {
+                status = "已缓存 \(registeredBackgroundTasks.count) 个 App 后台记录和 \(backgroundItems.count) 个后台配置；点击刷新可重新扫描。"
+            } else {
+                status = "正在读取后台活动…"
+                scanBackgroundActivity()
             }
         case .extensions:
             if hasScannedExtensions {
@@ -245,17 +263,63 @@ final class CleanerViewModel: ObservableObject {
     func scanLoginItems() {
         inventoryTask?.cancel()
         isScanning = true
-        status = "正在读取登录项与后台启动配置…"
+        status = "正在读取登录项…"
+        inventoryTask = Task {
+            let result = await systemInventoryScanner.loginApplications()
+            guard !Task.isCancelled, mode == .loginItems else { return }
+            loginApplications = result.items
+            loginApplicationsError = result.errorMessage
+            lastScanAt = Date()
+            hasScannedLoginApplications = true
+            isScanning = false
+            status = result.errorMessage ?? "找到 \(result.items.count) 个登录项。"
+        }
+    }
+
+    func scanBackgroundActivity() {
+        inventoryTask?.cancel()
+        isScanning = true
+        backgroundDatabaseNotice = nil
+        status = "正在读取后台活动…"
         inventoryTask = Task {
             let found = await systemInventoryScanner.loginItems(
                 home: FileManager.default.homeDirectoryForCurrentUser
             )
-            guard !Task.isCancelled, mode == .loginItems else { return }
-            loginItems = found
+            guard !Task.isCancelled else { return }
+            let registered = await systemInventoryScanner.registeredBackgroundTasks()
+            guard !Task.isCancelled, mode == .backgroundActivity else { return }
+            backgroundItems = found
+            registeredBackgroundTasks = registered.items
+            backgroundTaskScanError = registered.errorMessage
             lastScanAt = Date()
-            hasScannedLoginItems = true
+            hasScannedBackgroundItems = true
             isScanning = false
-            status = "找到 \(found.count) 个启动配置。"
+            status = registered.errorMessage
+                ?? "找到 \(registered.items.count) 个 App 后台记录和 \(found.count) 个后台配置。"
+        }
+    }
+
+    func resetBackgroundTaskDatabaseConfirmed() {
+        showBackgroundDatabaseResetConfirmation = false
+        inventoryTask?.cancel()
+        isScanning = true
+        status = "正在重建后台任务数据库…"
+        inventoryTask = Task {
+            let error = await systemInventoryScanner.resetBackgroundTaskDatabase()
+            guard !Task.isCancelled, mode == .backgroundActivity else { return }
+            isScanning = false
+            if let error {
+                removalFailureMessage = error
+                status = error
+                showRemovalFailure = true
+            } else {
+                registeredBackgroundTasks = []
+                backgroundTaskScanError = nil
+                backgroundDatabaseNotice = "后台任务数据库已重建。请重启 Mac，让系统重新登记仍然有效的项目。"
+                lastScanAt = Date()
+                hasScannedBackgroundItems = false
+                status = "后台任务数据库已重建，请重启 Mac。"
+            }
         }
     }
 
@@ -281,15 +345,62 @@ final class CleanerViewModel: ObservableObject {
         }
     }
 
-    func requestLoginItemRemoval(_ item: LoginItem) {
-        loginItemRemovalCandidate = item
-        showLoginItemRemovalConfirmation = true
+    func requestLoginApplicationRemoval(_ item: LoginApplication) {
+        loginApplicationRemovalCandidate = item
+        showLoginApplicationRemovalConfirmation = true
     }
 
-    func removeLoginItemConfirmed() {
-        guard let item = loginItemRemovalCandidate else { return }
-        showLoginItemRemovalConfirmation = false
-        loginItemRemovalCandidate = nil
+    func removeLoginApplicationConfirmed() {
+        guard let item = loginApplicationRemovalCandidate else { return }
+        showLoginApplicationRemovalConfirmation = false
+        loginApplicationRemovalCandidate = nil
+        status = "正在移除登录项 \(item.name)…"
+        Task {
+            if let error = await systemInventoryScanner.removeLoginApplication(item) {
+                removalFailureMessage = error
+                status = error
+                showRemovalFailure = true
+            } else {
+                loginApplications.removeAll { $0.id == item.id }
+                status = "已从登录项中移除 \(item.name)。"
+            }
+        }
+    }
+
+    func requestBackgroundItemRemoval(_ item: LoginItem) {
+        backgroundItemRemovalCandidate = item
+        showBackgroundItemRemovalConfirmation = true
+    }
+
+    func requestRegisteredBackgroundTaskRemoval(_ item: RegisteredBackgroundTask) {
+        registeredBackgroundTaskRemovalCandidate = item
+        showRegisteredBackgroundTaskRemovalConfirmation = true
+    }
+
+    func removeRegisteredBackgroundTaskConfirmed() {
+        guard let item = registeredBackgroundTaskRemovalCandidate else { return }
+        showRegisteredBackgroundTaskRemovalConfirmation = false
+        registeredBackgroundTaskRemovalCandidate = nil
+        status = "正在移除 \(item.name) 的废纸篓残留…"
+        Task {
+            if let error = await systemInventoryScanner.removeRegisteredBackgroundTaskResidue(
+                item,
+                home: FileManager.default.homeDirectoryForCurrentUser
+            ) {
+                removalFailureMessage = error
+                status = error
+                showRemovalFailure = true
+            } else {
+                registeredBackgroundTasks.removeAll { $0.id == item.id }
+                status = "已永久删除 \(item.name) 的废纸篓残留；macOS 后台记录可能在重新登录后消失。"
+            }
+        }
+    }
+
+    func removeBackgroundItemConfirmed() {
+        guard let item = backgroundItemRemovalCandidate else { return }
+        showBackgroundItemRemovalConfirmation = false
+        backgroundItemRemovalCandidate = nil
         status = "正在将 \(item.label) 移入废纸篓…"
         Task {
             let result = await systemInventoryScanner.moveLoginItemToTrash(
@@ -301,7 +412,7 @@ final class CleanerViewModel: ObservableObject {
                 status = removalFailureMessage
                 showRemovalFailure = true
             } else {
-                loginItems.removeAll { $0.id == item.id }
+                backgroundItems.removeAll { $0.id == item.id }
                 status = "已将 \(item.label) 的启动配置移入废纸篓；当前进程可能会继续运行到退出或重启。"
             }
         }

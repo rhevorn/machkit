@@ -1,4 +1,4 @@
-import SiftCore
+@testable import SiftCore
 import Foundation
 import Testing
 
@@ -140,4 +140,101 @@ import Testing
     #expect(extensions.first?.kind == .quickLook)
     #expect(extensions.first?.assessment == .likelyResidue)
     #expect(extensions.first?.ownerApplicationURL == nil)
+}
+
+@Test func loginApplicationParsingOnlyFlagsMissingFiles() throws {
+    let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+    let existing = root.appending(path: "Existing.app", directoryHint: .isDirectory)
+    try FileManager.default.createDirectory(at: existing, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: root) }
+
+    let output = """
+    Existing\t\(existing.path)\tfalse
+    Removed\t\(root.appending(path: "Removed.app").path)\ttrue
+    Unknown\t\tfalse
+
+    """
+    let items = SystemInventoryScanner.parseLoginApplications(output, fileManager: .default)
+    #expect(items.first(where: { $0.name == "Existing" })?.assessment == .present)
+    #expect(items.first(where: { $0.name == "Removed" })?.assessment == .likelyResidue)
+    #expect(items.first(where: { $0.name == "Unknown" })?.assessment == .unknown)
+    #expect(items.first(where: { $0.name == "Removed" })?.isHidden == true)
+}
+
+@Test func backgroundTaskDatabaseFindsUninstalledAppsAndDeduplicatesRecords() {
+    let output = """
+    ========================
+     Records for UID -2 : FFFFEEEE-DDDD-CCCC-BBBB-AAAAFFFFFFFE
+    ========================
+
+     #1:
+                     Name: Pearcleaner
+          Team Identifier: BK8443AXLU
+                     Type: app (0x2)
+              Disposition: [disabled, allowed, not notified] (0x2)
+               Identifier: 2.com.alienator88.Pearcleaner
+                      URL: file:///Users/test/.Trash/Pearcleaner.app/
+        Bundle Identifier: com.alienator88.Pearcleaner
+
+     #2:
+                     Name: PearcleanerHelper
+                     Type: daemon (0x10)
+               Identifier: 16.com.alienator88.Pearcleaner.PearcleanerHelper
+
+    ========================
+     Records for UID 501 : EXAMPLE
+    ========================
+
+     #1:
+                     Name: Pearcleaner
+          Team Identifier: BK8443AXLU
+                     Type: app (0x2)
+              Disposition: [disabled, allowed, notified] (0xa)
+               Identifier: 2.com.alienator88.Pearcleaner
+                      URL: file:///Users/test/.Trash/Pearcleaner.app/
+        Bundle Identifier: com.alienator88.Pearcleaner
+
+    """
+    let items = SystemInventoryScanner.parseRegisteredBackgroundTasks(output, fileManager: .default)
+    #expect(items.count == 1)
+    #expect(items.first?.name == "Pearcleaner")
+    #expect(items.first?.bundleIdentifier == "com.alienator88.Pearcleaner")
+    #expect(items.first?.assessment == .likelyResidue)
+}
+
+@Test func backgroundTaskRemovalOnlyDeletesResiduesInsideCurrentUsersTrash() async throws {
+    let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+    let home = root.appending(path: "Home", directoryHint: .isDirectory)
+    let trashedApp = home.appending(path: ".Trash/Removed.app", directoryHint: .isDirectory)
+    let outsideApp = root.appending(path: "Removed.app", directoryHint: .isDirectory)
+    try FileManager.default.createDirectory(at: trashedApp, withIntermediateDirectories: true)
+    try FileManager.default.createDirectory(at: outsideApp, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: root) }
+
+    let trashedItem = RegisteredBackgroundTask(
+        id: "com.example.removed",
+        name: "Removed",
+        bundleIdentifier: "com.example.removed",
+        teamIdentifier: nil,
+        applicationURL: trashedApp,
+        isEnabled: false,
+        assessment: .likelyResidue
+    )
+    let outsideItem = RegisteredBackgroundTask(
+        id: "com.example.outside",
+        name: "Outside",
+        bundleIdentifier: "com.example.outside",
+        teamIdentifier: nil,
+        applicationURL: outsideApp,
+        isEnabled: false,
+        assessment: .likelyResidue
+    )
+    let scanner = SystemInventoryScanner()
+
+    #expect(await scanner.removeRegisteredBackgroundTaskResidue(outsideItem, home: home) != nil)
+    #expect(FileManager.default.fileExists(atPath: outsideApp.path))
+    #expect(await scanner.removeRegisteredBackgroundTaskResidue(trashedItem, home: home) == nil)
+    #expect(!FileManager.default.fileExists(atPath: trashedApp.path))
+    let missingResult = await scanner.removeRegisteredBackgroundTaskResidue(trashedItem, home: home)
+    #expect(missingResult?.contains("数据库仍保留这个旧路径") == true)
 }

@@ -20,5 +20,7 @@
     <string>14.0</string>
     <key>NSHighResolutionCapable</key>
     <true/>
+    <key>NSAppleEventsUsageDescription</key>
+    <string>用于读取和移除你在 macOS 中配置的登录项。</string>
 </dict>
 </plist>

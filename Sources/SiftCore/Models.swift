@@ -12,7 +12,80 @@ public enum FeatureMode: String, CaseIterable, Sendable {
     case uninstall = "软件卸载"
     case files = "文件扫描"
     case loginItems = "登录项"
+    case backgroundActivity = "后台活动"
     case extensions = "扩展"
+}
+
+public struct LoginApplication: Identifiable, Sendable, Hashable {
+    public let id: String
+    public let name: String
+    public let applicationURL: URL?
+    public let isHidden: Bool
+    public let assessment: ComponentAssessment
+
+    public init(name: String, applicationURL: URL?, isHidden: Bool, assessment: ComponentAssessment) {
+        self.id = applicationURL?.standardizedFileURL.path ?? name
+        self.name = name
+        self.applicationURL = applicationURL
+        self.isHidden = isHidden
+        self.assessment = assessment
+    }
+}
+
+public struct LoginApplicationScanResult: Sendable {
+    public let items: [LoginApplication]
+    public let errorMessage: String?
+
+    public init(items: [LoginApplication], errorMessage: String? = nil) {
+        self.items = items
+        self.errorMessage = errorMessage
+    }
+}
+
+public struct RegisteredBackgroundTask: Identifiable, Sendable, Hashable {
+    public let id: String
+    public let name: String
+    public let bundleIdentifier: String?
+    public let teamIdentifier: String?
+    public let applicationURL: URL?
+    public let isEnabled: Bool
+    public let assessment: ComponentAssessment
+
+    public init(
+        id: String,
+        name: String,
+        bundleIdentifier: String?,
+        teamIdentifier: String?,
+        applicationURL: URL?,
+        isEnabled: Bool,
+        assessment: ComponentAssessment
+    ) {
+        self.id = id
+        self.name = name
+        self.bundleIdentifier = bundleIdentifier
+        self.teamIdentifier = teamIdentifier
+        self.applicationURL = applicationURL
+        self.isEnabled = isEnabled
+        self.assessment = assessment
+    }
+
+    public func isRemovableTrashResidue(home: URL) -> Bool {
+        guard assessment == .likelyResidue, let applicationURL else { return false }
+        let trashPath = home
+            .appending(path: ".Trash", directoryHint: .isDirectory)
+            .standardizedFileURL.path + "/"
+        return applicationURL.standardizedFileURL.path.hasPrefix(trashPath)
+    }
+}
+
+public struct BackgroundTaskScanResult: Sendable {
+    public let items: [RegisteredBackgroundTask]
+    public let errorMessage: String?
+
+    public init(items: [RegisteredBackgroundTask], errorMessage: String? = nil) {
+        self.items = items
+        self.errorMessage = errorMessage
+    }
 }
 
 public enum LoginItemDomain: String, CaseIterable, Codable, Sendable {

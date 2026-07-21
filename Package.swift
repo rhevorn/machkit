@@ -9,7 +9,12 @@ let package = Package(
         .library(name: "SiftCore", targets: ["SiftCore"])
     ],
     targets: [
-        .target(name: "SiftCore"),
+        .target(
+            name: "SiftPrivilegedShim",
+            publicHeadersPath: "include",
+            linkerSettings: [.linkedFramework("Security")]
+        ),
+        .target(name: "SiftCore", dependencies: ["SiftPrivilegedShim"]),
         .executableTarget(name: "Sift", dependencies: ["SiftCore"]),
         .testTarget(name: "SiftCoreTests", dependencies: ["SiftCore"])
     ]
