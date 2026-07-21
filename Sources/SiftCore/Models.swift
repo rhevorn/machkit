@@ -234,6 +234,79 @@ public struct ScanItem: Identifiable, Sendable, Hashable {
     }
 }
 
+public enum StorageCategoryKind: String, CaseIterable, Codable, Sendable, Identifiable {
+    case applications = "应用程序"
+    case documents = "文稿"
+    case downloads = "下载"
+    case pictures = "图片"
+    case music = "音乐"
+    case movies = "影片"
+    case developer = "开发文件"
+    case systemData = "系统与应用数据"
+    case other = "其他"
+
+    public var id: String { rawValue }
+}
+
+public struct StorageCategoryUsage: Identifiable, Sendable, Hashable {
+    public let category: StorageCategoryKind
+    public let bytes: Int64
+    public let fileCount: Int
+
+    public var id: StorageCategoryKind { category }
+
+    public init(category: StorageCategoryKind, bytes: Int64, fileCount: Int) {
+        self.category = category
+        self.bytes = bytes
+        self.fileCount = fileCount
+    }
+}
+
+public struct StorageAnalysis: Sendable, Hashable {
+    public let totalCapacity: Int64
+    public let availableCapacity: Int64
+    public let scannedBytes: Int64
+    public let scannedFileCount: Int
+    public let inaccessibleItemCount: Int
+    public let categories: [StorageCategoryUsage]
+    public let largeFiles: [ScanItem]
+    public let analyzedRoots: [URL]
+
+    public var usedCapacity: Int64 { max(0, totalCapacity - availableCapacity) }
+
+    public init(
+        totalCapacity: Int64,
+        availableCapacity: Int64,
+        scannedBytes: Int64,
+        scannedFileCount: Int,
+        inaccessibleItemCount: Int,
+        categories: [StorageCategoryUsage],
+        largeFiles: [ScanItem],
+        analyzedRoots: [URL]
+    ) {
+        self.totalCapacity = totalCapacity
+        self.availableCapacity = availableCapacity
+        self.scannedBytes = scannedBytes
+        self.scannedFileCount = scannedFileCount
+        self.inaccessibleItemCount = inaccessibleItemCount
+        self.categories = categories
+        self.largeFiles = largeFiles
+        self.analyzedRoots = analyzedRoots
+    }
+}
+
+public struct StorageAnalysisProgress: Sendable, Hashable {
+    public let currentRoot: URL
+    public let inspectedFiles: Int
+    public let scannedBytes: Int64
+
+    public init(currentRoot: URL, inspectedFiles: Int, scannedBytes: Int64) {
+        self.currentRoot = currentRoot
+        self.inspectedFiles = inspectedFiles
+        self.scannedBytes = scannedBytes
+    }
+}
+
 public struct CleanResult: Sendable {
     public let movedToTrash: [URL]
     public let failures: [CleanFailure]

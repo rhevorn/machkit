@@ -23,6 +23,30 @@ import Testing
     #expect(results.first?.rule.risk == .review)
 }
 
+@Test func storageAnalysisClassifiesCommonFoldersWithoutMarkingFilesForDeletion() async throws {
+    let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+    let downloads = root.appending(path: "Downloads", directoryHint: .isDirectory)
+    let pictures = root.appending(path: "Pictures", directoryHint: .isDirectory)
+    try FileManager.default.createDirectory(at: downloads, withIntermediateDirectories: true)
+    try FileManager.default.createDirectory(at: pictures, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: root) }
+
+    try Data(repeating: 1, count: 2_048).write(to: downloads.appending(path: "archive.zip"))
+    try Data(repeating: 2, count: 1_024).write(to: pictures.appending(path: "photo.jpg"))
+
+    let analysis = await FileAnalyzer().storageAnalysis(
+        roots: [root],
+        volumeURL: root,
+        largeFileMinimumBytes: 1
+    )
+
+    #expect(analysis.scannedFileCount == 2)
+    #expect(analysis.categories.first(where: { $0.category == .downloads })?.fileCount == 1)
+    #expect(analysis.categories.first(where: { $0.category == .pictures })?.fileCount == 1)
+    #expect(analysis.largeFiles.count == 2)
+    #expect(analysis.largeFiles.allSatisfy { $0.rule.risk == .review })
+}
+
 @Test func packageManagersExposeSafeUninstallGuidance() {
     #expect(CommandLineToolManager.homebrew.uninstallCommand(name: "ripgrep", version: nil) == "brew uninstall ripgrep")
     #expect(CommandLineToolManager.homebrewCask.uninstallCommand(name: "firefox", version: nil) == "brew uninstall --cask firefox")
