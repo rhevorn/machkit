@@ -1,0 +1,42 @@
+# Swift Package Manager
+/.build/
+/.swiftpm/
+
+# Xcode
+/build/
+DerivedData/
+xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+*.moved-aside
+*.dSYM/
+
+# Generated Sift debug app artifacts
+/DebugApp/Sift.app/Contents/MacOS/Sift
+/DebugApp/Sift.app/Contents/_CodeSignature/
+/DebugApp/**/*.dSYM/
+
+# Local configuration
+.env
+.env.*
+!.env.example
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon\r
+._*
+
+# Editors and temporary files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.log
+
+design-qa.md
