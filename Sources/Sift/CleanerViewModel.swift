@@ -39,6 +39,10 @@ final class CleanerViewModel: ObservableObject {
     @Published var mode: FeatureMode = .home
     @Published var root: URL?
     @Published var items: [ScanItem] = []
+    @Published private(set) var storageAnalysis: StorageAnalysis?
+    @Published private(set) var performanceSnapshot: PerformanceSnapshot?
+    @Published private(set) var performanceHistory: [PerformanceHistoryPoint] = []
+    @Published private(set) var isPerformanceMonitoring = false
     @Published var applications: [InstalledApplication] = []
     @Published var commandLineTools: [CommandLineTool] = []
     @Published var loginApplications: [LoginApplication] = []
@@ -84,9 +88,12 @@ final class CleanerViewModel: ObservableObject {
     private let applicationScanner = ApplicationScanner()
     private let systemInventoryScanner = SystemInventoryScanner()
     private let fileAnalyzer = FileAnalyzer()
+    private let performanceMonitor = PerformanceMonitor()
     private var scanTask: Task<Void, Never>?
     private var inventoryTask: Task<Void, Never>?
+    private var performanceTask: Task<Void, Never>?
     private var hasScannedApplications = false
+    private var hasAnalyzedStorage = false
     private var hasScannedLoginApplications = false
     private var hasScannedBackgroundItems = false
     private var hasScannedExtensions = false
@@ -111,6 +118,12 @@ final class CleanerViewModel: ObservableObject {
         panel.prompt = mode == .uninstall ? "选择 Applications 目录" : "选择扫描目录"
         guard panel.runModal() == .OK, let url = panel.url else { return }
         root = url
+        if mode == .files {
+            storageAnalysis = nil
+            items = []
+            status = "已选择 \(url.lastPathComponent)，点击开始分析。"
+            return
+        }
         items = []
         selectedIDs = []
         rebuildJunkGroups()
@@ -145,6 +158,10 @@ final class CleanerViewModel: ObservableObject {
 
     func scan() {
         guard let root else { return }
+        if mode == .files {
+            scanStorageAnalysis()
+            return
+        }
         scanTask?.cancel()
         isScanning = true
         scanProgress = 0
@@ -178,13 +195,8 @@ final class CleanerViewModel: ObservableObject {
                 rebuildJunkGroups()
                 status = "找到 \(applications.count) 个应用。当前版本仅盘点，不会直接卸载。"
             case .files:
-                let found = await fileAnalyzer.largeFiles(in: root)
-                guard !Task.isCancelled, mode == .files else { return }
-                items = found
-                selectedIDs = []
-                rebuildJunkGroups()
-                status = "找到 \(found.count) 个超过 500 MB 的文件。大文件不代表垃圾。"
-            case .loginItems, .backgroundActivity, .extensions:
+                break
+            case .performance, .loginItems, .backgroundActivity, .extensions:
                 break
             }
             lastScanAt = Date()
@@ -194,12 +206,91 @@ final class CleanerViewModel: ObservableObject {
         }
     }
 
+    func scanStorageAnalysis() {
+        scanTask?.cancel()
+        let home = FileManager.default.homeDirectoryForCurrentUser.standardizedFileURL
+        let selectedRoot = (root ?? home).standardizedFileURL
+        root = selectedRoot
+        let roots: [URL]
+        if selectedRoot == home {
+            roots = [
+                home,
+                URL(fileURLWithPath: "/Applications", isDirectory: true),
+                URL(fileURLWithPath: "/System/Applications", isDirectory: true),
+                URL(fileURLWithPath: "/Library", isDirectory: true)
+            ]
+        } else {
+            roots = [selectedRoot]
+        }
+
+        isScanning = true
+        scanProgress = 0
+        inspectedFileCount = 0
+        discoveredBytes = 0
+        currentScanCategory = selectedRoot == home ? "用户目录与系统应用" : selectedRoot.lastPathComponent
+        status = "正在统计文件占用…"
+        scanTask = Task {
+            let analysis = await fileAnalyzer.storageAnalysis(
+                roots: roots,
+                volumeURL: URL(fileURLWithPath: "/", isDirectory: true)
+            ) { [weak self] progress in
+                Task { @MainActor [weak self] in
+                    guard let self, self.mode == .files, self.isScanning else { return }
+                    self.currentScanCategory = progress.currentRoot.lastPathComponent.isEmpty
+                        ? progress.currentRoot.path
+                        : progress.currentRoot.lastPathComponent
+                    self.inspectedFileCount = progress.inspectedFiles
+                    self.discoveredBytes = progress.scannedBytes
+                }
+            }
+            guard !Task.isCancelled, mode == .files else { return }
+            storageAnalysis = analysis
+            items = analysis.largeFiles
+            selectedIDs = []
+            lastScanAt = Date()
+            hasAnalyzedStorage = true
+            isScanning = false
+            currentScanCategory = "分析完成"
+            status = "已分析 \(analysis.scannedFileCount) 个文件，共归类 \(ByteCountFormatter.string(fromByteCount: analysis.scannedBytes, countStyle: .file))。"
+        }
+    }
+
     func cancelScan() {
         scanTask?.cancel()
         scanTask = nil
         isScanning = false
         currentScanCategory = "扫描已取消"
         status = "扫描已取消。"
+    }
+
+    func startPerformanceMonitoring() {
+        performanceTask?.cancel()
+        isPerformanceMonitoring = true
+        status = "正在监控 CPU 与内存…"
+        performanceTask = Task { [weak self] in
+            guard let self else { return }
+            while !Task.isCancelled, mode == .performance {
+                let snapshot = performanceMonitor.sample()
+                performanceSnapshot = snapshot
+                performanceHistory.append(PerformanceHistoryPoint(
+                    sampledAt: snapshot.sampledAt,
+                    cpuPercent: snapshot.cpuPercent,
+                    memoryPressurePercent: snapshot.memoryPressure * 100
+                ))
+                if performanceHistory.count > 30 {
+                    performanceHistory.removeFirst(performanceHistory.count - 30)
+                }
+                status = "CPU \(Int(snapshot.cpuPercent.rounded()))% · 内存压力\(snapshot.memoryPressureLevel.rawValue)"
+                try? await Task.sleep(for: .seconds(2))
+            }
+        }
+    }
+
+    func stopPerformanceMonitoring() {
+        performanceTask?.cancel()
+        performanceTask = nil
+        isPerformanceMonitoring = false
+        status = "性能监控已暂停。"
     }
 
     private func scanJunk(root: URL) async -> [ScanItem] {
@@ -219,6 +310,9 @@ final class CleanerViewModel: ObservableObject {
         scanTask?.cancel()
         scanTask = nil
         inventoryTask?.cancel()
+        performanceTask?.cancel()
+        performanceTask = nil
+        isPerformanceMonitoring = false
         isScanning = false
         mode = newMode
         root = nil
@@ -235,7 +329,16 @@ final class CleanerViewModel: ObservableObject {
                 status = "正在读取已安装应用…"
                 scanInstalledApplications()
             }
-        case .files: status = "请选择要分析的大文件目录。"
+        case .files:
+            root = FileManager.default.homeDirectoryForCurrentUser
+            if hasAnalyzedStorage, let storageAnalysis {
+                status = "已缓存 \(storageAnalysis.scannedFileCount) 个文件的分析结果；点击刷新可重新分析。"
+            } else {
+                status = "点击开始分析系统存储，或选择一个目录单独分析。"
+            }
+        case .performance:
+            status = "正在监控 CPU 与内存…"
+            startPerformanceMonitoring()
         case .loginItems:
             if hasScannedLoginApplications {
                 status = "已缓存 \(loginApplications.count) 个登录项；点击刷新可重新扫描。"

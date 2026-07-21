@@ -1,4 +1,5 @@
 import AppKit
+import Charts
 import SiftCore
 import SwiftUI
 
@@ -9,6 +10,12 @@ private enum SoftwareTab: String, CaseIterable, Identifiable {
     case user = "用户"
     case system = "系统"
     case commandLine = "命令行"
+    var id: String { rawValue }
+}
+
+private enum PerformanceSort: String, CaseIterable, Identifiable {
+    case cpu = "CPU"
+    case memory = "内存"
     var id: String { rawValue }
 }
 
@@ -33,6 +40,8 @@ struct ContentView: View {
     @State private var selectedCommandLineTool: CommandLineTool?
     @State private var hoveredSoftwareID: String?
     @State private var inventorySearch = ""
+    @State private var performanceSort: PerformanceSort = .cpu
+    @State private var showingMemoryHelp = false
 
     var body: some View {
         HStack(spacing: 0) {
@@ -44,6 +53,7 @@ struct ContentView: View {
                 case .junk: junkView
                 case .uninstall: uninstallView
                 case .files: filesView
+                case .performance: performanceView
                 case .loginItems: loginItemsView
                 case .backgroundActivity: backgroundActivityView
                 case .extensions: extensionsView
@@ -117,7 +127,8 @@ struct ContentView: View {
             sideButton(.home, icon: "house.fill")
             sideButton(.junk, icon: "paintbrush.fill")
             sideButton(.uninstall, icon: "app.badge.checkmark")
-            sideButton(.files, icon: "internaldrive")
+            sideButton(.files, icon: "chart.pie.fill")
+            sideButton(.performance, icon: "gauge.with.dots.needle.67percent")
             systemInventorySideButton
             Spacer()
             Button(action: {}) {
@@ -211,7 +222,8 @@ struct ContentView: View {
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                     homeTile(title: "垃圾清理", subtitle: junkSummary, icon: "paintbrush", mode: .junk)
                     homeTile(title: "软件卸载", subtitle: "查找应用与关联残留", icon: "app.badge.checkmark", mode: .uninstall)
-                    homeTile(title: "大文件", subtitle: "查找超过 500 MB 的文件", icon: "doc.badge.ellipsis", mode: .files)
+                    homeTile(title: "存储分析", subtitle: "查看磁盘分类与大文件", icon: "chart.pie.fill", mode: .files)
+                    homeTile(title: "性能监控", subtitle: "CPU、内存压力与高占用应用", icon: "gauge.with.dots.needle.67percent", mode: .performance)
                     homeTile(title: "开发工具缓存", subtitle: "npm、Python、Cargo、Xcode", icon: "chevron.left.forwardslash.chevron.right", mode: .junk)
                     homeTile(title: "登录项", subtitle: "管理登录时自动打开的 App", icon: "person.badge.key", mode: .loginItems)
                     homeTile(title: "后台活动", subtitle: "检查后台代理与服务", icon: "waveform.path.ecg", mode: .backgroundActivity)
@@ -1470,18 +1482,590 @@ struct ContentView: View {
         NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/System Settings.app"))
     }
 
-    private var filesView: some View {
+    private var performanceView: some View {
         VStack(spacing: 0) {
-            header(title: "文件扫描", subtitle: "查看占用空间较大的文件", trailing: AnyView(Button("选择目录", action: model.chooseFolder)))
-                .padding(18)
-            Divider()
-            if model.items.isEmpty {
-                ContentUnavailableView("选择要扫描的目录", systemImage: "internaldrive", description: Text("查找超过 500 MB 的文件"))
+            header(
+                title: "性能监控",
+                subtitle: "本地查看 CPU、内存压力与高占用应用",
+                trailing: AnyView(
+                    Button {
+                        if model.isPerformanceMonitoring {
+                            model.stopPerformanceMonitoring()
+                        } else {
+                            model.startPerformanceMonitoring()
+                        }
+                    } label: {
+                        Label(model.isPerformanceMonitoring ? "暂停" : "继续", systemImage: model.isPerformanceMonitoring ? "pause.fill" : "play.fill")
+                    }
+                )
+            )
+            .padding(18)
+
+            if let snapshot = model.performanceSnapshot {
+                performanceContent(snapshot)
             } else {
-                List(model.items) { item in
-                    HStack { Image(systemName: "doc"); Text(item.url.lastPathComponent); Spacer(); Text(formatted(item.bytes)).monospacedDigit() }
+                VStack(spacing: 13) {
+                    Spacer()
+                    ProgressView().controlSize(.large)
+                    Text("正在采集性能数据…").font(.system(size: 14, weight: .semibold))
+                    Text("第一次 CPU 采样约需 2 秒").font(.caption).foregroundStyle(.secondary)
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+    }
+
+    private func performanceContent(_ snapshot: PerformanceSnapshot) -> some View {
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 14) {
+                HStack(spacing: 12) {
+                    cpuMetricCard(snapshot)
+                    memoryMetricCard(snapshot)
+                }
+                computeHardwareCard(snapshot.computeHardware)
+                performanceTrendCard
+                resourceApplicationList(snapshot)
+                Text("数据每 2 秒在本机更新一次；离开此页面或点击暂停后会停止采样。应用排行只显示当前可识别的图形应用进程。")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, 18)
+            .padding(.bottom, 18)
+        }
+    }
+
+    private func cpuMetricCard(_ snapshot: PerformanceSnapshot) -> some View {
+        VStack(alignment: .leading, spacing: 13) {
+            HStack {
+                Label("CPU", systemImage: "cpu.fill").font(.system(size: 14, weight: .semibold))
+                Spacer()
+                Circle().fill(model.isPerformanceMonitoring ? Color.green : Color.secondary)
+                    .frame(width: 7, height: 7)
+                Text(model.isPerformanceMonitoring ? "实时" : "已暂停")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text(snapshot.cpuPercent.formatted(.number.precision(.fractionLength(0))))
+                    .font(.system(size: 32, weight: .semibold, design: .rounded)).monospacedDigit()
+                Text("%").font(.system(size: 15, weight: .medium)).foregroundStyle(.secondary)
+            }
+            ProgressView(value: snapshot.cpuPercent, total: 100)
+                .tint(snapshot.cpuPercent > 85 ? Color.orange : Color.accentColor)
+            HStack {
+                Text("系统总使用率")
+                Spacer()
+                Label(thermalStateText(snapshot.thermalState), systemImage: "thermometer.medium")
+            }
+            .font(.caption).foregroundStyle(.secondary)
+        }
+        .padding(15)
+        .frame(maxWidth: .infinity, minHeight: 154)
+        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func memoryMetricCard(_ snapshot: PerformanceSnapshot) -> some View {
+        let color = memoryPressureColor(snapshot.memoryPressureLevel)
+        return VStack(alignment: .leading, spacing: 13) {
+            HStack(spacing: 6) {
+                Label("内存压力", systemImage: "memorychip.fill").font(.system(size: 14, weight: .semibold))
+                Button { showingMemoryHelp.toggle() } label: {
+                    Image(systemName: "questionmark.circle")
+                        .font(.system(size: 12, weight: .semibold)).foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .help("了解 macOS 的内存管理")
+                .popover(isPresented: $showingMemoryHelp, arrowEdge: .bottom) {
+                    VStack(alignment: .leading, spacing: 9) {
+                        Label("为什么没有“释放内存”？", systemImage: "questionmark.circle.fill")
+                            .font(.system(size: 14, weight: .semibold))
+                        Text("macOS 会主动利用空闲内存作为文件缓存，这些缓存会在应用需要时自动释放。强制“释放内存”通常会清空有用缓存，反而让系统变慢。")
+                            .font(.system(size: 12)).fixedSize(horizontal: false, vertical: true)
+                        Text("判断是否需要处理时，应优先关注内存压力和交换空间。")
+                            .font(.system(size: 12, weight: .medium)).foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .padding(16)
+                    .frame(width: 340, alignment: .leading)
+                    .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer()
+                Text(snapshot.memoryPressureLevel.rawValue)
+                    .font(.caption.weight(.semibold)).foregroundStyle(color)
+                    .padding(.horizontal, 8).padding(.vertical, 3)
+                    .background(color.opacity(0.12), in: Capsule())
+            }
+            HStack(alignment: .firstTextBaseline, spacing: 5) {
+                Text(formatted(snapshot.usedMemory))
+                    .font(.system(size: 27, weight: .semibold, design: .rounded)).monospacedDigit()
+                Text("/ \(formatted(snapshot.physicalMemory))")
+                    .font(.system(size: 12)).foregroundStyle(.secondary).monospacedDigit()
+            }
+            ProgressView(value: snapshot.memoryPressure, total: 1).tint(color)
+            HStack {
+                Text("缓存 \(formatted(snapshot.cachedMemory))")
+                Spacer()
+                Text("交换 \(formatted(snapshot.swapUsed))")
+            }
+            .font(.caption).foregroundStyle(.secondary).monospacedDigit()
+        }
+        .padding(15)
+        .frame(maxWidth: .infinity, minHeight: 154)
+        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func computeHardwareCard(_ hardware: ComputeHardwareInfo) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("计算硬件")
+                .font(.system(size: 14, weight: .semibold))
+                .padding(.horizontal, 14).padding(.top, 13).padding(.bottom, 8)
+            computeHardwareRow(
+                icon: "display",
+                title: "GPU",
+                subtitle: hardware.recommendedGPUWorkingSet > 0
+                    ? "\(hardware.gpuName) · 建议工作集 \(formatted(hardware.recommendedGPUWorkingSet))"
+                    : hardware.gpuName,
+                status: hardware.hasUnifiedMemory ? "统一内存" : "独立显存",
+                color: .blue
+            )
+            Divider().padding(.leading, 50)
+            computeHardwareRow(
+                icon: "brain.head.profile",
+                title: "Neural Engine",
+                subtitle: hardware.neuralEngineAvailable ? "可供 Core ML 调度使用" : "没有检测到可用的神经网络引擎",
+                status: hardware.neuralEngineAvailable ? "可用" : "不可用",
+                color: hardware.neuralEngineAvailable ? .purple : .secondary
+            )
+            Divider().padding(.leading, 50)
+            appleIntelligenceRow(hardware.appleIntelligenceState)
+        }
+        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func computeHardwareRow(icon: String, title: String, subtitle: String, status: String, color: Color) -> some View {
+        HStack(spacing: 11) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 7).fill(color.opacity(0.12))
+                Image(systemName: icon).foregroundStyle(color)
+            }
+            .frame(width: 32, height: 32)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title).font(.system(size: 12, weight: .semibold))
+                Text(subtitle).font(.caption).foregroundStyle(.secondary).lineLimit(2)
+            }
+            Spacer()
+            Text(status)
+                .font(.caption.weight(.semibold)).foregroundStyle(color)
+                .padding(.horizontal, 8).padding(.vertical, 3)
+                .background(color.opacity(0.10), in: Capsule())
+        }
+        .padding(.horizontal, 14).frame(minHeight: 55)
+    }
+
+    private func appleIntelligenceRow(_ state: AppleIntelligenceState) -> some View {
+        let presentation = appleIntelligencePresentation(state)
+        return computeHardwareRow(
+            icon: "sparkles",
+            title: "Apple Intelligence",
+            subtitle: presentation.explanation,
+            status: presentation.status,
+            color: presentation.color
+        )
+    }
+
+    private func appleIntelligencePresentation(_ state: AppleIntelligenceState) -> (status: String, explanation: String, color: Color) {
+        switch state {
+        case .available:
+            ("可用", "系统本地语言模型已准备好，可供支持的 App 使用", .green)
+        case .notEnabled:
+            ("未开启", "设备支持，但尚未在系统设置中开启 Apple Intelligence", .orange)
+        case .deviceNotEligible:
+            ("设备不支持", "当前 Mac 不符合 Apple Intelligence 的硬件要求", .secondary)
+        case .modelNotReady:
+            ("模型未就绪", "模型可能仍在准备，或当前语言与地区暂不可用", .orange)
+        case .unsupportedSystem:
+            ("系统不支持", "需要 macOS 26 或更高版本才能检查系统语言模型", .secondary)
+        case .unknown:
+            ("状态未知", "系统没有返回可识别的可用状态", .secondary)
+        }
+    }
+
+    private var performanceTrendCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("最近 60 秒").font(.system(size: 14, weight: .semibold))
+                Spacer()
+                Label("CPU", systemImage: "circle.fill").foregroundStyle(Color.accentColor)
+                Label("内存压力", systemImage: "circle.fill").foregroundStyle(Color.purple)
+            }
+            .font(.caption)
+            Chart(model.performanceHistory) { point in
+                LineMark(
+                    x: .value("时间", point.sampledAt),
+                    y: .value("CPU", point.cpuPercent),
+                    series: .value("指标", "CPU")
+                )
+                .foregroundStyle(Color.accentColor)
+                .interpolationMethod(.catmullRom)
+                LineMark(
+                    x: .value("时间", point.sampledAt),
+                    y: .value("内存压力", point.memoryPressurePercent),
+                    series: .value("指标", "内存压力")
+                )
+                .foregroundStyle(Color.purple)
+                .interpolationMethod(.catmullRom)
+            }
+            .chartYScale(domain: 0...100)
+            .chartXAxis(.hidden)
+            .chartYAxis {
+                AxisMarks(position: .leading, values: [0, 50, 100]) { value in
+                    AxisGridLine().foregroundStyle(Color.secondary.opacity(0.12))
+                    AxisValueLabel { if let number = value.as(Int.self) { Text("\(number)%") } }
                 }
             }
+            .frame(height: 138)
+        }
+        .padding(15)
+        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func resourceApplicationList(_ snapshot: PerformanceSnapshot) -> some View {
+        let applications = snapshot.applications.sorted { lhs, rhs in
+            performanceSort == .cpu ? lhs.cpuPercent > rhs.cpuPercent : lhs.memoryBytes > rhs.memoryBytes
+        }
+        return VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("资源占用最高的应用").font(.system(size: 15, weight: .semibold))
+                Spacer()
+                Picker("排序", selection: $performanceSort) {
+                    ForEach(PerformanceSort.allCases) { sort in Text(sort.rawValue).tag(sort) }
+                }
+                .pickerStyle(.segmented).frame(width: 150)
+            }
+            VStack(spacing: 0) {
+                HStack {
+                    Text("应用").frame(maxWidth: .infinity, alignment: .leading)
+                    Text("CPU").frame(width: 70, alignment: .trailing)
+                    Text("内存").frame(width: 92, alignment: .trailing)
+                }
+                .font(.caption).foregroundStyle(.secondary)
+                .padding(.horizontal, 13).frame(height: 32)
+                Divider()
+                ForEach(Array(applications.prefix(12).enumerated()), id: \.element.id) { index, application in
+                    resourceApplicationRow(application)
+                    if index < min(applications.count, 12) - 1 { Divider().padding(.leading, 48) }
+                }
+            }
+            .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+        }
+    }
+
+    private func resourceApplicationRow(_ application: ApplicationResourceUsage) -> some View {
+        HStack(spacing: 10) {
+            Group {
+                if let url = application.bundleURL {
+                    Image(nsImage: NSWorkspace.shared.icon(forFile: url.path)).resizable()
+                } else {
+                    Image(systemName: "app.fill").resizable().scaledToFit().padding(5).foregroundStyle(.secondary)
+                }
+            }
+            .frame(width: 28, height: 28)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(application.name).font(.system(size: 12, weight: .medium)).lineLimit(1)
+                Text("PID \(application.processIdentifier)").font(.caption2).foregroundStyle(.tertiary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            Text("\(application.cpuPercent.formatted(.number.precision(.fractionLength(1))))%")
+                .font(.system(size: 12)).monospacedDigit().frame(width: 70, alignment: .trailing)
+            Text(formatted(application.memoryBytes))
+                .font(.system(size: 12)).monospacedDigit().frame(width: 92, alignment: .trailing)
+        }
+        .padding(.horizontal, 13).frame(minHeight: 48)
+        .contextMenu {
+            if let url = application.bundleURL { Button("在 Finder 中显示") { reveal(url) } }
+        }
+    }
+
+    private func memoryPressureColor(_ level: MemoryPressureLevel) -> Color {
+        switch level {
+        case .normal: .green
+        case .elevated: .orange
+        case .critical: .red
+        }
+    }
+
+    private func thermalStateText(_ state: ProcessInfo.ThermalState) -> String {
+        switch state {
+        case .nominal: "温度正常"
+        case .fair: "温度稍高"
+        case .serious: "温度较高"
+        case .critical: "温度过高"
+        @unknown default: "温度未知"
+        }
+    }
+
+    private var filesView: some View {
+        VStack(spacing: 0) {
+            header(
+                title: "存储分析",
+                subtitle: "了解磁盘、常见目录与大文件的空间占用",
+                trailing: AnyView(
+                    HStack(spacing: 8) {
+                        Button("选择目录", action: model.chooseFolder)
+                        if model.isScanning {
+                            Button("取消", role: .cancel, action: model.cancelScan)
+                        } else if model.storageAnalysis != nil {
+                            Button(action: model.scanStorageAnalysis) {
+                                Label("刷新", systemImage: "arrow.clockwise")
+                            }
+                        }
+                    }
+                )
+            )
+                .padding(18)
+            if let analysis = model.storageAnalysis {
+                storageAnalysisContent(analysis)
+            } else if model.isScanning {
+                storageAnalysisLoading
+            } else {
+                storageAnalysisEmptyView
+            }
+        }
+    }
+
+    private var storageAnalysisEmptyView: some View {
+        VStack(spacing: 0) {
+            Spacer(minLength: 34)
+            ZStack {
+                Circle()
+                    .fill(LinearGradient(
+                        colors: [Color.accentColor.opacity(0.16), Color.indigo.opacity(0.04)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ))
+                    .frame(width: 176, height: 176)
+                Circle().stroke(Color.accentColor.opacity(0.10), lineWidth: 1)
+                    .frame(width: 146, height: 146)
+                Image(systemName: "chart.pie.fill")
+                    .symbolRenderingMode(.palette)
+                    .foregroundStyle(Color.accentColor, Color.accentColor.opacity(0.20))
+                    .font(.system(size: 62, weight: .light))
+            }
+            .padding(.bottom, 24)
+
+            Text("了解 Mac 的空间都用在哪里")
+                .font(.system(size: 24, weight: .semibold, design: .rounded))
+            Text("统计常见目录并按内容分类，同时列出占用较大的文件")
+                .font(.system(size: 13)).foregroundStyle(.secondary).padding(.top, 7)
+
+            HStack(spacing: 18) {
+                scanPromise(icon: "lock.shield", text: "本地分析")
+                scanPromise(icon: "eye.slash", text: "不读取内容")
+                scanPromise(icon: "trash.slash", text: "不会自动删除")
+            }
+            .padding(.vertical, 22)
+
+            Button(action: model.scanStorageAnalysis) {
+                HStack(spacing: 9) {
+                    Image(systemName: "chart.pie").font(.system(size: 14, weight: .bold))
+                    Text("开始分析").font(.system(size: 14, weight: .semibold))
+                    Image(systemName: "arrow.right").font(.system(size: 12, weight: .bold))
+                }
+                .foregroundStyle(.white)
+                .frame(width: 214, height: 46)
+                .background {
+                    Capsule(style: .continuous)
+                        .fill(LinearGradient(
+                            colors: [Color(red: 0.12, green: 0.43, blue: 0.96), Color(red: 0.18, green: 0.58, blue: 0.98)],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        ))
+                        .shadow(color: Color.accentColor.opacity(0.25), radius: 12, y: 5)
+                }
+            }
+            .buttonStyle(.plain)
+            .keyboardShortcut(.return, modifiers: [])
+            Spacer(minLength: 48)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var storageAnalysisLoading: some View {
+        VStack(spacing: 16) {
+            Spacer()
+            ProgressView().controlSize(.large)
+            Text("正在分析\(model.currentScanCategory)")
+                .font(.system(size: 15, weight: .semibold))
+            Text("已检查 \(model.inspectedFileCount) 个文件 · 已统计 \(formatted(model.discoveredBytes))")
+                .font(.system(size: 12)).foregroundStyle(.secondary).monospacedDigit()
+            Text("只读取文件大小和路径，不读取文件内容")
+                .font(.caption).foregroundStyle(.tertiary)
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func storageAnalysisContent(_ analysis: StorageAnalysis) -> some View {
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 14) {
+                if model.isScanning {
+                    HStack(spacing: 10) {
+                        ProgressView().controlSize(.small)
+                        Text("正在刷新：已检查 \(model.inspectedFileCount) 个文件")
+                            .font(.system(size: 12, weight: .medium))
+                        Spacer()
+                        Text(formatted(model.discoveredBytes)).font(.caption).foregroundStyle(.secondary).monospacedDigit()
+                    }
+                    .padding(11)
+                    .background(Color.accentColor.opacity(0.08), in: RoundedRectangle(cornerRadius: 9))
+                }
+
+                storageVolumeCard(analysis)
+
+                Text("已分析目录")
+                    .font(.system(size: 15, weight: .semibold))
+                VStack(spacing: 0) {
+                    ForEach(Array(analysis.categories.enumerated()), id: \.element.id) { index, usage in
+                        storageCategoryRow(usage, maximumBytes: analysis.categories.first?.bytes ?? 0)
+                        if index < analysis.categories.count - 1 { Divider().padding(.leading, 48) }
+                    }
+                }
+                .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+
+                HStack(alignment: .firstTextBaseline) {
+                    Text("大文件")
+                        .font(.system(size: 15, weight: .semibold))
+                    Spacer()
+                    Text("超过 500 MB · 仅供查看")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+
+                if analysis.largeFiles.isEmpty {
+                    HStack {
+                        Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
+                        Text("分析范围内没有超过 500 MB 的文件")
+                            .font(.system(size: 12)).foregroundStyle(.secondary)
+                        Spacer()
+                    }
+                    .padding(14)
+                    .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+                } else {
+                    VStack(spacing: 0) {
+                        ForEach(Array(analysis.largeFiles.prefix(50).enumerated()), id: \.element.id) { index, item in
+                            Button { reveal(item.url) } label: {
+                                HStack(spacing: 11) {
+                                    Image(systemName: "doc.fill")
+                                        .foregroundStyle(Color.accentColor).frame(width: 24)
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        Text(item.url.lastPathComponent)
+                                            .font(.system(size: 12, weight: .medium)).lineLimit(1)
+                                        Text(item.url.deletingLastPathComponent().path)
+                                            .font(.caption2).foregroundStyle(.secondary).lineLimit(1).truncationMode(.middle)
+                                    }
+                                    Spacer()
+                                    Text(formatted(item.bytes)).font(.system(size: 12, weight: .medium)).monospacedDigit()
+                                    Image(systemName: "arrow.forward.circle").foregroundStyle(.tertiary)
+                                }
+                                .padding(.horizontal, 13).frame(minHeight: 52)
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            if index < min(analysis.largeFiles.count, 50) - 1 { Divider().padding(.leading, 48) }
+                        }
+                    }
+                    .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+                }
+
+                Text("已统计 \(analysis.scannedFileCount) 个文件。分类容量是可读取目录的汇总；APFS 快照、系统保护内容和无法访问的目录仍会计入磁盘已用空间。")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, 18)
+            .padding(.bottom, 18)
+        }
+    }
+
+    private func storageVolumeCard(_ analysis: StorageAnalysis) -> some View {
+        let ratio = analysis.totalCapacity > 0
+            ? min(1, Double(analysis.usedCapacity) / Double(analysis.totalCapacity))
+            : 0
+        return VStack(alignment: .leading, spacing: 13) {
+            HStack {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("系统磁盘").font(.system(size: 14, weight: .semibold))
+                    Text("已使用 \(formatted(analysis.usedCapacity))，共 \(formatted(analysis.totalCapacity))")
+                        .font(.system(size: 11)).foregroundStyle(.secondary)
+                }
+                Spacer()
+                VStack(alignment: .trailing, spacing: 3) {
+                    Text(formatted(analysis.availableCapacity)).font(.system(size: 14, weight: .semibold)).monospacedDigit()
+                    Text("可用空间").font(.caption).foregroundStyle(.secondary)
+                }
+            }
+            ProgressView(value: ratio)
+                .tint(ratio > 0.9 ? Color.orange : Color.accentColor)
+            HStack {
+                Label("已分类 \(formatted(analysis.scannedBytes))", systemImage: "square.grid.2x2")
+                Spacer()
+                Text("上次分析 \(model.lastScanText)")
+            }
+            .font(.caption).foregroundStyle(.secondary)
+        }
+        .padding(15)
+        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func storageCategoryRow(_ usage: StorageCategoryUsage, maximumBytes: Int64) -> some View {
+        let fraction = maximumBytes > 0 ? Double(usage.bytes) / Double(maximumBytes) : 0
+        let color = storageCategoryColor(usage.category)
+        return HStack(spacing: 11) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 7).fill(color.opacity(0.13))
+                Image(systemName: storageCategoryIcon(usage.category)).foregroundStyle(color)
+            }
+            .frame(width: 32, height: 32)
+            VStack(alignment: .leading, spacing: 5) {
+                HStack {
+                    Text(usage.category.rawValue).font(.system(size: 12, weight: .medium))
+                    Text("\(usage.fileCount) 个文件").font(.caption2).foregroundStyle(.secondary)
+                }
+                GeometryReader { geometry in
+                    Capsule().fill(Color.secondary.opacity(0.10))
+                        .overlay(alignment: .leading) {
+                            Capsule().fill(color).frame(width: max(3, geometry.size.width * fraction))
+                        }
+                }
+                .frame(height: 5)
+            }
+            Spacer()
+            Text(formatted(usage.bytes)).font(.system(size: 12, weight: .medium)).monospacedDigit()
+        }
+        .padding(.horizontal, 13).frame(minHeight: 55)
+    }
+
+    private func storageCategoryIcon(_ category: StorageCategoryKind) -> String {
+        switch category {
+        case .applications: "app.fill"
+        case .documents: "doc.fill"
+        case .downloads: "arrow.down.circle.fill"
+        case .pictures: "photo.fill"
+        case .music: "music.note"
+        case .movies: "film.fill"
+        case .developer: "hammer.fill"
+        case .systemData: "gearshape.2.fill"
+        case .other: "archivebox.fill"
+        }
+    }
+
+    private func storageCategoryColor(_ category: StorageCategoryKind) -> Color {
+        switch category {
+        case .applications: .blue
+        case .documents: .indigo
+        case .downloads: .cyan
+        case .pictures: .pink
+        case .music: .purple
+        case .movies: .orange
+        case .developer: .mint
+        case .systemData: .gray
+        case .other: .brown
         }
     }
 
@@ -1509,5 +2093,7 @@ struct ContentView: View {
             set: { model.setItem(item, selected: $0) }
         )
     }
-    private func formatted(_ bytes: Int64) -> String { ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file) }
+    private func formatted(_ bytes: Int64) -> String {
+        bytes == 0 ? "0 KB" : ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
+    }
 }
