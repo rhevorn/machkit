@@ -8,4 +8,5 @@ enum FeatureMode: String, CaseIterable, Sendable {
     case loginItems = "登录项"
     case backgroundActivity = "后台活动"
     case extensions = "扩展"
+    case settings = "设置"
 }

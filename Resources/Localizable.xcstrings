@@ -1076,6 +1076,16 @@
         }
       }
     },
+    "外观" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appearance"
+          }
+        }
+      }
+    },
     "大文件" : {
       "localizations" : {
         "en" : {
@@ -2194,6 +2204,16 @@
         }
       }
     },
+    "更改会立即应用到所有 Sift 窗口。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Changes apply immediately to all Sift windows."
+          }
+        }
+      }
+    },
     "未开启" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2822,6 +2842,28 @@
         }
       }
     },
+    "浅色" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Light"
+          }
+        }
+      }
+    },
+    "深色" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dark"
+          }
+        }
+      }
+    },
     "清理所选" : {
       "localizations" : {
         "en" : {
@@ -3222,6 +3264,17 @@
         }
       }
     },
+    "简体中文" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Simplified Chinese"
+          }
+        }
+      }
+    },
     "管理登录时自动打开的 App" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3496,6 +3549,17 @@
         }
       }
     },
+    "英文" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "English"
+          }
+        }
+      }
+    },
     "范围" : {
       "localizations" : {
         "en" : {
@@ -3548,6 +3612,16 @@
         }
       }
     },
+    "语言" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Language"
+          }
+        }
+      }
+    },
     "请尝试其他关键词" : {
       "localizations" : {
         "en" : {
@@ -3591,6 +3665,16 @@
         }
       }
     },
+    "调整 Sift 的语言和外观" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Customize Sift's language and appearance"
+          }
+        }
+      }
+    },
     "资源占用最高的应用" : {
       "localizations" : {
         "en" : {
@@ -3607,6 +3691,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Over 500 MB · View only"
+          }
+        }
+      }
+    },
+    "跟随系统" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System"
           }
         }
       }
@@ -3875,92 +3970,102 @@
         }
       }
     },
-    "外观" : {
+    "可以跟随 macOS，也可以固定为浅色或深色" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Appearance"
+            "value" : "Follow macOS, or keep Sift in Light or Dark mode"
           }
         }
       }
     },
-    "更改会立即应用到所有 Sift 窗口。" : {
+    "显示模式" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Changes apply immediately to all Sift windows."
+            "value" : "Display Mode"
           }
         }
       }
     },
-    "跟随系统" : {
+    "管理语言、外观与其他偏好设置" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "System"
+            "value" : "Manage language, appearance, and other preferences"
           }
         }
       }
     },
-    "简体中文" : {
+    "管理语言、外观与其他偏好设置。" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Simplified Chinese"
+            "value" : "Manage language, appearance, and other preferences."
           }
         }
       }
     },
-    "英文" : {
+    "设置 Sift 使用的界面语言" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "English"
+            "value" : "Choose the interface language Sift uses"
           }
         }
       }
     },
-    "浅色" : {
+    "语言与地区" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Light"
+            "value" : "Language & Region"
           }
         }
       }
     },
-    "深色" : {
+    "语言切换会立即应用，当前扫描结果和选择不会丢失。" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dark"
+            "value" : "Language changes apply immediately without losing scan results or selections."
           }
         }
       }
     },
-    "调整 Sift 的语言和外观" : {
+    "选择窗口使用的显示模式" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Customize Sift's language and appearance"
+            "value" : "Choose the display mode used by the window"
           }
         }
       }
     },
-    "语言" : {
+    "选择跟随系统，或为 Sift 单独指定语言" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Language"
+            "value" : "Follow the system language or choose one specifically for Sift"
+          }
+        }
+      }
+    },
+    "通用" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "General"
           }
         }
       }

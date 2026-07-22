@@ -40,7 +40,6 @@ private struct ExtensionGroup: Identifiable {
 }
 
 struct ContentView: View {
-    @Environment(\.openSettings) private var openSettings
     @AppStorage(AppPreferenceKey.language) private var languageRawValue = AppLanguage.system.rawValue
     @StateObject private var model = CleanerViewModel()
     @StateObject private var permissions = PermissionManager()
@@ -71,6 +70,7 @@ struct ContentView: View {
                 case .loginItems: loginItemsView
                 case .backgroundActivity: backgroundActivityView
                 case .extensions: extensionsView
+                case .settings: AppSettingsView()
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -159,14 +159,7 @@ struct ContentView: View {
             sideButton(.ports, icon: "network")
             systemInventorySideButton
             Spacer()
-            Button(action: { openSettings() }) {
-                VStack(spacing: 5) {
-                    Image(systemName: "gearshape").font(.system(size: 17))
-                    Text("设置").font(.system(size: 10))
-                }
-                .frame(width: 60, height: 50)
-                .contentShape(Rectangle())
-            }.buttonStyle(.plain).foregroundStyle(.secondary)
+            sideButton(.settings, icon: "gearshape.fill")
             Button(action: {}) {
                 VStack(spacing: 5) {
                     Image(systemName: "bubble.left.and.bubble.right").font(.system(size: 16))

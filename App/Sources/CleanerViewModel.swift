@@ -202,7 +202,7 @@ final class CleanerViewModel: ObservableObject {
                 status = L10n.format("找到 %lld 个应用。当前版本仅盘点，不会直接卸载。", Int64(applications.count))
             case .files:
                 break
-            case .performance, .ports, .loginItems, .backgroundActivity, .extensions:
+            case .performance, .ports, .loginItems, .backgroundActivity, .extensions, .settings:
                 break
             }
             lastScanAt = Date()
@@ -434,6 +434,8 @@ final class CleanerViewModel: ObservableObject {
                 status = L10n.string("正在读取应用扩展…")
                 scanExtensions()
             }
+        case .settings:
+            status = L10n.string("管理语言、外观与其他偏好设置。")
         }
     }
 
@@ -456,6 +458,8 @@ final class CleanerViewModel: ObservableObject {
                 status = L10n.string("正在读取后台活动…")
             case .extensions:
                 status = L10n.string("正在读取应用扩展…")
+            case .settings:
+                status = L10n.string("管理语言、外观与其他偏好设置。")
             }
             return
         }
@@ -498,6 +502,8 @@ final class CleanerViewModel: ObservableObject {
             )
         case .extensions:
             status = L10n.format("已缓存 %lld 个扩展；点击刷新可重新扫描。", Int64(installedExtensions.count))
+        case .settings:
+            status = L10n.string("管理语言、外观与其他偏好设置。")
         }
     }
 

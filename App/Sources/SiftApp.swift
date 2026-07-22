@@ -22,9 +22,5 @@ struct SiftApp: App {
         }
         .windowStyle(.hiddenTitleBar)
         .defaultSize(width: 720, height: 820)
-
-        Settings {
-            AppSettingsView()
-        }
     }
 }
