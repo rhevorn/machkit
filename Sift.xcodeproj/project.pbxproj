@@ -21,6 +21,7 @@
 		A1000000000000000000000C /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000E /* Localization.swift */; };
 		A1000000000000000000000D /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000F /* Localizable.xcstrings */; };
 		A1000000000000000000000E /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000010 /* InfoPlist.xcstrings */; };
+		A1000000000000000000000F /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000011 /* AppSettings.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +41,7 @@
 		A2000000000000000000000E /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
 		A2000000000000000000000F /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		A20000000000000000000010 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
+		A20000000000000000000011 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,6 +94,7 @@
 				A20000000000000000000005 /* PermissionManager.swift */,
 				A2000000000000000000000D /* FeatureMode.swift */,
 				A2000000000000000000000E /* Localization.swift */,
+				A20000000000000000000011 /* AppSettings.swift */,
 			);
 			path = App/Sources;
 			sourceTree = "<group>";
@@ -234,6 +237,7 @@
 				A10000000000000000000005 /* PermissionManager.swift in Sources */,
 				A1000000000000000000000B /* FeatureMode.swift in Sources */,
 				A1000000000000000000000C /* Localization.swift in Sources */,
+				A1000000000000000000000F /* AppSettings.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -437,6 +437,70 @@ final class CleanerViewModel: ObservableObject {
         }
     }
 
+    func refreshLocalizedStatus() {
+        if isScanning {
+            switch mode {
+            case .home, .junk:
+                status = L10n.string("正在扫描…")
+            case .uninstall:
+                status = L10n.string("正在扫描已安装应用…")
+            case .files:
+                status = L10n.string("正在统计文件占用…")
+            case .performance:
+                status = L10n.string("正在监控 CPU 与内存…")
+            case .ports:
+                status = L10n.string("正在读取监听端口与进程信息…")
+            case .loginItems:
+                status = L10n.string("正在读取登录项…")
+            case .backgroundActivity:
+                status = L10n.string("正在读取后台活动…")
+            case .extensions:
+                status = L10n.string("正在读取应用扩展…")
+            }
+            return
+        }
+
+        switch mode {
+        case .home:
+            status = items.isEmpty
+                ? L10n.string("检查存储空间，快速进入常用工具。")
+                : L10n.format("扫描完成，发现 %lld 个候选文件。", Int64(items.count))
+        case .junk:
+            status = items.isEmpty
+                ? L10n.string("请选择你的用户目录，用于扫描缓存与日志。")
+                : L10n.format("找到 %lld 个候选文件。标记为“需确认”的项目不会默认选中。", Int64(items.count))
+        case .uninstall:
+            status = hasScannedApplications
+                ? L10n.format("已缓存 %lld 个应用；点击刷新可重新扫描。", Int64(applications.count))
+                : L10n.string("正在读取已安装应用…")
+        case .files:
+            if hasAnalyzedStorage, let storageAnalysis {
+                status = L10n.format(
+                    "已缓存 %lld 个文件的分析结果；点击刷新可重新分析。",
+                    Int64(storageAnalysis.scannedFileCount)
+                )
+            } else {
+                status = L10n.string("点击开始分析系统存储，或选择一个目录单独分析。")
+            }
+        case .performance:
+            status = isPerformanceMonitoring
+                ? L10n.string("正在监控 CPU 与内存…")
+                : L10n.string("性能监控已暂停。")
+        case .ports:
+            status = L10n.format("已缓存 %lld 个端口；点击刷新可重新扫描。", Int64(listeningPorts.count))
+        case .loginItems:
+            status = L10n.format("已缓存 %lld 个登录项；点击刷新可重新扫描。", Int64(loginApplications.count))
+        case .backgroundActivity:
+            status = L10n.format(
+                "已缓存 %lld 个 App 后台记录和 %lld 个后台配置；点击刷新可重新扫描。",
+                Int64(registeredBackgroundTasks.count),
+                Int64(backgroundItems.count)
+            )
+        case .extensions:
+            status = L10n.format("已缓存 %lld 个扩展；点击刷新可重新扫描。", Int64(installedExtensions.count))
+        }
+    }
+
     func scanLoginItems() {
         inventoryTask?.cancel()
         isScanning = true

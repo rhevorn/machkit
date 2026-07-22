@@ -40,6 +40,8 @@ private struct ExtensionGroup: Identifiable {
 }
 
 struct ContentView: View {
+    @Environment(\.openSettings) private var openSettings
+    @AppStorage(AppPreferenceKey.language) private var languageRawValue = AppLanguage.system.rawValue
     @StateObject private var model = CleanerViewModel()
     @StateObject private var permissions = PermissionManager()
     @State private var expandedGroups: Set<String> = []
@@ -141,6 +143,9 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
             permissions.refresh()
         }
+        .onChange(of: languageRawValue) { _, _ in
+            model.refreshLocalizedStatus()
+        }
     }
 
     private var sidebar: some View {
@@ -154,7 +159,7 @@ struct ContentView: View {
             sideButton(.ports, icon: "network")
             systemInventorySideButton
             Spacer()
-            Button(action: {}) {
+            Button(action: { openSettings() }) {
                 VStack(spacing: 5) {
                     Image(systemName: "gearshape").font(.system(size: 17))
                     Text("设置").font(.system(size: 10))

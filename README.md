@@ -121,7 +121,7 @@ open build/XcodeDerivedData/Build/Products/Debug/Sift.app
 
 App 使用固定 Bundle Identifier `dev.sift.app`，包含 Info.plist、Apple Events 权限说明、Entitlements 和完整的 macOS App Icon。为支持端口/进程管理和本地系统盘点，App Sandbox 默认关闭。
 
-界面支持简体中文和英文，并自动跟随 macOS 的 App 语言设置。可以在“系统设置 → 通用 → 语言与地区 → 应用程序”中为 Sift 单独选择语言；修改后重新启动 App 生效。
+界面支持简体中文和英文。打开 Sift 的“设置”（或按 `⌘,`）可以选择跟随系统、简体中文或英文，也可以选择跟随系统、浅色或深色外观；修改会立即应用到 App 窗口。
 
 ## Swift Package 开发
 
