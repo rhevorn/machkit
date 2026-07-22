@@ -1,373 +1,3891 @@
 {
   "sourceLanguage" : "zh-Hans",
   "strings" : {
-    "App 后台活动" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "App Background Activity" } } } },
-    "CPU %lld%% · 内存压力%@" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "CPU %lld%% · Memory pressure: %@" } } } },
-    "准备扫描" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Preparing to scan" } } } },
-    "分析完成" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Analysis complete" } } } },
-    "后台任务数据库已重建。请重启 Mac，让系统重新登记仍然有效的项目。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "The background task database was rebuilt. Restart your Mac so valid items can register again." } } } },
-    "后台任务数据库已重建，请重启 Mac。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Background task database rebuilt. Restart your Mac." } } } },
-    "尚未扫描" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Not scanned yet" } } } },
-    "已从登录项中移除 %@。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ was removed from Login Items." } } } },
-    "已向 %@ 发送退出请求。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "A quit request was sent to %@." } } } },
-    "已将 %@ 的启动配置移入废纸篓；当前进程可能会继续运行到退出或重启。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@'s launch configuration was moved to Trash. Its current process may continue until it exits or the Mac restarts." } } } },
-    "已将 %@ 移入废纸篓。重新登录后相关功能将不再加载。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ was moved to Trash. Its features will no longer load after you sign in again." } } } },
-    "已强制结束 %@。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ was force quit." } } } },
-    "已永久删除 %@ 的废纸篓残留；macOS 后台记录可能在重新登录后消失。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@'s Trash leftover was permanently deleted. Its macOS background record may disappear after you sign in again." } } } },
-    "已缓存 %lld 个应用；点击刷新可重新扫描。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld apps cached; refresh to scan again." } } } },
-    "已缓存 %lld 个扩展；点击刷新可重新扫描。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld extensions cached; refresh to scan again." } } } },
-    "已缓存 %lld 个文件的分析结果；点击刷新可重新分析。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Analysis of %lld files cached; refresh to analyze again." } } } },
-    "已缓存 %lld 个登录项；点击刷新可重新扫描。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld login items cached; refresh to scan again." } } } },
-    "已缓存 %lld 个端口；点击刷新可重新扫描。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld ports cached; refresh to scan again." } } } },
-    "已缓存 %lld 个 App 后台记录和 %lld 个后台配置；点击刷新可重新扫描。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld app background records and %lld background configurations cached; refresh to scan again." } } } },
-    "已选择 %@，尚未扫描。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ selected; not scanned yet." } } } },
-    "已选择 %@，点击开始分析。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ selected. Click Start Analysis." } } } },
-    "已分析 %lld 个文件，共归类 %@。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld files analyzed, %@ categorized." } } } },
-    "已移入废纸篓 %lld 项；失败 %lld 项。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld items moved to Trash; %lld failed." } } } },
-    "已移入废纸篓 %lld 项；失败 %lld 项。可从废纸篓恢复。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld items moved to Trash; %lld failed. Items can be restored from Trash." } } } },
-    "性能监控已暂停。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Performance monitoring paused." } } } },
-    "扫描完成" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Scan complete" } } } },
-    "扫描完成，发现 %lld 个候选文件。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Scan complete. %lld candidate files found." } } } },
-    "扫描已取消" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Scan canceled" } } } },
-    "扫描已取消。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Scan canceled." } } } },
-    "找到 %lld 个候选文件。标记为“需确认”的项目不会默认选中。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld candidate files found. Items marked ‘Review’ are not selected by default." } } } },
-    "找到 %lld 个应用。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld apps found." } } } },
-    "找到 %lld 个应用。当前版本仅盘点，不会直接卸载。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld apps found. This version inventories apps without uninstalling them directly." } } } },
-    "找到 %lld 个扩展。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld extensions found." } } } },
-    "找到 %lld 个登录项。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld login items found." } } } },
-    "找到 %lld 个监听端口。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld listening ports found." } } } },
-    "找到 %lld 个 App 后台记录和 %lld 个后台配置。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld app background records and %lld background configurations found." } } } },
-    "无法结束 %@：%@" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Unable to quit %@: %@" } } } },
-    "无法移除 %@：%@" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Unable to remove %@: %@" } } } },
-    "未知错误" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Unknown error" } } } },
-    "检查存储空间，快速进入常用工具。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Check storage and quickly access common tools." } } } },
-    "正在卸载 %@…" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Uninstalling %@…" } } } },
-    "正在将 %@ 移入废纸篓…" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Moving %@ to Trash…" } } } },
-    "正在强制结束 %@…" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Force quitting %@…" } } } },
-    "正在扫描…" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Scanning…" } } } },
-    "正在扫描已安装应用…" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Scanning installed apps…" } } } },
-    "正在查找 %@ 的关联文件…" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Finding files related to %@…" } } } },
-    "正在监控 CPU 与内存…" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Monitoring CPU and memory…" } } } },
-    "正在移除 %@ 的废纸篓残留…" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Removing %@'s Trash leftover…" } } } },
-    "正在移除登录项 %@…" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Removing login item %@…" } } } },
-    "正在统计文件占用…" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Measuring file usage…" } } } },
-    "正在请求 %@ 正常退出…" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Asking %@ to quit gracefully…" } } } },
-    "正在读取监听端口与进程信息…" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Reading listening ports and process information…" } } } },
-    "正在读取应用扩展…" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Reading app extensions…" } } } },
-    "正在重建后台任务数据库…" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Rebuilding background task database…" } } } },
-    "点击开始分析系统存储，或选择一个目录单独分析。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Start a system storage analysis, or choose a folder to analyze separately." } } } },
-    "用户目录与系统应用" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "User Folder and System Apps" } } } },
-    "请确认要移入废纸篓的内容。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Review the items to move to Trash." } } } },
-    "请选择你的用户目录或一个测试目录。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose your user folder or a test folder." } } } },
-    "请选择你的用户目录，用于扫描缓存与日志。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose your user folder to scan caches and logs." } } } },
-    "这个进程不能在 Sift 中结束。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "This process cannot be quit from Sift." } } } },
-    "选择 Applications 目录" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose Applications Folder" } } } },
-    "选择扫描目录" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose Scan Folder" } } } },
-    "CPU、内存压力与高占用应用" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "CPU, memory pressure, and resource-heavy apps" } } } },
-    "Mac 存储状态良好" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Mac storage looks good" } } } },
-    "Mac 需要一次存储检查" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Your Mac could use a storage check" } } } },
-    "不会自动删除" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Nothing is deleted automatically" } } } },
-    "不可用" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Unavailable" } } } },
-    "不读取内容" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Contents are not read" } } } },
-    "与 macOS 登录项保持一致" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Matches macOS Login Items" } } } },
-    "为什么没有“释放内存”？" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Why isn't there a ‘Free Memory’ button?" } } } },
-    "了解 Mac 的空间都用在哪里" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "See where your Mac storage is used" } } } },
-    "了解 macOS 的内存管理" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Understand macOS memory management" } } } },
-    "了解磁盘、常见目录与大文件的空间占用" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Inspect disk usage, common folders, and large files" } } } },
-    "使用 macOS 自带的 lsof 在本机扫描" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Scans locally using macOS lsof" } } } },
-    "全部" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "All" } } } },
-    "关联文件" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Related Files" } } } },
-    "关闭" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Close" } } } },
-    "内存" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Memory" } } } },
-    "内存压力" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Memory Pressure" } } } },
-    "分析范围内没有超过 500 MB 的文件" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "No files over 500 MB were found in this scope" } } } },
-    "刷新" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Refresh" } } } },
-    "占用空间" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Storage Used" } } } },
-    "卸载命令" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Uninstall Command" } } } },
-    "卸载应用" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Uninstall App" } } } },
-    "卸载应用…" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Uninstall App…" } } } },
-    "反馈" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Feedback" } } } },
-    "取消" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel" } } } },
-    "取消扫描" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel Scan" } } } },
-    "只读取文件大小和路径，不读取文件内容" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Reads file sizes and paths, not file contents" } } } },
-    "只读取文件属性，不读取或上传文件内容" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Reads file metadata only; contents are never read or uploaded" } } } },
-    "只读取组件信息，不修改系统配置" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Reads component information without changing system settings" } } } },
-    "可从废纸篓恢复" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Recoverable from Trash" } } } },
-    "可供 Core ML 调度使用" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Available to Core ML" } } } },
-    "可执行文件" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Executable" } } } },
-    "可清理" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Cleanable" } } } },
-    "可用" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Available" } } } },
-    "可用空间" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Available Space" } } } },
-    "后台活动" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Background Activity" } } } },
-    "后台活动说明" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "About Background Activity" } } } },
-    "启动后隐藏" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Hide After Launch" } } } },
-    "启动命令" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Launch Command" } } } },
-    "命令行" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Command Line" } } } },
-    "在 Finder 中显示" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Show in Finder" } } } },
-    "在 Finder 中显示可执行文件" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Show Executable in Finder" } } } },
-    "垃圾清理" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Junk Cleanup" } } } },
-    "大文件" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Large Files" } } } },
-    "好" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "OK" } } } },
-    "存储分析" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Storage Analysis" } } } },
-    "安装位置" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Installed At" } } } },
-    "安静、可靠地管理 Mac 存储空间" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "A quiet, reliable way to manage Mac storage" } } } },
-    "实时" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Live" } } } },
-    "对外开放" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Exposed" } } } },
-    "将所选文件移入废纸篓？" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Move selected files to Trash?" } } } },
-    "尝试其他端口号、进程名或路径" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Try another port, process name, or path" } } } },
-    "工作目录" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Working Directory" } } } },
-    "已分析目录" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Analyzed Folder" } } } },
-    "已发现" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Discovered" } } } },
-    "已暂停" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Paused" } } } },
-    "已检查" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Inspected" } } } },
-    "已自动读取这台 Mac 上的应用" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Apps on this Mac were detected automatically" } } } },
-    "已获得完全磁盘访问权限" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Full Disk Access granted" } } } },
-    "应用" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Apps" } } } },
-    "应用不存在" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "App Not Found" } } } },
-    "应用大小" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "App Size" } } } },
-    "应用程序和已勾选的关联文件都会移入废纸篓。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "The app and selected related files will be moved to Trash." } } } },
-    "应用详情与关联数据" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "App Details and Related Data" } } } },
-    "废纸篓可恢复" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Recoverable from Trash" } } } },
-    "废纸篓记录" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Trash Record" } } } },
-    "开发工具缓存" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Developer Caches" } } } },
-    "开始分析" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Start Analysis" } } } },
-    "开始扫描" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Start Scan" } } } },
-    "强制结束" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Force Quit" } } } },
-    "当前 Mac 不符合 Apple Intelligence 的硬件要求" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "This Mac does not meet Apple Intelligence hardware requirements" } } } },
-    "当前没有可显示的 TCP 监听端口或 UDP 绑定" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "No TCP listeners or UDP bindings to display" } } } },
-    "快速清理" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Quick Cleanup" } } } },
-    "性能监控" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Performance" } } } },
-    "打开后台设置" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Background Settings" } } } },
-    "打开工作目录" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Working Directory" } } } },
-    "打开扩展设置" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Extension Settings" } } } },
-    "打开登录项设置" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Login Item Settings" } } } },
-    "打开系统设置" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Open System Settings" } } } },
-    "扩展" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Extensions" } } } },
-    "扫描" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Scan" } } } },
-    "扫描可安全清理的缓存和日志" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Scan caches and logs that are safe to clean" } } } },
-    "扫描缓存、日志和开发工具残留，确认明细后再清理" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Scan caches, logs, and developer leftovers; review before cleaning" } } } },
-    "扫描缓存与日志" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Scan Caches and Logs" } } } },
-    "指标" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Metric" } } } },
-    "排序" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Sort" } } } },
-    "搜索后台项目、标签或路径" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Search background items, labels, or paths" } } } },
-    "搜索应用" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Search apps" } } } },
-    "搜索扩展、所属应用或 Bundle ID" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Search extensions, owning apps, or bundle IDs" } } } },
-    "搜索登录项或应用路径" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Search login items or app paths" } } } },
-    "搜索端口、进程、PID、路径或启动命令" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Search ports, processes, PIDs, paths, or commands" } } } },
-    "操作失败" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Operation Failed" } } } },
-    "文件不存在" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "File Not Found" } } } },
-    "无法读取" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Unable to Read" } } } },
-    "无法读取登录项" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Unable to Read Login Items" } } } },
-    "时间" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Time" } } } },
-    "显示" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Show" } } } },
-    "显示可执行文件" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Show Executable" } } } },
-    "暂停" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Pause" } } } },
-    "最近 60 秒" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Last 60 Seconds" } } } },
-    "未开启" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Not Enabled" } } } },
-    "未知" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Unknown" } } } },
-    "未识别" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Unrecognized" } } } },
-    "本地分析" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Local Analysis" } } } },
-    "本地扫描" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Local Scan" } } } },
-    "本地查看 CPU、内存压力与高占用应用" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Monitor CPU, memory pressure, and top apps locally" } } } },
-    "查找并结束遗忘的开发服务" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Find and stop forgotten development servers" } } } },
-    "查找应用与关联残留" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Find apps and related leftovers" } } } },
-    "查看 TCP 监听端口、UDP 绑定及其进程" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Inspect TCP listeners, UDP bindings, and their processes" } } } },
-    "查看磁盘分类与大文件" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Inspect disk categories and large files" } } } },
-    "查看进程详情" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "View Process Details" } } } },
-    "检查后台代理与服务" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Inspect background agents and services" } } } },
-    "模型未就绪" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Model Not Ready" } } } },
-    "正在扫描" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Scanning" } } } },
-    "正在检查已安装应用…" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Inspecting installed apps…" } } } },
-    "正在读取后台活动…" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Reading background activity…" } } } },
-    "正在读取已安装应用…" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Reading installed apps…" } } } },
-    "正在读取登录项…" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Reading login items…" } } } },
-    "正在读取端口与进程信息…" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Reading ports and processes…" } } } },
-    "正在采集性能数据…" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Collecting performance data…" } } } },
-    "正常结束" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Quit Gracefully" } } } },
-    "永久移除" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Remove Permanently" } } } },
-    "永久移除这个后台残留？" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Permanently remove this background leftover?" } } } },
-    "没有匹配的后台项目" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "No matching background items" } } } },
-    "没有匹配的扩展" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "No matching extensions" } } } },
-    "没有匹配的登录项" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "No matching login items" } } } },
-    "没有匹配结果" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "No Results" } } } },
-    "没有发现关联残留文件。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "No related leftover files found." } } } },
-    "没有发现后台项目" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "No Background Items" } } } },
-    "没有发现扩展" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "No Extensions Found" } } } },
-    "没有发现端口" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "No Ports Found" } } } },
-    "没有登录项" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "No Login Items" } } } },
-    "清理所选" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Clean Selected" } } } },
-    "清理所选项目" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Clean Selected Items" } } } },
-    "温度未知" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Thermal State Unknown" } } } },
-    "温度正常" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Thermal State Normal" } } } },
-    "温度稍高" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Thermal State Elevated" } } } },
-    "温度较高" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Thermal State High" } } } },
-    "温度过高" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Thermal State Critical" } } } },
-    "版本" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Version" } } } },
-    "状态未知" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Status Unknown" } } } },
-    "独立显存" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Dedicated Memory" } } } },
-    "用户 UID" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "User UID" } } } },
-    "用户" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "User" } } } },
-    "由包管理器安装的命令行工具" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Command-line tools installed by package managers" } } } },
-    "登录时打开" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Open at Login" } } } },
-    "登录项" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Login Items" } } } },
-    "登录项与扩展" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Login Items & Extensions" } } } },
-    "监听范围" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Listening Scope" } } } },
-    "确认卸载这个应用？" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Uninstall this app?" } } } },
-    "移入废纸篓" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Move to Trash" } } } },
-    "移除" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Remove" } } } },
-    "移除这个后台项目？" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Remove this background item?" } } } },
-    "移除这个扩展？" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Remove this extension?" } } } },
-    "移除这个登录项？" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Remove this login item?" } } } },
-    "立即检查" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Check Now" } } } },
-    "端口" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Port" } } } },
-    "端口管理" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Port Manager" } } } },
-    "第一次 CPU 采样约需 2 秒" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "The first CPU sample takes about 2 seconds" } } } },
-    "第三方" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Third Party" } } } },
-    "等待扫描" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Waiting to Scan" } } } },
-    "筛选" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Filter" } } } },
-    "管理登录时自动打开的 App" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Manage apps that open at login" } } } },
-    "管理登录项、后台活动与应用扩展" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Manage login items, background activity, and extensions" } } } },
-    "系统" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "System" } } } },
-    "系统不支持" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Not Supported" } } } },
-    "系统保护" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "System Protected" } } } },
-    "系统总使用率" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Total System Usage" } } } },
-    "系统磁盘" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "System Disk" } } } },
-    "系统记录" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "System Record" } } } },
-    "绑定地址" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Bind Address" } } } },
-    "结束" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Quit" } } } },
-    "结束占用此端口的整个进程" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Quit the process using this port" } } } },
-    "结束这个进程？" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Quit this process?" } } } },
-    "结束进程" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Quit Process" } } } },
-    "给 Mac 做一次轻量清理" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Give your Mac a light cleanup" } } } },
-    "统一内存" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Unified Memory" } } } },
-    "统计常见目录并按内容分类，同时列出占用较大的文件" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Categorize common folders and list large files" } } } },
-    "继续" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Continue" } } } },
-    "缓存、日志、安装包与开发工具垃圾" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Caches, logs, installers, and developer junk" } } } },
-    "自动启动" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Run at Load" } } } },
-    "范围" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Scope" } } } },
-    "计算硬件" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Compute Hardware" } } } },
-    "设备不支持" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Device Not Supported" } } } },
-    "设置" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Settings" } } } },
-    "请尝试其他关键词" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Try another search term" } } } },
-    "资源占用最高的应用" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Top Resource-Using Apps" } } } },
-    "超过 500 MB · 仅供查看" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Over 500 MB · View only" } } } },
-    "路径不可用" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Path Unavailable" } } } },
-    "软件卸载" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Uninstall" } } } },
-    "进程" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Process" } } } },
-    "进程路径未知" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Process path unknown" } } } },
-    "退出后重启" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Restart After Exit" } } } },
-    "选择目录" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose Folder" } } } },
-    "逐项确认" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Review Each Item" } } } },
-    "通常只需要几秒钟" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Usually takes only a few seconds" } } } },
-    "重建全部后台任务数据库？" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Rebuild the entire background task database?" } } } },
-    "重建数据库" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Rebuild Database" } } } },
-    "重新扫描" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Scan Again" } } } },
-    "需要完全磁盘访问权限" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Full Disk Access Required" } } } },
-    "项目类型" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Item Type" } } } },
-    "首页" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Home" } } } },
-    "仅本机" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Local Only" } } } },
-    "局域网" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Local Network" } } } },
-    "所有网络" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "All Interfaces" } } } },
-    "%" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%" } } } },
-    "%@ %@:%u" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ %@:%u" } } } },
-    "%@%%" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@%%" } } } },
-    "%lld" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld" } } } },
-    "%lld 个" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld" } } } },
-    "%lld 个 · %@" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld · %@" } } } },
-    "%lld 个应用 · %lld 个命令行工具" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld apps · %lld command-line tools" } } } },
-    "%lld 个文件" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld files" } } } },
-    "%lld 个文件 · %@" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld files · %@" } } } },
-    "%lld%%" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld%%" } } } },
-    "/ %@" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "/ %@" } } } },
-    "App Store" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "App Store" } } } },
-    "CPU" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "CPU" } } } },
-    "PID %d" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "PID %d" } } } },
-    "PID %d · %@" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "PID %d · %@" } } } },
-    "Sift" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Sift" } } } },
-    "macOS 会主动利用空闲内存作为文件缓存，这些缓存会在应用需要时自动释放。强制“释放内存”通常会清空有用缓存，反而让系统变慢。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "macOS uses free memory as a file cache and releases it automatically when apps need it. Forcing memory to be freed usually discards useful caches and can make the system slower." } } } },
-    "上次分析 %@" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Last analyzed %@" } } } },
-    "为保证流畅，当前显示最大的 100 项；整组选中仍包含全部 %lld 项。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "For performance, only the 100 largest items are shown; selecting the group still includes all %lld items." } } } },
-    "交换 %@" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Swap %@" } } } },
-    "共 %lld 项，%@。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld items, %@ total." } } } },
-    "判断是否需要处理时，应优先关注内存压力和交换空间。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Use memory pressure and swap usage to decide whether action is needed." } } } },
-    "发现 %@ 可清理内容" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ of cleanable items found" } } } },
-    "可以扫描受保护的用户目录；文件内容不会上传。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Allows protected user folders to be scanned. File contents are never uploaded." } } } },
-    "可清理 %@" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ cleanable" } } } },
-    "命令行工具由包管理器维护。Sift 只展示建议命令，不直接删除其目录，以免破坏依赖关系。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Command-line tools are managed by package managers. Sift shows suggested commands instead of deleting directories, which could break dependencies." } } } },
-    "已使用 %@，共 %@" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ used of %@" } } } },
-    "已分类 %@" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ categorized" } } } },
-    "已检查 %lld 个文件 · 已统计 %@" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld files inspected · %@ measured" } } } },
-    "已统计 %lld 个文件。分类容量是可读取目录的汇总；APFS 快照、系统保护内容和无法访问的目录仍会计入磁盘已用空间。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld files measured. Categorized storage totals readable folders; APFS snapshots, protected system data, and inaccessible folders still count toward used disk space." } } } },
-    "已选择 %lld 项，%@" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld items selected, %@" } } } },
-    "数据每 2 秒在本机更新一次；离开此页面或点击暂停后会停止采样。应用排行只显示当前可识别的图形应用进程。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Data updates locally every 2 seconds. Sampling stops when you leave this page or pause it. App rankings include identifiable graphical app processes only." } } } },
-    "正在分析%@" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Analyzing %@" } } } },
-    "正在刷新：已检查 %lld 个文件" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Refreshing: %lld files inspected" } } } },
-    "正在扫描%@" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Scanning %@" } } } },
-    "正常结束会发送 SIGTERM，让进程自行清理后退出。强制结束可能造成未保存数据丢失；launchd、容器或监护脚本也可能自动重启进程。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Graceful quit sends SIGTERM so the process can clean up before exiting. Force quit may lose unsaved data; launchd, containers, or supervisors may restart the process." } } } },
-    "没有在已安装应用和常用扩展目录中发现组件" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "No components found in installed apps or common extension folders" } } } },
-    "没有在记录路径或已安装应用中找到对应文件，可能是卸载残留。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "No matching file was found at the recorded path or among installed apps; this may be an uninstall leftover." } } } },
-    "版本 %@" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Version %@" } } } },
-    "用于发现应用缓存和残留。需要在系统设置中手动开启。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Used to find app caches and leftovers. Enable it manually in System Settings." } } } },
-    "结束操作会终止整个进程，并释放该进程占用的全部端口。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Quitting terminates the entire process and releases every port it uses." } } } },
-    "缓存 %@" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Cached %@" } } } },
-    "这会重置全部登录项和后台活动记录，不只清理当前残留。仍然安装的 App 之后会重新登记，部分允许或禁止状态可能需要重新确认。完成后需要重启 Mac。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "This resets all login item and background activity records, not just the current leftover. Installed apps will register again, and some allowed or blocked states may need confirmation. Restart your Mac afterward." } } } },
-    "进程退出或崩溃后，launchd 会根据条件尝试再次启动。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "After the process exits or crashes, launchd may try to start it again." } } } },
-    "配置被 launchd 加载后自动启动。用户代理通常在登录时加载，后台服务通常在开机时加载。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Starts automatically when launchd loads the configuration. User agents usually load at login; daemons usually load at startup." } } } },
-    "%@ · 建议工作集 %@" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ · Recommended working set %@" } } } },
-    "%@“%@”将从登录项中移除，此操作不会删除应用文件。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ “%@” will be removed from Login Items. App files will not be deleted." } } } },
-    "%@“%@”的启动配置将移入废纸篓；已运行的进程不会被强制终止。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ “%@”'s launch configuration will be moved to Trash. Running processes will not be terminated." } } } },
-    "%@“%@”将移入废纸篓，重新登录后相关功能将不再加载。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ “%@” will be moved to Trash. Its features will no longer load after you sign in again." } } } },
-    "%@（PID %d）正在占用 %@ %@:%@。正常结束更安全；只有进程无响应时才使用强制结束。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ (PID %d) is using %@ %@:%@. Graceful quit is safer; use force quit only if the process is unresponsive." } } } },
-    "“%@”已经位于废纸篓。继续会永久删除该 App 残留，无法撤销；macOS 的后台记录可能要重新登录后才会消失。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "“%@” is already in Trash. Continuing permanently deletes this app leftover and cannot be undone; the macOS background record may disappear after you sign in again." } } } },
-    "。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "." } } } },
-    "将从 macOS 登录项中移除。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "This will be removed from macOS Login Items." } } } },
-    "对应文件已经不存在。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "The corresponding file no longer exists." } } } },
-    "启动配置将移入废纸篓。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "The launch configuration will be moved to Trash." } } } },
-    "废纸篓中的 App 残留将被永久删除。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "The app leftover in Trash will be permanently deleted." } } } },
-    "扩展将移入废纸篓。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "The extension will be moved to Trash." } } } },
-    "没有找到目标程序，可能是卸载残留。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "The target program was not found; this may be an uninstall leftover." } } } },
-    "没有找到匹配的所属应用，可能是卸载残留。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "No matching owning app was found; this may be an uninstall leftover." } } } },
-    "用户应用" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "User Apps" } } } },
-    "第三方应用" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Third-Party Apps" } } } },
-    "Apple 系统应用" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Apple System Apps" } } } },
-    "安装在当前用户目录" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Installed in the current user's folder" } } } },
-    "通过 Mac App Store 安装" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Installed from the Mac App Store" } } } },
-    "从开发者或其他渠道安装" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Installed from a developer or another source" } } } },
-    "macOS 自带，受系统保护" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Built into macOS and system protected" } } } },
-    "正常" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Normal" } } } },
-    "紧张" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Elevated" } } } },
-    "较高" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "High" } } } },
-    "用户缓存" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "User Caches" } } } },
-    "旧日志" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Old Logs" } } } },
-    "npm 下载缓存" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "npm Download Cache" } } } },
-    "npm 调试日志" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "npm Debug Logs" } } } },
-    "Xcode 构建产物，可重新生成，但下次构建会变慢。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Xcode build products can be regenerated, but the next build will be slower." } } } },
-    "npm 可重新下载的内容寻址缓存；不会删除全局包或项目 node_modules。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Redownloadable npm content-addressed cache; global packages and project node_modules are not deleted." } } } },
-    "旧 npm 调试日志。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Old npm debug logs." } } } },
-    "30 天未修改的普通缓存；应用下次启动时可能重新生成。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Regular caches unchanged for 30 days; apps may recreate them at next launch." } } } },
-    "14 天前的日志文件，不包含当前正在写入的文件。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Log files older than 14 days, excluding files currently being written." } } } },
-    "需确认" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Review" } } } },
-    "关联应用存在" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Related App Present" } } } },
-    "可能是卸载残留" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Possible Uninstall Leftover" } } } },
-    "目标程序或所属应用仍然存在" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "The target program or owning app is still present" } } } },
-    "配置仍在，但没有找到它指向的程序或所属应用" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "The configuration remains, but its target program or owning app was not found" } } } },
-    "缺少足够信息，删除前需要人工确认" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Not enough information; review before deleting" } } } },
-    "系统核心进程不会在这里结束。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Core system processes cannot be quit here." } } } },
-    "不会结束系统核心进程。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Core system processes are protected." } } } },
-    "Sift 不能结束自身进程。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Sift cannot quit its own process." } } } },
-    "只能结束当前用户拥有的进程。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Only processes owned by the current user can be quit." } } } },
-    "无法确认可执行文件，不会结束这个进程。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "The executable could not be verified, so this process cannot be quit." } } } },
-    "macOS 系统管理的进程不会在这里结束。" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Processes managed by macOS cannot be quit here." } } } },
-    "TCP" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "TCP" } } } },
-    "UDP" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "UDP" } } } },
-    "无法确认包归属，请手动检查后处理" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Package ownership could not be verified; inspect it manually" } } } },
-    "进程 %d" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Process %d" } } } },
-    "没有检测到可用的神经网络引擎" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "No available Neural Engine detected" } } } },
-    "系统本地语言模型已准备好，可供支持的 App 使用" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "On-device language models are ready for supported apps" } } } },
-    "设备支持，但尚未在系统设置中开启 Apple Intelligence" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "The device is supported, but Apple Intelligence is not enabled in System Settings" } } } },
-    "模型可能仍在准备，或当前语言与地区暂不可用" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Models may still be preparing, or the current language and region may not be available" } } } },
-    "需要 macOS 26 或更高版本才能检查系统语言模型" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "macOS 26 or later is required to inspect system language models" } } } },
-    "系统没有返回可识别的可用状态" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "The system did not return a recognized availability state" } } } }
+    "" : {
+
+    },
+    "。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "."
+          }
+        }
+      }
+    },
+    "“%@”已经位于废纸篓。继续会永久删除该 App 残留，无法撤销；macOS 的后台记录可能要重新登录后才会消失。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” is already in Trash. Continuing permanently deletes this app leftover and cannot be undone; the macOS background record may disappear after you sign in again."
+          }
+        }
+      }
+    },
+    "/ %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "/ %@"
+          }
+        }
+      }
+    },
+    "%" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%"
+          }
+        }
+      }
+    },
+    "%@ · 建议工作集 %@" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · Recommended working set %@"
+          }
+        }
+      }
+    },
+    "%@ %@:%u" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ %@:%u"
+          }
+        }
+      }
+    },
+    "%@“%@”将从登录项中移除，此操作不会删除应用文件。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ “%@” will be removed from Login Items. App files will not be deleted."
+          }
+        }
+      }
+    },
+    "%@“%@”将移入废纸篓，重新登录后相关功能将不再加载。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ “%@” will be moved to Trash. Its features will no longer load after you sign in again."
+          }
+        }
+      }
+    },
+    "%@“%@”的启动配置将移入废纸篓；已运行的进程不会被强制终止。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ “%@”'s launch configuration will be moved to Trash. Running processes will not be terminated."
+          }
+        }
+      }
+    },
+    "%@（PID %d）正在占用 %@ %@:%@。正常结束更安全；只有进程无响应时才使用强制结束。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ (PID %d) is using %@ %@:%@. Graceful quit is safer; use force quit only if the process is unresponsive."
+          }
+        }
+      }
+    },
+    "%@%%" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@%%"
+          }
+        }
+      }
+    },
+    "%lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld"
+          }
+        }
+      }
+    },
+    "%lld 个" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld"
+          }
+        }
+      }
+    },
+    "%lld 个 · %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld · %@"
+          }
+        }
+      }
+    },
+    "%lld 个应用 · %lld 个命令行工具" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld apps · %lld command-line tools"
+          }
+        }
+      }
+    },
+    "%lld 个文件" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld files"
+          }
+        }
+      }
+    },
+    "%lld 个文件 · %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld files · %@"
+          }
+        }
+      }
+    },
+    "%lld%%" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld%%"
+          }
+        }
+      }
+    },
+    "14 天前的日志文件，不包含当前正在写入的文件。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Log files older than 14 days, excluding files currently being written."
+          }
+        }
+      }
+    },
+    "30 天未修改的普通缓存；应用下次启动时可能重新生成。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regular caches unchanged for 30 days; apps may recreate them at next launch."
+          }
+        }
+      }
+    },
+    "App Store" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Store"
+          }
+        }
+      }
+    },
+    "App 后台活动" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Background Activity"
+          }
+        }
+      }
+    },
+    "Apple 系统应用" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple System Apps"
+          }
+        }
+      }
+    },
+    "CPU" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU"
+          }
+        }
+      }
+    },
+    "CPU %lld%% · 内存压力%@" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU %lld%% · Memory pressure: %@"
+          }
+        }
+      }
+    },
+    "CPU、内存压力与高占用应用" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU, memory pressure, and resource-heavy apps"
+          }
+        }
+      }
+    },
+    "Mac 存储状态良好" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac storage looks good"
+          }
+        }
+      }
+    },
+    "Mac 需要一次存储检查" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your Mac could use a storage check"
+          }
+        }
+      }
+    },
+    "macOS 会主动利用空闲内存作为文件缓存，这些缓存会在应用需要时自动释放。强制“释放内存”通常会清空有用缓存，反而让系统变慢。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS uses free memory as a file cache and releases it automatically when apps need it. Forcing memory to be freed usually discards useful caches and can make the system slower."
+          }
+        }
+      }
+    },
+    "macOS 系统管理的进程不会在这里结束。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Processes managed by macOS cannot be quit here."
+          }
+        }
+      }
+    },
+    "macOS 自带，受系统保护" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Built into macOS and system protected"
+          }
+        }
+      }
+    },
+    "npm 下载缓存" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "npm Download Cache"
+          }
+        }
+      }
+    },
+    "npm 可重新下载的内容寻址缓存；不会删除全局包或项目 node_modules。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Redownloadable npm content-addressed cache; global packages and project node_modules are not deleted."
+          }
+        }
+      }
+    },
+    "npm 调试日志" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "npm Debug Logs"
+          }
+        }
+      }
+    },
+    "PID %d" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PID %d"
+          }
+        }
+      }
+    },
+    "PID %d · %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PID %d · %@"
+          }
+        }
+      }
+    },
+    "Sift" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sift"
+          }
+        }
+      }
+    },
+    "Sift 不能结束自身进程。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sift cannot quit its own process."
+          }
+        }
+      }
+    },
+    "TCP" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TCP"
+          }
+        }
+      }
+    },
+    "UDP" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UDP"
+          }
+        }
+      }
+    },
+    "Xcode 构建产物，可重新生成，但下次构建会变慢。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xcode build products can be regenerated, but the next build will be slower."
+          }
+        }
+      }
+    },
+    "上次分析 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last analyzed %@"
+          }
+        }
+      }
+    },
+    "不会结束系统核心进程。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Core system processes are protected."
+          }
+        }
+      }
+    },
+    "不会自动删除" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing is deleted automatically"
+          }
+        }
+      }
+    },
+    "不可用" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unavailable"
+          }
+        }
+      }
+    },
+    "不读取内容" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contents are not read"
+          }
+        }
+      }
+    },
+    "与 macOS 登录项保持一致" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Matches macOS Login Items"
+          }
+        }
+      }
+    },
+    "为什么没有“释放内存”？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Why isn't there a ‘Free Memory’ button?"
+          }
+        }
+      }
+    },
+    "为保证流畅，当前显示最大的 100 项；整组选中仍包含全部 %lld 项。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "For performance, only the 100 largest items are shown; selecting the group still includes all %lld items."
+          }
+        }
+      }
+    },
+    "了解 Mac 的空间都用在哪里" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "See where your Mac storage is used"
+          }
+        }
+      }
+    },
+    "了解 macOS 的内存管理" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Understand macOS memory management"
+          }
+        }
+      }
+    },
+    "了解磁盘、常见目录与大文件的空间占用" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inspect disk usage, common folders, and large files"
+          }
+        }
+      }
+    },
+    "交换 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Swap %@"
+          }
+        }
+      }
+    },
+    "仅本机" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Local Only"
+          }
+        }
+      }
+    },
+    "从开发者或其他渠道安装" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installed from a developer or another source"
+          }
+        }
+      }
+    },
+    "使用 macOS 自带的 lsof 在本机扫描" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scans locally using macOS lsof"
+          }
+        }
+      }
+    },
+    "全部" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All"
+          }
+        }
+      }
+    },
+    "共 %lld 项，%@。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld items, %@ total."
+          }
+        }
+      }
+    },
+    "关联应用存在" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Related App Present"
+          }
+        }
+      }
+    },
+    "关联文件" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Related Files"
+          }
+        }
+      }
+    },
+    "关闭" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close"
+          }
+        }
+      }
+    },
+    "内存" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memory"
+          }
+        }
+      }
+    },
+    "内存压力" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memory Pressure"
+          }
+        }
+      }
+    },
+    "最近 60 秒" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last 60 Seconds"
+          }
+        }
+      }
+    },
+    "准备扫描" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preparing to scan"
+          }
+        }
+      }
+    },
+    "分析完成" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analysis complete"
+          }
+        }
+      }
+    },
+    "分析范围内没有超过 500 MB 的文件" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No files over 500 MB were found in this scope"
+          }
+        }
+      }
+    },
+    "判断是否需要处理时，应优先关注内存压力和交换空间。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use memory pressure and swap usage to decide whether action is needed."
+          }
+        }
+      }
+    },
+    "刷新" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refresh"
+          }
+        }
+      }
+    },
+    "占用空间" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Storage Used"
+          }
+        }
+      }
+    },
+    "卸载命令" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uninstall Command"
+          }
+        }
+      }
+    },
+    "卸载应用" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uninstall App"
+          }
+        }
+      }
+    },
+    "卸载应用…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uninstall App…"
+          }
+        }
+      }
+    },
+    "反馈" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feedback"
+          }
+        }
+      }
+    },
+    "发现 %@ 可清理内容" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ of cleanable items found"
+          }
+        }
+      }
+    },
+    "取消" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        }
+      }
+    },
+    "取消扫描" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel Scan"
+          }
+        }
+      }
+    },
+    "只能结束当前用户拥有的进程。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Only processes owned by the current user can be quit."
+          }
+        }
+      }
+    },
+    "只读取文件大小和路径，不读取文件内容" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reads file sizes and paths, not file contents"
+          }
+        }
+      }
+    },
+    "只读取文件属性，不读取或上传文件内容" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reads file metadata only; contents are never read or uploaded"
+          }
+        }
+      }
+    },
+    "只读取组件信息，不修改系统配置" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reads component information without changing system settings"
+          }
+        }
+      }
+    },
+    "可从废纸篓恢复" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recoverable from Trash"
+          }
+        }
+      }
+    },
+    "可以扫描受保护的用户目录；文件内容不会上传。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allows protected user folders to be scanned. File contents are never uploaded."
+          }
+        }
+      }
+    },
+    "可供 Core ML 调度使用" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Available to Core ML"
+          }
+        }
+      }
+    },
+    "可执行文件" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Executable"
+          }
+        }
+      }
+    },
+    "可清理" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cleanable"
+          }
+        }
+      }
+    },
+    "可清理 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ cleanable"
+          }
+        }
+      }
+    },
+    "可用" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Available"
+          }
+        }
+      }
+    },
+    "可用空间" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Available Space"
+          }
+        }
+      }
+    },
+    "可能是卸载残留" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Possible Uninstall Leftover"
+          }
+        }
+      }
+    },
+    "后台任务数据库已重建，请重启 Mac。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Background task database rebuilt. Restart your Mac."
+          }
+        }
+      }
+    },
+    "后台任务数据库已重建。请重启 Mac，让系统重新登记仍然有效的项目。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The background task database was rebuilt. Restart your Mac so valid items can register again."
+          }
+        }
+      }
+    },
+    "后台活动" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Background Activity"
+          }
+        }
+      }
+    },
+    "后台活动说明" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "About Background Activity"
+          }
+        }
+      }
+    },
+    "启动后隐藏" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide After Launch"
+          }
+        }
+      }
+    },
+    "启动命令" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Launch Command"
+          }
+        }
+      }
+    },
+    "启动配置将移入废纸篓。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The launch configuration will be moved to Trash."
+          }
+        }
+      }
+    },
+    "命令行" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command Line"
+          }
+        }
+      }
+    },
+    "命令行工具由包管理器维护。Sift 只展示建议命令，不直接删除其目录，以免破坏依赖关系。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command-line tools are managed by package managers. Sift shows suggested commands instead of deleting directories, which could break dependencies."
+          }
+        }
+      }
+    },
+    "在 Finder 中显示" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show in Finder"
+          }
+        }
+      }
+    },
+    "在 Finder 中显示可执行文件" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Executable in Finder"
+          }
+        }
+      }
+    },
+    "垃圾清理" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Junk Cleanup"
+          }
+        }
+      }
+    },
+    "大文件" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Large Files"
+          }
+        }
+      }
+    },
+    "好" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
+    },
+    "存储分析" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Storage Analysis"
+          }
+        }
+      }
+    },
+    "安装位置" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installed At"
+          }
+        }
+      }
+    },
+    "安装在当前用户目录" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installed in the current user's folder"
+          }
+        }
+      }
+    },
+    "安静、可靠地管理 Mac 存储空间" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A quiet, reliable way to manage Mac storage"
+          }
+        }
+      }
+    },
+    "实时" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live"
+          }
+        }
+      }
+    },
+    "对外开放" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exposed"
+          }
+        }
+      }
+    },
+    "对应文件已经不存在。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The corresponding file no longer exists."
+          }
+        }
+      }
+    },
+    "将从 macOS 登录项中移除。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will be removed from macOS Login Items."
+          }
+        }
+      }
+    },
+    "将所选文件移入废纸篓？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move selected files to Trash?"
+          }
+        }
+      }
+    },
+    "尚未扫描" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not scanned yet"
+          }
+        }
+      }
+    },
+    "尝试其他端口号、进程名或路径" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try another port, process name, or path"
+          }
+        }
+      }
+    },
+    "局域网" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Local Network"
+          }
+        }
+      }
+    },
+    "工作目录" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Working Directory"
+          }
+        }
+      }
+    },
+    "已从登录项中移除 %@。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ was removed from Login Items."
+          }
+        }
+      }
+    },
+    "已使用 %@，共 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ used of %@"
+          }
+        }
+      }
+    },
+    "已分析 %lld 个文件，共归类 %@。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld files analyzed, %@ categorized."
+          }
+        }
+      }
+    },
+    "已分析目录" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analyzed Folder"
+          }
+        }
+      }
+    },
+    "已分类 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ categorized"
+          }
+        }
+      }
+    },
+    "已发现" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Discovered"
+          }
+        }
+      }
+    },
+    "已向 %@ 发送退出请求。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A quit request was sent to %@."
+          }
+        }
+      }
+    },
+    "已将 %@ 的启动配置移入废纸篓；当前进程可能会继续运行到退出或重启。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@'s launch configuration was moved to Trash. Its current process may continue until it exits or the Mac restarts."
+          }
+        }
+      }
+    },
+    "已将 %@ 移入废纸篓。重新登录后相关功能将不再加载。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ was moved to Trash. Its features will no longer load after you sign in again."
+          }
+        }
+      }
+    },
+    "已强制结束 %@。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ was force quit."
+          }
+        }
+      }
+    },
+    "已暂停" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paused"
+          }
+        }
+      }
+    },
+    "已检查" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inspected"
+          }
+        }
+      }
+    },
+    "已检查 %lld 个文件 · 已统计 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld files inspected · %@ measured"
+          }
+        }
+      }
+    },
+    "已永久删除 %@ 的废纸篓残留；macOS 后台记录可能在重新登录后消失。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@'s Trash leftover was permanently deleted. Its macOS background record may disappear after you sign in again."
+          }
+        }
+      }
+    },
+    "已移入废纸篓 %lld 项；失败 %lld 项。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld items moved to Trash; %lld failed."
+          }
+        }
+      }
+    },
+    "已移入废纸篓 %lld 项；失败 %lld 项。可从废纸篓恢复。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld items moved to Trash; %lld failed. Items can be restored from Trash."
+          }
+        }
+      }
+    },
+    "已统计 %lld 个文件。分类容量是可读取目录的汇总；APFS 快照、系统保护内容和无法访问的目录仍会计入磁盘已用空间。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld files measured. Categorized storage totals readable folders; APFS snapshots, protected system data, and inaccessible folders still count toward used disk space."
+          }
+        }
+      }
+    },
+    "已缓存 %lld 个 App 后台记录和 %lld 个后台配置；点击刷新可重新扫描。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld app background records and %lld background configurations cached; refresh to scan again."
+          }
+        }
+      }
+    },
+    "已缓存 %lld 个应用；点击刷新可重新扫描。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld apps cached; refresh to scan again."
+          }
+        }
+      }
+    },
+    "已缓存 %lld 个扩展；点击刷新可重新扫描。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld extensions cached; refresh to scan again."
+          }
+        }
+      }
+    },
+    "已缓存 %lld 个文件的分析结果；点击刷新可重新分析。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analysis of %lld files cached; refresh to analyze again."
+          }
+        }
+      }
+    },
+    "已缓存 %lld 个登录项；点击刷新可重新扫描。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld login items cached; refresh to scan again."
+          }
+        }
+      }
+    },
+    "已缓存 %lld 个端口；点击刷新可重新扫描。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld ports cached; refresh to scan again."
+          }
+        }
+      }
+    },
+    "已自动读取这台 Mac 上的应用" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apps on this Mac were detected automatically"
+          }
+        }
+      }
+    },
+    "已获得完全磁盘访问权限" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Full Disk Access granted"
+          }
+        }
+      }
+    },
+    "已选择 %@，尚未扫描。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ selected; not scanned yet."
+          }
+        }
+      }
+    },
+    "已选择 %@，点击开始分析。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ selected. Click Start Analysis."
+          }
+        }
+      }
+    },
+    "已选择 %lld 项，%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld items selected, %@"
+          }
+        }
+      }
+    },
+    "应用" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apps"
+          }
+        }
+      }
+    },
+    "应用不存在" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Not Found"
+          }
+        }
+      }
+    },
+    "应用大小" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Size"
+          }
+        }
+      }
+    },
+    "应用程序和已勾选的关联文件都会移入废纸篓。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The app and selected related files will be moved to Trash."
+          }
+        }
+      }
+    },
+    "应用详情与关联数据" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Details and Related Data"
+          }
+        }
+      }
+    },
+    "废纸篓中的 App 残留将被永久删除。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The app leftover in Trash will be permanently deleted."
+          }
+        }
+      }
+    },
+    "废纸篓可恢复" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recoverable from Trash"
+          }
+        }
+      }
+    },
+    "废纸篓记录" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trash Record"
+          }
+        }
+      }
+    },
+    "开发工具缓存" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Developer Caches"
+          }
+        }
+      }
+    },
+    "开始分析" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start Analysis"
+          }
+        }
+      }
+    },
+    "开始扫描" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start Scan"
+          }
+        }
+      }
+    },
+    "强制结束" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Force Quit"
+          }
+        }
+      }
+    },
+    "当前 Mac 不符合 Apple Intelligence 的硬件要求" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This Mac does not meet Apple Intelligence hardware requirements"
+          }
+        }
+      }
+    },
+    "当前没有可显示的 TCP 监听端口或 UDP 绑定" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No TCP listeners or UDP bindings to display"
+          }
+        }
+      }
+    },
+    "快速清理" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quick Cleanup"
+          }
+        }
+      }
+    },
+    "性能监控" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Performance"
+          }
+        }
+      }
+    },
+    "性能监控已暂停。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Performance monitoring paused."
+          }
+        }
+      }
+    },
+    "所有网络" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All Interfaces"
+          }
+        }
+      }
+    },
+    "打开后台设置" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Background Settings"
+          }
+        }
+      }
+    },
+    "打开工作目录" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Working Directory"
+          }
+        }
+      }
+    },
+    "打开扩展设置" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Extension Settings"
+          }
+        }
+      }
+    },
+    "打开登录项设置" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Login Item Settings"
+          }
+        }
+      }
+    },
+    "打开系统设置" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open System Settings"
+          }
+        }
+      }
+    },
+    "扩展" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extensions"
+          }
+        }
+      }
+    },
+    "扩展将移入废纸篓。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The extension will be moved to Trash."
+          }
+        }
+      }
+    },
+    "扫描" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan"
+          }
+        }
+      }
+    },
+    "扫描可安全清理的缓存和日志" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan caches and logs that are safe to clean"
+          }
+        }
+      }
+    },
+    "扫描完成" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan complete"
+          }
+        }
+      }
+    },
+    "扫描完成，发现 %lld 个候选文件。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan complete. %lld candidate files found."
+          }
+        }
+      }
+    },
+    "扫描已取消" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan canceled"
+          }
+        }
+      }
+    },
+    "扫描已取消。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan canceled."
+          }
+        }
+      }
+    },
+    "扫描缓存、日志和开发工具残留，确认明细后再清理" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan caches, logs, and developer leftovers; review before cleaning"
+          }
+        }
+      }
+    },
+    "扫描缓存与日志" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan Caches and Logs"
+          }
+        }
+      }
+    },
+    "找到 %lld 个 App 后台记录和 %lld 个后台配置。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld app background records and %lld background configurations found."
+          }
+        }
+      }
+    },
+    "找到 %lld 个候选文件。标记为“需确认”的项目不会默认选中。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld candidate files found. Items marked ‘Review’ are not selected by default."
+          }
+        }
+      }
+    },
+    "找到 %lld 个应用。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld apps found."
+          }
+        }
+      }
+    },
+    "找到 %lld 个应用。当前版本仅盘点，不会直接卸载。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld apps found. This version inventories apps without uninstalling them directly."
+          }
+        }
+      }
+    },
+    "找到 %lld 个扩展。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld extensions found."
+          }
+        }
+      }
+    },
+    "找到 %lld 个登录项。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld login items found."
+          }
+        }
+      }
+    },
+    "找到 %lld 个监听端口。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld listening ports found."
+          }
+        }
+      }
+    },
+    "指标" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metric"
+          }
+        }
+      }
+    },
+    "排序" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sort"
+          }
+        }
+      }
+    },
+    "搜索后台项目、标签或路径" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search background items, labels, or paths"
+          }
+        }
+      }
+    },
+    "搜索应用" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search apps"
+          }
+        }
+      }
+    },
+    "搜索扩展、所属应用或 Bundle ID" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search extensions, owning apps, or bundle IDs"
+          }
+        }
+      }
+    },
+    "搜索登录项或应用路径" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search login items or app paths"
+          }
+        }
+      }
+    },
+    "搜索端口、进程、PID、路径或启动命令" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search ports, processes, PIDs, paths, or commands"
+          }
+        }
+      }
+    },
+    "操作失败" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Operation Failed"
+          }
+        }
+      }
+    },
+    "数据每 2 秒在本机更新一次；离开此页面或点击暂停后会停止采样。应用排行只显示当前可识别的图形应用进程。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data updates locally every 2 seconds. Sampling stops when you leave this page or pause it. App rankings include identifiable graphical app processes only."
+          }
+        }
+      }
+    },
+    "文件不存在" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File Not Found"
+          }
+        }
+      }
+    },
+    "无法确认包归属，请手动检查后处理" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Package ownership could not be verified; inspect it manually"
+          }
+        }
+      }
+    },
+    "无法确认可执行文件，不会结束这个进程。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The executable could not be verified, so this process cannot be quit."
+          }
+        }
+      }
+    },
+    "无法移除 %@：%@" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to remove %@: %@"
+          }
+        }
+      }
+    },
+    "无法结束 %@：%@" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to quit %@: %@"
+          }
+        }
+      }
+    },
+    "无法读取" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to Read"
+          }
+        }
+      }
+    },
+    "无法读取登录项" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to Read Login Items"
+          }
+        }
+      }
+    },
+    "旧 npm 调试日志。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Old npm debug logs."
+          }
+        }
+      }
+    },
+    "旧日志" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Old Logs"
+          }
+        }
+      }
+    },
+    "时间" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time"
+          }
+        }
+      }
+    },
+    "显示" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show"
+          }
+        }
+      }
+    },
+    "显示可执行文件" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Executable"
+          }
+        }
+      }
+    },
+    "暂停" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pause"
+          }
+        }
+      }
+    },
+    "未开启" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not Enabled"
+          }
+        }
+      }
+    },
+    "未知" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown"
+          }
+        }
+      }
+    },
+    "未知错误" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown error"
+          }
+        }
+      }
+    },
+    "未识别" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unrecognized"
+          }
+        }
+      }
+    },
+    "本地分析" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Local Analysis"
+          }
+        }
+      }
+    },
+    "本地扫描" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Local Scan"
+          }
+        }
+      }
+    },
+    "本地查看 CPU、内存压力与高占用应用" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monitor CPU, memory pressure, and top apps locally"
+          }
+        }
+      }
+    },
+    "查找并结束遗忘的开发服务" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Find and stop forgotten development servers"
+          }
+        }
+      }
+    },
+    "查找应用与关联残留" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Find apps and related leftovers"
+          }
+        }
+      }
+    },
+    "查看 TCP 监听端口、UDP 绑定及其进程" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inspect TCP listeners, UDP bindings, and their processes"
+          }
+        }
+      }
+    },
+    "查看磁盘分类与大文件" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inspect disk categories and large files"
+          }
+        }
+      }
+    },
+    "查看进程详情" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View Process Details"
+          }
+        }
+      }
+    },
+    "检查后台代理与服务" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inspect background agents and services"
+          }
+        }
+      }
+    },
+    "检查存储空间，快速进入常用工具。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check storage and quickly access common tools."
+          }
+        }
+      }
+    },
+    "模型可能仍在准备，或当前语言与地区暂不可用" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Models may still be preparing, or the current language and region may not be available"
+          }
+        }
+      }
+    },
+    "模型未就绪" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Model Not Ready"
+          }
+        }
+      }
+    },
+    "正在分析%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analyzing %@"
+          }
+        }
+      }
+    },
+    "正在刷新：已检查 %lld 个文件" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refreshing: %lld files inspected"
+          }
+        }
+      }
+    },
+    "正在卸载 %@…" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uninstalling %@…"
+          }
+        }
+      }
+    },
+    "正在将 %@ 移入废纸篓…" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moving %@ to Trash…"
+          }
+        }
+      }
+    },
+    "正在强制结束 %@…" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Force quitting %@…"
+          }
+        }
+      }
+    },
+    "正在扫描" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scanning"
+          }
+        }
+      }
+    },
+    "正在扫描…" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scanning…"
+          }
+        }
+      }
+    },
+    "正在扫描%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scanning %@"
+          }
+        }
+      }
+    },
+    "正在扫描已安装应用…" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scanning installed apps…"
+          }
+        }
+      }
+    },
+    "正在查找 %@ 的关联文件…" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finding files related to %@…"
+          }
+        }
+      }
+    },
+    "正在检查已安装应用…" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inspecting installed apps…"
+          }
+        }
+      }
+    },
+    "正在监控 CPU 与内存…" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monitoring CPU and memory…"
+          }
+        }
+      }
+    },
+    "正在移除 %@ 的废纸篓残留…" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Removing %@'s Trash leftover…"
+          }
+        }
+      }
+    },
+    "正在移除登录项 %@…" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Removing login item %@…"
+          }
+        }
+      }
+    },
+    "正在统计文件占用…" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Measuring file usage…"
+          }
+        }
+      }
+    },
+    "正在请求 %@ 正常退出…" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Asking %@ to quit gracefully…"
+          }
+        }
+      }
+    },
+    "正在读取后台活动…" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reading background activity…"
+          }
+        }
+      }
+    },
+    "正在读取已安装应用…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reading installed apps…"
+          }
+        }
+      }
+    },
+    "正在读取应用扩展…" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reading app extensions…"
+          }
+        }
+      }
+    },
+    "正在读取登录项…" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reading login items…"
+          }
+        }
+      }
+    },
+    "正在读取监听端口与进程信息…" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reading listening ports and process information…"
+          }
+        }
+      }
+    },
+    "正在读取端口与进程信息…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reading ports and processes…"
+          }
+        }
+      }
+    },
+    "正在采集性能数据…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Collecting performance data…"
+          }
+        }
+      }
+    },
+    "正在重建后台任务数据库…" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rebuilding background task database…"
+          }
+        }
+      }
+    },
+    "正常" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Normal"
+          }
+        }
+      }
+    },
+    "正常结束" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quit Gracefully"
+          }
+        }
+      }
+    },
+    "正常结束会发送 SIGTERM，让进程自行清理后退出。强制结束可能造成未保存数据丢失；launchd、容器或监护脚本也可能自动重启进程。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Graceful quit sends SIGTERM so the process can clean up before exiting. Force quit may lose unsaved data; launchd, containers, or supervisors may restart the process."
+          }
+        }
+      }
+    },
+    "永久移除" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove Permanently"
+          }
+        }
+      }
+    },
+    "永久移除这个后台残留？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permanently remove this background leftover?"
+          }
+        }
+      }
+    },
+    "没有匹配的后台项目" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No matching background items"
+          }
+        }
+      }
+    },
+    "没有匹配的扩展" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No matching extensions"
+          }
+        }
+      }
+    },
+    "没有匹配的登录项" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No matching login items"
+          }
+        }
+      }
+    },
+    "没有匹配结果" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Results"
+          }
+        }
+      }
+    },
+    "没有发现关联残留文件。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No related leftover files found."
+          }
+        }
+      }
+    },
+    "没有发现后台项目" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Background Items"
+          }
+        }
+      }
+    },
+    "没有发现扩展" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Extensions Found"
+          }
+        }
+      }
+    },
+    "没有发现端口" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Ports Found"
+          }
+        }
+      }
+    },
+    "没有在已安装应用和常用扩展目录中发现组件" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No components found in installed apps or common extension folders"
+          }
+        }
+      }
+    },
+    "没有在记录路径或已安装应用中找到对应文件，可能是卸载残留。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No matching file was found at the recorded path or among installed apps; this may be an uninstall leftover."
+          }
+        }
+      }
+    },
+    "没有找到匹配的所属应用，可能是卸载残留。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No matching owning app was found; this may be an uninstall leftover."
+          }
+        }
+      }
+    },
+    "没有找到目标程序，可能是卸载残留。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The target program was not found; this may be an uninstall leftover."
+          }
+        }
+      }
+    },
+    "没有检测到可用的神经网络引擎" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No available Neural Engine detected"
+          }
+        }
+      }
+    },
+    "没有登录项" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Login Items"
+          }
+        }
+      }
+    },
+    "清理所选" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clean Selected"
+          }
+        }
+      }
+    },
+    "清理所选项目" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clean Selected Items"
+          }
+        }
+      }
+    },
+    "温度未知" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thermal State Unknown"
+          }
+        }
+      }
+    },
+    "温度正常" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thermal State Normal"
+          }
+        }
+      }
+    },
+    "温度稍高" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thermal State Elevated"
+          }
+        }
+      }
+    },
+    "温度较高" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thermal State High"
+          }
+        }
+      }
+    },
+    "温度过高" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thermal State Critical"
+          }
+        }
+      }
+    },
+    "点击开始分析系统存储，或选择一个目录单独分析。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start a system storage analysis, or choose a folder to analyze separately."
+          }
+        }
+      }
+    },
+    "版本" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Version"
+          }
+        }
+      }
+    },
+    "版本 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Version %@"
+          }
+        }
+      }
+    },
+    "状态未知" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Status Unknown"
+          }
+        }
+      }
+    },
+    "独立显存" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dedicated Memory"
+          }
+        }
+      }
+    },
+    "用于发现应用缓存和残留。需要在系统设置中手动开启。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Used to find app caches and leftovers. Enable it manually in System Settings."
+          }
+        }
+      }
+    },
+    "用户" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "User"
+          }
+        }
+      }
+    },
+    "用户 UID" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "User UID"
+          }
+        }
+      }
+    },
+    "用户应用" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "User Apps"
+          }
+        }
+      }
+    },
+    "用户目录与系统应用" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "User Folder and System Apps"
+          }
+        }
+      }
+    },
+    "用户缓存" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "User Caches"
+          }
+        }
+      }
+    },
+    "由包管理器安装的命令行工具" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command-line tools installed by package managers"
+          }
+        }
+      }
+    },
+    "登录时打开" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open at Login"
+          }
+        }
+      }
+    },
+    "登录项" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login Items"
+          }
+        }
+      }
+    },
+    "登录项与扩展" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login Items & Extensions"
+          }
+        }
+      }
+    },
+    "监听范围" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Listening Scope"
+          }
+        }
+      }
+    },
+    "目标程序或所属应用仍然存在" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The target program or owning app is still present"
+          }
+        }
+      }
+    },
+    "确认卸载这个应用？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uninstall this app?"
+          }
+        }
+      }
+    },
+    "移入废纸篓" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move to Trash"
+          }
+        }
+      }
+    },
+    "移除" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove"
+          }
+        }
+      }
+    },
+    "移除这个后台项目？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove this background item?"
+          }
+        }
+      }
+    },
+    "移除这个扩展？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove this extension?"
+          }
+        }
+      }
+    },
+    "移除这个登录项？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove this login item?"
+          }
+        }
+      }
+    },
+    "立即检查" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check Now"
+          }
+        }
+      }
+    },
+    "端口" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Port"
+          }
+        }
+      }
+    },
+    "端口管理" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Port Manager"
+          }
+        }
+      }
+    },
+    "第一次 CPU 采样约需 2 秒" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The first CPU sample takes about 2 seconds"
+          }
+        }
+      }
+    },
+    "第三方" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Third Party"
+          }
+        }
+      }
+    },
+    "第三方应用" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Third-Party Apps"
+          }
+        }
+      }
+    },
+    "等待扫描" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting to Scan"
+          }
+        }
+      }
+    },
+    "筛选" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filter"
+          }
+        }
+      }
+    },
+    "管理登录时自动打开的 App" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manage apps that open at login"
+          }
+        }
+      }
+    },
+    "管理登录项、后台活动与应用扩展" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manage login items, background activity, and extensions"
+          }
+        }
+      }
+    },
+    "系统" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System"
+          }
+        }
+      }
+    },
+    "系统不支持" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not Supported"
+          }
+        }
+      }
+    },
+    "系统保护" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System Protected"
+          }
+        }
+      }
+    },
+    "系统总使用率" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total System Usage"
+          }
+        }
+      }
+    },
+    "系统本地语言模型已准备好，可供支持的 App 使用" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On-device language models are ready for supported apps"
+          }
+        }
+      }
+    },
+    "系统核心进程不会在这里结束。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Core system processes cannot be quit here."
+          }
+        }
+      }
+    },
+    "系统没有返回可识别的可用状态" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The system did not return a recognized availability state"
+          }
+        }
+      }
+    },
+    "系统磁盘" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System Disk"
+          }
+        }
+      }
+    },
+    "系统记录" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System Record"
+          }
+        }
+      }
+    },
+    "紧张" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elevated"
+          }
+        }
+      }
+    },
+    "绑定地址" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bind Address"
+          }
+        }
+      }
+    },
+    "结束" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quit"
+          }
+        }
+      }
+    },
+    "结束占用此端口的整个进程" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quit the process using this port"
+          }
+        }
+      }
+    },
+    "结束操作会终止整个进程，并释放该进程占用的全部端口。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quitting terminates the entire process and releases every port it uses."
+          }
+        }
+      }
+    },
+    "结束这个进程？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quit this process?"
+          }
+        }
+      }
+    },
+    "结束进程" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quit Process"
+          }
+        }
+      }
+    },
+    "给 Mac 做一次轻量清理" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Give your Mac a light cleanup"
+          }
+        }
+      }
+    },
+    "统一内存" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unified Memory"
+          }
+        }
+      }
+    },
+    "统计常见目录并按内容分类，同时列出占用较大的文件" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Categorize common folders and list large files"
+          }
+        }
+      }
+    },
+    "继续" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue"
+          }
+        }
+      }
+    },
+    "缓存 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cached %@"
+          }
+        }
+      }
+    },
+    "缓存、日志、安装包与开发工具垃圾" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Caches, logs, installers, and developer junk"
+          }
+        }
+      }
+    },
+    "缺少足够信息，删除前需要人工确认" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not enough information; review before deleting"
+          }
+        }
+      }
+    },
+    "自动启动" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Run at Load"
+          }
+        }
+      }
+    },
+    "范围" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scope"
+          }
+        }
+      }
+    },
+    "计算硬件" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compute Hardware"
+          }
+        }
+      }
+    },
+    "设备不支持" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Device Not Supported"
+          }
+        }
+      }
+    },
+    "设备支持，但尚未在系统设置中开启 Apple Intelligence" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The device is supported, but Apple Intelligence is not enabled in System Settings"
+          }
+        }
+      }
+    },
+    "设置" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        }
+      }
+    },
+    "请尝试其他关键词" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try another search term"
+          }
+        }
+      }
+    },
+    "请确认要移入废纸篓的内容。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review the items to move to Trash."
+          }
+        }
+      }
+    },
+    "请选择你的用户目录，用于扫描缓存与日志。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose your user folder to scan caches and logs."
+          }
+        }
+      }
+    },
+    "请选择你的用户目录或一个测试目录。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose your user folder or a test folder."
+          }
+        }
+      }
+    },
+    "资源占用最高的应用" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Top Resource-Using Apps"
+          }
+        }
+      }
+    },
+    "超过 500 MB · 仅供查看" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Over 500 MB · View only"
+          }
+        }
+      }
+    },
+    "路径不可用" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Path Unavailable"
+          }
+        }
+      }
+    },
+    "软件卸载" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uninstall"
+          }
+        }
+      }
+    },
+    "较高" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "High"
+          }
+        }
+      }
+    },
+    "这个进程不能在 Sift 中结束。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This process cannot be quit from Sift."
+          }
+        }
+      }
+    },
+    "这会重置全部登录项和后台活动记录，不只清理当前残留。仍然安装的 App 之后会重新登记，部分允许或禁止状态可能需要重新确认。完成后需要重启 Mac。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This resets all login item and background activity records, not just the current leftover. Installed apps will register again, and some allowed or blocked states may need confirmation. Restart your Mac afterward."
+          }
+        }
+      }
+    },
+    "进程" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Process"
+          }
+        }
+      }
+    },
+    "进程 %d" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Process %d"
+          }
+        }
+      }
+    },
+    "进程路径未知" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Process path unknown"
+          }
+        }
+      }
+    },
+    "进程退出或崩溃后，launchd 会根据条件尝试再次启动。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "After the process exits or crashes, launchd may try to start it again."
+          }
+        }
+      }
+    },
+    "退出后重启" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restart After Exit"
+          }
+        }
+      }
+    },
+    "选择 Applications 目录" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose Applications Folder"
+          }
+        }
+      }
+    },
+    "选择扫描目录" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose Scan Folder"
+          }
+        }
+      }
+    },
+    "选择目录" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose Folder"
+          }
+        }
+      }
+    },
+    "逐项确认" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review Each Item"
+          }
+        }
+      }
+    },
+    "通常只需要几秒钟" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usually takes only a few seconds"
+          }
+        }
+      }
+    },
+    "通过 Mac App Store 安装" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installed from the Mac App Store"
+          }
+        }
+      }
+    },
+    "配置仍在，但没有找到它指向的程序或所属应用" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The configuration remains, but its target program or owning app was not found"
+          }
+        }
+      }
+    },
+    "配置被 launchd 加载后自动启动。用户代理通常在登录时加载，后台服务通常在开机时加载。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Starts automatically when launchd loads the configuration. User agents usually load at login; daemons usually load at startup."
+          }
+        }
+      }
+    },
+    "重建全部后台任务数据库？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rebuild the entire background task database?"
+          }
+        }
+      }
+    },
+    "重建数据库" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rebuild Database"
+          }
+        }
+      }
+    },
+    "重新扫描" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan Again"
+          }
+        }
+      }
+    },
+    "需确认" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review"
+          }
+        }
+      }
+    },
+    "需要 macOS 26 或更高版本才能检查系统语言模型" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 26 or later is required to inspect system language models"
+          }
+        }
+      }
+    },
+    "需要完全磁盘访问权限" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Full Disk Access Required"
+          }
+        }
+      }
+    },
+    "项目类型" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Item Type"
+          }
+        }
+      }
+    },
+    "首页" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Home"
+          }
+        }
+      }
+    }
   },
   "version" : "1.0"
 }
