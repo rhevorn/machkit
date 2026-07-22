@@ -873,6 +873,16 @@
         }
       }
     },
+    "可以跟随 macOS，也可以固定为浅色或深色" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Follow macOS, or keep Sift in Light or Dark mode"
+          }
+        }
+      }
+    },
     "可供 Core ML 调度使用" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2194,6 +2204,16 @@
         }
       }
     },
+    "显示模式" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Display Mode"
+          }
+        }
+      }
+    },
     "暂停" : {
       "localizations" : {
         "en" : {
@@ -2205,6 +2225,7 @@
       }
     },
     "更改会立即应用到所有 Sift 窗口。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3297,6 +3318,27 @@
         }
       }
     },
+    "管理语言、外观与其他偏好设置" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manage language, appearance, and other preferences"
+          }
+        }
+      }
+    },
+    "管理语言、外观与其他偏好设置。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manage language, appearance, and other preferences."
+          }
+        }
+      }
+    },
     "系统" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3612,12 +3654,45 @@
         }
       }
     },
+    "设置 Sift 使用的界面语言" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose the interface language Sift uses"
+          }
+        }
+      }
+    },
     "语言" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Language"
+          }
+        }
+      }
+    },
+    "语言与地区" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Language & Region"
+          }
+        }
+      }
+    },
+    "语言切换会立即应用，当前扫描结果和选择不会丢失。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Language changes apply immediately without losing scan results or selections."
           }
         }
       }
@@ -3666,6 +3741,7 @@
       }
     },
     "调整 Sift 的语言和外观" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3845,6 +3921,27 @@
         }
       }
     },
+    "选择窗口使用的显示模式" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose the display mode used by the window"
+          }
+        }
+      }
+    },
+    "选择跟随系统，或为 Sift 单独指定语言" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Follow the system language or choose one specifically for Sift"
+          }
+        }
+      }
+    },
     "逐项确认" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3862,6 +3959,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Usually takes only a few seconds"
+          }
+        }
+      }
+    },
+    "通用" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "General"
           }
         }
       }
@@ -3966,106 +4074,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Item Type"
-          }
-        }
-      }
-    },
-    "可以跟随 macOS，也可以固定为浅色或深色" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Follow macOS, or keep Sift in Light or Dark mode"
-          }
-        }
-      }
-    },
-    "显示模式" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Display Mode"
-          }
-        }
-      }
-    },
-    "管理语言、外观与其他偏好设置" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Manage language, appearance, and other preferences"
-          }
-        }
-      }
-    },
-    "管理语言、外观与其他偏好设置。" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Manage language, appearance, and other preferences."
-          }
-        }
-      }
-    },
-    "设置 Sift 使用的界面语言" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose the interface language Sift uses"
-          }
-        }
-      }
-    },
-    "语言与地区" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Language & Region"
-          }
-        }
-      }
-    },
-    "语言切换会立即应用，当前扫描结果和选择不会丢失。" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Language changes apply immediately without losing scan results or selections."
-          }
-        }
-      }
-    },
-    "选择窗口使用的显示模式" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose the display mode used by the window"
-          }
-        }
-      }
-    },
-    "选择跟随系统，或为 Sift 单独指定语言" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Follow the system language or choose one specifically for Sift"
-          }
-        }
-      }
-    },
-    "通用" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "General"
           }
         }
       }
