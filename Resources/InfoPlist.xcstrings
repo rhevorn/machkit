@@ -1,0 +1,22 @@
+{
+  "sourceLanguage" : "zh-Hans",
+  "strings" : {
+    "NSAppleEventsUsageDescription" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sift needs access to System Events to read and remove login items configured in macOS."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sift 需要访问“系统事件”，以读取和移除你在 macOS 中配置的登录项。"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

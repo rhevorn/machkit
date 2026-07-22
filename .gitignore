@@ -14,10 +14,8 @@ xcuserdata/
 *.moved-aside
 *.dSYM/
 
-# Generated Sift debug app artifacts
-/DebugApp/Sift.app/Contents/MacOS/Sift
-/DebugApp/Sift.app/Contents/_CodeSignature/
-/DebugApp/**/*.dSYM/
+# Legacy generated debug app artifacts
+/DebugApp/
 
 # Local configuration
 .env

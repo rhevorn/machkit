@@ -202,7 +202,7 @@ final class PerformanceMonitor {
             }
             let name = application.localizedName
                 ?? application.bundleURL?.deletingPathExtension().lastPathComponent
-                ?? "进程 \(pid)"
+                ?? L10n.format("进程 %d", pid)
             results.append(ApplicationResourceUsage(
                 processIdentifier: pid,
                 name: name,

@@ -47,6 +47,88 @@ import Testing
     #expect(analysis.largeFiles.allSatisfy { $0.rule.risk == .review })
 }
 
+@Test func portScannerKeepsListenersAndBoundUDPPortsOnly() {
+    let output = """
+    p4100
+    cnode
+    u501
+    f12
+    PTCP
+    n127.0.0.1:5173
+    TST=LISTEN
+    f13
+    PTCP
+    n127.0.0.1:5173
+    TST=LISTEN
+    f15
+    PUDP
+    n*:5353
+    p4200
+    cgo-api
+    u501
+    f8
+    PUDP
+    n0.0.0.0:9000
+    f9
+    PUDP
+    n192.168.1.20:62000->8.8.8.8:53
+    """
+
+    let records = PortScanner.parseLSOFOutput(output)
+    let hasNodeTCP = records.contains { record in
+        record.processIdentifier == 4100 && record.transport == .tcp && record.port == 5173
+    }
+    let hasNodeUDP = records.contains { record in
+        record.processIdentifier == 4100 && record.transport == .udp && record.port == 5353
+    }
+    let hasGoUDP = records.contains { record in
+        record.processIdentifier == 4200 && record.transport == .udp && record.port == 9000
+    }
+    let hasConnectedUDP = records.contains { $0.port == 62000 }
+
+    #expect(records.count == 3)
+    #expect(hasNodeTCP)
+    #expect(hasNodeUDP)
+    #expect(hasGoUDP)
+    #expect(!hasConnectedUDP)
+}
+
+@Test func portTerminationProtectsSystemAndUnverifiedProcesses() {
+    let developerProcess = PortScanner.protectionReason(
+        processIdentifier: 4100,
+        ownerUserID: 501,
+        executablePath: "/opt/homebrew/bin/node",
+        currentUserID: 501,
+        currentProcessID: 9999
+    )
+    let systemProcess = PortScanner.protectionReason(
+        processIdentifier: 4200,
+        ownerUserID: 501,
+        executablePath: "/usr/libexec/rapportd",
+        currentUserID: 501,
+        currentProcessID: 9999
+    )
+    let otherUserProcess = PortScanner.protectionReason(
+        processIdentifier: 4300,
+        ownerUserID: 0,
+        executablePath: "/opt/homebrew/bin/node",
+        currentUserID: 501,
+        currentProcessID: 9999
+    )
+    let unknownProcess = PortScanner.protectionReason(
+        processIdentifier: 4400,
+        ownerUserID: 501,
+        executablePath: nil,
+        currentUserID: 501,
+        currentProcessID: 9999
+    )
+
+    #expect(developerProcess == nil)
+    #expect(systemProcess != nil)
+    #expect(otherUserProcess != nil)
+    #expect(unknownProcess != nil)
+}
+
 @Test func packageManagersExposeSafeUninstallGuidance() {
     #expect(CommandLineToolManager.homebrew.uninstallCommand(name: "ripgrep", version: nil) == "brew uninstall ripgrep")
     #expect(CommandLineToolManager.homebrewCask.uninstallCommand(name: "firefox", version: nil) == "brew uninstall --cask firefox")

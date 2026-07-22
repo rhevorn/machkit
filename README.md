@@ -1,6 +1,6 @@
 # Sift
 
-Sift 是一款安全优先的 macOS 本地管理工具，用于分析存储占用、检查磁盘垃圾、卸载应用，以及管理登录项和扩展。
+Sift 是一款安全优先的 macOS 本地管理工具，用于分析存储占用、检查磁盘垃圾、卸载应用、管理开发端口，以及检查登录项和扩展。
 
 登录项、后台活动和扩展统一收纳在“登录项与扩展”入口中，并通过分段标签快速切换。
 
@@ -39,6 +39,15 @@ Sift 是一款安全优先的 macOS 本地管理工具，用于分析存储占�
 - 离开页面或手动暂停后停止采样，不在后台持续占用资源。
 - 不提供“释放内存”功能；macOS 会自动管理缓存，判断内存状态应优先关注内存压力和交换空间。
 
+### 端口管理
+
+- 使用 macOS 自带的 `lsof` 显示 TCP 监听端口和 UDP 本地绑定，不把 UDP 远程连接误报为监听端口。
+- 显示端口、绑定地址、暴露范围、PID、进程名、可执行文件、工作目录和启动命令。
+- 支持按协议和对外暴露范围筛选，也可以搜索端口、PID、进程、路径或命令。
+- 经确认后可向当前用户拥有的非系统进程发送 `SIGTERM`；进程无响应时可以选择 `SIGKILL` 强制结束。
+- 不允许结束 Sift 自身、其他用户的进程或明确位于系统管理目录中的进程。
+- `launchd`、容器运行时或监护脚本可能自动重启已结束的进程，此时应继续检查对应的启动来源。
+
 ### 登录项
 
 - 显示登录当前账户后由 macOS 自动打开的 App。
@@ -71,6 +80,7 @@ Sift 是一款安全优先的 macOS 本地管理工具，用于分析存储占�
 - “需确认”项目不会默认选中。
 - 删除操作使用系统废纸篓，不执行永久删除。
 - 系统应用受到保护，应用内置扩展不会被单独破坏。
+- 结束端口进程前会显示确认；默认建议正常结束，强制结束可能造成未保存数据丢失。
 - 不安装 privileged helper；受管理员权限保护的项目可能需要在系统设置或 Finder 中处理。
 
 ## 系统要求
@@ -80,15 +90,46 @@ Sift 是一款安全优先的 macOS 本地管理工具，用于分析存储占�
 - 部分用户目录需要在“系统设置 → 隐私与安全性 → 完全磁盘访问权限”中授权
 - 读取和移除登录项需要允许 Sift 控制“系统事件”；也可以跳过授权，直接在系统设置中管理
 
-## 运行
+## Xcode 构建与调试
 
-在项目目录执行：
+项目包含正式的 macOS App 工程。打开工程：
 
 ```bash
-swift run Sift
+open Sift.xcodeproj
 ```
 
-也可以在 Xcode 中直接打开 `Package.swift`。
+在 Xcode 顶部选择 `Sift App` Scheme 和 `My Mac` 运行目标：
+
+- `⌘R`：构建并启动 `Sift.app`，支持断点调试。
+- `⌘B`：只构建 App。
+- `⌘U`：运行 `SiftCoreTests` 测试。
+- `Product → Show Build Folder in Finder`：在 Finder 中查看生成的 App。
+- `Product → Archive`：创建发布归档；正式分发前需要在 Target 的 Signing & Capabilities 中选择开发者团队和签名证书。
+
+也可以在终端构建一个可直接查看和运行的 Debug App：
+
+```bash
+xcodebuild \
+  -project Sift.xcodeproj \
+  -scheme "Sift App" \
+  -configuration Debug \
+  -derivedDataPath build/XcodeDerivedData \
+  build
+
+open build/XcodeDerivedData/Build/Products/Debug/Sift.app
+```
+
+App 使用固定 Bundle Identifier `dev.sift.app`，包含 Info.plist、Apple Events 权限说明、Entitlements 和完整的 macOS App Icon。为支持端口/进程管理和本地系统盘点，App Sandbox 默认关闭。
+
+界面支持简体中文和英文，并自动跟随 macOS 的 App 语言设置。可以在“系统设置 → 通用 → 语言与地区 → 应用程序”中为 Sift 单独选择语言；修改后重新启动 App 生效。
+
+## Swift Package 开发
+
+`Package.swift` 只负责可复用、可测试的核心库。macOS App 统一由 Xcode 工程运行，避免出现两个 App Scheme：
+
+```bash
+swift build
+```
 
 运行测试：
 
@@ -99,15 +140,22 @@ swift test
 ## 项目结构
 
 ```text
+App/
+├── Sources/       SwiftUI 应用、界面和状态管理
+├── Info.plist     App Bundle 元数据和权限说明
+└── Sift.entitlements
+
 Sources/
-├── Sift/          SwiftUI 应用、界面和状态管理
 └── SiftCore/      扫描、风险判断、清理和系统盘点逻辑
+
+Resources/
+├── Assets.xcassets/ macOS App Icon 和资源
+└── Localizable.xcstrings 中英文界面文本
 
 Tests/
 └── SiftCoreTests/ 安全边界与产品行为测试
 
-DebugApp/
-└── Sift.app/      本地调试 App 外壳；可执行文件和签名不会提交到 Git
+Sift.xcodeproj/    正式 macOS App 工程、App Target、测试 Target 和共享 Scheme
 ```
 
 ## 当前状态
