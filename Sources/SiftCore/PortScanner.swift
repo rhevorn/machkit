@@ -42,6 +42,8 @@ public actor PortScanner {
 
         let ports = records.map { record in
             let executableURL = executableURL(processIdentifier: record.processIdentifier)
+            let workingDirectoryURL = workingDirectories[record.processIdentifier]
+            let commandLine = commandLines[record.processIdentifier]
             let protectionReason = Self.protectionReason(
                 processIdentifier: record.processIdentifier,
                 ownerUserID: record.ownerUserID,
@@ -52,14 +54,20 @@ public actor PortScanner {
             return ListeningPort(
                 processIdentifier: record.processIdentifier,
                 processName: record.processName,
+                processDescription: Self.processDescription(
+                    processName: record.processName,
+                    executablePath: executableURL?.path,
+                    commandLine: commandLine,
+                    port: record.port
+                ),
                 ownerUserID: record.ownerUserID,
                 transport: record.transport,
                 localAddress: record.localAddress,
                 port: record.port,
                 exposure: Self.exposure(for: record.localAddress),
                 executableURL: executableURL,
-                workingDirectoryURL: workingDirectories[record.processIdentifier],
-                commandLine: commandLines[record.processIdentifier],
+                workingDirectoryURL: workingDirectoryURL,
+                commandLine: commandLine,
                 canTerminate: protectionReason == nil,
                 protectionReason: protectionReason
             )
@@ -145,7 +153,7 @@ public actor PortScanner {
 
         for rawLine in output.split(whereSeparator: \.isNewline) {
             guard let prefix = rawLine.first else { continue }
-            let value = String(rawLine.dropFirst())
+            let value = decodeEscapedUTF8(String(rawLine.dropFirst()))
             switch prefix {
             case "p":
                 appendSocket()
@@ -202,7 +210,7 @@ public actor PortScanner {
         var result: [Int32: URL] = [:]
         for rawLine in output.text.split(whereSeparator: \.isNewline) {
             guard let prefix = rawLine.first else { continue }
-            let value = String(rawLine.dropFirst())
+            let value = Self.decodeEscapedUTF8(String(rawLine.dropFirst()))
             if prefix == "p" { currentProcessID = Int32(value) }
             if prefix == "n", let currentProcessID {
                 result[currentProcessID] = URL(fileURLWithPath: value, isDirectory: true)
@@ -213,21 +221,144 @@ public actor PortScanner {
 
     private func loadCommandLines(processIDs: [Int32]) -> [Int32: String] {
         guard !processIDs.isEmpty else { return [:] }
-        let processList = processIDs.map(String.init).joined(separator: ",")
-        guard let output = try? run(
-            executable: "/bin/ps",
-            arguments: ["-ww", "-p", processList, "-o", "pid=", "-o", "command="]
-        ) else { return [:] }
-
         var result: [Int32: String] = [:]
-        for rawLine in output.text.split(whereSeparator: \.isNewline) {
-            let line = rawLine.drop(while: \.isWhitespace)
-            guard let separator = line.firstIndex(where: \.isWhitespace),
-                  let processIdentifier = Int32(line[..<separator]) else { continue }
-            let command = line[separator...].drop(while: \.isWhitespace)
-            if !command.isEmpty { result[processIdentifier] = String(command.prefix(500)) }
+        for processIdentifier in processIDs {
+            if let commandLine = commandLine(processIdentifier: processIdentifier) {
+                result[processIdentifier] = String(commandLine.prefix(500))
+            }
         }
         return result
+    }
+
+    private func commandLine(processIdentifier: Int32) -> String? {
+        var query = [Int32(CTL_KERN), Int32(KERN_PROCARGS2), processIdentifier]
+        var size = 0
+        guard sysctl(&query, UInt32(query.count), nil, &size, nil, 0) == 0, size > MemoryLayout<Int32>.size else {
+            return nil
+        }
+
+        var buffer = [UInt8](repeating: 0, count: size)
+        let status = buffer.withUnsafeMutableBytes { bytes in
+            sysctl(&query, UInt32(query.count), bytes.baseAddress, &size, nil, 0)
+        }
+        guard status == 0, size > MemoryLayout<Int32>.size else { return nil }
+
+        let argumentCount = buffer.withUnsafeBytes {
+            Int($0.loadUnaligned(as: Int32.self))
+        }
+        guard argumentCount > 0 else { return nil }
+
+        var index = MemoryLayout<Int32>.size
+        while index < size, buffer[index] != 0 { index += 1 }
+        while index < size, buffer[index] == 0 { index += 1 }
+
+        var arguments: [String] = []
+        for _ in 0..<argumentCount where index < size {
+            let start = index
+            while index < size, buffer[index] != 0 { index += 1 }
+            let argument = String(decoding: buffer[start..<index], as: UTF8.self)
+            arguments.append(Self.displayArgument(argument))
+            index += 1
+        }
+        let command = arguments.joined(separator: " ").trimmingCharacters(in: .whitespacesAndNewlines)
+        return command.isEmpty ? nil : command
+    }
+
+    private static func displayArgument(_ argument: String) -> String {
+        guard argument.contains(where: { $0.isWhitespace || $0 == "\"" }) else { return argument }
+        let escaped = argument
+            .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "\"", with: "\\\"")
+        return "\"\(escaped)\""
+    }
+
+    static func decodeEscapedUTF8(_ value: String) -> String {
+        let bytes = Array(value.utf8)
+        var decoded: [UInt8] = []
+        var index = 0
+        var decodedExtendedByte = false
+        while index < bytes.count {
+            if index + 3 < bytes.count,
+               bytes[index] == 0x5C,
+               bytes[index + 1] == 0x78,
+               let high = hexValue(bytes[index + 2]),
+               let low = hexValue(bytes[index + 3]) {
+                let byte = high << 4 | low
+                decoded.append(byte)
+                decodedExtendedByte = decodedExtendedByte || byte >= 0x80
+                index += 4
+            } else {
+                decoded.append(bytes[index])
+                index += 1
+            }
+        }
+        guard decodedExtendedByte, let result = String(bytes: decoded, encoding: .utf8) else { return value }
+        return result
+    }
+
+    private static func hexValue(_ byte: UInt8) -> UInt8? {
+        switch byte {
+        case 48...57: byte - 48
+        case 65...70: byte - 55
+        case 97...102: byte - 87
+        default: nil
+        }
+    }
+
+    static func processDescription(
+        processName: String,
+        executablePath: String?,
+        commandLine: String?,
+        port: UInt16
+    ) -> String {
+        let name = processName.lowercased()
+        let command = commandLine?.lowercased() ?? ""
+        let executable = executablePath?.lowercased() ?? ""
+        let combined = "\(name) \(command) \(executable)"
+
+        if combined.contains("vite") { return "Vite 开发服务器" }
+        if combined.contains("next-server") || combined.contains("next dev") || combined.contains("next start") {
+            return "Next.js 开发服务器"
+        }
+        if combined.contains("nuxt") { return "Nuxt 开发服务器" }
+        if combined.contains("webpack") { return "Webpack 开发服务器" }
+        if name == "node" || executable.hasSuffix("/node") { return "Node.js 网络服务" }
+        if name == "bun" || executable.hasSuffix("/bun") { return "Bun 开发服务" }
+
+        if combined.contains("uvicorn") { return "Uvicorn / FastAPI 服务" }
+        if combined.contains("flask") { return "Flask 开发服务器" }
+        if combined.contains("manage.py runserver") { return "Django 开发服务器" }
+        if combined.contains("-m http.server") { return "Python HTTP 服务器" }
+        if name.hasPrefix("python") || executable.contains("/python") { return "Python 网络服务" }
+
+        if name == "air" || combined.contains("/air ") { return "Go 热重载开发服务" }
+        if combined.contains("go run") || executable.contains("/go-build/") { return "Go 开发服务" }
+        if combined.contains("rails server") || name == "puma" { return "Ruby on Rails 服务" }
+        if combined.contains("spring-boot") || combined.contains("org.springframework") { return "Spring Boot 服务" }
+
+        if name == "docker-proxy" { return "Docker 容器端口代理" }
+        if combined.contains("com.docker.backend") { return "Docker Desktop 后台服务" }
+        if name.hasPrefix("postgres") { return "PostgreSQL 数据库" }
+        if name == "mysqld" || name == "mariadbd" { return "MySQL / MariaDB 数据库" }
+        if name.hasPrefix("redis") { return "Redis 数据库" }
+        if name == "mongod" { return "MongoDB 数据库" }
+        if name == "nginx" { return "Nginx Web 服务器" }
+        if name == "caddy" { return "Caddy Web 服务器" }
+        if name == "httpd" || name == "apache2" { return "Apache Web 服务器" }
+        if name == "rapportd" { return "Apple 设备通信服务" }
+        if name == "sharingd" { return "macOS 共享服务" }
+
+        switch port {
+        case 22: return "SSH 远程登录服务"
+        case 53: return "DNS 域名服务"
+        case 80, 443: return "Web 服务器"
+        case 3306: return "MySQL 数据库"
+        case 5432: return "PostgreSQL 数据库"
+        case 6379: return "Redis 数据库"
+        case 27017: return "MongoDB 数据库"
+        case 3000, 3001, 4000, 4200, 5000, 5173, 8000, 8080, 8888: return "本地开发服务"
+        default: return "网络服务进程"
+        }
     }
 
     private func executableURL(processIdentifier: Int32) -> URL? {
@@ -278,6 +409,10 @@ public actor PortScanner {
         let outputPipe = Pipe()
         process.executableURL = URL(fileURLWithPath: executable)
         process.arguments = arguments
+        process.environment = ProcessInfo.processInfo.environment.merging([
+            "LANG": "en_US.UTF-8",
+            "LC_ALL": "en_US.UTF-8"
+        ]) { _, preferred in preferred }
         process.standardOutput = outputPipe
         process.standardError = outputPipe
         try process.run()

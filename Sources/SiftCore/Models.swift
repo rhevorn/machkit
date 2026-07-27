@@ -21,6 +21,7 @@ public struct ListeningPort: Identifiable, Sendable, Hashable {
     public let id: String
     public let processIdentifier: Int32
     public let processName: String
+    public let processDescription: String
     public let ownerUserID: UInt32
     public let transport: NetworkTransport
     public let localAddress: String
@@ -35,6 +36,7 @@ public struct ListeningPort: Identifiable, Sendable, Hashable {
     public init(
         processIdentifier: Int32,
         processName: String,
+        processDescription: String,
         ownerUserID: UInt32,
         transport: NetworkTransport,
         localAddress: String,
@@ -49,6 +51,7 @@ public struct ListeningPort: Identifiable, Sendable, Hashable {
         self.id = "\(processIdentifier)|\(transport.rawValue)|\(localAddress)|\(port)"
         self.processIdentifier = processIdentifier
         self.processName = processName
+        self.processDescription = processDescription
         self.ownerUserID = ownerUserID
         self.transport = transport
         self.localAddress = localAddress

@@ -4733,6 +4733,336 @@
         }
       }
     },
+    "Apple 设备通信服务" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Device Communication Service"
+          }
+        }
+      }
+    },
+    "Apache Web 服务器" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apache Web Server"
+          }
+        }
+      }
+    },
+    "Bun 开发服务" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bun Development Service"
+          }
+        }
+      }
+    },
+    "Caddy Web 服务器" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Caddy Web Server"
+          }
+        }
+      }
+    },
+    "Django 开发服务器" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Django Development Server"
+          }
+        }
+      }
+    },
+    "DNS 域名服务" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DNS Service"
+          }
+        }
+      }
+    },
+    "Docker Desktop 后台服务" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Docker Desktop Background Service"
+          }
+        }
+      }
+    },
+    "Docker 容器端口代理" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Docker Container Port Proxy"
+          }
+        }
+      }
+    },
+    "Flask 开发服务器" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flask Development Server"
+          }
+        }
+      }
+    },
+    "Go 开发服务" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go Development Service"
+          }
+        }
+      }
+    },
+    "Go 热重载开发服务" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go Live Reload Service"
+          }
+        }
+      }
+    },
+    "MongoDB 数据库" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MongoDB Database"
+          }
+        }
+      }
+    },
+    "MySQL / MariaDB 数据库" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MySQL / MariaDB Database"
+          }
+        }
+      }
+    },
+    "MySQL 数据库" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MySQL Database"
+          }
+        }
+      }
+    },
+    "Next.js 开发服务器" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next.js Development Server"
+          }
+        }
+      }
+    },
+    "Nginx Web 服务器" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nginx Web Server"
+          }
+        }
+      }
+    },
+    "Node.js 网络服务" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Node.js Network Service"
+          }
+        }
+      }
+    },
+    "Nuxt 开发服务器" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuxt Development Server"
+          }
+        }
+      }
+    },
+    "PostgreSQL 数据库" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PostgreSQL Database"
+          }
+        }
+      }
+    },
+    "Python HTTP 服务器" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Python HTTP Server"
+          }
+        }
+      }
+    },
+    "Python 网络服务" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Python Network Service"
+          }
+        }
+      }
+    },
+    "Redis 数据库" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Redis Database"
+          }
+        }
+      }
+    },
+    "Ruby on Rails 服务" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ruby on Rails Service"
+          }
+        }
+      }
+    },
+    "Spring Boot 服务" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spring Boot Service"
+          }
+        }
+      }
+    },
+    "SSH 远程登录服务" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SSH Remote Login Service"
+          }
+        }
+      }
+    },
+    "Uvicorn / FastAPI 服务" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uvicorn / FastAPI Service"
+          }
+        }
+      }
+    },
+    "Vite 开发服务器" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vite Development Server"
+          }
+        }
+      }
+    },
+    "Web 服务器" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Web Server"
+          }
+        }
+      }
+    },
+    "Webpack 开发服务器" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Webpack Development Server"
+          }
+        }
+      }
+    },
+    "macOS 共享服务" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS Sharing Service"
+          }
+        }
+      }
+    },
+    "本地开发服务" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Local Development Service"
+          }
+        }
+      }
+    },
+    "进程描述" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Process Description"
+          }
+        }
+      }
+    },
+    "网络服务进程" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Network Service Process"
+          }
+        }
+      }
+    },
     "首页" : {
       "extractionState" : "stale",
       "localizations" : {

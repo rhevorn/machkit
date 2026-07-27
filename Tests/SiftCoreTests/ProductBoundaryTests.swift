@@ -93,6 +93,39 @@ import Testing
     #expect(!hasConnectedUDP)
 }
 
+@Test func portScannerDecodesEscapedUTF8Paths() {
+    let escaped = "/Users/test/\\xe4\\xb8\\xad\\xe6\\x96\\x87\\xe9\\xa1\\xb9\\xe7\\x9b\\xae"
+    #expect(PortScanner.decodeEscapedUTF8(escaped) == "/Users/test/中文项目")
+    #expect(PortScanner.decodeEscapedUTF8("/tmp/folder\\x20name") == "/tmp/folder\\x20name")
+}
+
+@Test func portScannerDescribesCommonDeveloperServices() {
+    #expect(PortScanner.processDescription(
+        processName: "node",
+        executablePath: "/opt/homebrew/bin/node",
+        commandLine: "node /workspace/node_modules/.bin/vite --host",
+        port: 5173
+    ) == "Vite 开发服务器")
+    #expect(PortScanner.processDescription(
+        processName: "api",
+        executablePath: "/private/var/folders/example/go-build/api",
+        commandLine: "/private/var/folders/example/go-build/api",
+        port: 8080
+    ) == "Go 开发服务")
+    #expect(PortScanner.processDescription(
+        processName: "python3",
+        executablePath: "/opt/homebrew/bin/python3",
+        commandLine: "python3 -m uvicorn app:main",
+        port: 8000
+    ) == "Uvicorn / FastAPI 服务")
+    #expect(PortScanner.processDescription(
+        processName: "postgres",
+        executablePath: "/opt/homebrew/bin/postgres",
+        commandLine: nil,
+        port: 5432
+    ) == "PostgreSQL 数据库")
+}
+
 @Test func portTerminationProtectsSystemAndUnverifiedProcesses() {
     let developerProcess = PortScanner.protectionReason(
         processIdentifier: 4100,

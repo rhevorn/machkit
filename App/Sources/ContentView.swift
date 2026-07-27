@@ -1656,6 +1656,7 @@ struct ContentView: View {
                 String(port.port),
                 String(port.processIdentifier),
                 port.processName,
+                port.processDescription.localized,
                 port.localAddress,
                 port.executableURL?.path ?? "",
                 port.workingDirectoryURL?.path ?? "",
@@ -1702,10 +1703,12 @@ struct ContentView: View {
             Button { selectedPort = port } label: {
                 HStack(spacing: 9) {
                     processIcon(port)
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: 3) {
                         Text(port.processName).font(.system(size: 12, weight: .medium)).lineLimit(1)
+                        Text(port.processDescription.localized)
+                            .font(.caption).foregroundStyle(.secondary).lineLimit(1)
                         Text("PID \(port.processIdentifier) · \(portProcessSubtitle(port))")
-                            .font(.caption2).foregroundStyle(.secondary).lineLimit(1).truncationMode(.middle)
+                            .font(.caption2).foregroundStyle(.tertiary).lineLimit(1).truncationMode(.middle)
                     }
                     Spacer()
                 }
@@ -1726,7 +1729,7 @@ struct ContentView: View {
                 .frame(width: 74, alignment: .trailing)
         }
         .padding(.horizontal, 13)
-        .frame(minHeight: 58)
+        .frame(minHeight: 68)
         .contextMenu {
             Button("查看进程详情") { selectedPort = port }
             if let executableURL = port.executableURL {
@@ -1772,6 +1775,7 @@ struct ContentView: View {
                 processIcon(port)
                 VStack(alignment: .leading, spacing: 3) {
                     Text(port.processName).font(.title3.weight(.semibold))
+                    Text(port.processDescription.localized).font(.caption).foregroundStyle(.secondary)
                     Text("PID \(port.processIdentifier)").font(.caption).foregroundStyle(.secondary).monospacedDigit()
                 }
                 Spacer()
@@ -1782,6 +1786,8 @@ struct ContentView: View {
             }
 
             VStack(spacing: 0) {
+                portDetailRow("进程描述", value: port.processDescription.localized)
+                Divider().padding(.leading, 104)
                 portDetailRow("监听范围", value: port.exposure.rawValue.localized)
                 Divider().padding(.leading, 104)
                 portDetailRow("可执行文件", value: port.executableURL?.path ?? L10n.string("无法读取"))
