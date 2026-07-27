@@ -35,6 +35,19 @@ struct ApplicationGroup: Identifiable, Sendable {
     var bytes: Int64 { applications.reduce(0) { $0 + $1.bytes } }
 }
 
+struct SystemStorageSnapshot: Sendable {
+    let totalCapacity: Int64
+    let availableCapacity: Int64
+
+    static let empty = SystemStorageSnapshot(totalCapacity: 0, availableCapacity: 0)
+
+    var usedCapacity: Int64 { max(0, totalCapacity - availableCapacity) }
+    var usedFraction: Double {
+        guard totalCapacity > 0 else { return 0 }
+        return min(1, max(0, Double(usedCapacity) / Double(totalCapacity)))
+    }
+}
+
 @MainActor
 final class CleanerViewModel: ObservableObject {
     @Published var mode: FeatureMode = .home
@@ -43,6 +56,9 @@ final class CleanerViewModel: ObservableObject {
     @Published private(set) var storageAnalysis: StorageAnalysis?
     @Published private(set) var performanceSnapshot: PerformanceSnapshot?
     @Published private(set) var performanceHistory: [PerformanceHistoryPoint] = []
+    @Published private(set) var systemStorage = SystemStorageSnapshot.empty
+    @Published private(set) var cleanableBytes: Int64?
+    @Published private(set) var hasLoadedPortSnapshot = false
     @Published private(set) var isPerformanceMonitoring = false
     @Published private(set) var isOptimizingMemory = false
     @Published private(set) var listeningPorts: [ListeningPort] = []
@@ -100,6 +116,7 @@ final class CleanerViewModel: ObservableObject {
     private var inventoryTask: Task<Void, Never>?
     private var performanceTask: Task<Void, Never>?
     private var portMonitoringTask: Task<Void, Never>?
+    private var homeMonitoringTask: Task<Void, Never>?
     private var hasScannedApplications = false
     private var hasAnalyzedStorage = false
     private var hasScannedLoginApplications = false
@@ -111,6 +128,12 @@ final class CleanerViewModel: ObservableObject {
     var lastScanText: String {
         guard let lastScanAt else { return L10n.string("尚未扫描") }
         return lastScanAt.formatted(date: .omitted, time: .shortened)
+    }
+
+    init() {
+        refreshSystemStorage()
+        refreshPerformanceSnapshot()
+        startHomeMonitoring()
     }
 
     func selectHomeAndScan() {
@@ -186,6 +209,7 @@ final class CleanerViewModel: ObservableObject {
                 items = found
                 selectedIDs = Set(found.filter { $0.rule.risk == .safe }.map(\.id))
                 rebuildJunkGroups()
+                cleanableBytes = selectedBytes
                 status = L10n.format("扫描完成，发现 %lld 个候选文件。", Int64(found.count))
             case .junk:
                 let found = await scanJunk(root: root)
@@ -193,6 +217,7 @@ final class CleanerViewModel: ObservableObject {
                 items = found
                 selectedIDs = Set(found.filter { $0.rule.risk == .safe }.map(\.id))
                 rebuildJunkGroups()
+                cleanableBytes = selectedBytes
                 status = L10n.format("找到 %lld 个候选文件。标记为“需确认”的项目不会默认选中。", Int64(found.count))
             case .uninstall:
                 let found = await applicationScanner.applications(in: root)
@@ -339,6 +364,67 @@ final class CleanerViewModel: ObservableObject {
         }
     }
 
+    private func refreshSystemStorage() {
+        let root = URL(fileURLWithPath: "/", isDirectory: true)
+        if let values = try? root.resourceValues(forKeys: [
+            .volumeTotalCapacityKey,
+            .volumeAvailableCapacityKey,
+            .volumeAvailableCapacityForImportantUsageKey
+        ]) {
+            let total = Int64(values.volumeTotalCapacity ?? 0)
+            let available = values.volumeAvailableCapacityForImportantUsage
+                ?? Int64(values.volumeAvailableCapacity ?? 0)
+            if total > 0 {
+                systemStorage = SystemStorageSnapshot(
+                    totalCapacity: total,
+                    availableCapacity: min(total, max(0, available))
+                )
+                return
+            }
+        }
+
+        let attributes = try? FileManager.default.attributesOfFileSystem(forPath: root.path)
+        systemStorage = SystemStorageSnapshot(
+            totalCapacity: (attributes?[.systemSize] as? NSNumber)?.int64Value ?? 0,
+            availableCapacity: (attributes?[.systemFreeSize] as? NSNumber)?.int64Value ?? 0
+        )
+    }
+
+    private func startHomeMonitoring() {
+        homeMonitoringTask?.cancel()
+        refreshSystemStorage()
+        homeMonitoringTask = Task { [weak self] in
+            do {
+                try await Task.sleep(for: .seconds(1))
+            } catch {
+                return
+            }
+
+            var refreshCount = 0
+            while !Task.isCancelled {
+                guard let self, self.mode == .home else { return }
+                if NSApp.isActive {
+                    self.refreshSystemStorage()
+                    self.refreshPerformanceSnapshot()
+
+                    if refreshCount.isMultiple(of: 4), !self.isScanning {
+                        let result = await self.portScanner.scan()
+                        guard !Task.isCancelled, self.mode == .home else { return }
+                        self.listeningPorts = result.ports
+                        self.hasLoadedPortSnapshot = true
+                    }
+                    refreshCount += 1
+                }
+
+                do {
+                    try await Task.sleep(for: .seconds(3))
+                } catch {
+                    return
+                }
+            }
+        }
+    }
+
     func scanPorts() {
         inventoryTask?.cancel()
         isScanning = true
@@ -348,6 +434,7 @@ final class CleanerViewModel: ObservableObject {
             let result = await portScanner.scan()
             guard !Task.isCancelled, mode == .ports else { return }
             listeningPorts = result.ports
+            hasLoadedPortSnapshot = true
             portScanError = result.errorMessage
             lastScanAt = Date()
             isScanning = false
@@ -427,6 +514,8 @@ final class CleanerViewModel: ObservableObject {
         performanceTask = nil
         portMonitoringTask?.cancel()
         portMonitoringTask = nil
+        homeMonitoringTask?.cancel()
+        homeMonitoringTask = nil
         isPerformanceMonitoring = false
         isScanning = false
         mode = newMode
@@ -435,7 +524,9 @@ final class CleanerViewModel: ObservableObject {
         selectedIDs = []
         rebuildJunkGroups()
         switch newMode {
-        case .home: status = L10n.string("检查存储空间，快速进入常用工具。")
+        case .home:
+            status = L10n.string("检查存储空间，快速进入常用工具。")
+            startHomeMonitoring()
         case .junk: status = L10n.string("请选择你的用户目录，用于扫描缓存与日志。")
         case .uninstall:
             if hasScannedApplications {
@@ -810,6 +901,7 @@ final class CleanerViewModel: ObservableObject {
             items.removeAll { moved.contains($0.url) }
             selectedIDs.subtract(selected.map(\.id))
             rebuildJunkGroups()
+            cleanableBytes = selectedBytes
             status = L10n.format(
                 "已移入废纸篓 %lld 项；失败 %lld 项。可从废纸篓恢复。",
                 Int64(result.movedToTrash.count),

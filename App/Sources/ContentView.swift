@@ -235,23 +235,59 @@ struct ContentView: View {
 
     private var homeView: some View {
         ScrollView {
-            VStack(spacing: 14) {
-                header(title: "Sift", subtitle: "安静、可靠地管理 Mac 存储空间")
-                permissionCard
-                healthCard
-                quickActionCard
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                    homeTile(title: "垃圾清理", subtitle: junkSummary, icon: "paintbrush", mode: .junk)
-                    homeTile(title: "软件卸载", subtitle: "查找应用与关联残留", icon: "app.badge.checkmark", mode: .uninstall)
-                    homeTile(title: "存储分析", subtitle: "查看磁盘分类与大文件", icon: "chart.pie.fill", mode: .files)
-                    homeTile(title: "性能监控", subtitle: "CPU、内存压力与高占用应用", icon: "gauge.with.dots.needle.67percent", mode: .performance)
-                    homeTile(title: "端口管理", subtitle: "查找并结束遗忘的开发服务", icon: "network", mode: .ports)
-                    homeTile(title: "开发工具缓存", subtitle: "npm、Python、Cargo、Xcode", icon: "chevron.left.forwardslash.chevron.right", mode: .junk)
-                    homeTile(title: "登录项", subtitle: "管理登录时自动打开的 App", icon: "person.badge.key", mode: .loginItems)
-                    homeTile(title: "后台活动", subtitle: "检查后台代理与服务", icon: "waveform.path.ecg", mode: .backgroundActivity)
-                    homeTile(title: "扩展", subtitle: "盘点应用、系统与浏览器扩展", icon: "puzzlepiece.extension", mode: .extensions)
+            LazyVStack(alignment: .leading, spacing: 16) {
+                header(title: "概览", subtitle: "这台 Mac 的实时状态与常用工具")
+                homeStorageOverview
+                if !permissions.hasFullDiskAccess {
+                    permissionCard
                 }
-            }.padding(18)
+
+                HStack {
+                    Text("实时状态").font(.system(size: 14, weight: .semibold))
+                    Spacer()
+                    HStack(spacing: 5) {
+                        Circle().fill(Color.green).frame(width: 6, height: 6)
+                        Text("自动更新").font(.caption).foregroundStyle(.secondary)
+                    }
+                }
+
+                homeMetrics
+                homeQuickAction
+
+                HStack(alignment: .firstTextBaseline) {
+                    Text("常用工具").font(.system(size: 14, weight: .semibold))
+                    Spacer()
+                    Text("本机处理，不上传数据").font(.caption).foregroundStyle(.secondary)
+                }
+
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                    homeToolTile(
+                        title: "垃圾清理", subtitle: "缓存、日志与开发工具垃圾",
+                        icon: "paintbrush.fill", color: .blue, mode: .junk
+                    )
+                    homeToolTile(
+                        title: "存储分析", subtitle: "磁盘分类、目录占用与大文件",
+                        icon: "chart.pie.fill", color: .indigo, mode: .files
+                    )
+                    homeToolTile(
+                        title: "软件卸载", subtitle: "应用、命令行工具与关联残留",
+                        icon: "app.badge.checkmark", color: .purple, mode: .uninstall
+                    )
+                    homeToolTile(
+                        title: "性能监控", subtitle: "CPU、内存压力与高占用应用",
+                        icon: "gauge.with.dots.needle.67percent", color: .mint, mode: .performance
+                    )
+                    homeToolTile(
+                        title: "端口管理", subtitle: "查看并结束遗忘的开发服务",
+                        icon: "network", color: .orange, mode: .ports
+                    )
+                    homeToolTile(
+                        title: "登录项与扩展", subtitle: "启动项、后台活动与应用扩展",
+                        icon: "switch.2", color: .cyan, mode: .loginItems
+                    )
+                }
+            }
+            .padding(18)
         }
     }
 
@@ -278,61 +314,221 @@ struct ContentView: View {
         .background { RoundedRectangle(cornerRadius: 9).fill((permissions.hasFullDiskAccess ? Color.green : Color.orange).opacity(0.08)) }
     }
 
-    private var healthCard: some View {
-        HStack(spacing: 14) {
+    private var homeStorageOverview: some View {
+        let storage = model.systemStorage
+        let color = homeStorageColor(storage.usedFraction)
+        let percent = Int((storage.usedFraction * 100).rounded())
+        return HStack(spacing: 18) {
             ZStack {
-                RoundedRectangle(cornerRadius: 10).fill(Color.accentColor.opacity(0.10))
-                Image(systemName: model.items.isEmpty ? "desktopcomputer" : "checkmark.shield.fill")
-                    .font(.system(size: 25)).foregroundStyle(Color.accentColor)
-            }.frame(width: 52, height: 52)
-            VStack(alignment: .leading, spacing: 4) {
-                Text(model.items.isEmpty ? "Mac 需要一次存储检查" : "Mac 存储状态良好")
-                    .font(.system(size: 16, weight: .semibold))
-                Text(model.items.isEmpty ? "扫描可安全清理的缓存和日志" : "发现 \(formatted(model.totalBytes)) 可清理内容")
-                    .font(.system(size: 12)).foregroundStyle(.secondary)
-            }
-            Spacer()
-            Button("立即检查", action: scanHome).buttonStyle(.bordered)
-        }
-        .padding(16)
-        .background { RoundedRectangle(cornerRadius: 10).fill(Color(nsColor: .controlBackgroundColor)) }
-    }
-
-    private var quickActionCard: some View {
-        VStack(spacing: 12) {
-            HStack {
-                Label("快速清理", systemImage: "bolt.fill").font(.system(size: 14, weight: .semibold))
-                Spacer()
-                Text(model.items.isEmpty ? "等待扫描" : "可清理 \(formatted(model.selectedBytes))")
-                    .font(.system(size: 12)).foregroundStyle(.secondary)
-            }
-            Button(action: performQuickAction) {
-                HStack {
-                    if model.isScanning { ProgressView().controlSize(.small).tint(.white) }
-                    Text(model.isScanning ? "正在扫描" : (model.items.isEmpty ? "扫描" : "清理所选项目"))
-                        .frame(maxWidth: .infinity)
+                Circle()
+                    .stroke(color.opacity(0.12), lineWidth: 9)
+                Circle()
+                    .trim(from: 0, to: storage.totalCapacity > 0 ? max(0.015, storage.usedFraction) : 0)
+                    .stroke(color, style: StrokeStyle(lineWidth: 9, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                VStack(spacing: 1) {
+                    Text(storage.totalCapacity > 0 ? "\(percent)%" : "—")
+                        .font(.system(size: 19, weight: .semibold, design: .rounded))
+                        .monospacedDigit()
+                    Text("已使用").font(.system(size: 9)).foregroundStyle(.secondary)
                 }
             }
-            .buttonStyle(.borderedProminent).controlSize(.large).disabled(model.isScanning)
+            .frame(width: 86, height: 86)
+
+            VStack(alignment: .leading, spacing: 7) {
+                HStack(spacing: 7) {
+                    Image(systemName: homeStorageIcon(storage.usedFraction))
+                        .foregroundStyle(color)
+                    Text(homeStorageTitle(storage).localized)
+                        .font(.system(size: 17, weight: .semibold))
+                }
+                Text(homeStorageDescription(storage))
+                    .font(.system(size: 12)).foregroundStyle(.secondary)
+                HStack(spacing: 14) {
+                    Label("已用 \(formatted(storage.usedCapacity))", systemImage: "internaldrive.fill")
+                    Label("可用 \(formatted(storage.availableCapacity))", systemImage: "checkmark.circle")
+                }
+                .font(.caption).foregroundStyle(.secondary)
+            }
+
+            Spacer(minLength: 8)
+            Button("查看存储", action: { model.changeMode(.files) })
+                .buttonStyle(.borderedProminent)
+                .controlSize(.regular)
         }
-        .padding(16)
-        .background { RoundedRectangle(cornerRadius: 10).fill(Color(nsColor: .controlBackgroundColor)) }
+        .padding(18)
+        .background {
+            RoundedRectangle(cornerRadius: 14)
+                .fill(
+                    LinearGradient(
+                        colors: [color.opacity(0.11), Color(nsColor: .controlBackgroundColor)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(color.opacity(0.13), lineWidth: 1)
+        }
     }
 
-    private func homeTile(title: String, subtitle: String, icon: String, mode: FeatureMode) -> some View {
+    private var homeMetrics: some View {
+        let snapshot = model.performanceSnapshot
+        let exposedPorts = model.listeningPorts.filter { $0.exposure != .loopback }.count
+        let memoryColor = snapshot.map { memoryPressureColor($0.memoryPressureLevel) } ?? .secondary
+        return HStack(spacing: 10) {
+            homeMetricCard(
+                title: "CPU",
+                value: snapshot.map { "\(Int($0.cpuPercent.rounded()))%" } ?? "—",
+                detail: "系统使用率",
+                icon: "cpu",
+                color: .blue
+            )
+            homeMetricCard(
+                title: "内存压力",
+                value: snapshot.map { "\(Int(($0.memoryPressure * 100).rounded()))%" } ?? "—",
+                detail: snapshot?.memoryPressureLevel.rawValue ?? "正在读取",
+                icon: "memorychip",
+                color: memoryColor
+            )
+            homeMetricCard(
+                title: "对外端口",
+                value: model.hasLoadedPortSnapshot ? String(exposedPorts) : "—",
+                detail: model.hasLoadedPortSnapshot ? "当前监听" : "正在检查",
+                icon: "network",
+                color: exposedPorts > 0 ? .orange : .green
+            )
+            homeMetricCard(
+                title: "可清理空间",
+                value: model.cleanableBytes.map(formatted) ?? "—",
+                detail: model.cleanableBytes == nil ? "等待扫描" : "最近一次结果",
+                icon: "sparkles",
+                color: .purple
+            )
+        }
+    }
+
+    private func homeMetricCard(title: String, value: String, detail: String, icon: String, color: Color) -> some View {
+        VStack(alignment: .leading, spacing: 9) {
+            HStack {
+                Image(systemName: icon)
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(color)
+                    .frame(width: 26, height: 26)
+                    .background(color.opacity(0.11), in: Circle())
+                Spacer(minLength: 4)
+                Text(title.localized).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+            }
+            Text(verbatim: value)
+                .font(.system(size: 18, weight: .semibold, design: .rounded))
+                .monospacedDigit().lineLimit(1).minimumScaleFactor(0.75)
+            Text(detail.localized).font(.caption2).foregroundStyle(.tertiary).lineLimit(1)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, minHeight: 104, alignment: .leading)
+        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 11))
+        .overlay {
+            RoundedRectangle(cornerRadius: 11)
+                .stroke(Color.primary.opacity(0.05), lineWidth: 1)
+        }
+    }
+
+    private var homeQuickAction: some View {
+        HStack(spacing: 13) {
+            Image(systemName: "bolt.fill")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 38, height: 38)
+                .background(Color.accentColor.opacity(0.10), in: RoundedRectangle(cornerRadius: 10))
+            VStack(alignment: .leading, spacing: 3) {
+                Text("快速清理").font(.system(size: 13, weight: .semibold))
+                Text(homeQuickActionDescription)
+                    .font(.system(size: 11)).foregroundStyle(.secondary).lineLimit(1)
+            }
+            Spacer()
+            Button(action: performQuickAction) {
+                HStack(spacing: 6) {
+                    if model.isScanning { ProgressView().controlSize(.small) }
+                    Text(homeQuickActionButtonTitle.localized)
+                }
+            }
+            .buttonStyle(.bordered)
+            .disabled(model.isScanning)
+        }
+        .padding(13)
+        .background(Color.accentColor.opacity(0.055), in: RoundedRectangle(cornerRadius: 11))
+    }
+
+    private var homeQuickActionDescription: String {
+        if model.isScanning { return L10n.string("正在查找可安全清理的缓存和日志…") }
+        guard let cleanableBytes = model.cleanableBytes else {
+            return L10n.string("扫描缓存、日志和可重新生成的开发工具文件")
+        }
+        if cleanableBytes == 0 { return L10n.string("最近一次扫描没有发现可清理内容") }
+        return L10n.format("最近一次扫描发现 %@ 可清理内容", formatted(cleanableBytes))
+    }
+
+    private var homeQuickActionButtonTitle: String {
+        if model.isScanning { return "正在扫描" }
+        if model.selectedCount > 0 { return "清理所选" }
+        return model.cleanableBytes == nil ? "开始扫描" : "重新扫描"
+    }
+
+    private func homeToolTile(
+        title: String,
+        subtitle: String,
+        icon: String,
+        color: Color,
+        mode: FeatureMode
+    ) -> some View {
         Button { model.changeMode(mode) } label: {
-            HStack(spacing: 12) {
-                Image(systemName: icon).font(.system(size: 20)).foregroundStyle(Color.accentColor).frame(width: 28)
-                VStack(alignment: .leading, spacing: 5) {
+            HStack(spacing: 11) {
+                Image(systemName: icon)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundStyle(color)
+                    .frame(width: 34, height: 34)
+                    .background(color.opacity(0.11), in: RoundedRectangle(cornerRadius: 9))
+                VStack(alignment: .leading, spacing: 3) {
                     Text(title.localized).font(.system(size: 14, weight: .semibold)).foregroundStyle(.primary)
                     Text(subtitle.localized).font(.system(size: 11)).foregroundStyle(.secondary).lineLimit(1)
                 }
                 Spacer()
-                Image(systemName: "chevron.right").font(.caption).foregroundStyle(.tertiary)
+                Image(systemName: "chevron.right").font(.system(size: 9, weight: .semibold)).foregroundStyle(.tertiary)
             }
-            .padding(14).frame(maxWidth: .infinity, minHeight: 78)
-            .background { RoundedRectangle(cornerRadius: 10).fill(Color(nsColor: .controlBackgroundColor)) }
-        }.buttonStyle(.plain)
+            .padding(12).frame(maxWidth: .infinity, minHeight: 64)
+            .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 11))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func homeStorageColor(_ fraction: Double) -> Color {
+        if fraction >= 0.93 { return .red }
+        if fraction >= 0.84 { return .orange }
+        return .green
+    }
+
+    private func homeStorageIcon(_ fraction: Double) -> String {
+        if fraction >= 0.93 { return "exclamationmark.triangle.fill" }
+        if fraction >= 0.84 { return "externaldrive.badge.exclamationmark" }
+        return "checkmark.circle.fill"
+    }
+
+    private func homeStorageTitle(_ storage: SystemStorageSnapshot) -> String {
+        guard storage.totalCapacity > 0 else { return "正在读取存储状态…" }
+        if storage.usedFraction >= 0.93 { return "Mac 存储空间不足" }
+        if storage.usedFraction >= 0.84 { return "存储空间正在变紧" }
+        return "Mac 存储状态良好"
+    }
+
+    private func homeStorageDescription(_ storage: SystemStorageSnapshot) -> String {
+        guard storage.totalCapacity > 0 else { return L10n.string("正在读取系统磁盘容量") }
+        return L10n.format(
+            "还有 %@ 可用，共 %@",
+            formatted(storage.availableCapacity),
+            formatted(storage.totalCapacity)
+        )
     }
 
     private var junkView: some View {
@@ -2478,7 +2674,7 @@ struct ContentView: View {
     private func scanHome() { model.mode = .home; model.selectHomeAndScan() }
     private func scanJunk() { model.mode = .junk; if model.root == nil { model.selectHomeAndScan() } else { model.scan() } }
     private func performQuickAction() {
-        if model.items.isEmpty { scanHome() }
+        if model.items.isEmpty || model.selectedCount == 0 { scanHome() }
         else { model.requestClean() }
     }
     private func selectionBinding(_ item: ScanItem) -> Binding<Bool> {

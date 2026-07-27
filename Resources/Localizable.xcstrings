@@ -5063,6 +5063,326 @@
         }
       }
     },
+    "—" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "—"
+          }
+        }
+      }
+    },
+    "概览" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Overview"
+          }
+        }
+      }
+    },
+    "这台 Mac 的实时状态与常用工具" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live status and everyday tools for this Mac"
+          }
+        }
+      }
+    },
+    "实时状态" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live Status"
+          }
+        }
+      }
+    },
+    "自动更新" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto Updating"
+          }
+        }
+      }
+    },
+    "常用工具" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Common Tools"
+          }
+        }
+      }
+    },
+    "本机处理，不上传数据" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Processed locally, never uploaded"
+          }
+        }
+      }
+    },
+    "缓存、日志与开发工具垃圾" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Caches, logs, and developer tool junk"
+          }
+        }
+      }
+    },
+    "磁盘分类、目录占用与大文件" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disk categories, folder usage, and large files"
+          }
+        }
+      }
+    },
+    "应用、命令行工具与关联残留" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apps, command-line tools, and related leftovers"
+          }
+        }
+      }
+    },
+    "查看并结束遗忘的开发服务" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Find and stop forgotten development services"
+          }
+        }
+      }
+    },
+    "启动项、后台活动与应用扩展" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Startup items, background activity, and app extensions"
+          }
+        }
+      }
+    },
+    "已使用" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Used"
+          }
+        }
+      }
+    },
+    "查看存储" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View Storage"
+          }
+        }
+      }
+    },
+    "已用 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ Used"
+          }
+        }
+      }
+    },
+    "可用 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ Available"
+          }
+        }
+      }
+    },
+    "系统使用率" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System Usage"
+          }
+        }
+      }
+    },
+    "正在读取" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading"
+          }
+        }
+      }
+    },
+    "对外端口" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exposed Ports"
+          }
+        }
+      }
+    },
+    "当前监听" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Currently Listening"
+          }
+        }
+      }
+    },
+    "正在检查" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Checking"
+          }
+        }
+      }
+    },
+    "可清理空间" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cleanable Space"
+          }
+        }
+      }
+    },
+    "最近一次结果" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Latest Result"
+          }
+        }
+      }
+    },
+    "正在查找可安全清理的缓存和日志…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Looking for caches and logs that are safe to clean…"
+          }
+        }
+      }
+    },
+    "扫描缓存、日志和可重新生成的开发工具文件" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan caches, logs, and regenerable developer tool files"
+          }
+        }
+      }
+    },
+    "最近一次扫描没有发现可清理内容" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The latest scan found nothing to clean"
+          }
+        }
+      }
+    },
+    "最近一次扫描发现 %@ 可清理内容" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The latest scan found %@ of cleanable content"
+          }
+        }
+      }
+    },
+    "正在读取存储状态…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reading storage status…"
+          }
+        }
+      }
+    },
+    "Mac 存储空间不足" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your Mac is low on storage"
+          }
+        }
+      }
+    },
+    "存储空间正在变紧" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Storage space is getting tight"
+          }
+        }
+      }
+    },
+    "正在读取系统磁盘容量" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reading system disk capacity"
+          }
+        }
+      }
+    },
+    "还有 %@ 可用，共 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ available of %@ total"
+          }
+        }
+      }
+    },
     "首页" : {
       "extractionState" : "stale",
       "localizations" : {
