@@ -4,44 +4,23 @@
     "" : {
 
     },
-    "。" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "."
-          }
-        }
-      }
-    },
-    "“%@”已经位于废纸篓。继续会永久删除该 App 残留，无法撤销；macOS 的后台记录可能要重新登录后才会消失。" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%@” is already in Trash. Continuing permanently deletes this app leftover and cannot be undone; the macOS background record may disappear after you sign in again."
-          }
-        }
-      }
-    },
-    "/ %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "/ %@"
-          }
-        }
-      }
-    },
     "%" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%"
+          }
+        }
+      }
+    },
+    "%@ %@:%u" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ %@:%u"
           }
         }
       }
@@ -57,13 +36,12 @@
         }
       }
     },
-    "%@ %@:%u" : {
-      "extractionState" : "stale",
+    "%@%%" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ %@:%u"
+            "value" : "%@%%"
           }
         }
       }
@@ -108,16 +86,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ (PID %d) is using %@ %@:%@. Graceful quit is safer; use force quit only if the process is unresponsive."
-          }
-        }
-      }
-    },
-    "%@%%" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@%%"
           }
         }
       }
@@ -188,6 +156,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld%%"
+          }
+        }
+      }
+    },
+    "/ %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "/ %@"
           }
         }
       }
@@ -299,71 +277,6 @@
         }
       }
     },
-    "macOS 会主动利用空闲内存作为文件缓存，这些缓存会在应用需要时自动释放。强制“释放内存”通常会清空有用缓存，反而让系统变慢。" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS uses free memory as a file cache and releases it automatically when apps need it. Forcing memory to be freed usually discards useful caches and can make the system slower."
-          }
-        }
-      }
-    },
-    "macOS 系统管理的进程不会在这里结束。" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Processes managed by macOS cannot be quit here."
-          }
-        }
-      }
-    },
-    "macOS 自带，受系统保护" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Built into macOS and system protected"
-          }
-        }
-      }
-    },
-    "npm 下载缓存" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "npm Download Cache"
-          }
-        }
-      }
-    },
-    "npm 可重新下载的内容寻址缓存；不会删除全局包或项目 node_modules。" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Redownloadable npm content-addressed cache; global packages and project node_modules are not deleted."
-          }
-        }
-      }
-    },
-    "npm 调试日志" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "npm Debug Logs"
-          }
-        }
-      }
-    },
     "PID %d" : {
       "localizations" : {
         "en" : {
@@ -434,6 +347,93 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Xcode build products can be regenerated, but the next build will be slower."
+          }
+        }
+      }
+    },
+    "macOS 会主动利用空闲内存作为文件缓存，这些缓存会在应用需要时自动释放。强制“释放内存”通常会清空有用缓存，反而让系统变慢。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS uses free memory as a file cache and releases it automatically when apps need it. Forcing memory to be freed usually discards useful caches and can make the system slower."
+          }
+        }
+      }
+    },
+    "macOS 系统管理的进程不会在这里结束。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Processes managed by macOS cannot be quit here."
+          }
+        }
+      }
+    },
+    "macOS 自带，受系统保护" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Built into macOS and system protected"
+          }
+        }
+      }
+    },
+    "npm 下载缓存" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "npm Download Cache"
+          }
+        }
+      }
+    },
+    "npm 可重新下载的内容寻址缓存；不会删除全局包或项目 node_modules。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Redownloadable npm content-addressed cache; global packages and project node_modules are not deleted."
+          }
+        }
+      }
+    },
+    "npm 调试日志" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "npm Debug Logs"
+          }
+        }
+      }
+    },
+    "“%@”已经位于废纸篓。继续会永久删除该 App 残留，无法撤销；macOS 的后台记录可能要重新登录后才会消失。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” is already in Trash. Continuing permanently deletes this app leftover and cannot be undone; the macOS background record may disappear after you sign in again."
+          }
+        }
+      }
+    },
+    "。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "."
           }
         }
       }
@@ -564,6 +564,16 @@
         }
       }
     },
+    "什么是“内存优化”？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What is “Memory Optimization”?"
+          }
+        }
+      }
+    },
     "仅本机" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -586,12 +596,42 @@
         }
       }
     },
+    "优先退出不再使用的高占用 App，才能实际释放它们申请的内存。macOS 会在需要时自动回收文件缓存。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quitting high-memory apps you no longer use releases the memory they allocated. macOS automatically reclaims file caches when needed."
+          }
+        }
+      }
+    },
+    "优化内存" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optimize Memory"
+          }
+        }
+      }
+    },
     "使用 macOS 自带的 lsof 在本机扫描" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Scans locally using macOS lsof"
+          }
+        }
+      }
+    },
+    "使用中" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active"
           }
         }
       }
@@ -658,22 +698,22 @@
         }
       }
     },
+    "内存优化" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memory Optimization"
+          }
+        }
+      }
+    },
     "内存压力" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Memory Pressure"
-          }
-        }
-      }
-    },
-    "最近 60 秒" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Last 60 Seconds"
           }
         }
       }
@@ -873,6 +913,16 @@
         }
       }
     },
+    "可以等待 App 完成保存，或者仅在它无响应时强制退出。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wait for the app to finish saving, or force quit only if it is unresponsive."
+          }
+        }
+      }
+    },
     "可以跟随 macOS，也可以固定为浅色或深色" : {
       "localizations" : {
         "en" : {
@@ -958,17 +1008,6 @@
         }
       }
     },
-    "后台任务数据库已重建，请重启 Mac。" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Background task database rebuilt. Restart your Mac."
-          }
-        }
-      }
-    },
     "后台任务数据库已重建。请重启 Mac，让系统重新登记仍然有效的项目。" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -976,6 +1015,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The background task database was rebuilt. Restart your Mac so valid items can register again."
+          }
+        }
+      }
+    },
+    "后台任务数据库已重建，请重启 Mac。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Background task database rebuilt. Restart your Mac."
           }
         }
       }
@@ -1682,6 +1732,46 @@
         }
       }
     },
+    "强制退出" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Force Quit"
+          }
+        }
+      }
+    },
+    "强制退出可能造成未保存内容丢失，只应用于无响应的 App。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Force quitting may discard unsaved work. Use it only for unresponsive apps."
+          }
+        }
+      }
+    },
+    "强制退出未响应的 App…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Force Quit Unresponsive Apps…"
+          }
+        }
+      }
+    },
+    "强制退出未响应的 App？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Force Quit Unresponsive Apps?"
+          }
+        }
+      }
+    },
     "当前 Mac 不符合 Apple Intelligence 的硬件要求" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1693,12 +1783,32 @@
         }
       }
     },
+    "当前占用" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Current Usage"
+          }
+        }
+      }
+    },
     "当前没有可显示的 TCP 监听端口或 UDP 绑定" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "No TCP listeners or UDP bindings to display"
+          }
+        }
+      }
+    },
+    "当前没有检测到可安全请求退出的图形 App。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No graphical apps that can be safely asked to quit were detected."
           }
         }
       }
@@ -2235,6 +2345,26 @@
         }
       }
     },
+    "最近 60 秒" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last 60 Seconds"
+          }
+        }
+      }
+    },
+    "未保存的内容可能会触发 App 自己的保存提示。Sift 会先请求 App 正常退出。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unsaved work may trigger the app’s own save prompt. Sift will first ask the app to quit normally."
+          }
+        }
+      }
+    },
     "未开启" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2410,6 +2540,16 @@
         }
       }
     },
+    "正在优化…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optimizing…"
+          }
+        }
+      }
+    },
     "正在分析%@" : {
       "localizations" : {
         "en" : {
@@ -2473,6 +2613,16 @@
         }
       }
     },
+    "正在扫描%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scanning %@"
+          }
+        }
+      }
+    },
     "正在扫描…" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2480,16 +2630,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Scanning…"
-          }
-        }
-      }
-    },
-    "正在扫描%@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Scanning %@"
           }
         }
       }
@@ -2698,6 +2838,16 @@
         }
       }
     },
+    "正常退出" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quit Normally"
+          }
+        }
+      }
+    },
     "永久移除" : {
       "localizations" : {
         "en" : {
@@ -2795,6 +2945,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No Ports Found"
+          }
+        }
+      }
+    },
+    "没有可优化的 App" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Apps to Optimize"
           }
         }
       }
@@ -3548,6 +3708,16 @@
         }
       }
     },
+    "继续并授权" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue and Authorize"
+          }
+        }
+      }
+    },
     "缓存 %@" : {
       "localizations" : {
         "en" : {
@@ -3707,6 +3877,16 @@
         }
       }
     },
+    "请求退出所选 App" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ask Selected Apps to Quit"
+          }
+        }
+      }
+    },
     "请确认要移入废纸篓的内容。" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3718,17 +3898,6 @@
         }
       }
     },
-    "请选择你的用户目录，用于扫描缓存与日志。" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose your user folder to scan caches and logs."
-          }
-        }
-      }
-    },
     "请选择你的用户目录或一个测试目录。" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3736,6 +3905,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Choose your user folder or a test folder."
+          }
+        }
+      }
+    },
+    "请选择你的用户目录，用于扫描缓存与日志。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose your user folder to scan caches and logs."
           }
         }
       }
@@ -3836,6 +4016,26 @@
         }
       }
     },
+    "这只会丢弃 macOS 可重建的文件缓存，不会释放 App 私有内存。操作需要管理员授权，而且可能让随后打开的 App 暂时变慢。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This only discards file caches that macOS can rebuild; it does not release private app memory. Administrator authorization is required, and apps may open more slowly for a while."
+          }
+        }
+      }
+    },
+    "这需要管理员授权。系统会丢弃可重建的文件缓存，不会释放 App 私有内存；随后重新打开 App 可能暂时变慢。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Administrator authorization is required. The system will discard rebuildable file caches, not private app memory; reopening apps may be slower for a while."
+          }
+        }
+      }
+    },
     "进程" : {
       "localizations" : {
         "en" : {
@@ -3878,6 +4078,16 @@
         }
       }
     },
+    "退出不再使用的 App，让 macOS 回收它们的内存" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quit apps you no longer use so macOS can reclaim their memory"
+          }
+        }
+      }
+    },
     "退出后重启" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3885,6 +4095,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Restart After Exit"
+          }
+        }
+      }
+    },
+    "退出所选 App？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quit Selected Apps?"
           }
         }
       }
@@ -3928,6 +4148,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Choose the display mode used by the window"
+          }
+        }
+      }
+    },
+    "选择要退出的 App" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select Apps to Quit"
           }
         }
       }
@@ -4002,6 +4232,256 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Starts automatically when launchd loads the configuration. User agents usually load at login; daemons usually load at startup."
+          }
+        }
+      }
+    },
+    "释放系统文件缓存…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Release System File Caches…"
+          }
+        }
+      }
+    },
+    "释放系统文件缓存？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Release System File Caches?"
+          }
+        }
+      }
+    },
+    "%lld 个 App 没有响应退出请求" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld apps did not respond to the quit request"
+          }
+        }
+      }
+    },
+    "已选 %lld 个 App" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld apps selected"
+          }
+        }
+      }
+    },
+    "当前占用 %@（实际释放量由 macOS 决定）" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Currently using %@ (macOS determines the amount actually released)"
+          }
+        }
+      }
+    },
+    "当前内存压力正常，通常无需优化。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memory pressure is normal. Optimization is usually unnecessary."
+          }
+        }
+      }
+    },
+    "内存压力较高，可以退出不再使用的高占用 App。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memory pressure is elevated. You can quit high-memory apps you no longer use."
+          }
+        }
+      }
+    },
+    "内存压力紧张，建议优先退出高占用 App。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memory pressure is critical. Quit high-memory apps first."
+          }
+        }
+      }
+    },
+    "内存压力 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memory Pressure %@"
+          }
+        }
+      }
+    },
+    "正在强制退出 %lld 个 App…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Force quitting %lld apps…"
+          }
+        }
+      }
+    },
+    "正在请求 %lld 个 App 正常退出…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Asking %lld apps to quit normally…"
+          }
+        }
+      }
+    },
+    "已退出 %lld 个 App；内存压力已重新采样。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quit %lld apps; memory pressure has been sampled again."
+          }
+        }
+      }
+    },
+    "已退出 %lld 个 App，仍有 %lld 个进程无法结束。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quit %lld apps; %lld processes still could not be terminated."
+          }
+        }
+      }
+    },
+    "已退出 %lld 个 App，%lld 个 App 仍在运行。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quit %lld apps; %lld apps are still running."
+          }
+        }
+      }
+    },
+    "正在请求 macOS 释放文件缓存…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Asking macOS to release file caches…"
+          }
+        }
+      }
+    },
+    "已取消释放系统缓存。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System cache release was cancelled."
+          }
+        }
+      }
+    },
+    "无法释放系统缓存：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not release system caches: %@"
+          }
+        }
+      }
+    },
+    "已请求 macOS 释放文件缓存；内存压力已重新采样。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Asked macOS to release file caches; memory pressure has been sampled again."
+          }
+        }
+      }
+    },
+    "系统拒绝了该操作。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The system denied the operation."
+          }
+        }
+      }
+    },
+    "Sift 不能退出自身。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sift cannot quit itself."
+          }
+        }
+      }
+    },
+    "Finder 由 macOS 管理，不会在这里退出。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finder is managed by macOS and cannot be quit here."
+          }
+        }
+      }
+    },
+    "只能优化当前用户可见的 App。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Only visible apps owned by the current user can be optimized."
+          }
+        }
+      }
+    },
+    "无法确认 App 所属用户，不会退出。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The app owner could not be verified, so the app will not be quit."
+          }
+        }
+      }
+    },
+    "只能退出当前用户的 App。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Only apps owned by the current user can be quit."
+          }
+        }
+      }
+    },
+    "无法确认 App 身份，不会退出。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The app identity could not be verified, so the app will not be quit."
           }
         }
       }
@@ -4085,6 +4565,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Home"
+          }
+        }
+      }
+    },
+    "高级操作" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Advanced Actions"
+          }
+        }
+      }
+    },
+    "高级操作可强制丢弃文件缓存，但不会清理 App 私有内存，也可能暂时降低性能。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Advanced actions can discard file caches, but they do not clear private app memory and may temporarily reduce performance."
           }
         }
       }

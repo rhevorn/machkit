@@ -92,6 +92,28 @@ struct ContentView: View {
         .sheet(item: $selectedPort) { port in
             portDetails(port)
         }
+        .sheet(isPresented: $model.showMemoryOptimizer) {
+            memoryOptimizerView
+                .confirmationDialog("退出所选 App？", isPresented: $model.showMemoryQuitConfirmation) {
+                    Button("正常退出", role: .destructive) { model.quitSelectedMemoryApplications(force: false) }
+                    Button("取消", role: .cancel) {}
+                } message: {
+                    Text("未保存的内容可能会触发 App 自己的保存提示。Sift 会先请求 App 正常退出。")
+                }
+                .confirmationDialog("强制退出未响应的 App？", isPresented: $model.showMemoryForceQuitConfirmation) {
+                    Button("强制退出", role: .destructive) { model.quitSelectedMemoryApplications(force: true) }
+                    Button("取消", role: .cancel) {}
+                } message: {
+                    Text("强制退出可能造成未保存内容丢失，只应用于无响应的 App。")
+                }
+                .confirmationDialog("释放系统文件缓存？", isPresented: $model.showMemoryCacheReleaseConfirmation) {
+                    Button("继续并授权", role: .destructive, action: model.releaseSystemCache)
+                    Button("取消", role: .cancel) {}
+                } message: {
+                    Text("这需要管理员授权。系统会丢弃可重建的文件缓存，不会释放 App 私有内存；随后重新打开 App 可能暂时变慢。")
+                }
+                .interactiveDismissDisabled(model.isOptimizingMemory)
+        }
         .confirmationDialog("确认卸载这个应用？", isPresented: $model.showAppRemovalConfirmation) {
             Button("移入废纸篓", role: .destructive, action: model.uninstallConfirmed)
             Button("取消", role: .cancel) {}
@@ -1938,11 +1960,11 @@ struct ContentView: View {
                 .help("了解 macOS 的内存管理")
                 .popover(isPresented: $showingMemoryHelp, arrowEdge: .bottom) {
                     VStack(alignment: .leading, spacing: 9) {
-                        Label("为什么没有“释放内存”？", systemImage: "questionmark.circle.fill")
+                        Label("什么是“内存优化”？", systemImage: "questionmark.circle.fill")
                             .font(.system(size: 14, weight: .semibold))
-                        Text("macOS 会主动利用空闲内存作为文件缓存，这些缓存会在应用需要时自动释放。强制“释放内存”通常会清空有用缓存，反而让系统变慢。")
+                        Text("优先退出不再使用的高占用 App，才能实际释放它们申请的内存。macOS 会在需要时自动回收文件缓存。")
                             .font(.system(size: 12)).fixedSize(horizontal: false, vertical: true)
-                        Text("判断是否需要处理时，应优先关注内存压力和交换空间。")
+                        Text("高级操作可强制丢弃文件缓存，但不会清理 App 私有内存，也可能暂时降低性能。")
                             .font(.system(size: 12, weight: .medium)).foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -1963,16 +1985,207 @@ struct ContentView: View {
                     .font(.system(size: 12)).foregroundStyle(.secondary).monospacedDigit()
             }
             ProgressView(value: snapshot.memoryPressure, total: 1).tint(color)
-            HStack {
+            HStack(spacing: 9) {
                 Text("缓存 \(formatted(snapshot.cachedMemory))")
-                Spacer()
                 Text("交换 \(formatted(snapshot.swapUsed))")
+                Spacer(minLength: 4)
+                Button {
+                    model.openMemoryOptimizer()
+                } label: {
+                    Label("优化内存", systemImage: "wand.and.sparkles")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
             }
             .font(.caption).foregroundStyle(.secondary).monospacedDigit()
         }
         .padding(15)
         .frame(maxWidth: .infinity, minHeight: 154)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+    }
+
+    private var memoryOptimizerView: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 10) {
+                Image(systemName: "memorychip.fill")
+                    .font(.system(size: 22)).foregroundStyle(Color.accentColor)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("内存优化").font(.system(size: 18, weight: .semibold))
+                    Text("退出不再使用的 App，让 macOS 回收它们的内存")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+                Spacer()
+                Button {
+                    model.showMemoryOptimizer = false
+                } label: {
+                    Image(systemName: "xmark.circle.fill").font(.system(size: 17)).foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .disabled(model.isOptimizingMemory)
+            }
+            .padding(18)
+
+            Divider()
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    if let snapshot = model.performanceSnapshot {
+                        memoryOptimizationStatus(snapshot)
+                    }
+
+                    VStack(alignment: .leading, spacing: 9) {
+                        HStack {
+                            Text("选择要退出的 App").font(.system(size: 14, weight: .semibold))
+                            Spacer()
+                            Text("当前占用").font(.caption).foregroundStyle(.secondary)
+                        }
+
+                        if model.memoryOptimizationCandidates.isEmpty {
+                            ContentUnavailableView(
+                                "没有可优化的 App",
+                                systemImage: "checkmark.circle",
+                                description: Text("当前没有检测到可安全请求退出的图形 App。")
+                            )
+                            .frame(minHeight: 160)
+                        } else {
+                            VStack(spacing: 0) {
+                                ForEach(Array(model.memoryOptimizationCandidates.prefix(30).enumerated()), id: \.element.id) { index, application in
+                                    memoryOptimizationApplicationRow(application)
+                                    if index < min(model.memoryOptimizationCandidates.count, 30) - 1 {
+                                        Divider().padding(.leading, 48)
+                                    }
+                                }
+                            }
+                            .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+                        }
+                    }
+
+                    if !model.memoryOptimizationRemaining.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Label(
+                                L10n.format("%lld 个 App 没有响应退出请求", Int64(model.memoryOptimizationRemaining.count)),
+                                systemImage: "exclamationmark.triangle.fill"
+                            )
+                            .font(.system(size: 13, weight: .semibold)).foregroundStyle(.orange)
+                            Text("可以等待 App 完成保存，或者仅在它无响应时强制退出。")
+                                .font(.caption).foregroundStyle(.secondary)
+                            Button("强制退出未响应的 App…") {
+                                model.showMemoryForceQuitConfirmation = true
+                            }
+                            .disabled(model.isOptimizingMemory)
+                        }
+                        .padding(12)
+                        .background(Color.orange.opacity(0.09), in: RoundedRectangle(cornerRadius: 10))
+                    }
+
+                    DisclosureGroup {
+                        VStack(alignment: .leading, spacing: 9) {
+                            Text("这只会丢弃 macOS 可重建的文件缓存，不会释放 App 私有内存。操作需要管理员授权，而且可能让随后打开的 App 暂时变慢。")
+                                .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                            Button("释放系统文件缓存…") {
+                                model.showMemoryCacheReleaseConfirmation = true
+                            }
+                            .disabled(model.isOptimizingMemory)
+                        }
+                        .padding(.top, 8)
+                    } label: {
+                        Label("高级操作", systemImage: "wrench.and.screwdriver")
+                            .font(.system(size: 13, weight: .semibold))
+                    }
+                    .padding(12)
+                    .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+                }
+                .padding(18)
+            }
+
+            Divider()
+
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(L10n.format("已选 %lld 个 App", Int64(model.selectedMemoryProcessIDs.count)))
+                        .font(.system(size: 12, weight: .semibold))
+                    Text(L10n.format("当前占用 %@（实际释放量由 macOS 决定）", formatted(model.selectedMemoryBytes)))
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+                Spacer()
+                if model.isOptimizingMemory {
+                    ProgressView().controlSize(.small)
+                    Text("正在优化…").font(.caption).foregroundStyle(.secondary)
+                } else {
+                    Button("请求退出所选 App") {
+                        model.requestSelectedMemoryApplicationsQuit()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(model.selectedMemoryProcessIDs.isEmpty)
+                }
+            }
+            .padding(18)
+        }
+        .frame(width: 600, height: 680)
+    }
+
+    private func memoryOptimizationStatus(_ snapshot: PerformanceSnapshot) -> some View {
+        let color = memoryPressureColor(snapshot.memoryPressureLevel)
+        let recommendation: String = switch snapshot.memoryPressureLevel {
+        case .normal: L10n.string("当前内存压力正常，通常无需优化。")
+        case .elevated: L10n.string("内存压力较高，可以退出不再使用的高占用 App。")
+        case .critical: L10n.string("内存压力紧张，建议优先退出高占用 App。")
+        }
+        return HStack(spacing: 12) {
+            ZStack {
+                Circle().fill(color.opacity(0.12))
+                Image(systemName: "gauge.with.dots.needle.67percent").foregroundStyle(color)
+            }
+            .frame(width: 38, height: 38)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(L10n.format("内存压力 %@", snapshot.memoryPressureLevel.rawValue.localized))
+                    .font(.system(size: 13, weight: .semibold))
+                Text(recommendation).font(.caption).foregroundStyle(.secondary)
+            }
+            Spacer()
+            Text(L10n.format("交换 %@", formatted(snapshot.swapUsed)))
+                .font(.caption).foregroundStyle(.secondary).monospacedDigit()
+        }
+        .padding(12)
+        .background(color.opacity(0.07), in: RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func memoryOptimizationApplicationRow(_ application: ApplicationResourceUsage) -> some View {
+        let isSelected = model.selectedMemoryProcessIDs.contains(application.processIdentifier)
+        return Button {
+            model.toggleMemoryApplication(application)
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: 17)).foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
+                Group {
+                    if let url = application.bundleURL {
+                        Image(nsImage: NSWorkspace.shared.icon(forFile: url.path)).resizable()
+                    } else {
+                        Image(systemName: "app.fill").resizable().scaledToFit().padding(5).foregroundStyle(.secondary)
+                    }
+                }
+                .frame(width: 28, height: 28)
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 6) {
+                        Text(application.name).font(.system(size: 12, weight: .medium)).lineLimit(1)
+                        if application.isActive {
+                            Text("使用中")
+                                .font(.system(size: 9, weight: .semibold)).foregroundStyle(.blue)
+                                .padding(.horizontal, 5).padding(.vertical, 2)
+                                .background(Color.blue.opacity(0.10), in: Capsule())
+                        }
+                    }
+                    Text("PID \(application.processIdentifier)").font(.caption2).foregroundStyle(.tertiary)
+                }
+                Spacer()
+                Text(formatted(application.memoryBytes)).font(.system(size: 12)).monospacedDigit()
+            }
+            .contentShape(Rectangle())
+            .padding(.horizontal, 12).frame(minHeight: 48)
+        }
+        .buttonStyle(.plain)
+        .disabled(model.isOptimizingMemory)
     }
 
     private func computeHardwareCard(_ hardware: ComputeHardwareInfo) -> some View {

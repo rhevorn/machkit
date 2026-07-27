@@ -43,6 +43,13 @@ final class CleanerViewModel: ObservableObject {
     @Published private(set) var performanceSnapshot: PerformanceSnapshot?
     @Published private(set) var performanceHistory: [PerformanceHistoryPoint] = []
     @Published private(set) var isPerformanceMonitoring = false
+    @Published var showMemoryOptimizer = false
+    @Published var selectedMemoryProcessIDs: Set<pid_t> = []
+    @Published var showMemoryQuitConfirmation = false
+    @Published var showMemoryForceQuitConfirmation = false
+    @Published var showMemoryCacheReleaseConfirmation = false
+    @Published private(set) var memoryOptimizationRemaining: [ApplicationResourceUsage] = []
+    @Published private(set) var isOptimizingMemory = false
     @Published private(set) var listeningPorts: [ListeningPort] = []
     @Published private(set) var portScanError: String?
     @Published var portTerminationCandidate: ListeningPort?
@@ -106,6 +113,16 @@ final class CleanerViewModel: ObservableObject {
     private var selectedCountByGroup: [String: Int] = [:]
     private var itemByID: [UUID: ScanItem] = [:]
     var selectedCount: Int { selectedIDs.count }
+    var memoryOptimizationCandidates: [ApplicationResourceUsage] {
+        (performanceSnapshot?.applications ?? [])
+            .filter(\.canTerminate)
+            .sorted { $0.memoryBytes > $1.memoryBytes }
+    }
+    var selectedMemoryBytes: Int64 {
+        memoryOptimizationCandidates
+            .filter { selectedMemoryProcessIDs.contains($0.processIdentifier) }
+            .reduce(0) { $0 + $1.memoryBytes }
+    }
     var lastScanText: String {
         guard let lastScanAt else { return L10n.string("尚未扫描") }
         return lastScanAt.formatted(date: .omitted, time: .shortened)
@@ -305,6 +322,152 @@ final class CleanerViewModel: ObservableObject {
         performanceTask = nil
         isPerformanceMonitoring = false
         status = L10n.string("性能监控已暂停。")
+    }
+
+    func openMemoryOptimizer() {
+        selectedMemoryProcessIDs = []
+        memoryOptimizationRemaining = []
+        showMemoryOptimizer = true
+    }
+
+    func toggleMemoryApplication(_ application: ApplicationResourceUsage) {
+        if selectedMemoryProcessIDs.contains(application.processIdentifier) {
+            selectedMemoryProcessIDs.remove(application.processIdentifier)
+        } else {
+            selectedMemoryProcessIDs.insert(application.processIdentifier)
+        }
+    }
+
+    func requestSelectedMemoryApplicationsQuit() {
+        guard !selectedMemoryProcessIDs.isEmpty else { return }
+        showMemoryQuitConfirmation = true
+    }
+
+    func quitSelectedMemoryApplications(force: Bool) {
+        let candidates = force
+            ? memoryOptimizationRemaining
+            : memoryOptimizationCandidates.filter { selectedMemoryProcessIDs.contains($0.processIdentifier) }
+        guard !candidates.isEmpty else { return }
+
+        showMemoryQuitConfirmation = false
+        showMemoryForceQuitConfirmation = false
+        isOptimizingMemory = true
+        status = force
+            ? L10n.format("正在强制退出 %lld 个 App…", Int64(candidates.count))
+            : L10n.format("正在请求 %lld 个 App 正常退出…", Int64(candidates.count))
+
+        for candidate in candidates {
+            _ = requestApplicationQuit(candidate, force: force)
+        }
+        Task { [weak self] in
+            guard let self else { return }
+            try? await Task.sleep(for: force ? .milliseconds(800) : .seconds(2))
+            let remaining = candidates.filter(isApplicationStillRunning)
+            memoryOptimizationRemaining = remaining
+            selectedMemoryProcessIDs = Set(remaining.map(\.processIdentifier))
+            refreshPerformanceSnapshot()
+            isOptimizingMemory = false
+
+            let exitedCount = candidates.count - remaining.count
+            if remaining.isEmpty {
+                status = L10n.format("已退出 %lld 个 App；内存压力已重新采样。", Int64(exitedCount))
+            } else if force {
+                status = L10n.format("已退出 %lld 个 App，仍有 %lld 个进程无法结束。", Int64(exitedCount), Int64(remaining.count))
+            } else {
+                status = L10n.format("已退出 %lld 个 App，%lld 个 App 仍在运行。", Int64(exitedCount), Int64(remaining.count))
+            }
+        }
+    }
+
+    func releaseSystemCache() {
+        showMemoryCacheReleaseConfirmation = false
+        isOptimizingMemory = true
+        status = L10n.string("正在请求 macOS 释放文件缓存…")
+        Task { [weak self] in
+            guard let self else { return }
+            let error = await Self.runSystemCacheRelease()
+            refreshPerformanceSnapshot()
+            isOptimizingMemory = false
+            if let error {
+                if error == "cancelled" {
+                    status = L10n.string("已取消释放系统缓存。")
+                } else {
+                    removalFailureMessage = L10n.format("无法释放系统缓存：%@", error)
+                    status = removalFailureMessage
+                    showRemovalFailure = true
+                }
+            } else {
+                status = L10n.string("已请求 macOS 释放文件缓存；内存压力已重新采样。")
+            }
+        }
+    }
+
+    private func requestApplicationQuit(_ application: ApplicationResourceUsage, force: Bool) -> Bool {
+        guard application.canTerminate,
+              let runningApplication = NSRunningApplication(processIdentifier: application.processIdentifier),
+              !runningApplication.isTerminated,
+              applicationIdentityMatches(application, runningApplication) else { return false }
+        return force ? runningApplication.forceTerminate() : runningApplication.terminate()
+    }
+
+    private func isApplicationStillRunning(_ application: ApplicationResourceUsage) -> Bool {
+        guard let runningApplication = NSRunningApplication(processIdentifier: application.processIdentifier),
+              !runningApplication.isTerminated else { return false }
+        return applicationIdentityMatches(application, runningApplication)
+    }
+
+    private func applicationIdentityMatches(
+        _ application: ApplicationResourceUsage,
+        _ runningApplication: NSRunningApplication
+    ) -> Bool {
+        if let expectedIdentifier = application.bundleIdentifier {
+            return runningApplication.bundleIdentifier == expectedIdentifier
+        }
+        if let expectedURL = application.bundleURL {
+            return runningApplication.bundleURL?.standardizedFileURL == expectedURL.standardizedFileURL
+        }
+        return false
+    }
+
+    private func refreshPerformanceSnapshot() {
+        let snapshot = performanceMonitor.sample()
+        performanceSnapshot = snapshot
+        performanceHistory.append(PerformanceHistoryPoint(
+            sampledAt: snapshot.sampledAt,
+            cpuPercent: snapshot.cpuPercent,
+            memoryPressurePercent: snapshot.memoryPressure * 100
+        ))
+        if performanceHistory.count > 30 {
+            performanceHistory.removeFirst(performanceHistory.count - 30)
+        }
+    }
+
+    private nonisolated static func runSystemCacheRelease() async -> String? {
+        await Task.detached(priority: .userInitiated) {
+            let process = Process()
+            let output = Pipe()
+            process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
+            process.arguments = [
+                "-e",
+                "do shell script \"/usr/sbin/purge\" with administrator privileges"
+            ]
+            process.standardOutput = output
+            process.standardError = output
+            do {
+                try process.run()
+                let data = output.fileHandleForReading.readDataToEndOfFile()
+                process.waitUntilExit()
+                guard process.terminationStatus != 0 else { return nil }
+                let message = String(decoding: data, as: UTF8.self)
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                if message.contains("-128") || message.localizedCaseInsensitiveContains("cancel") {
+                    return "cancelled"
+                }
+                return message.isEmpty ? L10n.string("系统拒绝了该操作。") : message
+            } catch {
+                return error.localizedDescription
+            }
+        }.value
     }
 
     func scanPorts() {
