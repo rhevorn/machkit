@@ -1940,9 +1940,9 @@ struct ContentView: View {
                     VStack(alignment: .leading, spacing: 9) {
                         Label("智能释放会做什么？", systemImage: "questionmark.circle.fill")
                             .font(.system(size: 14, weight: .semibold))
-                        Text("由 macOS 结束已标记为可自动终止、当前又未使用的隐藏 App，然后丢弃可重建的文件缓存。")
+                        Text("由 macOS 处理已标记为可自动终止、当前又未使用的隐藏 App，同时归还 Sift 自身堆中可回收的页面。")
                             .font(.system(size: 12)).fixedSize(horizontal: false, vertical: true)
-                        Text("不会退出普通前台 App，也不会强制结束进程。释放文件缓存需要一次管理员授权。")
+                        Text("不会退出普通前台 App，不会强制结束进程，也不需要管理员权限。")
                             .font(.system(size: 12, weight: .medium)).foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }

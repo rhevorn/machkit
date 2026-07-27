@@ -504,6 +504,16 @@
         }
       }
     },
+    "不会退出普通前台 App，也不会强制结束进程。释放文件缓存需要一次管理员授权。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regular foreground apps are not quit, and processes are not force terminated. Releasing file caches requires administrator authorization."
+          }
+        }
+      }
+    },
     "不可用" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -600,6 +610,7 @@
       }
     },
     "什么是“内存优化”？" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -632,6 +643,7 @@
       }
     },
     "优先退出不再使用的高占用 App，才能实际释放它们申请的内存。macOS 会在需要时自动回收文件缓存。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -642,6 +654,7 @@
       }
     },
     "优化内存" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -662,6 +675,7 @@
       }
     },
     "使用中" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -734,6 +748,7 @@
       }
     },
     "内存优化" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1015,6 +1030,7 @@
       }
     },
     "可以等待 App 完成保存，或者仅在它无响应时强制退出。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1470,6 +1486,17 @@
         }
       }
     },
+    "已取消智能释放。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smart release was cancelled."
+          }
+        }
+      }
+    },
     "已取消释放系统缓存。" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1900,6 +1927,7 @@
       }
     },
     "强制退出" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1910,6 +1938,7 @@
       }
     },
     "强制退出可能造成未保存内容丢失，只应用于无响应的 App。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1920,6 +1949,7 @@
       }
     },
     "强制退出未响应的 App？" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1930,6 +1960,7 @@
       }
     },
     "强制退出未响应的 App…" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1962,6 +1993,7 @@
       }
     },
     "当前占用" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1993,6 +2025,7 @@
       }
     },
     "当前没有检测到可安全请求退出的图形 App。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2385,6 +2418,17 @@
         }
       }
     },
+    "无法智能释放内存：%@" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not release reclaimable memory: %@"
+          }
+        }
+      }
+    },
     "无法确认 App 所属用户，不会退出。" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2546,6 +2590,37 @@
         }
       }
     },
+    "智能释放" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smart Release"
+          }
+        }
+      }
+    },
+    "智能释放会做什么？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What Does Smart Release Do?"
+          }
+        }
+      }
+    },
+    "智能释放完成；macOS 已重新整理可回收内存。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smart release complete; macOS has reorganized reclaimable memory."
+          }
+        }
+      }
+    },
     "暂停" : {
       "localizations" : {
         "en" : {
@@ -2568,6 +2643,7 @@
       }
     },
     "未保存的内容可能会触发 App 自己的保存提示。Sift 会先请求 App 正常退出。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2753,6 +2829,7 @@
       }
     },
     "正在优化…" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2864,6 +2941,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Scanning installed apps…"
+          }
+        }
+      }
+    },
+    "正在智能释放可回收内存…" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smart releasing reclaimable memory…"
           }
         }
       }
@@ -3084,6 +3172,7 @@
       }
     },
     "正常退出" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3195,6 +3284,7 @@
       }
     },
     "没有可优化的 App" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3480,6 +3570,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "User Caches"
+          }
+        }
+      }
+    },
+    "由 macOS 结束已标记为可自动终止、当前又未使用的隐藏 App，然后丢弃可重建的文件缓存。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS terminates hidden apps that are marked for automatic termination and currently unused, then discards rebuildable file caches."
           }
         }
       }
@@ -3965,6 +4065,7 @@
       }
     },
     "继续并授权" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4134,6 +4235,7 @@
       }
     },
     "请求退出所选 App" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4273,6 +4375,7 @@
       }
     },
     "这只会丢弃 macOS 可重建的文件缓存，不会释放 App 私有内存。操作需要管理员授权，而且可能让随后打开的 App 暂时变慢。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4283,6 +4386,7 @@
       }
     },
     "这需要管理员授权。系统会丢弃可重建的文件缓存，不会释放 App 私有内存；随后重新打开 App 可能暂时变慢。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4335,6 +4439,7 @@
       }
     },
     "退出不再使用的 App，让 macOS 回收它们的内存" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4356,6 +4461,7 @@
       }
     },
     "退出所选 App？" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4409,6 +4515,7 @@
       }
     },
     "选择要退出的 App" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4493,6 +4600,7 @@
       }
     },
     "释放系统文件缓存？" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4503,6 +4611,7 @@
       }
     },
     "释放系统文件缓存…" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4512,82 +4621,42 @@
         }
       }
     },
-    "智能释放" : {
+    "由 macOS 处理已标记为可自动终止、当前又未使用的隐藏 App，同时归还 Sift 自身堆中可回收的页面。" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Smart Release"
+            "value" : "macOS handles hidden apps that are marked for automatic termination and currently unused, while Sift returns reclaimable pages from its own heap."
           }
         }
       }
     },
-    "智能释放会做什么？" : {
+    "不会退出普通前台 App，不会强制结束进程，也不需要管理员权限。" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "What Does Smart Release Do?"
+            "value" : "Regular foreground apps are not quit, processes are not force terminated, and administrator privileges are not required."
           }
         }
       }
     },
-    "由 macOS 结束已标记为可自动终止、当前又未使用的隐藏 App，然后丢弃可重建的文件缓存。" : {
+    "正在让 macOS 释放闲置内存…" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "macOS terminates hidden apps that are marked for automatic termination and currently unused, then discards rebuildable file caches."
+            "value" : "Asking macOS to release idle memory…"
           }
         }
       }
     },
-    "不会退出普通前台 App，也不会强制结束进程。释放文件缓存需要一次管理员授权。" : {
+    "智能释放完成；已处理闲置后台 App，并归还 Sift 自身可回收内存。" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Regular foreground apps are not quit, and processes are not force terminated. Releasing file caches requires administrator authorization."
-          }
-        }
-      }
-    },
-    "正在智能释放可回收内存…" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Smart releasing reclaimable memory…"
-          }
-        }
-      }
-    },
-    "已取消智能释放。" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Smart release was cancelled."
-          }
-        }
-      }
-    },
-    "无法智能释放内存：%@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Could not release reclaimable memory: %@"
-          }
-        }
-      }
-    },
-    "智能释放完成；macOS 已重新整理可回收内存。" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Smart release complete; macOS has reorganized reclaimable memory."
+            "value" : "Smart release complete; idle background apps were handled and Sift returned its own reclaimable memory."
           }
         }
       }
@@ -4676,6 +4745,7 @@
       }
     },
     "高级操作" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4686,6 +4756,7 @@
       }
     },
     "高级操作可强制丢弃文件缓存，但不会清理 App 私有内存，也可能暂时降低性能。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

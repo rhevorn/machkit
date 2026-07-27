@@ -1,4 +1,5 @@
 import AppKit
+import Darwin
 import SiftCore
 import Foundation
 
@@ -311,26 +312,17 @@ final class CleanerViewModel: ObservableObject {
     func optimizeMemory() {
         guard !isOptimizingMemory else { return }
         isOptimizingMemory = true
-        status = L10n.string("正在智能释放可回收内存…")
+        status = L10n.string("正在让 macOS 释放闲置内存…")
         Task { [weak self] in
             guard let self else { return }
-            let error = await Self.runSystemCacheRelease()
-            if let error {
-                isOptimizingMemory = false
-                if error == "cancelled" {
-                    status = L10n.string("已取消智能释放。")
-                } else {
-                    removalFailureMessage = L10n.format("无法智能释放内存：%@", error)
-                    status = removalFailureMessage
-                    showRemovalFailure = true
-                }
-                return
-            }
             NSRunningApplication.terminateAutomaticallyTerminableApplications()
+            _ = await Task.detached(priority: .userInitiated) {
+                malloc_zone_pressure_relief(nil, 0)
+            }.value
             try? await Task.sleep(for: .milliseconds(800))
             refreshPerformanceSnapshot()
             isOptimizingMemory = false
-            status = L10n.string("智能释放完成；macOS 已重新整理可回收内存。")
+            status = L10n.string("智能释放完成；已处理闲置后台 App，并归还 Sift 自身可回收内存。")
         }
     }
 
@@ -345,34 +337,6 @@ final class CleanerViewModel: ObservableObject {
         if performanceHistory.count > 30 {
             performanceHistory.removeFirst(performanceHistory.count - 30)
         }
-    }
-
-    private nonisolated static func runSystemCacheRelease() async -> String? {
-        await Task.detached(priority: .userInitiated) {
-            let process = Process()
-            let output = Pipe()
-            process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-            process.arguments = [
-                "-e",
-                "do shell script \"/usr/sbin/purge\" with administrator privileges"
-            ]
-            process.standardOutput = output
-            process.standardError = output
-            do {
-                try process.run()
-                let data = output.fileHandleForReading.readDataToEndOfFile()
-                process.waitUntilExit()
-                guard process.terminationStatus != 0 else { return nil }
-                let message = String(decoding: data, as: UTF8.self)
-                    .trimmingCharacters(in: .whitespacesAndNewlines)
-                if message.contains("-128") || message.localizedCaseInsensitiveContains("cancel") {
-                    return "cancelled"
-                }
-                return message.isEmpty ? L10n.string("系统拒绝了该操作。") : message
-            } catch {
-                return error.localizedDescription
-            }
-        }.value
     }
 
     func scanPorts() {
