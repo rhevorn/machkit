@@ -43,12 +43,6 @@ final class CleanerViewModel: ObservableObject {
     @Published private(set) var performanceSnapshot: PerformanceSnapshot?
     @Published private(set) var performanceHistory: [PerformanceHistoryPoint] = []
     @Published private(set) var isPerformanceMonitoring = false
-    @Published var showMemoryOptimizer = false
-    @Published var selectedMemoryProcessIDs: Set<pid_t> = []
-    @Published var showMemoryQuitConfirmation = false
-    @Published var showMemoryForceQuitConfirmation = false
-    @Published var showMemoryCacheReleaseConfirmation = false
-    @Published private(set) var memoryOptimizationRemaining: [ApplicationResourceUsage] = []
     @Published private(set) var isOptimizingMemory = false
     @Published private(set) var listeningPorts: [ListeningPort] = []
     @Published private(set) var portScanError: String?
@@ -113,16 +107,6 @@ final class CleanerViewModel: ObservableObject {
     private var selectedCountByGroup: [String: Int] = [:]
     private var itemByID: [UUID: ScanItem] = [:]
     var selectedCount: Int { selectedIDs.count }
-    var memoryOptimizationCandidates: [ApplicationResourceUsage] {
-        (performanceSnapshot?.applications ?? [])
-            .filter(\.canTerminate)
-            .sorted { $0.memoryBytes > $1.memoryBytes }
-    }
-    var selectedMemoryBytes: Int64 {
-        memoryOptimizationCandidates
-            .filter { selectedMemoryProcessIDs.contains($0.processIdentifier) }
-            .reduce(0) { $0 + $1.memoryBytes }
-    }
     var lastScanText: String {
         guard let lastScanAt else { return L10n.string("尚未扫描") }
         return lastScanAt.formatted(date: .omitted, time: .shortened)
@@ -324,109 +308,30 @@ final class CleanerViewModel: ObservableObject {
         status = L10n.string("性能监控已暂停。")
     }
 
-    func openMemoryOptimizer() {
-        selectedMemoryProcessIDs = []
-        memoryOptimizationRemaining = []
-        showMemoryOptimizer = true
-    }
-
-    func toggleMemoryApplication(_ application: ApplicationResourceUsage) {
-        if selectedMemoryProcessIDs.contains(application.processIdentifier) {
-            selectedMemoryProcessIDs.remove(application.processIdentifier)
-        } else {
-            selectedMemoryProcessIDs.insert(application.processIdentifier)
-        }
-    }
-
-    func requestSelectedMemoryApplicationsQuit() {
-        guard !selectedMemoryProcessIDs.isEmpty else { return }
-        showMemoryQuitConfirmation = true
-    }
-
-    func quitSelectedMemoryApplications(force: Bool) {
-        let candidates = force
-            ? memoryOptimizationRemaining
-            : memoryOptimizationCandidates.filter { selectedMemoryProcessIDs.contains($0.processIdentifier) }
-        guard !candidates.isEmpty else { return }
-
-        showMemoryQuitConfirmation = false
-        showMemoryForceQuitConfirmation = false
+    func optimizeMemory() {
+        guard !isOptimizingMemory else { return }
         isOptimizingMemory = true
-        status = force
-            ? L10n.format("正在强制退出 %lld 个 App…", Int64(candidates.count))
-            : L10n.format("正在请求 %lld 个 App 正常退出…", Int64(candidates.count))
-
-        for candidate in candidates {
-            _ = requestApplicationQuit(candidate, force: force)
-        }
-        Task { [weak self] in
-            guard let self else { return }
-            try? await Task.sleep(for: force ? .milliseconds(800) : .seconds(2))
-            let remaining = candidates.filter(isApplicationStillRunning)
-            memoryOptimizationRemaining = remaining
-            selectedMemoryProcessIDs = Set(remaining.map(\.processIdentifier))
-            refreshPerformanceSnapshot()
-            isOptimizingMemory = false
-
-            let exitedCount = candidates.count - remaining.count
-            if remaining.isEmpty {
-                status = L10n.format("已退出 %lld 个 App；内存压力已重新采样。", Int64(exitedCount))
-            } else if force {
-                status = L10n.format("已退出 %lld 个 App，仍有 %lld 个进程无法结束。", Int64(exitedCount), Int64(remaining.count))
-            } else {
-                status = L10n.format("已退出 %lld 个 App，%lld 个 App 仍在运行。", Int64(exitedCount), Int64(remaining.count))
-            }
-        }
-    }
-
-    func releaseSystemCache() {
-        showMemoryCacheReleaseConfirmation = false
-        isOptimizingMemory = true
-        status = L10n.string("正在请求 macOS 释放文件缓存…")
+        status = L10n.string("正在智能释放可回收内存…")
         Task { [weak self] in
             guard let self else { return }
             let error = await Self.runSystemCacheRelease()
-            refreshPerformanceSnapshot()
-            isOptimizingMemory = false
             if let error {
+                isOptimizingMemory = false
                 if error == "cancelled" {
-                    status = L10n.string("已取消释放系统缓存。")
+                    status = L10n.string("已取消智能释放。")
                 } else {
-                    removalFailureMessage = L10n.format("无法释放系统缓存：%@", error)
+                    removalFailureMessage = L10n.format("无法智能释放内存：%@", error)
                     status = removalFailureMessage
                     showRemovalFailure = true
                 }
-            } else {
-                status = L10n.string("已请求 macOS 释放文件缓存；内存压力已重新采样。")
+                return
             }
+            NSRunningApplication.terminateAutomaticallyTerminableApplications()
+            try? await Task.sleep(for: .milliseconds(800))
+            refreshPerformanceSnapshot()
+            isOptimizingMemory = false
+            status = L10n.string("智能释放完成；macOS 已重新整理可回收内存。")
         }
-    }
-
-    private func requestApplicationQuit(_ application: ApplicationResourceUsage, force: Bool) -> Bool {
-        guard application.canTerminate,
-              let runningApplication = NSRunningApplication(processIdentifier: application.processIdentifier),
-              !runningApplication.isTerminated,
-              applicationIdentityMatches(application, runningApplication) else { return false }
-        return force ? runningApplication.forceTerminate() : runningApplication.terminate()
-    }
-
-    private func isApplicationStillRunning(_ application: ApplicationResourceUsage) -> Bool {
-        guard let runningApplication = NSRunningApplication(processIdentifier: application.processIdentifier),
-              !runningApplication.isTerminated else { return false }
-        return applicationIdentityMatches(application, runningApplication)
-    }
-
-    private func applicationIdentityMatches(
-        _ application: ApplicationResourceUsage,
-        _ runningApplication: NSRunningApplication
-    ) -> Bool {
-        if let expectedIdentifier = application.bundleIdentifier {
-            return runningApplication.bundleIdentifier == expectedIdentifier
-        }
-        if let expectedURL = application.bundleURL {
-            return runningApplication.bundleURL?.standardizedFileURL == expectedURL.standardizedFileURL
-        }
-        return false
     }
 
     private func refreshPerformanceSnapshot() {

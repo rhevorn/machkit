@@ -31,13 +31,9 @@ enum MemoryPressureLevel: String, Sendable {
 struct ApplicationResourceUsage: Identifiable, Sendable {
     let processIdentifier: pid_t
     let name: String
-    let bundleIdentifier: String?
     let bundleURL: URL?
     let cpuPercent: Double
     let memoryBytes: Int64
-    let isActive: Bool
-    let canTerminate: Bool
-    let protectionReason: String?
 
     var id: pid_t { processIdentifier }
 }
@@ -207,17 +203,12 @@ final class PerformanceMonitor {
             let name = application.localizedName
                 ?? application.bundleURL?.deletingPathExtension().lastPathComponent
                 ?? L10n.format("进程 %d", pid)
-            let protectionReason = applicationTerminationProtectionReason(application)
             results.append(ApplicationResourceUsage(
                 processIdentifier: pid,
                 name: name,
-                bundleIdentifier: application.bundleIdentifier,
                 bundleURL: application.bundleURL,
                 cpuPercent: max(0, cpuPercent),
-                memoryBytes: Int64(taskInfo.pti_resident_size),
-                isActive: application.isActive,
-                canTerminate: protectionReason == nil,
-                protectionReason: protectionReason
+                memoryBytes: Int64(taskInfo.pti_resident_size)
             ))
         }
         previousProcessSamples = nextSamples
@@ -227,35 +218,4 @@ final class PerformanceMonitor {
         }
     }
 
-    private func applicationTerminationProtectionReason(_ application: NSRunningApplication) -> String? {
-        let pid = application.processIdentifier
-        if pid == ProcessInfo.processInfo.processIdentifier {
-            return L10n.string("Sift 不能退出自身。")
-        }
-        if application.bundleIdentifier == "com.apple.finder" {
-            return L10n.string("Finder 由 macOS 管理，不会在这里退出。")
-        }
-        guard application.activationPolicy == .regular else {
-            return L10n.string("只能优化当前用户可见的 App。")
-        }
-        guard application.bundleIdentifier != nil || application.bundleURL != nil else {
-            return L10n.string("无法确认 App 身份，不会退出。")
-        }
-
-        var information = proc_bsdinfo()
-        let readSize = proc_pidinfo(
-            pid,
-            PROC_PIDTBSDINFO,
-            0,
-            &information,
-            Int32(MemoryLayout<proc_bsdinfo>.stride)
-        )
-        guard readSize == MemoryLayout<proc_bsdinfo>.stride else {
-            return L10n.string("无法确认 App 所属用户，不会退出。")
-        }
-        guard information.pbi_uid == getuid() else {
-            return L10n.string("只能退出当前用户的 App。")
-        }
-        return nil
-    }
 }
