@@ -1540,31 +1540,40 @@ struct ContentView: View {
     private var portListContent: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 14) {
-                HStack(spacing: 10) {
-                    portSummaryCard(
+                HStack(spacing: 0) {
+                    portSummaryItem(
                         title: "端口",
                         value: "\(model.listeningPorts.count)",
                         icon: "network",
                         color: .blue
                     )
-                    portSummaryCard(
+                    portSummaryDivider
+                    portSummaryItem(
                         title: "进程",
                         value: "\(Set(model.listeningPorts.map(\.processIdentifier)).count)",
                         icon: "terminal.fill",
                         color: .indigo
                     )
-                    portSummaryCard(
+                    portSummaryDivider
+                    portSummaryItem(
                         title: "TCP",
                         value: "\(model.listeningPorts.filter { $0.transport == .tcp }.count)",
                         icon: "arrow.left.arrow.right",
                         color: .mint
                     )
-                    portSummaryCard(
+                    portSummaryDivider
+                    portSummaryItem(
                         title: "对外开放",
                         value: "\(model.listeningPorts.filter { $0.exposure != .loopback }.count)",
                         icon: "exclamationmark.shield.fill",
                         color: .orange
                     )
+                }
+                .padding(.vertical, 11)
+                .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 12))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.primary.opacity(0.06), lineWidth: 1)
                 }
 
                 if let error = model.portScanError {
@@ -1666,22 +1675,30 @@ struct ContentView: View {
         }
     }
 
-    private func portSummaryCard(title: String, value: String, icon: String, color: Color) -> some View {
-        HStack(spacing: 10) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 8).fill(color.opacity(0.12))
-                Image(systemName: icon).foregroundStyle(color)
-            }
-            .frame(width: 34, height: 34)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(value).font(.system(size: 18, weight: .semibold, design: .rounded)).monospacedDigit()
-                Text(title.localized).font(.caption).foregroundStyle(.secondary)
+    private func portSummaryItem(title: String, value: String, icon: String, color: Color) -> some View {
+        HStack(spacing: 9) {
+            Image(systemName: icon)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(color)
+                .frame(width: 28, height: 28)
+                .background(color.opacity(0.10), in: Circle())
+            VStack(alignment: .leading, spacing: 1) {
+                Text(title.localized)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text(value)
+                    .font(.system(size: 19, weight: .semibold, design: .rounded))
+                    .monospacedDigit()
             }
             Spacer(minLength: 0)
         }
-        .padding(12)
+        .padding(.horizontal, 14)
         .frame(maxWidth: .infinity)
-        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+    }
+
+    private var portSummaryDivider: some View {
+        Divider()
+            .frame(height: 34)
     }
 
     private func portRow(_ port: ListeningPort) -> some View {
