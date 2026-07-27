@@ -1510,13 +1510,7 @@ struct ContentView: View {
         VStack(spacing: 0) {
             header(
                 title: "端口管理",
-                subtitle: "查看 TCP 监听端口、UDP 绑定及其进程",
-                trailing: AnyView(
-                    Button(action: model.scanPorts) {
-                        Label("刷新", systemImage: "arrow.clockwise")
-                    }
-                    .disabled(model.isScanning)
-                )
+                subtitle: "查看 TCP 监听端口、UDP 绑定及其进程"
             )
             .padding(18)
 

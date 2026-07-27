@@ -99,9 +99,9 @@ final class CleanerViewModel: ObservableObject {
     private var scanTask: Task<Void, Never>?
     private var inventoryTask: Task<Void, Never>?
     private var performanceTask: Task<Void, Never>?
+    private var portMonitoringTask: Task<Void, Never>?
     private var hasScannedApplications = false
     private var hasAnalyzedStorage = false
-    private var hasScannedPorts = false
     private var hasScannedLoginApplications = false
     private var hasScannedBackgroundItems = false
     private var hasScannedExtensions = false
@@ -350,9 +350,26 @@ final class CleanerViewModel: ObservableObject {
             listeningPorts = result.ports
             portScanError = result.errorMessage
             lastScanAt = Date()
-            hasScannedPorts = true
             isScanning = false
             status = result.errorMessage ?? L10n.format("找到 %lld 个监听端口。", Int64(result.ports.count))
+        }
+    }
+
+    private func startPortMonitoring() {
+        portMonitoringTask?.cancel()
+        scanPorts()
+        portMonitoringTask = Task { [weak self] in
+            while !Task.isCancelled {
+                do {
+                    try await Task.sleep(for: .seconds(3))
+                } catch {
+                    return
+                }
+                guard let self, self.mode == .ports else { return }
+                if NSApp.isActive, !self.isScanning, !self.showPortTerminationConfirmation {
+                    self.scanPorts()
+                }
+            }
         }
     }
 
@@ -408,6 +425,8 @@ final class CleanerViewModel: ObservableObject {
         inventoryTask?.cancel()
         performanceTask?.cancel()
         performanceTask = nil
+        portMonitoringTask?.cancel()
+        portMonitoringTask = nil
         isPerformanceMonitoring = false
         isScanning = false
         mode = newMode
@@ -436,11 +455,7 @@ final class CleanerViewModel: ObservableObject {
             status = L10n.string("正在监控 CPU 与内存…")
             startPerformanceMonitoring()
         case .ports:
-            if hasScannedPorts {
-                status = L10n.format("已缓存 %lld 个端口；点击刷新可重新扫描。", Int64(listeningPorts.count))
-            } else {
-                scanPorts()
-            }
+            startPortMonitoring()
         case .loginItems:
             if hasScannedLoginApplications {
                 status = L10n.format("已缓存 %lld 个登录项；点击刷新可重新扫描。", Int64(loginApplications.count))
@@ -523,7 +538,7 @@ final class CleanerViewModel: ObservableObject {
                 ? L10n.string("正在监控 CPU 与内存…")
                 : L10n.string("性能监控已暂停。")
         case .ports:
-            status = L10n.format("已缓存 %lld 个端口；点击刷新可重新扫描。", Int64(listeningPorts.count))
+            status = L10n.format("找到 %lld 个监听端口。", Int64(listeningPorts.count))
         case .loginItems:
             status = L10n.format("已缓存 %lld 个登录项；点击刷新可重新扫描。", Int64(loginApplications.count))
         case .backgroundActivity:
