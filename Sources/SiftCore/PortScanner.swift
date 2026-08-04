@@ -26,12 +26,12 @@ public actor PortScanner {
                 arguments: ["-nP", "-iTCP", "-sTCP:LISTEN", "-iUDP", "-FpcuPnT"]
             )
         } catch {
-            return PortScanResult(ports: [], errorMessage: "无法运行系统端口工具：\(error.localizedDescription)")
+            return PortScanResult(ports: [], errorMessage: "Unable to run system port tool: \(error.localizedDescription)")
         }
 
         let records = Self.parseLSOFOutput(output.text)
         if output.status != 0, records.isEmpty, !output.text.isEmpty {
-            return PortScanResult(ports: [], errorMessage: "读取端口失败：\(output.text.trimmingCharacters(in: .whitespacesAndNewlines))")
+            return PortScanResult(ports: [], errorMessage: "Failed to read port: \(output.text.trimmingCharacters(in: .whitespacesAndNewlines))")
         }
 
         let processIDs = Array(Set(records.map(\.processIdentifier))).sorted()
@@ -82,19 +82,19 @@ public actor PortScanner {
     }
 
     public func terminate(_ port: ListeningPort, force: Bool = false) -> String? {
-        guard port.processIdentifier > 1 else { return "不会结束系统核心进程。" }
-        guard port.processIdentifier != getpid() else { return "Sift 不能结束自身进程。" }
+        guard port.processIdentifier > 1 else { return "Core system processes are protected." }
+        guard port.processIdentifier != getpid() else { return "Sift cannot quit its own process." }
         guard let currentOwner = processOwnerUserID(processIdentifier: port.processIdentifier) else {
-            return "进程已经退出，或无法读取进程信息。"
+            return "The process has exited, or process information cannot be read."
         }
         guard currentOwner == getuid(), currentOwner == port.ownerUserID else {
-            return "只能结束当前用户拥有的进程。"
+            return "Only processes owned by the current user can be quit."
         }
 
         let currentExecutable = executableURL(processIdentifier: port.processIdentifier)
         if let expected = port.executableURL, let currentExecutable,
            expected.standardizedFileURL != currentExecutable.standardizedFileURL {
-            return "PID 已被其他进程复用，请刷新后重试。"
+            return "The PID has been reused by other processes, please refresh and try again."
         }
         if let reason = Self.protectionReason(
             processIdentifier: port.processIdentifier,
@@ -116,7 +116,7 @@ public actor PortScanner {
     static func parseLSOFOutput(_ output: String) -> [LSOFPortRecord] {
         struct ProcessFields {
             var processIdentifier: Int32?
-            var processName = "未知进程"
+            var processName = "unknown process"
             var ownerUserID: UInt32?
         }
         struct SocketFields {
@@ -158,7 +158,7 @@ public actor PortScanner {
             case "p":
                 appendSocket()
                 socket = SocketFields()
-                process = ProcessFields(processIdentifier: Int32(value), processName: "未知进程", ownerUserID: nil)
+                process = ProcessFields(processIdentifier: Int32(value), processName: "unknown process", ownerUserID: nil)
             case "c": process.processName = value
             case "u": process.ownerUserID = UInt32(value)
             case "f":
@@ -316,48 +316,48 @@ public actor PortScanner {
         let executable = executablePath?.lowercased() ?? ""
         let combined = "\(name) \(command) \(executable)"
 
-        if combined.contains("vite") { return "Vite 开发服务器" }
+        if combined.contains("vite") { return "Vite Development Server" }
         if combined.contains("next-server") || combined.contains("next dev") || combined.contains("next start") {
-            return "Next.js 开发服务器"
+            return "Next.js Development Server"
         }
-        if combined.contains("nuxt") { return "Nuxt 开发服务器" }
-        if combined.contains("webpack") { return "Webpack 开发服务器" }
-        if name == "node" || executable.hasSuffix("/node") { return "Node.js 网络服务" }
-        if name == "bun" || executable.hasSuffix("/bun") { return "Bun 开发服务" }
+        if combined.contains("nuxt") { return "Nuxt Development Server" }
+        if combined.contains("webpack") { return "Webpack Development Server" }
+        if name == "node" || executable.hasSuffix("/node") { return "Node.js Network Service" }
+        if name == "bun" || executable.hasSuffix("/bun") { return "Bun Development Service" }
 
-        if combined.contains("uvicorn") { return "Uvicorn / FastAPI 服务" }
-        if combined.contains("flask") { return "Flask 开发服务器" }
-        if combined.contains("manage.py runserver") { return "Django 开发服务器" }
-        if combined.contains("-m http.server") { return "Python HTTP 服务器" }
-        if name.hasPrefix("python") || executable.contains("/python") { return "Python 网络服务" }
+        if combined.contains("uvicorn") { return "Uvicorn / FastAPI Service" }
+        if combined.contains("flask") { return "Flask Development Server" }
+        if combined.contains("manage.py runserver") { return "Django Development Server" }
+        if combined.contains("-m http.server") { return "Python HTTP Server" }
+        if name.hasPrefix("python") || executable.contains("/python") { return "Python Network Service" }
 
-        if name == "air" || combined.contains("/air ") { return "Go 热重载开发服务" }
-        if combined.contains("go run") || executable.contains("/go-build/") { return "Go 开发服务" }
-        if combined.contains("rails server") || name == "puma" { return "Ruby on Rails 服务" }
-        if combined.contains("spring-boot") || combined.contains("org.springframework") { return "Spring Boot 服务" }
+        if name == "air" || combined.contains("/air ") { return "Go Live Reload Service" }
+        if combined.contains("go run") || executable.contains("/go-build/") { return "Go Development Service" }
+        if combined.contains("rails server") || name == "puma" { return "Ruby on Rails Service" }
+        if combined.contains("spring-boot") || combined.contains("org.springframework") { return "Spring Boot Service" }
 
-        if name == "docker-proxy" { return "Docker 容器端口代理" }
-        if combined.contains("com.docker.backend") { return "Docker Desktop 后台服务" }
-        if name.hasPrefix("postgres") { return "PostgreSQL 数据库" }
-        if name == "mysqld" || name == "mariadbd" { return "MySQL / MariaDB 数据库" }
-        if name.hasPrefix("redis") { return "Redis 数据库" }
-        if name == "mongod" { return "MongoDB 数据库" }
-        if name == "nginx" { return "Nginx Web 服务器" }
-        if name == "caddy" { return "Caddy Web 服务器" }
-        if name == "httpd" || name == "apache2" { return "Apache Web 服务器" }
-        if name == "rapportd" { return "Apple 设备通信服务" }
-        if name == "sharingd" { return "macOS 共享服务" }
+        if name == "docker-proxy" { return "Docker Container Port Proxy" }
+        if combined.contains("com.docker.backend") { return "Docker Desktop Background Service" }
+        if name.hasPrefix("postgres") { return "PostgreSQL Database" }
+        if name == "mysqld" || name == "mariadbd" { return "MySQL / MariaDB Database" }
+        if name.hasPrefix("redis") { return "Redis Database" }
+        if name == "mongod" { return "MongoDB Database" }
+        if name == "nginx" { return "Nginx Web Server" }
+        if name == "caddy" { return "Caddy Web Server" }
+        if name == "httpd" || name == "apache2" { return "Apache Web Server" }
+        if name == "rapportd" { return "Apple Device Communication Service" }
+        if name == "sharingd" { return "macOS Sharing Service" }
 
         switch port {
-        case 22: return "SSH 远程登录服务"
-        case 53: return "DNS 域名服务"
-        case 80, 443: return "Web 服务器"
-        case 3306: return "MySQL 数据库"
-        case 5432: return "PostgreSQL 数据库"
-        case 6379: return "Redis 数据库"
-        case 27017: return "MongoDB 数据库"
-        case 3000, 3001, 4000, 4200, 5000, 5173, 8000, 8080, 8888: return "本地开发服务"
-        default: return "网络服务进程"
+        case 22: return "SSH Remote Login Service"
+        case 53: return "DNS Service"
+        case 80, 443: return "Web Server"
+        case 3306: return "MySQL Database"
+        case 5432: return "PostgreSQL Database"
+        case 6379: return "Redis Database"
+        case 27017: return "MongoDB Database"
+        case 3000, 3001, 4000, 4200, 5000, 5173, 8000, 8080, 8888: return "Local Development Service"
+        default: return "Network Service Process"
         }
     }
 
@@ -392,14 +392,14 @@ public actor PortScanner {
         currentUserID: UInt32,
         currentProcessID: Int32
     ) -> String? {
-        if processIdentifier <= 1 { return "系统核心进程不会在这里结束。" }
-        if processIdentifier == currentProcessID { return "Sift 不能结束自身进程。" }
-        if ownerUserID != currentUserID { return "只能结束当前用户拥有的进程。" }
-        guard let executablePath else { return "无法确认可执行文件，不会结束这个进程。" }
+        if processIdentifier <= 1 { return "Core system processes cannot be quit here." }
+        if processIdentifier == currentProcessID { return "Sift cannot quit its own process." }
+        if ownerUserID != currentUserID { return "Only processes owned by the current user can be quit." }
+        guard let executablePath else { return "The executable could not be verified, so this process cannot be quit." }
         let path = URL(fileURLWithPath: executablePath).standardizedFileURL.path
         let protectedPrefixes = ["/System/", "/usr/libexec/", "/usr/sbin/", "/sbin/"]
         if protectedPrefixes.contains(where: path.hasPrefix) {
-            return "macOS 系统管理的进程不会在这里结束。"
+            return "Processes managed by macOS cannot be quit here."
         }
         return nil
     }

@@ -2,16 +2,13 @@ import Foundation
 
 enum L10n {
     static func string(_ key: String) -> String {
-        switch AppLanguage.selected {
-        case .simplifiedChinese:
-            return key
-        case .english:
-            guard let path = Bundle.main.path(forResource: "en", ofType: "lproj"),
-                  let bundle = Bundle(path: path) else { return key }
-            return bundle.localizedString(forKey: key, value: key, table: nil)
-        case .system:
+        let language = AppLanguage.selected
+        if language == .system {
             return Bundle.main.localizedString(forKey: key, value: key, table: nil)
         }
+        guard let path = Bundle.main.path(forResource: language.rawValue, ofType: "lproj"),
+              let bundle = Bundle(path: path) else { return key }
+        return bundle.localizedString(forKey: key, value: key, table: nil)
     }
 
     static func format(_ key: String, _ arguments: CVarArg...) -> String {

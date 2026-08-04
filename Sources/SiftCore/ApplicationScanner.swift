@@ -147,18 +147,21 @@ public actor ApplicationScanner {
         residues: [ApplicationResidue],
         home: URL
     ) -> CleanResult {
-        let appPath = app.bundleURL.standardizedFileURL.path
-        let userApplications = home.appending(path: "Applications", directoryHint: .isDirectory).standardizedFileURL.path
-        let mayRemoveApp = appPath.hasPrefix("/Applications/") || appPath.hasPrefix(userApplications + "/")
-        guard mayRemoveApp, !appPath.hasPrefix("/System/") else {
+        let systemRoot = URL(fileURLWithPath: "/System", isDirectory: true)
+        let applicationRoots = [
+            URL(fileURLWithPath: "/Applications", isDirectory: true),
+            home.appending(path: "Applications", directoryHint: .isDirectory)
+        ]
+        let mayRemoveApp = applicationRoots.contains { SafetyPolicy.isDirectChild(app.bundleURL, of: $0) }
+        guard mayRemoveApp, !SafetyPolicy.contains(app.bundleURL, in: systemRoot) else {
             return CleanResult(movedToTrash: [], failures: [
-                CleanFailure(url: app.bundleURL, reason: "系统应用受保护，不能卸载。")
+                CleanFailure(url: app.bundleURL, reason: "System apps are protected and cannot be uninstalled.")
             ])
         }
 
-        let libraryRoot = home.appending(path: "Library", directoryHint: .isDirectory).standardizedFileURL.path + "/"
+        let libraryRoot = home.appending(path: "Library", directoryHint: .isDirectory)
         let allowedResidues = residues.filter {
-            $0.url.standardizedFileURL.path.hasPrefix(libraryRoot)
+            SafetyPolicy.contains($0.url, in: libraryRoot)
         }
         var moved: [URL] = []
         var failures: [CleanFailure] = []

@@ -7,6 +7,63 @@ public actor FileAnalyzer {
         self.fileManager = fileManager
     }
 
+    /// Produces a fast, first-level overview of a directory. `du` performs the
+    /// size aggregation using the native filesystem walker, while the UI only
+    /// presents the root's immediate children instead of indexing every file.
+    public func directoryOverview(root: URL, volumeURL: URL? = nil) -> StorageAnalysis {
+        let root = root.standardizedFileURL
+        let capacity = volumeCapacity(at: volumeURL ?? root)
+        let keys: Set<URLResourceKey> = [.isDirectoryKey, .isRegularFileKey, .isSymbolicLinkKey, .fileAllocatedSizeKey]
+        let children = (try? fileManager.contentsOfDirectory(
+            at: root,
+            includingPropertiesForKeys: Array(keys),
+            options: []
+        )) ?? []
+
+        var directories: [URL] = []
+        var rootFilesBytes: Int64 = 0
+        for child in children {
+            guard let values = try? child.resourceValues(forKeys: keys), values.isSymbolicLink != true else { continue }
+            if values.isDirectory == true {
+                directories.append(child)
+            } else if values.isRegularFile == true {
+                rootFilesBytes += Int64(values.fileAllocatedSize ?? 0)
+            }
+        }
+
+        let measured = directorySizes(using: directories)
+        var usages = directories.map { url in
+            StorageDirectoryUsage(
+                url: url,
+                bytes: measured[url.standardizedFileURL.path, default: 0],
+                explanation: Self.directoryExplanation(name: url.lastPathComponent)
+            )
+        }
+        if rootFilesBytes > 0 {
+            usages.append(StorageDirectoryUsage(
+                url: root,
+                bytes: rootFilesBytes,
+                explanation: "Files stored directly in the user directory"
+            ))
+        }
+        usages.sort { lhs, rhs in
+            if lhs.bytes == rhs.bytes { return lhs.url.lastPathComponent.localizedStandardCompare(rhs.url.lastPathComponent) == .orderedAscending }
+            return lhs.bytes > rhs.bytes
+        }
+        let scannedBytes = usages.reduce(0) { $0 + $1.bytes }
+        return StorageAnalysis(
+            totalCapacity: capacity.total,
+            availableCapacity: capacity.available,
+            scannedBytes: scannedBytes,
+            scannedFileCount: children.count,
+            inaccessibleItemCount: 0,
+            categories: [],
+            largeFiles: [],
+            analyzedRoots: [root],
+            directories: usages
+        )
+    }
+
     public func storageAnalysis(
         roots: [URL],
         volumeURL: URL? = nil,
@@ -26,11 +83,11 @@ public actor FileAnalyzer {
         ]
         let largeFileRule = ScanRule(
             id: "large-file",
-            title: "大文件",
+            title: "Large Files",
             relativePath: ".",
             minimumAgeDays: 0,
             risk: .review,
-            explanation: "大文件不等于垃圾，仅用于了解空间占用。"
+            explanation: "Large files do not mean garbage, they are only used to understand the space occupied."
         )
 
         var categoryBytes = Dictionary(uniqueKeysWithValues: StorageCategoryKind.allCases.map { ($0, Int64(0)) })
@@ -120,11 +177,11 @@ public actor FileAnalyzer {
 
         let rule = ScanRule(
             id: "large-file",
-            title: "大文件",
+            title: "Large Files",
             relativePath: ".",
             minimumAgeDays: 0,
             risk: .review,
-            explanation: "大文件不等于垃圾，只用于帮助你发现占用空间的内容。"
+            explanation: "Large files do not equal garbage, they are only used to help you discover content taking up space."
         )
         var results: [ScanItem] = []
         for case let url as URL in enumerator {
@@ -163,6 +220,57 @@ public actor FileAnalyzer {
         let total = (attributes?[.systemSize] as? NSNumber)?.int64Value ?? 0
         let available = (attributes?[.systemFreeSize] as? NSNumber)?.int64Value ?? 0
         return (max(0, total), max(0, available))
+    }
+
+    private func directorySizes(using urls: [URL]) -> [String: Int64] {
+        guard !urls.isEmpty else { return [:] }
+        let process = Process()
+        let output = Pipe()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/du")
+        process.arguments = ["-sk", "-x", "--"] + urls.map(\.path)
+        process.standardOutput = output
+        process.standardError = FileHandle.nullDevice
+        do {
+            try process.run()
+            let data = output.fileHandleForReading.readDataToEndOfFile()
+            process.waitUntilExit()
+            let text = String(decoding: data, as: UTF8.self)
+            return Self.parseDirectorySizes(text)
+        } catch {
+            return [:]
+        }
+    }
+
+    static func parseDirectorySizes(_ text: String) -> [String: Int64] {
+        var result: [String: Int64] = [:]
+        for line in text.split(whereSeparator: \.isNewline) {
+            let fields = line.split(separator: "\t", maxSplits: 1).map(String.init)
+            guard fields.count == 2, let kibibytes = Int64(fields[0]) else { continue }
+            result[URL(fileURLWithPath: fields[1]).standardizedFileURL.path] = kibibytes * 1_024
+        }
+        return result
+    }
+
+    public static func directoryExplanation(name: String) -> String {
+        switch name {
+        case "Applications": "Applications installed by the current user"
+        case "Desktop": "Files and folders on the desktop"
+        case "Documents": "Manuscripts and Profiles"
+        case "Downloads": "Files downloaded by browsers and other apps"
+        case "Library": "App data, cache, settings and development tools files"
+        case "Movies": "Film and Video Projects"
+        case "Music": "Music, audio and music libraries"
+        case "Pictures": "Photos, graphics and image libraries"
+        case "Public": "Content accessible to other users of the same Mac"
+        case ".Trash": "Contents of the Trash"
+        case ".cache": "Command line tools and development tools cache"
+        case ".config": "Command line tools and development tool configuration"
+        case ".local": "User-level command line tools and local data"
+        case ".npm": "npm download cache, logs and configuration"
+        case ".cargo": "Rust toolchain, source cache, and installed commands"
+        case ".gradle": "Gradle download cache and build data"
+        default: name.hasPrefix(".") ? "Hidden directories created by applications or command line tools" : "Folders in user directory"
+        }
     }
 
     private func storageCategory(for url: URL) -> StorageCategoryKind {

@@ -13,17 +13,17 @@ struct JunkScanGroup: Identifiable, Sendable {
 }
 
 enum ApplicationCategory: String, CaseIterable, Sendable {
-    case user = "用户应用"
+    case user = "User Apps"
     case appStore = "App Store"
-    case thirdParty = "第三方应用"
-    case system = "Apple 系统应用"
+    case thirdParty = "Third-Party Apps"
+    case system = "Apple System Apps"
 
     var subtitle: String {
         switch self {
-        case .user: "安装在当前用户目录"
-        case .appStore: "通过 Mac App Store 安装"
-        case .thirdParty: "从开发者或其他渠道安装"
-        case .system: "macOS 自带，受系统保护"
+        case .user: "Installed in the current user's folder"
+        case .appStore: "Installed from the Mac App Store"
+        case .thirdParty: "Installed from a developer or another source"
+        case .system: "Built into macOS and system protected"
         }
     }
 }
@@ -54,6 +54,7 @@ final class CleanerViewModel: ObservableObject {
     @Published var root: URL?
     @Published var items: [ScanItem] = []
     @Published private(set) var storageAnalysis: StorageAnalysis?
+    @Published private(set) var storagePath: [URL] = []
     @Published private(set) var performanceSnapshot: PerformanceSnapshot?
     @Published private(set) var performanceHistory: [PerformanceHistoryPoint] = []
     @Published private(set) var systemStorage = SystemStorageSnapshot.empty
@@ -85,6 +86,7 @@ final class CleanerViewModel: ObservableObject {
     @Published var showExtensionRemovalConfirmation = false
     @Published var showRemovalFailure = false
     @Published var removalFailureMessage = ""
+    @Published var operationReport: RemovalOperationReport?
     @Published private(set) var applicationGroups: [ApplicationGroup] = []
     @Published var uninstallCandidate: InstalledApplication?
     @Published var showAppRemovalConfirmation = false
@@ -96,14 +98,17 @@ final class CleanerViewModel: ObservableObject {
     @Published private(set) var selectedBytes: Int64 = 0
     @Published private(set) var totalBytes: Int64 = 0
     @Published var isScanning = false
+    @Published private(set) var isStorageAnalyzing = false
+    @Published private(set) var loadingModes: Set<FeatureMode> = []
     @Published var showCleanConfirmation = false
     @Published var lastScanAt: Date?
+    @Published private(set) var lastUpdatedAt: [FeatureMode: Date] = [:]
     @Published var scanProgress = 0.0
     @Published var currentScanCategory = ""
     @Published var inspectedFileCount = 0
     @Published var discoveredFileCount = 0
     @Published var discoveredBytes: Int64 = 0
-    @Published var status = L10n.string("请选择你的用户目录或一个测试目录。")
+    @Published var status = L10n.string("Choose your user folder or a test folder.")
 
     private let scanner = SiftCore.Scanner()
     private let cleaner = Cleaner()
@@ -113,12 +118,16 @@ final class CleanerViewModel: ObservableObject {
     private let performanceMonitor = PerformanceMonitor()
     private let portScanner = PortScanner()
     private var scanTask: Task<Void, Never>?
+    private var storageAnalysisTask: Task<Void, Never>?
     private var inventoryTask: Task<Void, Never>?
     private var performanceTask: Task<Void, Never>?
     private var portMonitoringTask: Task<Void, Never>?
     private var homeMonitoringTask: Task<Void, Never>?
     private var hasScannedApplications = false
     private var hasAnalyzedStorage = false
+    private var storageCache: [String: StorageAnalysis] = [:]
+    private static let storageSnapshotKey = "storageOverviewSnapshot"
+    private static let inventorySnapshotKey = "inventorySnapshot"
     private var hasScannedLoginApplications = false
     private var hasScannedBackgroundItems = false
     private var hasScannedExtensions = false
@@ -126,11 +135,22 @@ final class CleanerViewModel: ObservableObject {
     private var itemByID: [UUID: ScanItem] = [:]
     var selectedCount: Int { selectedIDs.count }
     var lastScanText: String {
-        guard let lastScanAt else { return L10n.string("尚未扫描") }
+        guard let lastScanAt else { return L10n.string("Not scanned yet") }
         return lastScanAt.formatted(date: .omitted, time: .shortened)
     }
 
+    func lastUpdatedText(for mode: FeatureMode) -> String {
+        guard let date = lastUpdatedAt[mode] else { return L10n.string("Not updated yet") }
+        return L10n.format("Updated on %@", date.formatted(date: .omitted, time: .shortened))
+    }
+
+    func isLoading(_ mode: FeatureMode) -> Bool {
+        mode == .files ? isStorageAnalyzing : loadingModes.contains(mode)
+    }
+
     init() {
+        restoreStorageSnapshot()
+        restoreInventorySnapshot()
         refreshSystemStorage()
         refreshPerformanceSnapshot()
         startHomeMonitoring()
@@ -146,25 +166,26 @@ final class CleanerViewModel: ObservableObject {
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
         panel.allowsMultipleSelection = false
-        panel.prompt = L10n.string(mode == .uninstall ? "选择 Applications 目录" : "选择扫描目录")
+        panel.prompt = L10n.string(mode == .uninstall ? "Choose Applications Folder" : "Choose Scan Folder")
         guard panel.runModal() == .OK, let url = panel.url else { return }
         root = url
         if mode == .files {
             storageAnalysis = nil
             items = []
-            status = L10n.format("已选择 %@，点击开始分析。", url.lastPathComponent)
+            status = L10n.format("", url.lastPathComponent)
             return
         }
         items = []
         selectedIDs = []
         rebuildJunkGroups()
-        status = L10n.format("已选择 %@，尚未扫描。", url.path)
+        status = L10n.format("", url.path)
     }
 
     func scanInstalledApplications() {
         inventoryTask?.cancel()
         isScanning = true
-        status = L10n.string("正在扫描已安装应用…")
+        loadingModes.insert(.uninstall)
+        status = L10n.string("Scanning installed apps…")
         inventoryTask = Task {
             let home = FileManager.default.homeDirectoryForCurrentUser
             let foundApplications = await applicationScanner.applications(in: [
@@ -181,9 +202,12 @@ final class CleanerViewModel: ObservableObject {
             items = []
             selectedIDs = []
             lastScanAt = Date()
+            lastUpdatedAt[.uninstall] = lastScanAt
             hasScannedApplications = true
+            persistInventorySnapshot()
             isScanning = false
-            status = L10n.format("找到 %lld 个应用。", Int64(applications.count))
+            loadingModes.remove(.uninstall)
+            status = L10n.format("", Int64(applications.count))
         }
     }
 
@@ -196,11 +220,11 @@ final class CleanerViewModel: ObservableObject {
         scanTask?.cancel()
         isScanning = true
         scanProgress = 0
-        currentScanCategory = L10n.string("准备扫描")
+        currentScanCategory = L10n.string("Preparing to scan")
         inspectedFileCount = 0
         discoveredFileCount = 0
         discoveredBytes = 0
-        status = L10n.string("正在扫描…")
+        status = L10n.string("Scanning…")
         scanTask = Task {
             switch mode {
             case .home:
@@ -210,7 +234,7 @@ final class CleanerViewModel: ObservableObject {
                 selectedIDs = Set(found.filter { $0.rule.risk == .safe }.map(\.id))
                 rebuildJunkGroups()
                 cleanableBytes = selectedBytes
-                status = L10n.format("扫描完成，发现 %lld 个候选文件。", Int64(found.count))
+                status = L10n.format("Scan complete. ", Int64(found.count))
             case .junk:
                 let found = await scanJunk(root: root)
                 guard !Task.isCancelled, mode == .junk else { return }
@@ -218,7 +242,7 @@ final class CleanerViewModel: ObservableObject {
                 selectedIDs = Set(found.filter { $0.rule.risk == .safe }.map(\.id))
                 rebuildJunkGroups()
                 cleanableBytes = selectedBytes
-                status = L10n.format("找到 %lld 个候选文件。标记为“需确认”的项目不会默认选中。", Int64(found.count))
+                status = L10n.format("", Int64(found.count))
             case .uninstall:
                 let found = await applicationScanner.applications(in: root)
                 guard !Task.isCancelled, mode == .uninstall else { return }
@@ -226,84 +250,204 @@ final class CleanerViewModel: ObservableObject {
                 items = []
                 selectedIDs = []
                 rebuildJunkGroups()
-                status = L10n.format("找到 %lld 个应用。当前版本仅盘点，不会直接卸载。", Int64(applications.count))
+                status = L10n.format("", Int64(applications.count))
             case .files:
                 break
             case .performance, .ports, .loginItems, .backgroundActivity, .extensions, .settings:
                 break
             }
             lastScanAt = Date()
-            currentScanCategory = L10n.string(Task.isCancelled ? "扫描已取消" : "扫描完成")
+            lastUpdatedAt[mode] = lastScanAt
+            currentScanCategory = L10n.string(Task.isCancelled ? "Scan canceled" : "Scan complete")
             if !Task.isCancelled { scanProgress = 1 }
             isScanning = false
         }
     }
 
     func scanStorageAnalysis() {
-        scanTask?.cancel()
+        storageAnalysisTask?.cancel()
         let home = FileManager.default.homeDirectoryForCurrentUser.standardizedFileURL
         let selectedRoot = (root ?? home).standardizedFileURL
         root = selectedRoot
-        let roots: [URL]
-        if selectedRoot == home {
-            roots = [
-                home,
-                URL(fileURLWithPath: "/Applications", isDirectory: true),
-                URL(fileURLWithPath: "/System/Applications", isDirectory: true),
-                URL(fileURLWithPath: "/Library", isDirectory: true)
-            ]
-        } else {
-            roots = [selectedRoot]
-        }
-
-        isScanning = true
+        isStorageAnalyzing = true
         scanProgress = 0
         inspectedFileCount = 0
         discoveredBytes = 0
-        currentScanCategory = selectedRoot == home ? L10n.string("用户目录与系统应用") : selectedRoot.lastPathComponent
-        status = L10n.string("正在统计文件占用…")
-        scanTask = Task {
-            let analysis = await fileAnalyzer.storageAnalysis(
-                roots: roots,
+        currentScanCategory = selectedRoot.lastPathComponent
+        status = L10n.string("Reading directory occupancy...")
+        storageAnalysisTask = Task {
+            let analysis = await fileAnalyzer.directoryOverview(
+                root: selectedRoot,
                 volumeURL: URL(fileURLWithPath: "/", isDirectory: true)
-            ) { [weak self] progress in
-                Task { @MainActor [weak self] in
-                    guard let self, self.mode == .files, self.isScanning else { return }
-                    self.currentScanCategory = progress.currentRoot.lastPathComponent.isEmpty
-                        ? progress.currentRoot.path
-                        : progress.currentRoot.lastPathComponent
-                    self.inspectedFileCount = progress.inspectedFiles
-                    self.discoveredBytes = progress.scannedBytes
-                }
-            }
-            guard !Task.isCancelled, mode == .files else { return }
+            )
+            guard !Task.isCancelled else { return }
             storageAnalysis = analysis
-            items = analysis.largeFiles
+            storageCache[selectedRoot.path] = analysis
+            if storagePath.isEmpty || storagePath.last != selectedRoot {
+                storagePath = breadcrumbPath(to: selectedRoot)
+            }
+            items = []
             selectedIDs = []
             lastScanAt = Date()
+            lastUpdatedAt[.files] = lastScanAt
             hasAnalyzedStorage = true
-            isScanning = false
-            currentScanCategory = L10n.string("分析完成")
-            status = L10n.format(
-                "已分析 %lld 个文件，共归类 %@。",
-                Int64(analysis.scannedFileCount),
-                ByteCountFormatter.string(fromByteCount: analysis.scannedBytes, countStyle: .file)
-            )
+            persistStorageSnapshot(analysis)
+            isStorageAnalyzing = false
+            storageAnalysisTask = nil
+            currentScanCategory = L10n.string("Analysis complete")
+            if mode == .files {
+                status = L10n.format(
+                    "Read %lld items occupying %@.",
+                    Int64(analysis.directories.count),
+                    ByteCountFormatter.string(fromByteCount: analysis.scannedBytes, countStyle: .file)
+                )
+            }
         }
     }
 
+    func openStorageDirectory(_ url: URL) {
+        let url = url.standardizedFileURL
+        root = url
+        storagePath = breadcrumbPath(to: url)
+        if let cached = storageCache[url.path] {
+            storageAnalysis = cached
+        }
+        scanStorageAnalysis()
+    }
+
+    func navigateStorage(to url: URL) {
+        openStorageDirectory(url)
+    }
+
+    private func breadcrumbPath(to url: URL) -> [URL] {
+        let home = FileManager.default.homeDirectoryForCurrentUser.standardizedFileURL
+        let target = url.standardizedFileURL
+        guard SafetyPolicy.contains(target, in: home, allowDirectoryItself: true) else { return [target] }
+        if target == home { return [home] }
+        var result = [home]
+        var current = home
+        let relative = target.path.dropFirst(home.path.count).split(separator: "/")
+        for component in relative {
+            current.append(path: String(component), directoryHint: .isDirectory)
+            result.append(current)
+        }
+        return result
+    }
+
+    private struct StoredDirectory: Codable {
+        let path: String
+        let bytes: Int64
+        let explanation: String
+    }
+
+    private struct StoredStorageSnapshot: Codable {
+        let rootPath: String
+        let totalCapacity: Int64
+        let availableCapacity: Int64
+        let scannedBytes: Int64
+        let savedAt: Date
+        let directories: [StoredDirectory]
+    }
+
+    private func persistStorageSnapshot(_ analysis: StorageAnalysis) {
+        guard let root = analysis.analyzedRoots.first else { return }
+        let snapshot = StoredStorageSnapshot(
+            rootPath: root.path,
+            totalCapacity: analysis.totalCapacity,
+            availableCapacity: analysis.availableCapacity,
+            scannedBytes: analysis.scannedBytes,
+            savedAt: lastScanAt ?? Date(),
+            directories: analysis.directories.map { StoredDirectory(path: $0.url.path, bytes: $0.bytes, explanation: $0.explanation) }
+        )
+        if let data = try? JSONEncoder().encode(snapshot) {
+            UserDefaults.standard.set(data, forKey: Self.storageSnapshotKey)
+        }
+    }
+
+    private func restoreStorageSnapshot() {
+        guard let data = UserDefaults.standard.data(forKey: Self.storageSnapshotKey),
+              let snapshot = try? JSONDecoder().decode(StoredStorageSnapshot.self, from: data) else { return }
+        let root = URL(fileURLWithPath: snapshot.rootPath, isDirectory: true)
+        let analysis = StorageAnalysis(
+            totalCapacity: snapshot.totalCapacity,
+            availableCapacity: snapshot.availableCapacity,
+            scannedBytes: snapshot.scannedBytes,
+            scannedFileCount: snapshot.directories.count,
+            inaccessibleItemCount: 0,
+            categories: [],
+            largeFiles: [],
+            analyzedRoots: [root],
+            directories: snapshot.directories.map {
+                StorageDirectoryUsage(url: URL(fileURLWithPath: $0.path, isDirectory: true), bytes: $0.bytes, explanation: $0.explanation)
+            }
+        )
+        storageAnalysis = analysis
+        storageCache[root.path] = analysis
+        storagePath = breadcrumbPath(to: root)
+        lastUpdatedAt[.files] = snapshot.savedAt
+        lastScanAt = snapshot.savedAt
+        hasAnalyzedStorage = true
+    }
+
+    private struct StoredInventorySnapshot: Codable {
+        let applications: [InstalledApplication]
+        let commandLineTools: [CommandLineTool]
+        let loginApplications: [LoginApplication]
+        let backgroundItems: [LoginItem]
+        let registeredBackgroundTasks: [RegisteredBackgroundTask]
+        let installedExtensions: [InstalledExtension]
+    }
+
+    private func persistInventorySnapshot() {
+        let snapshot = StoredInventorySnapshot(
+            applications: applications,
+            commandLineTools: commandLineTools,
+            loginApplications: loginApplications,
+            backgroundItems: backgroundItems,
+            registeredBackgroundTasks: registeredBackgroundTasks,
+            installedExtensions: installedExtensions
+        )
+        if let data = try? JSONEncoder().encode(snapshot) {
+            UserDefaults.standard.set(data, forKey: Self.inventorySnapshotKey)
+        }
+    }
+
+    private func restoreInventorySnapshot() {
+        guard let data = UserDefaults.standard.data(forKey: Self.inventorySnapshotKey),
+              let snapshot = try? JSONDecoder().decode(StoredInventorySnapshot.self, from: data) else { return }
+        applications = snapshot.applications
+        commandLineTools = snapshot.commandLineTools
+        loginApplications = snapshot.loginApplications
+        backgroundItems = snapshot.backgroundItems
+        registeredBackgroundTasks = snapshot.registeredBackgroundTasks
+        installedExtensions = snapshot.installedExtensions
+        hasScannedApplications = !applications.isEmpty
+        hasScannedLoginApplications = !loginApplications.isEmpty
+        hasScannedBackgroundItems = !backgroundItems.isEmpty || !registeredBackgroundTasks.isEmpty
+        hasScannedExtensions = !installedExtensions.isEmpty
+        rebuildApplicationGroups()
+    }
+
     func cancelScan() {
+        if mode == .files, isStorageAnalyzing {
+            storageAnalysisTask?.cancel()
+            storageAnalysisTask = nil
+            isStorageAnalyzing = false
+            currentScanCategory = L10n.string("Analysis canceled")
+            status = L10n.string("Analysis canceled.")
+            return
+        }
         scanTask?.cancel()
         scanTask = nil
         isScanning = false
-        currentScanCategory = L10n.string("扫描已取消")
-        status = L10n.string("扫描已取消。")
+        currentScanCategory = L10n.string("Scan canceled")
+        status = L10n.string("Scan canceled.")
     }
 
     func startPerformanceMonitoring() {
         performanceTask?.cancel()
         isPerformanceMonitoring = true
-        status = L10n.string("正在监控 CPU 与内存…")
+        status = L10n.string("Monitoring CPU and memory…")
         performanceTask = Task { [weak self] in
             guard let self else { return }
             while !Task.isCancelled, mode == .performance {
@@ -318,7 +462,7 @@ final class CleanerViewModel: ObservableObject {
                     performanceHistory.removeFirst(performanceHistory.count - 30)
                 }
                 status = L10n.format(
-                    "CPU %lld%% · 内存压力%@",
+                    "CPU ",
                     Int64(snapshot.cpuPercent.rounded()),
                     snapshot.memoryPressureLevel.rawValue.localized
                 )
@@ -331,13 +475,13 @@ final class CleanerViewModel: ObservableObject {
         performanceTask?.cancel()
         performanceTask = nil
         isPerformanceMonitoring = false
-        status = L10n.string("性能监控已暂停。")
+        status = L10n.string("Performance monitoring paused.")
     }
 
     func optimizeMemory() {
         guard !isOptimizingMemory else { return }
         isOptimizingMemory = true
-        status = L10n.string("正在让 macOS 释放闲置内存…")
+        status = L10n.string("Asking macOS to release idle memory…")
         Task { [weak self] in
             guard let self else { return }
             NSRunningApplication.terminateAutomaticallyTerminableApplications()
@@ -347,7 +491,7 @@ final class CleanerViewModel: ObservableObject {
             try? await Task.sleep(for: .milliseconds(800))
             refreshPerformanceSnapshot()
             isOptimizingMemory = false
-            status = L10n.string("智能释放完成；已处理闲置后台 App，并归还 Sift 自身可回收内存。")
+            status = L10n.string("Smart release complete; idle background apps were handled and Sift returned its own reclaimable memory.")
         }
     }
 
@@ -428,8 +572,9 @@ final class CleanerViewModel: ObservableObject {
     func scanPorts() {
         inventoryTask?.cancel()
         isScanning = true
+        loadingModes.insert(.ports)
         portScanError = nil
-        status = L10n.string("正在读取监听端口与进程信息…")
+        status = L10n.string("Reading listening ports and process information…")
         inventoryTask = Task {
             let result = await portScanner.scan()
             guard !Task.isCancelled, mode == .ports else { return }
@@ -437,8 +582,10 @@ final class CleanerViewModel: ObservableObject {
             hasLoadedPortSnapshot = true
             portScanError = result.errorMessage
             lastScanAt = Date()
+            lastUpdatedAt[.ports] = lastScanAt
             isScanning = false
-            status = result.errorMessage ?? L10n.format("找到 %lld 个监听端口。", Int64(result.ports.count))
+            loadingModes.remove(.ports)
+            status = result.errorMessage ?? L10n.format("", Int64(result.ports.count))
         }
     }
 
@@ -462,7 +609,7 @@ final class CleanerViewModel: ObservableObject {
 
     func requestPortTermination(_ port: ListeningPort) {
         guard port.canTerminate else {
-            removalFailureMessage = port.protectionReason ?? L10n.string("这个进程不能在 Sift 中结束。")
+            removalFailureMessage = port.protectionReason ?? L10n.string("This process cannot be quit from Sift.")
             showRemovalFailure = true
             return
         }
@@ -475,18 +622,18 @@ final class CleanerViewModel: ObservableObject {
         showPortTerminationConfirmation = false
         portTerminationCandidate = nil
         status = force
-            ? L10n.format("正在强制结束 %@…", port.processName)
-            : L10n.format("正在请求 %@ 正常退出…", port.processName)
+            ? L10n.format("Force quitting ", port.processName)
+            : L10n.format("Asking ", port.processName)
         Task {
             if let error = await portScanner.terminate(port, force: force) {
-                removalFailureMessage = L10n.format("无法结束 %@：%@", port.processName, error)
+                removalFailureMessage = L10n.format("Unable to quit ", port.processName, error)
                 status = removalFailureMessage
                 showRemovalFailure = true
             } else {
                 listeningPorts.removeAll { $0.processIdentifier == port.processIdentifier }
                 status = force
-                    ? L10n.format("已强制结束 %@。", port.processName)
-                    : L10n.format("已向 %@ 发送退出请求。", port.processName)
+                    ? L10n.format("", port.processName)
+                    : L10n.format("A quit request was sent to ", port.processName)
                 try? await Task.sleep(for: .milliseconds(500))
                 if mode == .ports { scanPorts() }
             }
@@ -518,6 +665,7 @@ final class CleanerViewModel: ObservableObject {
         homeMonitoringTask = nil
         isPerformanceMonitoring = false
         isScanning = false
+        loadingModes.removeAll()
         mode = newMode
         root = nil
         items = []
@@ -525,55 +673,63 @@ final class CleanerViewModel: ObservableObject {
         rebuildJunkGroups()
         switch newMode {
         case .home:
-            status = L10n.string("检查存储空间，快速进入常用工具。")
+            status = L10n.string("Check storage and quickly access common tools.")
             startHomeMonitoring()
-        case .junk: status = L10n.string("请选择你的用户目录，用于扫描缓存与日志。")
+        case .junk: status = L10n.string("Choose your user folder to scan caches and logs.")
         case .uninstall:
             if hasScannedApplications {
-                status = L10n.format("已缓存 %lld 个应用；点击刷新可重新扫描。", Int64(applications.count))
+                status = L10n.format("Updating in the background; currently showing the last %lld apps read.", Int64(applications.count))
+                scanInstalledApplications()
             } else {
-                status = L10n.string("正在读取已安装应用…")
+                status = L10n.string("Reading installed apps…")
                 scanInstalledApplications()
             }
         case .files:
-            root = FileManager.default.homeDirectoryForCurrentUser
+            root = storagePath.last ?? storageAnalysis?.analyzedRoots.first ?? FileManager.default.homeDirectoryForCurrentUser
             if hasAnalyzedStorage, let storageAnalysis {
-                status = L10n.format("已缓存 %lld 个文件的分析结果；点击刷新可重新分析。", Int64(storageAnalysis.scannedFileCount))
+                status = isStorageAnalyzing
+                    ? L10n.string("Directory occupancy is being updated in the background; the last result is currently displayed.")
+                    : L10n.format("Analysis results for %lld directories have been cached; click Refresh to reanalyze.", Int64(storageAnalysis.directories.count))
+            } else if isStorageAnalyzing {
+                status = L10n.string("Analyzing user directory in the background...")
             } else {
-                status = L10n.string("点击开始分析系统存储，或选择一个目录单独分析。")
+                status = L10n.string("Start a system storage analysis, or choose a folder to analyze separately.")
             }
         case .performance:
-            status = L10n.string("正在监控 CPU 与内存…")
+            status = L10n.string("Monitoring CPU and memory…")
             startPerformanceMonitoring()
         case .ports:
             startPortMonitoring()
         case .loginItems:
             if hasScannedLoginApplications {
-                status = L10n.format("已缓存 %lld 个登录项；点击刷新可重新扫描。", Int64(loginApplications.count))
+                status = L10n.format("Updating in the background; currently displaying the last %lld login items read.", Int64(loginApplications.count))
+                scanLoginItems()
             } else {
-                status = L10n.string("正在读取登录项…")
+                status = L10n.string("Reading login items…")
                 scanLoginItems()
             }
         case .backgroundActivity:
             if hasScannedBackgroundItems {
                 status = L10n.format(
-                    "已缓存 %lld 个 App 后台记录和 %lld 个后台配置；点击刷新可重新扫描。",
+                    "",
                     Int64(registeredBackgroundTasks.count),
                     Int64(backgroundItems.count)
                 )
+                scanBackgroundActivity()
             } else {
-                status = L10n.string("正在读取后台活动…")
+                status = L10n.string("Reading background activity…")
                 scanBackgroundActivity()
             }
         case .extensions:
             if hasScannedExtensions {
-                status = L10n.format("已缓存 %lld 个扩展；点击刷新可重新扫描。", Int64(installedExtensions.count))
+                status = L10n.format("Updating in the background; currently showing the last %lld extensions read.", Int64(installedExtensions.count))
+                scanExtensions()
             } else {
-                status = L10n.string("正在读取应用扩展…")
+                status = L10n.string("Reading app extensions…")
                 scanExtensions()
             }
         case .settings:
-            status = L10n.string("管理语言、外观与其他偏好设置。")
+            status = L10n.string("Manage language, appearance, and other preferences.")
         }
     }
 
@@ -581,23 +737,23 @@ final class CleanerViewModel: ObservableObject {
         if isScanning {
             switch mode {
             case .home, .junk:
-                status = L10n.string("正在扫描…")
+                status = L10n.string("Scanning…")
             case .uninstall:
-                status = L10n.string("正在扫描已安装应用…")
+                status = L10n.string("Scanning installed apps…")
             case .files:
-                status = L10n.string("正在统计文件占用…")
+                status = L10n.string("Measuring file usage…")
             case .performance:
-                status = L10n.string("正在监控 CPU 与内存…")
+                status = L10n.string("Monitoring CPU and memory…")
             case .ports:
-                status = L10n.string("正在读取监听端口与进程信息…")
+                status = L10n.string("Reading listening ports and process information…")
             case .loginItems:
-                status = L10n.string("正在读取登录项…")
+                status = L10n.string("Reading login items…")
             case .backgroundActivity:
-                status = L10n.string("正在读取后台活动…")
+                status = L10n.string("Reading background activity…")
             case .extensions:
-                status = L10n.string("正在读取应用扩展…")
+                status = L10n.string("Reading app extensions…")
             case .settings:
-                status = L10n.string("管理语言、外观与其他偏好设置。")
+                status = L10n.string("Manage language, appearance, and other preferences.")
             }
             return
         }
@@ -605,67 +761,72 @@ final class CleanerViewModel: ObservableObject {
         switch mode {
         case .home:
             status = items.isEmpty
-                ? L10n.string("检查存储空间，快速进入常用工具。")
-                : L10n.format("扫描完成，发现 %lld 个候选文件。", Int64(items.count))
+                ? L10n.string("Check storage and quickly access common tools.")
+                : L10n.format("Scan complete. ", Int64(items.count))
         case .junk:
             status = items.isEmpty
-                ? L10n.string("请选择你的用户目录，用于扫描缓存与日志。")
-                : L10n.format("找到 %lld 个候选文件。标记为“需确认”的项目不会默认选中。", Int64(items.count))
+                ? L10n.string("Choose your user folder to scan caches and logs.")
+                : L10n.format("", Int64(items.count))
         case .uninstall:
             status = hasScannedApplications
-                ? L10n.format("已缓存 %lld 个应用；点击刷新可重新扫描。", Int64(applications.count))
-                : L10n.string("正在读取已安装应用…")
+                ? L10n.format("", Int64(applications.count))
+                : L10n.string("Reading installed apps…")
         case .files:
             if hasAnalyzedStorage, let storageAnalysis {
                 status = L10n.format(
-                    "已缓存 %lld 个文件的分析结果；点击刷新可重新分析。",
+                    "Analysis of ",
                     Int64(storageAnalysis.scannedFileCount)
                 )
             } else {
-                status = L10n.string("点击开始分析系统存储，或选择一个目录单独分析。")
+                status = L10n.string("Start a system storage analysis, or choose a folder to analyze separately.")
             }
         case .performance:
             status = isPerformanceMonitoring
-                ? L10n.string("正在监控 CPU 与内存…")
-                : L10n.string("性能监控已暂停。")
+                ? L10n.string("Monitoring CPU and memory…")
+                : L10n.string("Performance monitoring paused.")
         case .ports:
-            status = L10n.format("找到 %lld 个监听端口。", Int64(listeningPorts.count))
+            status = L10n.format("", Int64(listeningPorts.count))
         case .loginItems:
-            status = L10n.format("已缓存 %lld 个登录项；点击刷新可重新扫描。", Int64(loginApplications.count))
+            status = L10n.format("", Int64(loginApplications.count))
         case .backgroundActivity:
             status = L10n.format(
-                "已缓存 %lld 个 App 后台记录和 %lld 个后台配置；点击刷新可重新扫描。",
+                "",
                 Int64(registeredBackgroundTasks.count),
                 Int64(backgroundItems.count)
             )
         case .extensions:
-            status = L10n.format("已缓存 %lld 个扩展；点击刷新可重新扫描。", Int64(installedExtensions.count))
+            status = L10n.format("", Int64(installedExtensions.count))
         case .settings:
-            status = L10n.string("管理语言、外观与其他偏好设置。")
+            status = L10n.string("Manage language, appearance, and other preferences.")
         }
     }
 
     func scanLoginItems() {
         inventoryTask?.cancel()
         isScanning = true
-        status = L10n.string("正在读取登录项…")
+        loadingModes.insert(.loginItems)
+        status = L10n.string("Reading login items…")
         inventoryTask = Task {
             let result = await systemInventoryScanner.loginApplications()
             guard !Task.isCancelled, mode == .loginItems else { return }
             loginApplications = result.items
             loginApplicationsError = result.errorMessage
             lastScanAt = Date()
+            lastUpdatedAt[.loginItems] = lastScanAt
             hasScannedLoginApplications = true
+            persistInventorySnapshot()
             isScanning = false
-            status = result.errorMessage ?? L10n.format("找到 %lld 个登录项。", Int64(result.items.count))
+            loadingModes.remove(.loginItems)
+            status = result.errorMessage ?? L10n.format("", Int64(result.items.count))
         }
     }
 
     func scanBackgroundActivity() {
         inventoryTask?.cancel()
         isScanning = true
+        loadingModes.insert(.backgroundActivity)
         backgroundDatabaseNotice = nil
-        status = L10n.string("正在读取后台活动…")
+        status = L10n.string("Reading background activity…")
         inventoryTask = Task {
             let found = await systemInventoryScanner.loginItems(
                 home: FileManager.default.homeDirectoryForCurrentUser
@@ -677,11 +838,14 @@ final class CleanerViewModel: ObservableObject {
             registeredBackgroundTasks = registered.items
             backgroundTaskScanError = registered.errorMessage
             lastScanAt = Date()
+            lastUpdatedAt[.backgroundActivity] = lastScanAt
             hasScannedBackgroundItems = true
+            persistInventorySnapshot()
             isScanning = false
+            loadingModes.remove(.backgroundActivity)
             status = registered.errorMessage
                 ?? L10n.format(
-                    "找到 %lld 个 App 后台记录和 %lld 个后台配置。",
+                    "",
                     Int64(registered.items.count),
                     Int64(found.count)
                 )
@@ -692,7 +856,7 @@ final class CleanerViewModel: ObservableObject {
         showBackgroundDatabaseResetConfirmation = false
         inventoryTask?.cancel()
         isScanning = true
-        status = L10n.string("正在重建后台任务数据库…")
+        status = L10n.string("Rebuilding background task database…")
         inventoryTask = Task {
             let error = await systemInventoryScanner.resetBackgroundTaskDatabase()
             guard !Task.isCancelled, mode == .backgroundActivity else { return }
@@ -704,10 +868,10 @@ final class CleanerViewModel: ObservableObject {
             } else {
                 registeredBackgroundTasks = []
                 backgroundTaskScanError = nil
-                backgroundDatabaseNotice = L10n.string("后台任务数据库已重建。请重启 Mac，让系统重新登记仍然有效的项目。")
+                backgroundDatabaseNotice = L10n.string("The background task database was rebuilt. Restart your Mac so valid items can register again.")
                 lastScanAt = Date()
                 hasScannedBackgroundItems = false
-                status = L10n.string("后台任务数据库已重建，请重启 Mac。")
+                status = L10n.string("Background task database rebuilt. Restart your Mac.")
             }
         }
     }
@@ -715,7 +879,8 @@ final class CleanerViewModel: ObservableObject {
     func scanExtensions() {
         inventoryTask?.cancel()
         isScanning = true
-        status = L10n.string("正在读取应用扩展…")
+        loadingModes.insert(.extensions)
+        status = L10n.string("Reading app extensions…")
         inventoryTask = Task {
             let home = FileManager.default.homeDirectoryForCurrentUser
             let apps = await applicationScanner.applications(in: [
@@ -728,9 +893,12 @@ final class CleanerViewModel: ObservableObject {
             guard !Task.isCancelled, mode == .extensions else { return }
             installedExtensions = found
             lastScanAt = Date()
+            lastUpdatedAt[.extensions] = lastScanAt
             hasScannedExtensions = true
+            persistInventorySnapshot()
             isScanning = false
-            status = L10n.format("找到 %lld 个扩展。", Int64(found.count))
+            loadingModes.remove(.extensions)
+            status = L10n.format("", Int64(found.count))
         }
     }
 
@@ -743,7 +911,7 @@ final class CleanerViewModel: ObservableObject {
         guard let item = loginApplicationRemovalCandidate else { return }
         showLoginApplicationRemovalConfirmation = false
         loginApplicationRemovalCandidate = nil
-        status = L10n.format("正在移除登录项 %@…", item.name)
+        status = L10n.format("Removing login item ", item.name)
         Task {
             if let error = await systemInventoryScanner.removeLoginApplication(item) {
                 removalFailureMessage = error
@@ -751,7 +919,7 @@ final class CleanerViewModel: ObservableObject {
                 showRemovalFailure = true
             } else {
                 loginApplications.removeAll { $0.id == item.id }
-                status = L10n.format("已从登录项中移除 %@。", item.name)
+                status = L10n.format("", item.name)
             }
         }
     }
@@ -770,7 +938,7 @@ final class CleanerViewModel: ObservableObject {
         guard let item = registeredBackgroundTaskRemovalCandidate else { return }
         showRegisteredBackgroundTaskRemovalConfirmation = false
         registeredBackgroundTaskRemovalCandidate = nil
-        status = L10n.format("正在移除 %@ 的废纸篓残留…", item.name)
+        status = L10n.format("Removing ", item.name)
         Task {
             if let error = await systemInventoryScanner.removeRegisteredBackgroundTaskResidue(
                 item,
@@ -781,7 +949,7 @@ final class CleanerViewModel: ObservableObject {
                 showRemovalFailure = true
             } else {
                 registeredBackgroundTasks.removeAll { $0.id == item.id }
-                status = L10n.format("已永久删除 %@ 的废纸篓残留；macOS 后台记录可能在重新登录后消失。", item.name)
+                status = L10n.format("", item.name)
             }
         }
     }
@@ -790,23 +958,24 @@ final class CleanerViewModel: ObservableObject {
         guard let item = backgroundItemRemovalCandidate else { return }
         showBackgroundItemRemovalConfirmation = false
         backgroundItemRemovalCandidate = nil
-        status = L10n.format("正在将 %@ 移入废纸篓…", item.label)
+        status = L10n.format("Moving ", item.label)
         Task {
             let result = await systemInventoryScanner.moveLoginItemToTrash(
                 item,
                 home: FileManager.default.homeDirectoryForCurrentUser
             )
+            publishOperationReport(title: L10n.format("%@ Remove results", item.label), result: result)
             if result.movedToTrash.isEmpty {
                 removalFailureMessage = L10n.format(
-                    "无法移除 %@：%@",
+                    "Unable to remove ",
                     item.label,
-                    result.failures.first?.reason ?? L10n.string("未知错误")
+                    result.failures.first?.reason ?? L10n.string("Unknown error")
                 )
                 status = removalFailureMessage
                 showRemovalFailure = true
             } else {
                 backgroundItems.removeAll { $0.id == item.id }
-                status = L10n.format("已将 %@ 的启动配置移入废纸篓；当前进程可能会继续运行到退出或重启。", item.label)
+                status = L10n.format("", item.label)
             }
         }
     }
@@ -820,30 +989,31 @@ final class CleanerViewModel: ObservableObject {
         guard let item = extensionRemovalCandidate else { return }
         showExtensionRemovalConfirmation = false
         extensionRemovalCandidate = nil
-        status = L10n.format("正在将 %@ 移入废纸篓…", item.name)
+        status = L10n.format("Moving ", item.name)
         Task {
             let result = await systemInventoryScanner.moveExtensionToTrash(
                 item,
                 home: FileManager.default.homeDirectoryForCurrentUser
             )
+            publishOperationReport(title: L10n.format("%@ Remove results", item.name), result: result)
             if result.movedToTrash.isEmpty {
                 removalFailureMessage = L10n.format(
-                    "无法移除 %@：%@",
+                    "Unable to remove ",
                     item.name,
-                    result.failures.first?.reason ?? L10n.string("未知错误")
+                    result.failures.first?.reason ?? L10n.string("Unknown error")
                 )
                 status = removalFailureMessage
                 showRemovalFailure = true
             } else {
                 installedExtensions.removeAll { $0.id == item.id }
-                status = L10n.format("已将 %@ 移入废纸篓。重新登录后相关功能将不再加载。", item.name)
+                status = L10n.format("", item.name)
             }
         }
     }
 
     func prepareUninstall(_ app: InstalledApplication) {
         isPreparingUninstall = true
-        status = L10n.format("正在查找 %@ 的关联文件…", app.name)
+        status = L10n.format("Finding files related to ", app.name)
         Task {
             let found = await applicationScanner.residues(
                 for: app,
@@ -853,7 +1023,7 @@ final class CleanerViewModel: ObservableObject {
             selectedResidueIDs = Set(found.filter { $0.risk == .safe }.map(\.id))
             uninstallCandidate = app
             isPreparingUninstall = false
-            status = L10n.string("请确认要移入废纸篓的内容。")
+            status = L10n.string("Review the items to move to Trash.")
         }
     }
 
@@ -863,7 +1033,7 @@ final class CleanerViewModel: ObservableObject {
         uninstallCandidate = nil
         showAppRemovalConfirmation = false
         isScanning = true
-        status = L10n.format("正在卸载 %@…", app.name)
+        status = L10n.format("Uninstalling ", app.name)
         Task {
             let result = await applicationScanner.moveToTrash(
                 app: app,
@@ -874,9 +1044,19 @@ final class CleanerViewModel: ObservableObject {
             uninstallResidues = []
             selectedResidueIDs = []
             status = L10n.format(
-                "已移入废纸篓 %lld 项；失败 %lld 项。",
+                "",
                 Int64(result.movedToTrash.count),
                 Int64(result.failures.count)
+            )
+            operationReport = RemovalOperationReport(
+                title: L10n.format("%@ Uninstall results", app.name),
+                summary: L10n.format(
+                    "",
+                    Int64(result.movedToTrash.count),
+                    Int64(result.failures.count)
+                ),
+                movedToTrash: result.movedToTrash,
+                failures: result.failures
             )
             scanInstalledApplications()
         }
@@ -884,6 +1064,19 @@ final class CleanerViewModel: ObservableObject {
 
     func isSystemApplication(_ app: InstalledApplication) -> Bool {
         app.bundleURL.path.hasPrefix("/System/")
+    }
+
+    private func publishOperationReport(title: String, result: CleanResult) {
+        operationReport = RemovalOperationReport(
+            title: title,
+            summary: L10n.format(
+                "",
+                Int64(result.movedToTrash.count),
+                Int64(result.failures.count)
+            ),
+            movedToTrash: result.movedToTrash,
+            failures: result.failures
+        )
     }
 
     func requestClean() {
@@ -903,9 +1096,15 @@ final class CleanerViewModel: ObservableObject {
             rebuildJunkGroups()
             cleanableBytes = selectedBytes
             status = L10n.format(
-                "已移入废纸篓 %lld 项；失败 %lld 项。可从废纸篓恢复。",
+                "",
                 Int64(result.movedToTrash.count),
                 Int64(result.failures.count)
+            )
+            operationReport = RemovalOperationReport(
+                title: L10n.string("Clean results"),
+                summary: status,
+                movedToTrash: result.movedToTrash,
+                failures: result.failures
             )
         }
     }

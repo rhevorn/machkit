@@ -31,6 +31,39 @@ public enum SafetyPolicy {
         }
         guard item.rule.risk != .blocked else { throw SafetyError.forbiddenLocation(item.url.path) }
     }
+
+    /// Checks containment using canonicalized path components rather than a lexical
+    /// string prefix. Call this again immediately before every destructive action.
+    public static func contains(_ candidate: URL, in directory: URL, allowDirectoryItself: Bool = false) -> Bool {
+        let canonicalDirectory = canonicalized(directory)
+        let canonicalCandidate = canonicalized(candidate)
+        if canonicalCandidate == canonicalDirectory { return allowDirectoryItself }
+        let prefix = canonicalDirectory.path.hasSuffix("/") ? canonicalDirectory.path : canonicalDirectory.path + "/"
+        return canonicalCandidate.path.hasPrefix(prefix)
+    }
+
+    public static func isDirectChild(_ candidate: URL, of directory: URL) -> Bool {
+        let canonicalDirectory = canonicalized(directory)
+        let canonicalCandidate = canonicalized(candidate)
+        return canonicalCandidate.deletingLastPathComponent() == canonicalDirectory
+    }
+
+    /// `resolvingSymlinksInPath` stops at a missing leaf. Resolve the nearest
+    /// existing ancestor first so containment checks remain correct for paths
+    /// below a symlink even when the leaf disappeared after scanning.
+    private static func canonicalized(_ url: URL) -> URL {
+        var ancestor = url.standardizedFileURL
+        var missingComponents: [String] = []
+        while !FileManager.default.fileExists(atPath: ancestor.path), ancestor.path != "/" {
+            missingComponents.append(ancestor.lastPathComponent)
+            ancestor.deleteLastPathComponent()
+        }
+        var resolved = ancestor.resolvingSymlinksInPath()
+        for component in missingComponents.reversed() {
+            resolved.append(path: component)
+        }
+        return resolved.standardizedFileURL
+    }
 }
 
 public enum SafetyError: LocalizedError {
@@ -40,9 +73,9 @@ public enum SafetyError: LocalizedError {
 
     public var errorDescription: String? {
         switch self {
-        case .unsafeRule(let path): "不安全的扫描规则：\(path)"
-        case .forbiddenLocation(let path): "禁止扫描的位置：\(path)"
-        case .outsideSelectedRoot: "目标超出用户选择的目录"
+        case .unsafeRule(let path): "Unsafe scan rule: \(path)"
+        case .forbiddenLocation(let path): "Scanning prohibited location: \(path)"
+        case .outsideSelectedRoot: "Target exceeds directory selected by user"
         }
     }
 }

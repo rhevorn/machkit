@@ -4,26 +4,26 @@ import SiftCore
 import SwiftUI
 
 private enum SoftwareTab: String, CaseIterable, Identifiable {
-    case all = "全部"
+    case all = "All"
     case appStore = "App Store"
-    case thirdParty = "第三方"
-    case user = "用户"
-    case system = "系统"
-    case commandLine = "命令行"
+    case thirdParty = "Third Party"
+    case user = "User"
+    case system = "System"
+    case commandLine = "Command Line"
     var id: String { rawValue }
 }
 
 private enum PerformanceSort: String, CaseIterable, Identifiable {
     case cpu = "CPU"
-    case memory = "内存"
+    case memory = "Memory"
     var id: String { rawValue }
 }
 
 private enum PortFilter: String, CaseIterable, Identifiable {
-    case all = "全部"
+    case all = "All"
     case tcp = "TCP"
     case udp = "UDP"
-    case exposed = "对外开放"
+    case exposed = "Exposed"
     var id: String { rawValue }
 }
 
@@ -77,11 +77,11 @@ struct ContentView: View {
             .background(Color(nsColor: .windowBackgroundColor))
         }
         .ignoresSafeArea(.container, edges: .top)
-        .confirmationDialog("将所选文件移入废纸篓？", isPresented: $model.showCleanConfirmation) {
-            Button("移入废纸篓", role: .destructive, action: model.cleanConfirmed)
-            Button("取消", role: .cancel) {}
+        .confirmationDialog("Move selected files to Trash?", isPresented: $model.showCleanConfirmation) {
+            Button("Move to Trash", role: .destructive, action: model.cleanConfirmed)
+            Button("Cancel", role: .cancel) {}
         } message: {
-            Text("共 \(model.selectedCount) 项，\(formatted(model.selectedBytes))。")
+            Text("\(model.selectedCount) items, \(formatted(model.selectedBytes)) total.")
         }
         .sheet(item: $model.uninstallCandidate) { app in
             applicationDetails(app)
@@ -92,51 +92,54 @@ struct ContentView: View {
         .sheet(item: $selectedPort) { port in
             portDetails(port)
         }
-        .confirmationDialog("确认卸载这个应用？", isPresented: $model.showAppRemovalConfirmation) {
-            Button("移入废纸篓", role: .destructive, action: model.uninstallConfirmed)
-            Button("取消", role: .cancel) {}
-        } message: {
-            Text("应用程序和已勾选的关联文件都会移入废纸篓。")
+        .sheet(item: $model.operationReport) { report in
+            OperationResultView(report: report) { model.operationReport = nil }
         }
-        .confirmationDialog("移除这个登录项？", isPresented: $model.showLoginApplicationRemovalConfirmation) {
-            Button("移除", role: .destructive, action: model.removeLoginApplicationConfirmed)
-            Button("取消", role: .cancel) {}
+        .confirmationDialog("Uninstall this app?", isPresented: $model.showAppRemovalConfirmation) {
+            Button("Move to Trash", role: .destructive, action: model.uninstallConfirmed)
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("The app and selected related files will be moved to Trash.")
+        }
+        .confirmationDialog("Remove this login item?", isPresented: $model.showLoginApplicationRemovalConfirmation) {
+            Button("Remove", role: .destructive, action: model.removeLoginApplicationConfirmed)
+            Button("Cancel", role: .cancel) {}
         } message: {
             Text(loginApplicationRemovalMessage)
         }
-        .confirmationDialog("移除这个后台项目？", isPresented: $model.showBackgroundItemRemovalConfirmation) {
-            Button("移入废纸篓", role: .destructive, action: model.removeBackgroundItemConfirmed)
-            Button("取消", role: .cancel) {}
+        .confirmationDialog("Remove this background item?", isPresented: $model.showBackgroundItemRemovalConfirmation) {
+            Button("Move to Trash", role: .destructive, action: model.removeBackgroundItemConfirmed)
+            Button("Cancel", role: .cancel) {}
         } message: {
             Text(backgroundItemRemovalMessage)
         }
-        .confirmationDialog("永久移除这个后台残留？", isPresented: $model.showRegisteredBackgroundTaskRemovalConfirmation) {
-            Button("永久移除", role: .destructive, action: model.removeRegisteredBackgroundTaskConfirmed)
-            Button("取消", role: .cancel) {}
+        .confirmationDialog("Permanently remove this background leftover?", isPresented: $model.showRegisteredBackgroundTaskRemovalConfirmation) {
+            Button("Remove Permanently", role: .destructive, action: model.removeRegisteredBackgroundTaskConfirmed)
+            Button("Cancel", role: .cancel) {}
         } message: {
             Text(registeredBackgroundTaskRemovalMessage)
         }
-        .confirmationDialog("重建全部后台任务数据库？", isPresented: $model.showBackgroundDatabaseResetConfirmation) {
-            Button("重建数据库", role: .destructive, action: model.resetBackgroundTaskDatabaseConfirmed)
-            Button("取消", role: .cancel) {}
+        .confirmationDialog("Rebuild the entire background task database?", isPresented: $model.showBackgroundDatabaseResetConfirmation) {
+            Button("Rebuild Database", role: .destructive, action: model.resetBackgroundTaskDatabaseConfirmed)
+            Button("Cancel", role: .cancel) {}
         } message: {
-            Text("这会重置全部登录项和后台活动记录，不只清理当前残留。仍然安装的 App 之后会重新登记，部分允许或禁止状态可能需要重新确认。完成后需要重启 Mac。")
+            Text("This resets all login item and background activity records, not just the current leftover. Installed apps will register again, and some allowed or blocked states may need confirmation. Restart your Mac afterward.")
         }
-        .confirmationDialog("移除这个扩展？", isPresented: $model.showExtensionRemovalConfirmation) {
-            Button("移入废纸篓", role: .destructive, action: model.removeExtensionConfirmed)
-            Button("取消", role: .cancel) {}
+        .confirmationDialog("Remove this extension?", isPresented: $model.showExtensionRemovalConfirmation) {
+            Button("Move to Trash", role: .destructive, action: model.removeExtensionConfirmed)
+            Button("Cancel", role: .cancel) {}
         } message: {
             Text(extensionRemovalMessage)
         }
-        .confirmationDialog("结束这个进程？", isPresented: $model.showPortTerminationConfirmation) {
-            Button("正常结束", role: .destructive) { model.terminatePortProcess(force: false) }
-            Button("强制结束", role: .destructive) { model.terminatePortProcess(force: true) }
-            Button("取消", role: .cancel) {}
+        .confirmationDialog("Quit this process?", isPresented: $model.showPortTerminationConfirmation) {
+            Button("Quit Gracefully", role: .destructive) { model.terminatePortProcess(force: false) }
+            Button("Force Quit", role: .destructive) { model.terminatePortProcess(force: true) }
+            Button("Cancel", role: .cancel) {}
         } message: {
             Text(portTerminationMessage)
         }
-        .alert("操作失败", isPresented: $model.showRemovalFailure) {
-            Button("好", role: .cancel) {}
+        .alert("Operation Failed", isPresented: $model.showRemovalFailure) {
+            Button("OK", role: .cancel) {}
         } message: {
             Text(model.removalFailureMessage)
         }
@@ -159,22 +162,48 @@ struct ContentView: View {
             sideButton(.ports, icon: "network")
             systemInventorySideButton
             Spacer()
+            if model.isStorageAnalyzing {
+                Button { model.changeMode(.files) } label: {
+                    VStack(spacing: 4) {
+                        ProgressView().controlSize(.mini)
+                        sidebarLabel("Analyzing", size: 9, weight: .medium)
+                    }
+                    .frame(width: 60, height: 42)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(Color.accentColor)
+                .help("Storage analysis is running in the background")
+            }
             sideButton(.settings, icon: "gearshape.fill")
-            Button(action: {}) {
+            Button(action: openFeedback) {
                 VStack(spacing: 5) {
                     Image(systemName: "bubble.left.and.bubble.right").font(.system(size: 16))
-                    Text("反馈").font(.system(size: 10))
+                    sidebarLabel("Feedback")
                 }
                 .frame(width: 60, height: 48)
                 .contentShape(Rectangle())
             }.buttonStyle(.plain).foregroundStyle(.secondary).padding(.bottom, 10)
         }
-        .frame(width: 82)
+        .frame(width: 88)
         .background(Color(nsColor: .controlBackgroundColor))
     }
 
+    private func openFeedback() {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Development version"
+        let body = "Sift version: \(version)\nmacOS: \(ProcessInfo.processInfo.operatingSystemVersionString)"
+        var components = URLComponents()
+        components.scheme = "mailto"
+        components.path = ""
+        components.queryItems = [
+            URLQueryItem(name: "subject", value: "Feedback"),
+            URLQueryItem(name: "body", value: body)
+        ]
+        if let url = components.url { NSWorkspace.shared.open(url) }
+    }
+
     private var brandMark: some View {
-        Image(nsImage: NSApp.applicationIconImage)
+        Image("BrandMark")
             .resizable()
             .scaledToFit()
             .frame(width: 42, height: 42)
@@ -188,10 +217,10 @@ struct ContentView: View {
         } label: {
             VStack(spacing: 5) {
                 Image(systemName: icon).font(.system(size: 17, weight: .medium))
-                Text(mode.rawValue.localized).font(.system(size: 10))
+                sidebarLabel(mode.rawValue.localized)
             }
             .foregroundStyle(model.mode == mode ? Color.accentColor : Color.secondary)
-            .frame(width: 64, height: 56)
+            .frame(width: 72, height: 56)
             .background {
                 if model.mode == mode {
                     RoundedRectangle(cornerRadius: 8).fill(Color.accentColor.opacity(0.10))
@@ -214,10 +243,10 @@ struct ContentView: View {
         } label: {
             VStack(spacing: 5) {
                 Image(systemName: "switch.2").font(.system(size: 17, weight: .medium))
-                Text("登录项与扩展").font(.system(size: 9))
+                sidebarLabel("Login Items & Extensions", size: 9)
             }
             .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
-            .frame(width: 68, height: 56)
+            .frame(width: 72, height: 56)
             .background {
                 if isSelected {
                     RoundedRectangle(cornerRadius: 8).fill(Color.accentColor.opacity(0.10))
@@ -233,21 +262,34 @@ struct ContentView: View {
         .buttonStyle(.plain)
     }
 
+    private func sidebarLabel(
+        _ title: String,
+        size: CGFloat = 10,
+        weight: Font.Weight = .regular
+    ) -> some View {
+        Text(title.localized)
+            .font(.system(size: size, weight: weight))
+            .lineLimit(2)
+            .multilineTextAlignment(.center)
+            .minimumScaleFactor(0.72)
+            .frame(width: 72)
+    }
+
     private var homeView: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 16) {
-                header(title: "概览", subtitle: "这台 Mac 的实时状态与常用工具")
+                header(title: "Overview", subtitle: "Live status and everyday tools for this Mac")
                 homeStorageOverview
                 if !permissions.hasFullDiskAccess {
                     permissionCard
                 }
 
                 HStack {
-                    Text("实时状态").font(.system(size: 14, weight: .semibold))
+                    Text("Live Status").font(.system(size: 14, weight: .semibold))
                     Spacer()
                     HStack(spacing: 5) {
                         Circle().fill(Color.green).frame(width: 6, height: 6)
-                        Text("自动更新").font(.caption).foregroundStyle(.secondary)
+                        Text("Auto Updating").font(.caption).foregroundStyle(.secondary)
                     }
                 }
 
@@ -255,34 +297,34 @@ struct ContentView: View {
                 homeQuickAction
 
                 HStack(alignment: .firstTextBaseline) {
-                    Text("常用工具").font(.system(size: 14, weight: .semibold))
+                    Text("Common Tools").font(.system(size: 14, weight: .semibold))
                     Spacer()
-                    Text("本机处理，不上传数据").font(.caption).foregroundStyle(.secondary)
+                    Text("Processed locally, never uploaded").font(.caption).foregroundStyle(.secondary)
                 }
 
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                     homeToolTile(
-                        title: "垃圾清理", subtitle: "缓存、日志与开发工具垃圾",
+                        title: "Junk Cleanup", subtitle: "Caches, logs, and developer tool junk",
                         icon: "paintbrush.fill", color: .blue, mode: .junk
                     )
                     homeToolTile(
-                        title: "存储分析", subtitle: "磁盘分类、目录占用与大文件",
+                        title: "Storage Analysis", subtitle: "Disk categories, folder usage, and large files",
                         icon: "chart.pie.fill", color: .indigo, mode: .files
                     )
                     homeToolTile(
-                        title: "软件卸载", subtitle: "应用、命令行工具与关联残留",
+                        title: "Uninstall", subtitle: "Apps, command-line tools, and related leftovers",
                         icon: "app.badge.checkmark", color: .purple, mode: .uninstall
                     )
                     homeToolTile(
-                        title: "性能监控", subtitle: "CPU、内存压力与高占用应用",
+                        title: "Performance", subtitle: "CPU, memory pressure, and resource-heavy apps",
                         icon: "gauge.with.dots.needle.67percent", color: .mint, mode: .performance
                     )
                     homeToolTile(
-                        title: "端口管理", subtitle: "查看并结束遗忘的开发服务",
+                        title: "Port Manager", subtitle: "Find and stop forgotten development services",
                         icon: "network", color: .orange, mode: .ports
                     )
                     homeToolTile(
-                        title: "登录项与扩展", subtitle: "启动项、后台活动与应用扩展",
+                        title: "Login Items & Extensions", subtitle: "Startup items, background activity, and app extensions",
                         icon: "switch.2", color: .cyan, mode: .loginItems
                     )
                 }
@@ -297,16 +339,16 @@ struct ContentView: View {
                 .font(.system(size: 20))
                 .foregroundStyle(permissions.hasFullDiskAccess ? .green : Color.orange)
             VStack(alignment: .leading, spacing: 3) {
-                Text(permissions.hasFullDiskAccess ? "已获得完全磁盘访问权限" : "需要完全磁盘访问权限")
+                Text(permissions.hasFullDiskAccess ? "Full Disk Access granted" : "Full Disk Access Required")
                     .font(.system(size: 13, weight: .semibold))
                 Text(permissions.hasFullDiskAccess
-                     ? "可以扫描受保护的用户目录；文件内容不会上传。"
-                     : "用于发现应用缓存和残留。需要在系统设置中手动开启。")
+                     ? "Allows protected user folders to be scanned. File contents are never uploaded."
+                     : "Used to find app caches and leftovers. Enable it manually in System Settings.")
                     .font(.system(size: 11)).foregroundStyle(.secondary)
             }
             Spacer()
             if !permissions.hasFullDiskAccess {
-                Button("打开系统设置", action: permissions.openFullDiskAccessSettings)
+                Button("Open System Settings", action: permissions.openFullDiskAccessSettings)
                     .buttonStyle(.bordered)
             }
         }
@@ -330,7 +372,7 @@ struct ContentView: View {
                     Text(storage.totalCapacity > 0 ? "\(percent)%" : "—")
                         .font(.system(size: 19, weight: .semibold, design: .rounded))
                         .monospacedDigit()
-                    Text("已使用").font(.system(size: 9)).foregroundStyle(.secondary)
+                    Text("Used").font(.system(size: 9)).foregroundStyle(.secondary)
                 }
             }
             .frame(width: 86, height: 86)
@@ -345,14 +387,14 @@ struct ContentView: View {
                 Text(homeStorageDescription(storage))
                     .font(.system(size: 12)).foregroundStyle(.secondary)
                 HStack(spacing: 14) {
-                    Label("已用 \(formatted(storage.usedCapacity))", systemImage: "internaldrive.fill")
-                    Label("可用 \(formatted(storage.availableCapacity))", systemImage: "checkmark.circle")
+                    Label("\(formatted(storage.usedCapacity)) Used", systemImage: "internaldrive.fill")
+                    Label("\(formatted(storage.availableCapacity)) Available", systemImage: "checkmark.circle")
                 }
                 .font(.caption).foregroundStyle(.secondary)
             }
 
             Spacer(minLength: 8)
-            Button("查看存储", action: { model.changeMode(.files) })
+            Button("View Storage", action: { model.changeMode(.files) })
                 .buttonStyle(.borderedProminent)
                 .controlSize(.regular)
         }
@@ -381,28 +423,28 @@ struct ContentView: View {
             homeMetricCard(
                 title: "CPU",
                 value: snapshot.map { "\(Int($0.cpuPercent.rounded()))%" } ?? "—",
-                detail: "系统使用率",
+                detail: "System Usage",
                 icon: "cpu",
                 color: .blue
             )
             homeMetricCard(
-                title: "内存压力",
+                title: "Memory Pressure",
                 value: snapshot.map { "\(Int(($0.memoryPressure * 100).rounded()))%" } ?? "—",
-                detail: snapshot?.memoryPressureLevel.rawValue ?? "正在读取",
+                detail: snapshot?.memoryPressureLevel.rawValue ?? "Loading",
                 icon: "memorychip",
                 color: memoryColor
             )
             homeMetricCard(
-                title: "对外端口",
+                title: "Exposed Ports",
                 value: model.hasLoadedPortSnapshot ? String(exposedPorts) : "—",
-                detail: model.hasLoadedPortSnapshot ? "当前监听" : "正在检查",
+                detail: model.hasLoadedPortSnapshot ? "Currently Listening" : "Checking",
                 icon: "network",
                 color: exposedPorts > 0 ? .orange : .green
             )
             homeMetricCard(
-                title: "可清理空间",
+                title: "Cleanable Space",
                 value: model.cleanableBytes.map(formatted) ?? "—",
-                detail: model.cleanableBytes == nil ? "等待扫描" : "最近一次结果",
+                detail: model.cleanableBytes == nil ? "Waiting to Scan" : "Latest Result",
                 icon: "sparkles",
                 color: .purple
             )
@@ -442,7 +484,7 @@ struct ContentView: View {
                 .frame(width: 38, height: 38)
                 .background(Color.accentColor.opacity(0.10), in: RoundedRectangle(cornerRadius: 10))
             VStack(alignment: .leading, spacing: 3) {
-                Text("快速清理").font(.system(size: 13, weight: .semibold))
+                Text("Quick Cleanup").font(.system(size: 13, weight: .semibold))
                 Text(homeQuickActionDescription)
                     .font(.system(size: 11)).foregroundStyle(.secondary).lineLimit(1)
             }
@@ -461,18 +503,18 @@ struct ContentView: View {
     }
 
     private var homeQuickActionDescription: String {
-        if model.isScanning { return L10n.string("正在查找可安全清理的缓存和日志…") }
+        if model.isScanning { return L10n.string("Looking for caches and logs that are safe to clean…") }
         guard let cleanableBytes = model.cleanableBytes else {
-            return L10n.string("扫描缓存、日志和可重新生成的开发工具文件")
+            return L10n.string("Scan caches, logs, and regenerable developer tool files")
         }
-        if cleanableBytes == 0 { return L10n.string("最近一次扫描没有发现可清理内容") }
-        return L10n.format("最近一次扫描发现 %@ 可清理内容", formatted(cleanableBytes))
+        if cleanableBytes == 0 { return L10n.string("The latest scan found nothing to clean") }
+        return L10n.format("The latest scan found ", formatted(cleanableBytes))
     }
 
     private var homeQuickActionButtonTitle: String {
-        if model.isScanning { return "正在扫描" }
-        if model.selectedCount > 0 { return "清理所选" }
-        return model.cleanableBytes == nil ? "开始扫描" : "重新扫描"
+        if model.isScanning { return "Scanning" }
+        if model.selectedCount > 0 { return "Clean Selected" }
+        return model.cleanableBytes == nil ? "Start Scan" : "Scan Again"
     }
 
     private func homeToolTile(
@@ -516,16 +558,16 @@ struct ContentView: View {
     }
 
     private func homeStorageTitle(_ storage: SystemStorageSnapshot) -> String {
-        guard storage.totalCapacity > 0 else { return "正在读取存储状态…" }
-        if storage.usedFraction >= 0.93 { return "Mac 存储空间不足" }
-        if storage.usedFraction >= 0.84 { return "存储空间正在变紧" }
-        return "Mac 存储状态良好"
+        guard storage.totalCapacity > 0 else { return "Reading storage status…" }
+        if storage.usedFraction >= 0.93 { return "Your Mac is low on storage" }
+        if storage.usedFraction >= 0.84 { return "Storage space is getting tight" }
+        return "Mac storage looks good"
     }
 
     private func homeStorageDescription(_ storage: SystemStorageSnapshot) -> String {
-        guard storage.totalCapacity > 0 else { return L10n.string("正在读取系统磁盘容量") }
+        guard storage.totalCapacity > 0 else { return L10n.string("Reading system disk capacity") }
         return L10n.format(
-            "还有 %@ 可用，共 %@",
+            "",
             formatted(storage.availableCapacity),
             formatted(storage.totalCapacity)
         )
@@ -534,12 +576,12 @@ struct ContentView: View {
     private var junkView: some View {
         VStack(spacing: 0) {
             header(
-                title: "垃圾清理",
-                subtitle: "缓存、日志、安装包与开发工具垃圾",
+                title: "Junk Cleanup",
+                subtitle: "Caches, logs, installers, and developer junk",
                 trailing: AnyView(
                     Group {
-                        if model.isScanning {
-                            Button("取消", role: .cancel, action: model.cancelScan)
+                        if model.isStorageAnalyzing {
+                            Button("Cancel", role: .cancel, action: model.cancelScan)
                         } else if !model.items.isEmpty {
                             compactScanButton
                         }
@@ -555,7 +597,7 @@ struct ContentView: View {
                 junkDetailList
                 Divider()
                 HStack {
-                    Text("已选择 \(model.selectedCount) 项，\(formatted(model.selectedBytes))")
+                    Text("\(model.selectedCount) items selected, \(formatted(model.selectedBytes))")
                     Spacer()
                     cleanSelectionButton
                 }.padding(12)
@@ -586,17 +628,17 @@ struct ContentView: View {
             }
             .padding(.bottom, 24)
 
-            Text("给 Mac 做一次轻量清理")
+            Text("Give your Mac a light cleanup")
                 .font(.system(size: 24, weight: .semibold, design: .rounded))
-            Text("扫描缓存、日志和开发工具残留，确认明细后再清理")
+            Text("Scan caches, logs, and developer leftovers; review before cleaning")
                 .font(.system(size: 13))
                 .foregroundStyle(.secondary)
                 .padding(.top, 7)
 
             HStack(spacing: 18) {
-                scanPromise(icon: "lock.shield", text: "本地扫描")
-                scanPromise(icon: "checkmark.circle", text: "逐项确认")
-                scanPromise(icon: "arrow.uturn.backward.circle", text: "废纸篓可恢复")
+                scanPromise(icon: "lock.shield", text: "Local Scan")
+                scanPromise(icon: "checkmark.circle", text: "Review Each Item")
+                scanPromise(icon: "arrow.uturn.backward.circle", text: "Recoverable from Trash")
             }
             .padding(.vertical, 22)
 
@@ -604,7 +646,7 @@ struct ContentView: View {
                 HStack(spacing: 9) {
                     Image(systemName: "magnifyingglass")
                         .font(.system(size: 14, weight: .bold))
-                    Text("开始扫描")
+                    Text("Start Scan")
                         .font(.system(size: 14, weight: .semibold))
                     Image(systemName: "arrow.right")
                         .font(.system(size: 12, weight: .bold))
@@ -636,7 +678,7 @@ struct ContentView: View {
 
     private var compactScanButton: some View {
         Button(action: scanJunk) {
-            Label("重新扫描", systemImage: "arrow.clockwise")
+            Label("Scan Again", systemImage: "arrow.clockwise")
                 .font(.system(size: 12, weight: .semibold))
                 .padding(.horizontal, 13)
                 .frame(height: 32)
@@ -650,7 +692,7 @@ struct ContentView: View {
         Button(action: model.requestClean) {
             HStack(spacing: 7) {
                 Image(systemName: "trash")
-                Text("清理所选")
+                Text("Clean Selected")
                 Text(formatted(model.selectedBytes))
                     .foregroundStyle(.white.opacity(0.78))
             }
@@ -680,9 +722,9 @@ struct ContentView: View {
             .frame(width: 112, height: 112)
 
             VStack(spacing: 7) {
-                Text("正在扫描\(model.currentScanCategory)")
+                Text("Scanning \(model.currentScanCategory)")
                     .font(.title3.weight(.semibold))
-                Text("只读取文件属性，不读取或上传文件内容")
+                Text("Reads file metadata only; contents are never read or uploaded")
                     .font(.caption).foregroundStyle(.secondary)
             }
 
@@ -690,13 +732,13 @@ struct ContentView: View {
                 .frame(width: 330)
 
             HStack(spacing: 34) {
-                scanMetric(title: "已检查", value: "\(model.inspectedFileCount) 个文件")
+                scanMetric(title: "Inspected", value: "\(model.inspectedFileCount) files")
                 Divider().frame(height: 34)
-                scanMetric(title: "已发现", value: "\(model.discoveredFileCount) 项")
+                scanMetric(title: "Discovered", value: "\(model.discoveredFileCount) items")
                 Divider().frame(height: 34)
-                scanMetric(title: "可清理", value: formatted(model.discoveredBytes))
+                scanMetric(title: "Cleanable", value: formatted(model.discoveredBytes))
             }
-            Button("取消扫描", role: .cancel, action: model.cancelScan)
+            Button("Cancel Scan", role: .cancel, action: model.cancelScan)
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -723,7 +765,7 @@ struct ContentView: View {
                                 .frame(width: 22)
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(group.title.localized).font(.system(size: 14, weight: .semibold))
-                                Text("\(group.items.count) 个文件 · \(group.explanation.localized)")
+                                Text("\(group.items.count) files · \(group.explanation.localized)")
                                     .font(.caption).foregroundStyle(.secondary).lineLimit(1)
                             }
                             Spacer()
@@ -749,7 +791,7 @@ struct ContentView: View {
             if group.items.count > visibleItems.count {
                 HStack {
                     Image(systemName: "info.circle")
-                    Text("为保证流畅，当前显示最大的 100 项；整组选中仍包含全部 \(group.items.count) 项。")
+                    Text("For performance, only the 100 largest items are shown; selecting the group still includes all \(group.items.count) items.")
                     Spacer()
                 }
                 .font(.caption).foregroundStyle(.secondary).padding(.top, 10)
@@ -794,32 +836,29 @@ struct ContentView: View {
     private var uninstallView: some View {
         VStack(spacing: 0) {
             header(
-                title: "软件卸载",
-                subtitle: "已自动读取这台 Mac 上的应用",
+                title: "Uninstall",
+                subtitle: "Apps on this Mac were detected automatically",
                 trailing: AnyView(
                     HStack(spacing: 12) {
-                        Text("\(model.applications.count) 个应用 · \(model.commandLineTools.count) 个命令行工具")
+                        Text("\(model.applications.count) apps · \(model.commandLineTools.count) command-line tools")
                             .font(.system(size: 12, weight: .medium)).foregroundStyle(.secondary)
-                        Button(action: model.scanInstalledApplications) {
-                            Label("刷新", systemImage: "arrow.clockwise")
-                        }
-                        .disabled(model.isScanning)
+                        refreshControl(for: .uninstall, action: model.scanInstalledApplications)
                     }
                 )
             )
                 .padding(18)
-            if model.applications.isEmpty && model.isScanning {
+            if model.applications.isEmpty && model.isLoading(.uninstall) {
                 VStack(spacing: 14) {
                     ProgressView().controlSize(.large)
-                    Text("正在读取已安装应用…").font(.system(size: 13, weight: .medium))
-                    Text("通常只需要几秒钟").font(.caption).foregroundStyle(.secondary)
+                    Text("Reading installed apps…").font(.system(size: 13, weight: .medium))
+                    Text("Usually takes only a few seconds").font(.caption).foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 VStack(spacing: 0) {
                     HStack(spacing: 8) {
                         Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
-                        TextField("搜索应用", text: $applicationSearch).textFieldStyle(.plain)
+                        TextField("Search apps", text: $applicationSearch).textFieldStyle(.plain)
                     }
                     .padding(.horizontal, 12).frame(height: 36)
                     .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 9))
@@ -947,7 +986,7 @@ struct ContentView: View {
                     Text(group.category.subtitle.localized).font(.caption2).foregroundStyle(.secondary)
                 }
                 Spacer()
-                Text("\(group.applications.count) 个 · \(formatted(group.bytes))")
+                Text("\(group.applications.count) · \(formatted(group.bytes))")
                     .font(.caption).foregroundStyle(.secondary).monospacedDigit()
             }
             .padding(.horizontal, 14).padding(.vertical, 11)
@@ -967,7 +1006,7 @@ struct ContentView: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(app.name).font(.system(size: 13, weight: .medium)).lineLimit(1)
                 HStack(spacing: 6) {
-                    if let version = app.version { Text("版本 \(version)") }
+                    if let version = app.version { Text("Version \(version)") }
                     Text(app.bundleURL.deletingLastPathComponent().path)
                 }
                 .font(.caption2).foregroundStyle(.secondary).lineLimit(1)
@@ -977,7 +1016,7 @@ struct ContentView: View {
                 .font(.caption).foregroundStyle(.secondary).monospacedDigit()
                 .frame(width: 62, alignment: .trailing)
             if model.isSystemApplication(app) {
-                Text("系统保护").font(.caption2.weight(.medium)).foregroundStyle(.secondary).frame(width: 58)
+                Text("System Protected").font(.caption2.weight(.medium)).foregroundStyle(.secondary).frame(width: 58)
             } else {
                 Image(systemName: "chevron.right").font(.caption).foregroundStyle(.tertiary).frame(width: 58)
             }
@@ -997,10 +1036,10 @@ struct ContentView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(manager.rawValue.localized).font(.system(size: 13, weight: .semibold))
-                    Text("由包管理器安装的命令行工具").font(.caption2).foregroundStyle(.secondary)
+                    Text("Command-line tools installed by package managers").font(.caption2).foregroundStyle(.secondary)
                 }
                 Spacer()
-                Text("\(tools.count) 个 · \(formatted(tools.reduce(0) { $0 + $1.bytes }))")
+                Text("\(tools.count) · \(formatted(tools.reduce(0) { $0 + $1.bytes }))")
                     .font(.caption).foregroundStyle(.secondary).monospacedDigit()
             }
             .padding(.horizontal, 14).padding(.vertical, 11)
@@ -1012,7 +1051,7 @@ struct ContentView: View {
                         .background(Color.accentColor.opacity(0.10), in: RoundedRectangle(cornerRadius: 9))
                     VStack(alignment: .leading, spacing: 3) {
                         Text(tool.name).font(.system(size: 13, weight: .medium))
-                        Text(tool.version.map { "版本 \($0) · \(tool.installURL.path)" } ?? tool.installURL.path)
+                        Text(tool.version.map { "Version \($0) · \(tool.installURL.path)" } ?? tool.installURL.path)
                             .font(.caption2).foregroundStyle(.secondary).lineLimit(1)
                     }
                     Spacer()
@@ -1040,7 +1079,7 @@ struct ContentView: View {
                     .resizable().aspectRatio(contentMode: .fit).frame(width: 48, height: 48)
                 VStack(alignment: .leading, spacing: 3) {
                     Text(app.name).font(.title3.weight(.semibold))
-                    Text("应用详情与关联数据").font(.caption).foregroundStyle(.secondary)
+                    Text("App Details and Related Data").font(.caption).foregroundStyle(.secondary)
                 }
                 Spacer()
             }
@@ -1048,15 +1087,15 @@ struct ContentView: View {
             Divider()
             ScrollView {
                 VStack(alignment: .leading, spacing: 10) {
-                    detailValue(title: "版本", value: app.version ?? L10n.string("未知"))
-                    detailValue(title: "Bundle ID", value: app.bundleIdentifier ?? L10n.string("未知"))
-                    detailValue(title: "安装位置", value: app.bundleURL.path)
-                    detailValue(title: "应用大小", value: formatted(app.bytes))
+                    detailValue(title: "Version", value: app.version ?? L10n.string("Unknown"))
+                    detailValue(title: "Bundle ID", value: app.bundleIdentifier ?? L10n.string("Unknown"))
+                    detailValue(title: "Installed At", value: app.bundleURL.path)
+                    detailValue(title: "App Size", value: formatted(app.bytes))
                     Divider().padding(.vertical, 5)
                     if model.uninstallResidues.isEmpty {
-                        Text("没有发现关联残留文件。").font(.caption).foregroundStyle(.secondary).padding(.vertical, 8)
+                        Text("No related leftover files found.").font(.caption).foregroundStyle(.secondary).padding(.vertical, 8)
                     } else {
-                        Text("关联文件").font(.system(size: 12, weight: .semibold)).padding(.top, 4)
+                        Text("Related Files").font(.system(size: 12, weight: .semibold)).padding(.top, 4)
                         ForEach(model.uninstallResidues) { residue in
                             uninstallItem(title: residue.kind.rawValue, detail: residue.url.path, bytes: residue.bytes, selected: residueSelectionBinding(residue))
                         }
@@ -1066,12 +1105,12 @@ struct ContentView: View {
             }
             Divider()
             HStack {
-                Label("可从废纸篓恢复", systemImage: "arrow.uturn.backward.circle")
+                Label("Recoverable from Trash", systemImage: "arrow.uturn.backward.circle")
                     .font(.caption).foregroundStyle(.secondary)
                 Spacer()
-                Button("关闭") { model.uninstallCandidate = nil }
+                Button("Close") { model.uninstallCandidate = nil }
                 if !model.isSystemApplication(app) {
-                    Button("卸载应用…", role: .destructive) { model.showAppRemovalConfirmation = true }
+                    Button("Uninstall App…", role: .destructive) { model.showAppRemovalConfirmation = true }
                         .buttonStyle(.borderedProminent)
                 }
             }
@@ -1098,21 +1137,21 @@ struct ContentView: View {
                 }
             }
             Divider()
-            detailValue(title: "版本", value: tool.version ?? L10n.string("未识别"))
-            detailValue(title: "安装位置", value: tool.installURL.path)
-            detailValue(title: "占用空间", value: formatted(tool.bytes))
-            detailValue(title: "卸载命令", value: uninstallCommand(for: tool))
-            Text("命令行工具由包管理器维护。Sift 只展示建议命令，不直接删除其目录，以免破坏依赖关系。")
+            detailValue(title: "Version", value: tool.version ?? L10n.string("Unrecognized"))
+            detailValue(title: "Installed At", value: tool.installURL.path)
+            detailValue(title: "Storage Used", value: formatted(tool.bytes))
+            detailValue(title: "Uninstall Command", value: uninstallCommand(for: tool))
+            Text("Command-line tools are managed by package managers. Sift shows suggested commands instead of deleting directories, which could break dependencies.")
                 .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             Spacer()
-            HStack { Spacer(); Button("关闭") { selectedCommandLineTool = nil }.keyboardShortcut(.defaultAction) }
+            HStack { Spacer(); Button("Close") { selectedCommandLineTool = nil }.keyboardShortcut(.defaultAction) }
         }
         .padding(22).frame(width: 520, height: 310)
     }
 
     private func uninstallCommand(for tool: CommandLineTool) -> String {
         tool.manager.uninstallCommand(name: tool.name, version: tool.version)
-            ?? L10n.string("无法确认包归属，请手动检查后处理")
+            ?? L10n.string("Package ownership could not be verified; inspect it manually")
     }
 
     private func uninstallItem(title: String, detail: String, bytes: Int64, selected: Binding<Bool>) -> some View {
@@ -1140,13 +1179,10 @@ struct ContentView: View {
     private var loginItemsView: some View {
         VStack(spacing: 0) {
             header(
-                title: "登录项与扩展",
-                subtitle: "管理登录项、后台活动与应用扩展",
+                title: "Login Items & Extensions",
+                subtitle: "Manage login items, background activity, and extensions",
                 trailing: AnyView(
-                    Button(action: model.scanLoginItems) {
-                        Label("刷新", systemImage: "arrow.clockwise")
-                    }
-                    .disabled(model.isScanning)
+                    refreshControl(for: .loginItems, action: model.scanLoginItems)
                 )
             )
             .padding(18)
@@ -1155,33 +1191,33 @@ struct ContentView: View {
 
             inventoryManagementBanner(
                 icon: "person.badge.key",
-                title: "与 macOS 登录项保持一致",
-                detail: "这里显示登录后自动打开的 App；部分新式项目只能在系统设置中管理。",
-                buttonTitle: "打开登录项设置"
+                title: "Matches macOS Login Items",
+                detail: "Apps that open automatically after logging in are displayed here; some new items can only be managed in system settings.",
+                buttonTitle: "Open Login Item Settings"
             )
 
-            inventorySearchField(placeholder: "搜索登录项或应用路径")
+            inventorySearchField(placeholder: "Search login items or app paths")
 
-            if model.isScanning && model.loginApplications.isEmpty {
-                inventoryLoadingView(title: "正在读取登录项…")
+            if model.isLoading(.loginItems) && model.loginApplications.isEmpty {
+                inventoryLoadingView(title: "Reading login items…")
             } else if let error = model.loginApplicationsError, model.loginApplications.isEmpty {
                 compactInventoryEmptyState(
-                    title: "无法读取登录项",
+                    title: "Unable to Read Login Items",
                     detail: error,
                     icon: "exclamationmark.triangle"
                 )
             } else if filteredLoginApplications.isEmpty {
                 compactInventoryEmptyState(
-                    title: inventorySearch.isEmpty ? "没有登录项" : "没有匹配的登录项",
-                    detail: inventorySearch.isEmpty ? "可以在系统设置中添加登录时打开的 App" : "请尝试其他关键词",
+                    title: inventorySearch.isEmpty ? "No Login Items" : "No matching login items",
+                    detail: inventorySearch.isEmpty ? "Apps that open when logging in can be added in system settings" : "Try another search term",
                     icon: "person.badge.key"
                 )
             } else {
                 ScrollView {
                     VStack(spacing: 0) {
                         inventorySectionHeader(
-                            title: "登录时打开",
-                            subtitle: "登录当前账户后自动打开",
+                            title: "Open at Login",
+                            subtitle: "Open automatically after logging in to the current account",
                             count: filteredLoginApplications.count
                         )
                         Divider()
@@ -1212,21 +1248,21 @@ struct ContentView: View {
                 .resizable().aspectRatio(contentMode: .fit).frame(width: 38, height: 38)
             VStack(alignment: .leading, spacing: 3) {
                 Text(item.name).font(.system(size: 13, weight: .medium)).lineLimit(1)
-                Text(item.applicationURL?.path ?? L10n.string("路径不可用"))
+                Text(item.applicationURL?.path ?? L10n.string("Path Unavailable"))
                     .font(.caption2).foregroundStyle(.secondary).lineLimit(1)
             }
             Spacer()
             if item.assessment == .likelyResidue {
-                missingBadge("文件不存在")
+                missingBadge("File Not Found")
             }
             if item.isHidden {
-                inventoryBadge("启动后隐藏", color: .secondary)
+                inventoryBadge("Hide After Launch", color: .secondary)
             }
             if let url = item.applicationURL {
-                Button("显示") { reveal(url) }
+                Button("Show") { reveal(url) }
                     .buttonStyle(.borderless).font(.caption).fixedSize()
             }
-            Button("移除", role: .destructive) { model.requestLoginApplicationRemoval(item) }
+            Button("Remove", role: .destructive) { model.requestLoginApplicationRemoval(item) }
                 .buttonStyle(.borderless).font(.caption).fixedSize()
         }
         .padding(.horizontal, 14).padding(.vertical, 9)
@@ -1235,18 +1271,16 @@ struct ContentView: View {
     private var backgroundActivityView: some View {
         VStack(spacing: 0) {
             header(
-                title: "登录项与扩展",
-                subtitle: "管理登录项、后台活动与应用扩展",
+                title: "Login Items & Extensions",
+                subtitle: "Manage login items, background activity, and extensions",
                 trailing: AnyView(
                     HStack(spacing: 10) {
                         Button(role: .destructive) {
                             model.showBackgroundDatabaseResetConfirmation = true
                         } label: {
-                            Label("重建数据库", systemImage: "arrow.triangle.2.circlepath")
+                            Label("Rebuild Database", systemImage: "arrow.triangle.2.circlepath")
                         }
-                        Button(action: model.scanBackgroundActivity) {
-                            Label("刷新", systemImage: "arrow.clockwise")
-                        }
+                        refreshControl(for: .backgroundActivity, action: model.scanBackgroundActivity)
                     }
                     .disabled(model.isScanning)
                 )
@@ -1257,20 +1291,20 @@ struct ContentView: View {
 
             inventoryManagementBanner(
                 icon: "waveform.path.ecg",
-                title: "后台活动说明",
-                detail: "“自动启动”表示配置加载后启动；“退出后重启”表示进程退出后 launchd 会尝试再次启动。",
-                buttonTitle: "打开后台设置"
+                title: "About Background Activity",
+                detail: "\"Autostart\" means to start after the configuration is loaded; \"Restart after exit\" means that launchd will try to start again after the process exits.",
+                buttonTitle: "Open Background Settings"
             )
 
-            inventorySearchField(placeholder: "搜索后台项目、标签或路径")
+            inventorySearchField(placeholder: "Search background items, labels, or paths")
 
-            if model.isScanning && model.backgroundItems.isEmpty && model.registeredBackgroundTasks.isEmpty {
-                inventoryLoadingView(title: "正在读取后台活动…")
+            if model.isLoading(.backgroundActivity) && model.backgroundItems.isEmpty && model.registeredBackgroundTasks.isEmpty {
+                inventoryLoadingView(title: "Reading background activity…")
             } else if filteredBackgroundItemGroups.isEmpty && filteredRegisteredBackgroundTasks.isEmpty {
                 ContentUnavailableView(
-                    inventorySearch.isEmpty ? "没有发现后台项目" : "没有匹配的后台项目",
+                    inventorySearch.isEmpty ? "No Background Items" : "No matching background items",
                     systemImage: "waveform.path.ecg",
-                    description: Text(model.backgroundTaskScanError ?? (inventorySearch.isEmpty ? "没有发现后台任务或 launchd 配置" : "请尝试其他关键词"))
+                    description: Text(model.backgroundTaskScanError ?? (inventorySearch.isEmpty ? "No background tasks or launchd configuration found" : "Try another search term"))
                 )
             } else {
                 ScrollView {
@@ -1320,8 +1354,8 @@ struct ContentView: View {
     private var registeredBackgroundTaskSection: some View {
         VStack(spacing: 0) {
             inventorySectionHeader(
-                title: "App 后台活动",
-                subtitle: "macOS 后台任务管理数据库中的 App 记录",
+                title: "App Background Activity",
+                subtitle: "App records in the macOS background task management database",
                 count: filteredRegisteredBackgroundTasks.count
             )
             Divider()
@@ -1339,21 +1373,21 @@ struct ContentView: View {
                 .resizable().aspectRatio(contentMode: .fit).frame(width: 38, height: 38)
             VStack(alignment: .leading, spacing: 3) {
                 Text(item.name).font(.system(size: 13, weight: .medium)).lineLimit(1)
-                Text(item.applicationURL?.path ?? item.bundleIdentifier ?? L10n.string("系统记录"))
+                Text(item.applicationURL?.path ?? item.bundleIdentifier ?? L10n.string("System Record"))
                     .font(.caption2).foregroundStyle(.secondary).lineLimit(1)
             }
             Spacer()
             if item.assessment == .likelyResidue {
                 missingBadge(item.isRemovableTrashResidue(home: FileManager.default.homeDirectoryForCurrentUser)
-                    ? "废纸篓记录"
-                    : "应用不存在")
+                    ? "Trash Record"
+                    : "App Not Found")
             }
             if let url = item.applicationURL {
-                Button("显示") { reveal(url) }
+                Button("Show") { reveal(url) }
                     .buttonStyle(.borderless).font(.caption).fixedSize()
             }
             if item.isRemovableTrashResidue(home: FileManager.default.homeDirectoryForCurrentUser) {
-                Button("移除", role: .destructive) { model.requestRegisteredBackgroundTaskRemoval(item) }
+                Button("Remove", role: .destructive) { model.requestRegisteredBackgroundTaskRemoval(item) }
                     .buttonStyle(.borderless).font(.caption).fixedSize()
             }
         }
@@ -1401,19 +1435,19 @@ struct ContentView: View {
             }
             Spacer()
             if item.assessment == .likelyResidue {
-                missingBadge("文件不存在")
+                missingBadge("File Not Found")
             }
             if item.runsAtLoad {
-                inventoryBadge("自动启动", color: .blue)
-                    .help("配置被 launchd 加载后自动启动。用户代理通常在登录时加载，后台服务通常在开机时加载。")
+                inventoryBadge("Run at Load", color: .blue)
+                    .help("Starts automatically when launchd loads the configuration. User agents usually load at login; daemons usually load at startup.")
             }
             if item.keepsAlive {
-                inventoryBadge("退出后重启", color: .orange)
-                    .help("进程退出或崩溃后，launchd 会根据条件尝试再次启动。")
+                inventoryBadge("Restart After Exit", color: .orange)
+                    .help("After the process exits or crashes, launchd may try to start it again.")
             }
-            Button("显示") { reveal(item.configURL) }
+            Button("Show") { reveal(item.configURL) }
                 .buttonStyle(.borderless).font(.caption).fixedSize()
-            Button("移除", role: .destructive) { model.requestBackgroundItemRemoval(item) }
+            Button("Remove", role: .destructive) { model.requestBackgroundItemRemoval(item) }
                 .buttonStyle(.borderless).font(.caption).fixedSize()
         }
         .padding(.horizontal, 14).padding(.vertical, 9)
@@ -1424,13 +1458,10 @@ struct ContentView: View {
     private var extensionsView: some View {
         VStack(spacing: 0) {
             header(
-                title: "登录项与扩展",
-                subtitle: "管理登录项、后台活动与应用扩展",
+                title: "Login Items & Extensions",
+                subtitle: "Manage login items, background activity, and extensions",
                 trailing: AnyView(
-                    Button(action: model.scanExtensions) {
-                        Label("刷新", systemImage: "arrow.clockwise")
-                    }
-                    .disabled(model.isScanning)
+                    refreshControl(for: .extensions, action: model.scanExtensions)
                 )
             )
             .padding(18)
@@ -1439,20 +1470,20 @@ struct ContentView: View {
 
             inventoryManagementBanner(
                 icon: "puzzlepiece.extension",
-                title: "扩展随所属应用安装",
-                detail: "停用扩展请使用系统设置或所属应用，避免破坏签名与自动更新。",
-                buttonTitle: "打开扩展设置"
+                title: "Extensions are installed with their respective apps",
+                detail: "Please use system settings or the associated application to disable extensions to avoid damaging signatures and automatic updates.",
+                buttonTitle: "Open Extension Settings"
             )
 
-            inventorySearchField(placeholder: "搜索扩展、所属应用或 Bundle ID")
+            inventorySearchField(placeholder: "Search extensions, owning apps, or bundle IDs")
 
-            if model.isScanning && model.installedExtensions.isEmpty {
-                inventoryLoadingView(title: "正在检查已安装应用…")
+            if model.isLoading(.extensions) && model.installedExtensions.isEmpty {
+                inventoryLoadingView(title: "Inspecting installed apps…")
             } else if filteredExtensionGroups.isEmpty {
                 ContentUnavailableView(
-                    inventorySearch.isEmpty ? "没有发现扩展" : "没有匹配的扩展",
+                    inventorySearch.isEmpty ? "No Extensions Found" : "No matching extensions",
                     systemImage: "puzzlepiece.extension",
-                    description: Text(inventorySearch.isEmpty ? "没有在已安装应用和常用扩展目录中发现组件" : "请尝试其他关键词")
+                    description: Text(inventorySearch.isEmpty ? "No components found in installed apps or common extension folders" : "Try another search term")
                 )
             } else {
                 ScrollView {
@@ -1505,26 +1536,26 @@ struct ContentView: View {
                 Text(item.name).font(.system(size: 13, weight: .medium)).lineLimit(1)
                 HStack(spacing: 5) {
                     if let owner = item.ownerName { Text(owner) }
-                    if let version = item.version { Text("版本 \(version)") }
+                    if let version = item.version { Text("Version \(version)") }
                     if item.ownerName == nil && item.version == nil { Text(item.bundleURL.path) }
                 }
                 .font(.caption2).foregroundStyle(.secondary).lineLimit(1)
             }
             Spacer()
             if item.assessment == .likelyResidue {
-                missingBadge("所属应用不存在")
+                missingBadge("The application does not exist")
             }
             if let identifier = item.bundleIdentifier {
                 Text(identifier).font(.caption2).foregroundStyle(.tertiary).lineLimit(1)
                     .frame(maxWidth: 190, alignment: .trailing)
             }
-            Button("显示") { reveal(item.bundleURL) }
+            Button("Show") { reveal(item.bundleURL) }
                 .buttonStyle(.borderless).font(.caption).fixedSize()
             if item.ownerApplicationURL == nil {
-                Button("移除", role: .destructive) { model.requestExtensionRemoval(item) }
+                Button("Remove", role: .destructive) { model.requestExtensionRemoval(item) }
                     .buttonStyle(.borderless).font(.caption).fixedSize()
             } else {
-                Button("卸载应用") {
+                Button("Uninstall App") {
                     applicationSearch = item.ownerName ?? ""
                     model.changeMode(.uninstall)
                 }
@@ -1557,16 +1588,16 @@ struct ContentView: View {
     }
 
     private var systemInventoryTabs: some View {
-        Picker("项目类型", selection: Binding(
+        Picker("Item Type", selection: Binding(
             get: { model.mode },
             set: { newMode in
                 inventorySearch = ""
                 model.changeMode(newMode)
             }
         )) {
-            Text("登录项").tag(FeatureMode.loginItems)
-            Text("后台活动").tag(FeatureMode.backgroundActivity)
-            Text("扩展").tag(FeatureMode.extensions)
+            Text("Login Items").tag(FeatureMode.loginItems)
+            Text("Background Activity").tag(FeatureMode.backgroundActivity)
+            Text("Extensions").tag(FeatureMode.extensions)
         }
         .pickerStyle(.segmented)
         .labelsHidden()
@@ -1593,7 +1624,7 @@ struct ContentView: View {
         VStack(spacing: 13) {
             ProgressView().controlSize(.large)
             Text(title.localized).font(.system(size: 13, weight: .medium))
-            Text("只读取组件信息，不修改系统配置").font(.caption).foregroundStyle(.secondary)
+            Text("Reads component information without changing system settings").font(.caption).foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -1626,7 +1657,7 @@ struct ContentView: View {
                 Text(subtitle.localized).font(.caption2).foregroundStyle(.secondary)
             }
             Spacer()
-            Text("\(count) 个").font(.caption).foregroundStyle(.secondary).monospacedDigit()
+            Text("\(count)").font(.caption).foregroundStyle(.secondary).monospacedDigit()
         }
         .padding(.horizontal, 14).padding(.vertical, 11)
     }
@@ -1640,50 +1671,50 @@ struct ContentView: View {
 
     private func missingBadge(_ title: String) -> some View {
         inventoryBadge(title, color: .red)
-            .help("没有在记录路径或已安装应用中找到对应文件，可能是卸载残留。")
+            .help("No matching file was found at the recorded path or among installed apps; this may be an uninstall leftover.")
     }
 
     private var loginApplicationRemovalMessage: String {
         guard let item = model.loginApplicationRemovalCandidate else {
-            return L10n.string("将从 macOS 登录项中移除。")
+            return L10n.string("This will be removed from macOS Login Items.")
         }
-        let missing = item.assessment == .likelyResidue ? L10n.string("对应文件已经不存在。") : ""
-        return L10n.format("%@“%@”将从登录项中移除，此操作不会删除应用文件。", missing, item.name)
+        let missing = item.assessment == .likelyResidue ? L10n.string("The corresponding file no longer exists.") : ""
+        return L10n.format("", missing, item.name)
     }
 
     private var backgroundItemRemovalMessage: String {
-        guard let item = model.backgroundItemRemovalCandidate else { return L10n.string("启动配置将移入废纸篓。") }
+        guard let item = model.backgroundItemRemovalCandidate else { return L10n.string("The launch configuration will be moved to Trash.") }
         let assessment = item.assessment == .likelyResidue
-            ? L10n.string("没有找到目标程序，可能是卸载残留。")
-            : item.assessment.explanation.localized + L10n.string("。")
-        return L10n.format("%@“%@”的启动配置将移入废纸篓；已运行的进程不会被强制终止。", assessment, item.label)
+            ? L10n.string("The target program was not found; this may be an uninstall leftover.")
+            : item.assessment.explanation.localized + L10n.string(".")
+        return L10n.format("", assessment, item.label)
     }
 
     private var registeredBackgroundTaskRemovalMessage: String {
         guard let item = model.registeredBackgroundTaskRemovalCandidate else {
-            return L10n.string("废纸篓中的 App 残留将被永久删除。")
+            return L10n.string("The app leftover in Trash will be permanently deleted.")
         }
-        return L10n.format("“%@”已经位于废纸篓。继续会永久删除该 App 残留，无法撤销；macOS 的后台记录可能要重新登录后才会消失。", item.name)
+        return L10n.format("“", item.name)
     }
 
     private var extensionRemovalMessage: String {
-        guard let item = model.extensionRemovalCandidate else { return L10n.string("扩展将移入废纸篓。") }
+        guard let item = model.extensionRemovalCandidate else { return L10n.string("The extension will be moved to Trash.") }
         let assessment = item.assessment == .likelyResidue
-            ? L10n.string("没有找到匹配的所属应用，可能是卸载残留。")
-            : item.assessment.explanation.localized + L10n.string("。")
-        return L10n.format("%@“%@”将移入废纸篓，重新登录后相关功能将不再加载。", assessment, item.name)
+            ? L10n.string("No matching owning app was found; this may be an uninstall leftover.")
+            : item.assessment.explanation.localized + L10n.string(".")
+        return L10n.format("", assessment, item.name)
     }
 
     private func extensionKindExplanation(_ kind: InstalledExtensionKind) -> String {
         switch kind {
-        case .system: "使用 DriverKit 等现代系统扩展技术"
-        case .network: "参与 VPN、过滤或网络连接"
-        case .safari: "为 Safari 提供网页与浏览器功能"
-        case .finder: "在 Finder 中提供菜单或同步状态"
-        case .quickLook: "提供文件预览与缩略图"
-        case .spotlight: "帮助 Spotlight 读取特定文件格式"
-        case .share: "显示在系统共享菜单中"
-        case .app: "由所属应用提供的功能组件"
+        case .system: "Use modern system extension technologies like DriverKit"
+        case .network: "Participate in VPN, filtering or network connections"
+        case .safari: "Powering Safari with web and browser functionality"
+        case .finder: "Provide menu or sync status in Finder"
+        case .quickLook: "Provides file previews and thumbnails"
+        case .spotlight: "Help Spotlight read specific file formats"
+        case .share: "Shown in system sharing menu"
+        case .app: "Functional components provided by the owning application"
         }
     }
 
@@ -1705,18 +1736,22 @@ struct ContentView: View {
     private var portsView: some View {
         VStack(spacing: 0) {
             header(
-                title: "端口管理",
-                subtitle: "查看 TCP 监听端口、UDP 绑定及其进程"
+                title: "Port Manager",
+                subtitle: "Inspect TCP listeners, UDP bindings, and their processes",
+                trailing: AnyView(autoUpdateIndicator(
+                    active: true,
+                    detail: model.lastUpdatedText(for: .ports)
+                ))
             )
             .padding(18)
 
-            if model.isScanning, model.listeningPorts.isEmpty {
+            if model.isLoading(.ports), model.listeningPorts.isEmpty {
                 VStack(spacing: 13) {
                     Spacer()
                     ProgressView().controlSize(.large)
-                    Text("正在读取端口与进程信息…")
+                    Text("Reading ports and processes…")
                         .font(.system(size: 14, weight: .semibold))
-                    Text("使用 macOS 自带的 lsof 在本机扫描")
+                    Text("Scans locally using macOS lsof")
                         .font(.caption).foregroundStyle(.secondary)
                     Spacer()
                 }
@@ -1732,14 +1767,14 @@ struct ContentView: View {
             LazyVStack(alignment: .leading, spacing: 14) {
                 HStack(spacing: 0) {
                     portSummaryItem(
-                        title: "端口",
+                        title: "Port",
                         value: "\(model.listeningPorts.count)",
                         icon: "network",
                         color: .blue
                     )
                     portSummaryDivider
                     portSummaryItem(
-                        title: "进程",
+                        title: "Process",
                         value: "\(Set(model.listeningPorts.map(\.processIdentifier)).count)",
                         icon: "terminal.fill",
                         color: .indigo
@@ -1753,7 +1788,7 @@ struct ContentView: View {
                     )
                     portSummaryDivider
                     portSummaryItem(
-                        title: "对外开放",
+                        title: "Exposed",
                         value: "\(model.listeningPorts.filter { $0.exposure != .loopback }.count)",
                         icon: "exclamationmark.shield.fill",
                         color: .orange
@@ -1779,7 +1814,7 @@ struct ContentView: View {
                 HStack(spacing: 10) {
                     HStack(spacing: 8) {
                         Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
-                        TextField("搜索端口、进程、PID、路径或启动命令", text: $portSearch)
+                        TextField("Search ports, processes, PIDs, paths, or commands", text: $portSearch)
                             .textFieldStyle(.plain)
                         if !portSearch.isEmpty {
                             Button { portSearch = "" } label: {
@@ -1791,7 +1826,7 @@ struct ContentView: View {
                     .padding(.horizontal, 11).frame(height: 34)
                     .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 8))
 
-                    Picker("筛选", selection: $portFilter) {
+                    Picker("Filter", selection: $portFilter) {
                         ForEach(PortFilter.allCases) { filter in
                             Text(filter.rawValue.localized).tag(filter)
                         }
@@ -1802,18 +1837,18 @@ struct ContentView: View {
 
                 if filteredPorts.isEmpty {
                     ContentUnavailableView(
-                        portSearch.isEmpty ? "没有发现端口" : "没有匹配结果",
+                        portSearch.isEmpty ? "No Ports Found" : "No Results",
                         systemImage: "network.slash",
-                        description: Text(portSearch.isEmpty ? "当前没有可显示的 TCP 监听端口或 UDP 绑定" : "尝试其他端口号、进程名或路径")
+                        description: Text(portSearch.isEmpty ? "No TCP listeners or UDP bindings to display" : "Try another port, process name, or path")
                     )
                     .frame(minHeight: 260)
                 } else {
                     VStack(spacing: 0) {
                         HStack {
-                            Text("端口").frame(width: 104, alignment: .leading)
-                            Text("绑定地址").frame(width: 142, alignment: .leading)
-                            Text("进程").frame(maxWidth: .infinity, alignment: .leading)
-                            Text("范围").frame(width: 80, alignment: .leading)
+                            Text("Port").frame(width: 104, alignment: .leading)
+                            Text("Bind Address").frame(width: 142, alignment: .leading)
+                            Text("Process").frame(maxWidth: .infinity, alignment: .leading)
+                            Text("Scope").frame(width: 80, alignment: .leading)
                             Color.clear.frame(width: 74)
                         }
                         .font(.caption).foregroundStyle(.secondary)
@@ -1828,7 +1863,7 @@ struct ContentView: View {
                 }
 
                 Label(
-                    "正常结束会发送 SIGTERM，让进程自行清理后退出。强制结束可能造成未保存数据丢失；launchd、容器或监护脚本也可能自动重启进程。",
+                    "Graceful quit sends SIGTERM so the process can clean up before exiting. Force quit may lose unsaved data; launchd, containers, or supervisors may restart the process.",
                     systemImage: "info.circle"
                 )
                 .font(.caption).foregroundStyle(.secondary)
@@ -1928,25 +1963,25 @@ struct ContentView: View {
                 .font(.caption.weight(.medium)).foregroundStyle(portExposureColor(port.exposure))
                 .frame(width: 80, alignment: .leading)
 
-            Button("结束") { model.requestPortTermination(port) }
+            Button("Quit") { model.requestPortTermination(port) }
                 .buttonStyle(.borderless)
                 .foregroundStyle(port.canTerminate ? Color.red : Color.secondary)
                 .disabled(!port.canTerminate)
-                .help((port.protectionReason ?? "结束占用此端口的整个进程").localized)
+                .help((port.protectionReason ?? "Quit the process using this port").localized)
                 .frame(width: 74, alignment: .trailing)
         }
         .padding(.horizontal, 13)
         .frame(minHeight: 68)
         .contextMenu {
-            Button("查看进程详情") { selectedPort = port }
+            Button("View Process Details") { selectedPort = port }
             if let executableURL = port.executableURL {
-                Button("在 Finder 中显示可执行文件") { reveal(executableURL) }
+                Button("Show Executable in Finder") { reveal(executableURL) }
             }
             if let workingDirectoryURL = port.workingDirectoryURL {
-                Button("打开工作目录") { NSWorkspace.shared.open(workingDirectoryURL) }
+                Button("Open Working Directory") { NSWorkspace.shared.open(workingDirectoryURL) }
             }
             Divider()
-            Button("结束进程", role: .destructive) { model.requestPortTermination(port) }
+            Button("Quit Process", role: .destructive) { model.requestPortTermination(port) }
                 .disabled(!port.canTerminate)
         }
     }
@@ -1965,7 +2000,7 @@ struct ContentView: View {
     private func portProcessSubtitle(_ port: ListeningPort) -> String {
         if let workingDirectoryURL = port.workingDirectoryURL { return workingDirectoryURL.path }
         if let executableURL = port.executableURL { return executableURL.path }
-        return port.commandLine ?? L10n.string("进程路径未知")
+        return port.commandLine ?? L10n.string("Process path unknown")
     }
 
     private func portExposureColor(_ exposure: PortExposure) -> Color {
@@ -1993,17 +2028,17 @@ struct ContentView: View {
             }
 
             VStack(spacing: 0) {
-                portDetailRow("进程描述", value: port.processDescription.localized)
+                portDetailRow("Process Description", value: port.processDescription.localized)
                 Divider().padding(.leading, 104)
-                portDetailRow("监听范围", value: port.exposure.rawValue.localized)
+                portDetailRow("Listening Scope", value: port.exposure.rawValue.localized)
                 Divider().padding(.leading, 104)
-                portDetailRow("可执行文件", value: port.executableURL?.path ?? L10n.string("无法读取"))
+                portDetailRow("Executable", value: port.executableURL?.path ?? L10n.string("Unable to Read"))
                 Divider().padding(.leading, 104)
-                portDetailRow("工作目录", value: port.workingDirectoryURL?.path ?? L10n.string("无法读取"))
+                portDetailRow("Working Directory", value: port.workingDirectoryURL?.path ?? L10n.string("Unable to Read"))
                 Divider().padding(.leading, 104)
-                portDetailRow("启动命令", value: port.commandLine ?? L10n.string("无法读取"))
+                portDetailRow("Launch Command", value: port.commandLine ?? L10n.string("Unable to Read"))
                 Divider().padding(.leading, 104)
-                portDetailRow("用户 UID", value: String(port.ownerUserID))
+                portDetailRow("User UID", value: String(port.ownerUserID))
             }
             .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
 
@@ -2011,20 +2046,20 @@ struct ContentView: View {
                 Label(reason.localized, systemImage: "lock.shield.fill")
                     .font(.caption).foregroundStyle(.secondary)
             } else {
-                Label("结束操作会终止整个进程，并释放该进程占用的全部端口。", systemImage: "exclamationmark.triangle")
+                Label("Quitting terminates the entire process and releases every port it uses.", systemImage: "exclamationmark.triangle")
                     .font(.caption).foregroundStyle(.orange)
             }
 
             HStack {
                 if let executableURL = port.executableURL {
-                    Button("显示可执行文件") { reveal(executableURL) }
+                    Button("Show Executable") { reveal(executableURL) }
                 }
                 if let workingDirectoryURL = port.workingDirectoryURL {
-                    Button("打开工作目录") { NSWorkspace.shared.open(workingDirectoryURL) }
+                    Button("Open Working Directory") { NSWorkspace.shared.open(workingDirectoryURL) }
                 }
                 Spacer()
-                Button("关闭", role: .cancel) { selectedPort = nil }
-                Button("结束进程", role: .destructive) {
+                Button("Close", role: .cancel) { selectedPort = nil }
+                Button("Quit Process", role: .destructive) {
                     selectedPort = nil
                     model.requestPortTermination(port)
                 }
@@ -2048,7 +2083,7 @@ struct ContentView: View {
     private var portTerminationMessage: String {
         guard let port = model.portTerminationCandidate else { return "" }
         return L10n.format(
-            "%@（PID %d）正在占用 %@ %@:%@。正常结束更安全；只有进程无响应时才使用强制结束。",
+            "",
             port.processName,
             port.processIdentifier,
             port.transport.rawValue,
@@ -2060,17 +2095,24 @@ struct ContentView: View {
     private var performanceView: some View {
         VStack(spacing: 0) {
             header(
-                title: "性能监控",
-                subtitle: "本地查看 CPU、内存压力与高占用应用",
+                title: "Performance",
+                subtitle: "Monitor CPU, memory pressure, and top apps locally",
                 trailing: AnyView(
-                    Button {
-                        if model.isPerformanceMonitoring {
-                            model.stopPerformanceMonitoring()
-                        } else {
-                            model.startPerformanceMonitoring()
+                    HStack(spacing: 10) {
+                        autoUpdateIndicator(
+                            active: model.isPerformanceMonitoring,
+                            detail: model.isPerformanceMonitoring ? "every 2 seconds" : "Paused"
+                        )
+                        Button {
+                            if model.isPerformanceMonitoring {
+                                model.stopPerformanceMonitoring()
+                            } else {
+                                model.startPerformanceMonitoring()
+                            }
+                        } label: {
+                            Label(model.isPerformanceMonitoring ? "Pause" : "Continue", systemImage: model.isPerformanceMonitoring ? "pause.fill" : "play.fill")
                         }
-                    } label: {
-                        Label(model.isPerformanceMonitoring ? "暂停" : "继续", systemImage: model.isPerformanceMonitoring ? "pause.fill" : "play.fill")
+                        .buttonStyle(.borderless)
                     }
                 )
             )
@@ -2082,8 +2124,8 @@ struct ContentView: View {
                 VStack(spacing: 13) {
                     Spacer()
                     ProgressView().controlSize(.large)
-                    Text("正在采集性能数据…").font(.system(size: 14, weight: .semibold))
-                    Text("第一次 CPU 采样约需 2 秒").font(.caption).foregroundStyle(.secondary)
+                    Text("Collecting performance data…").font(.system(size: 14, weight: .semibold))
+                    Text("The first CPU sample takes about 2 seconds").font(.caption).foregroundStyle(.secondary)
                     Spacer()
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -2101,7 +2143,7 @@ struct ContentView: View {
                 computeHardwareCard(snapshot.computeHardware)
                 performanceTrendCard
                 resourceApplicationList(snapshot)
-                Text("数据每 2 秒在本机更新一次；离开此页面或点击暂停后会停止采样。应用排行只显示当前可识别的图形应用进程。")
+                Text("Data updates locally every 2 seconds. Sampling stops when you leave this page or pause it. App rankings include identifiable graphical app processes only.")
                     .font(.caption).foregroundStyle(.secondary)
             }
             .padding(.horizontal, 18)
@@ -2116,7 +2158,7 @@ struct ContentView: View {
                 Spacer()
                 Circle().fill(model.isPerformanceMonitoring ? Color.green : Color.secondary)
                     .frame(width: 7, height: 7)
-                Text(model.isPerformanceMonitoring ? "实时" : "已暂停")
+                Text(model.isPerformanceMonitoring ? "Live" : "Paused")
                     .font(.caption).foregroundStyle(.secondary)
             }
             HStack(alignment: .firstTextBaseline, spacing: 4) {
@@ -2127,7 +2169,7 @@ struct ContentView: View {
             ProgressView(value: snapshot.cpuPercent, total: 100)
                 .tint(snapshot.cpuPercent > 85 ? Color.orange : Color.accentColor)
             HStack {
-                Text("系统总使用率")
+                Text("Total System Usage")
                 Spacer()
                 Label(thermalStateText(snapshot.thermalState), systemImage: "thermometer.medium")
             }
@@ -2142,20 +2184,20 @@ struct ContentView: View {
         let color = memoryPressureColor(snapshot.memoryPressureLevel)
         return VStack(alignment: .leading, spacing: 13) {
             HStack(spacing: 6) {
-                Label("内存压力", systemImage: "memorychip.fill").font(.system(size: 14, weight: .semibold))
+                Label("Memory Pressure", systemImage: "memorychip.fill").font(.system(size: 14, weight: .semibold))
                 Button { showingMemoryHelp.toggle() } label: {
                     Image(systemName: "questionmark.circle")
                         .font(.system(size: 12, weight: .semibold)).foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
-                .help("了解 macOS 的内存管理")
+                .help("Understand macOS memory management")
                 .popover(isPresented: $showingMemoryHelp, arrowEdge: .bottom) {
                     VStack(alignment: .leading, spacing: 9) {
-                        Label("智能释放会做什么？", systemImage: "questionmark.circle.fill")
+                        Label("What Does Smart Release Do?", systemImage: "questionmark.circle.fill")
                             .font(.system(size: 14, weight: .semibold))
-                        Text("由 macOS 处理已标记为可自动终止、当前又未使用的隐藏 App，同时归还 Sift 自身堆中可回收的页面。")
+                        Text("macOS handles hidden apps that are marked for automatic termination and currently unused, while Sift returns reclaimable pages from its own heap.")
                             .font(.system(size: 12)).fixedSize(horizontal: false, vertical: true)
-                        Text("不会退出普通前台 App，不会强制结束进程，也不需要管理员权限。")
+                        Text("Regular foreground apps are not quit, processes are not force terminated, and administrator privileges are not required.")
                             .font(.system(size: 12, weight: .medium)).foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -2177,14 +2219,14 @@ struct ContentView: View {
             }
             ProgressView(value: snapshot.memoryPressure, total: 1).tint(color)
             HStack(spacing: 9) {
-                Text("缓存 \(formatted(snapshot.cachedMemory))")
-                Text("交换 \(formatted(snapshot.swapUsed))")
+                Text("Cached \(formatted(snapshot.cachedMemory))")
+                Text("Swap \(formatted(snapshot.swapUsed))")
                 Spacer(minLength: 4)
                 Button(action: model.optimizeMemory) {
                     if model.isOptimizingMemory {
                         ProgressView().controlSize(.mini)
                     } else {
-                        Label("智能释放", systemImage: "wand.and.sparkles")
+                        Label("Smart Release", systemImage: "wand.and.sparkles")
                     }
                 }
                 .frame(minWidth: 76)
@@ -2201,24 +2243,24 @@ struct ContentView: View {
 
     private func computeHardwareCard(_ hardware: ComputeHardwareInfo) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("计算硬件")
+            Text("Compute Hardware")
                 .font(.system(size: 14, weight: .semibold))
                 .padding(.horizontal, 14).padding(.top, 13).padding(.bottom, 8)
             computeHardwareRow(
                 icon: "display",
                 title: "GPU",
                 subtitle: hardware.recommendedGPUWorkingSet > 0
-                    ? L10n.format("%@ · 建议工作集 %@", hardware.gpuName, formatted(hardware.recommendedGPUWorkingSet))
+                    ? L10n.format("", hardware.gpuName, formatted(hardware.recommendedGPUWorkingSet))
                     : hardware.gpuName,
-                status: hardware.hasUnifiedMemory ? "统一内存" : "独立显存",
+                status: hardware.hasUnifiedMemory ? "Unified Memory" : "Dedicated Memory",
                 color: .blue
             )
             Divider().padding(.leading, 50)
             computeHardwareRow(
                 icon: "brain.head.profile",
                 title: "Neural Engine",
-                subtitle: hardware.neuralEngineAvailable ? "可供 Core ML 调度使用" : "没有检测到可用的神经网络引擎",
-                status: hardware.neuralEngineAvailable ? "可用" : "不可用",
+                subtitle: hardware.neuralEngineAvailable ? "Available to Core ML" : "No available Neural Engine detected",
+                status: hardware.neuralEngineAvailable ? "Available" : "Unavailable",
                 color: hardware.neuralEngineAvailable ? .purple : .secondary
             )
             Divider().padding(.leading, 50)
@@ -2261,41 +2303,41 @@ struct ContentView: View {
     private func appleIntelligencePresentation(_ state: AppleIntelligenceState) -> (status: String, explanation: String, color: Color) {
         switch state {
         case .available:
-            ("可用", "系统本地语言模型已准备好，可供支持的 App 使用", .green)
+            ("Available", "On-device language models are ready for supported apps", .green)
         case .notEnabled:
-            ("未开启", "设备支持，但尚未在系统设置中开启 Apple Intelligence", .orange)
+            ("Not Enabled", "The device is supported, but Apple Intelligence is not enabled in System Settings", .orange)
         case .deviceNotEligible:
-            ("设备不支持", "当前 Mac 不符合 Apple Intelligence 的硬件要求", .secondary)
+            ("Device Not Supported", "This Mac does not meet Apple Intelligence hardware requirements", .secondary)
         case .modelNotReady:
-            ("模型未就绪", "模型可能仍在准备，或当前语言与地区暂不可用", .orange)
+            ("Model Not Ready", "Models may still be preparing, or the current language and region may not be available", .orange)
         case .unsupportedSystem:
-            ("系统不支持", "需要 macOS 26 或更高版本才能检查系统语言模型", .secondary)
+            ("Not Supported", "macOS 26 or later is required to inspect system language models", .secondary)
         case .unknown:
-            ("状态未知", "系统没有返回可识别的可用状态", .secondary)
+            ("Status Unknown", "The system did not return a recognized availability state", .secondary)
         }
     }
 
     private var performanceTrendCard: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text("最近 60 秒").font(.system(size: 14, weight: .semibold))
+                Text("Last 60 Seconds").font(.system(size: 14, weight: .semibold))
                 Spacer()
                 Label("CPU", systemImage: "circle.fill").foregroundStyle(Color.accentColor)
-                Label("内存压力", systemImage: "circle.fill").foregroundStyle(Color.purple)
+                Label("Memory Pressure", systemImage: "circle.fill").foregroundStyle(Color.purple)
             }
             .font(.caption)
             Chart(model.performanceHistory) { point in
                 LineMark(
-                    x: .value("时间", point.sampledAt),
+                    x: .value("Time", point.sampledAt),
                     y: .value("CPU", point.cpuPercent),
-                    series: .value("指标", "CPU")
+                    series: .value("Metric", "CPU")
                 )
                 .foregroundStyle(Color.accentColor)
                 .interpolationMethod(.catmullRom)
                 LineMark(
-                    x: .value("时间", point.sampledAt),
-                    y: .value("内存压力", point.memoryPressurePercent),
-                    series: .value("指标", "内存压力")
+                    x: .value("Time", point.sampledAt),
+                    y: .value("Memory Pressure", point.memoryPressurePercent),
+                    series: .value("Metric", "Memory Pressure")
                 )
                 .foregroundStyle(Color.purple)
                 .interpolationMethod(.catmullRom)
@@ -2320,18 +2362,18 @@ struct ContentView: View {
         }
         return VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text("资源占用最高的应用").font(.system(size: 15, weight: .semibold))
+                Text("Top Resource-Using Apps").font(.system(size: 15, weight: .semibold))
                 Spacer()
-                Picker("排序", selection: $performanceSort) {
+                Picker("Sort", selection: $performanceSort) {
                     ForEach(PerformanceSort.allCases) { sort in Text(sort.rawValue.localized).tag(sort) }
                 }
                 .pickerStyle(.segmented).frame(width: 150)
             }
             VStack(spacing: 0) {
                 HStack {
-                    Text("应用").frame(maxWidth: .infinity, alignment: .leading)
+                    Text("Apps").frame(maxWidth: .infinity, alignment: .leading)
                     Text("CPU").frame(width: 70, alignment: .trailing)
-                    Text("内存").frame(width: 92, alignment: .trailing)
+                    Text("Memory").frame(width: 92, alignment: .trailing)
                 }
                 .font(.caption).foregroundStyle(.secondary)
                 .padding(.horizontal, 13).frame(height: 32)
@@ -2367,7 +2409,7 @@ struct ContentView: View {
         }
         .padding(.horizontal, 13).frame(minHeight: 48)
         .contextMenu {
-            if let url = application.bundleURL { Button("在 Finder 中显示") { reveal(url) } }
+            if let url = application.bundleURL { Button("Show in Finder") { reveal(url) } }
         }
     }
 
@@ -2381,28 +2423,26 @@ struct ContentView: View {
 
     private func thermalStateText(_ state: ProcessInfo.ThermalState) -> String {
         switch state {
-        case .nominal: L10n.string("温度正常")
-        case .fair: L10n.string("温度稍高")
-        case .serious: L10n.string("温度较高")
-        case .critical: L10n.string("温度过高")
-        @unknown default: L10n.string("温度未知")
+        case .nominal: L10n.string("Thermal State Normal")
+        case .fair: L10n.string("Thermal State Elevated")
+        case .serious: L10n.string("Thermal State High")
+        case .critical: L10n.string("Thermal State Critical")
+        @unknown default: L10n.string("Thermal State Unknown")
         }
     }
 
     private var filesView: some View {
         VStack(spacing: 0) {
             header(
-                title: "存储分析",
-                subtitle: "了解磁盘、常见目录与大文件的空间占用",
+                title: "Storage Analysis",
+                subtitle: "Inspect disk usage, common folders, and large files",
                 trailing: AnyView(
                     HStack(spacing: 8) {
-                        Button("选择目录", action: model.chooseFolder)
+                        Button("Choose Folder", action: model.chooseFolder)
                         if model.isScanning {
-                            Button("取消", role: .cancel, action: model.cancelScan)
+                            Button("Cancel", role: .cancel, action: model.cancelScan)
                         } else if model.storageAnalysis != nil {
-                            Button(action: model.scanStorageAnalysis) {
-                                Label("刷新", systemImage: "arrow.clockwise")
-                            }
+                            refreshControl(for: .files, action: model.scanStorageAnalysis)
                         }
                     }
                 )
@@ -2410,7 +2450,7 @@ struct ContentView: View {
                 .padding(18)
             if let analysis = model.storageAnalysis {
                 storageAnalysisContent(analysis)
-            } else if model.isScanning {
+            } else if model.isStorageAnalyzing {
                 storageAnalysisLoading
             } else {
                 storageAnalysisEmptyView
@@ -2438,22 +2478,22 @@ struct ContentView: View {
             }
             .padding(.bottom, 24)
 
-            Text("了解 Mac 的空间都用在哪里")
+            Text("Quick overview of your home folder")
                 .font(.system(size: 24, weight: .semibold, design: .rounded))
-            Text("统计常见目录并按内容分类，同时列出占用较大的文件")
+            Text("Shows only top-level folders, explains their purpose, and calculates actual usage")
                 .font(.system(size: 13)).foregroundStyle(.secondary).padding(.top, 7)
 
             HStack(spacing: 18) {
-                scanPromise(icon: "lock.shield", text: "本地分析")
-                scanPromise(icon: "eye.slash", text: "不读取内容")
-                scanPromise(icon: "trash.slash", text: "不会自动删除")
+                scanPromise(icon: "lock.shield", text: "Local Analysis")
+                scanPromise(icon: "eye.slash", text: "Contents are not read")
+                scanPromise(icon: "trash.slash", text: "Nothing is deleted automatically")
             }
             .padding(.vertical, 22)
 
             Button(action: model.scanStorageAnalysis) {
                 HStack(spacing: 9) {
                     Image(systemName: "chart.pie").font(.system(size: 14, weight: .bold))
-                    Text("开始分析").font(.system(size: 14, weight: .semibold))
+                    Text("Start Analysis").font(.system(size: 14, weight: .semibold))
                     Image(systemName: "arrow.right").font(.system(size: 12, weight: .bold))
                 }
                 .foregroundStyle(.white)
@@ -2479,11 +2519,11 @@ struct ContentView: View {
         VStack(spacing: 16) {
             Spacer()
             ProgressView().controlSize(.large)
-            Text("正在分析\(model.currentScanCategory)")
+            Text("Calculating folders in \(model.currentScanCategory)")
                 .font(.system(size: 15, weight: .semibold))
-            Text("已检查 \(model.inspectedFileCount) 个文件 · 已统计 \(formatted(model.discoveredBytes))")
-                .font(.system(size: 12)).foregroundStyle(.secondary).monospacedDigit()
-            Text("只读取文件大小和路径，不读取文件内容")
+            Text("Quickly summarizes the macOS file system without building a deep index")
+                .font(.system(size: 12)).foregroundStyle(.secondary)
+            Text("Reads only paths and disk usage, not file contents")
                 .font(.caption).foregroundStyle(.tertiary)
             Spacer()
         }
@@ -2493,13 +2533,12 @@ struct ContentView: View {
     private func storageAnalysisContent(_ analysis: StorageAnalysis) -> some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 14) {
-                if model.isScanning {
+                if model.isStorageAnalyzing {
                     HStack(spacing: 10) {
                         ProgressView().controlSize(.small)
-                        Text("正在刷新：已检查 \(model.inspectedFileCount) 个文件")
+                        Text("Updating folder sizes in the background")
                             .font(.system(size: 12, weight: .medium))
                         Spacer()
-                        Text(formatted(model.discoveredBytes)).font(.caption).foregroundStyle(.secondary).monospacedDigit()
                     }
                     .padding(11)
                     .background(Color.accentColor.opacity(0.08), in: RoundedRectangle(cornerRadius: 9))
@@ -2507,65 +2546,90 @@ struct ContentView: View {
 
                 storageVolumeCard(analysis)
 
-                Text("已分析目录")
-                    .font(.system(size: 15, weight: .semibold))
+                if !model.storagePath.isEmpty {
+                    HStack(spacing: 5) {
+                        ForEach(Array(model.storagePath.enumerated()), id: \.element.path) { index, url in
+                            if index > 0 {
+                                Image(systemName: "chevron.right")
+                                    .font(.caption2).foregroundStyle(.tertiary)
+                            }
+                            Button(index == 0 ? "Home Folder" : url.lastPathComponent) {
+                                model.navigateStorage(to: url)
+                            }
+                            .buttonStyle(.borderless)
+                            .font(.caption)
+                            .disabled(index == model.storagePath.count - 1)
+                        }
+                        Spacer()
+                    }
+                }
+
+                HStack(alignment: .firstTextBaseline) {
+                    Text("Home Folder")
+                        .font(.system(size: 15, weight: .semibold))
+                    Spacer()
+                    Text("Top Level · Sorted by Size")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
                 VStack(spacing: 0) {
-                    ForEach(Array(analysis.categories.enumerated()), id: \.element.id) { index, usage in
-                        storageCategoryRow(usage, maximumBytes: analysis.categories.first?.bytes ?? 0)
-                        if index < analysis.categories.count - 1 { Divider().padding(.leading, 48) }
+                    ForEach(Array(analysis.directories.enumerated()), id: \.element.id) { index, usage in
+                        storageDirectoryRow(usage)
+                        if index < analysis.directories.count - 1 { Divider().padding(.leading, 58) }
                     }
                 }
                 .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
 
-                HStack(alignment: .firstTextBaseline) {
-                    Text("大文件")
-                        .font(.system(size: 15, weight: .semibold))
-                    Spacer()
-                    Text("超过 500 MB · 仅供查看")
-                        .font(.caption).foregroundStyle(.secondary)
-                }
-
-                if analysis.largeFiles.isEmpty {
-                    HStack {
-                        Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
-                        Text("分析范围内没有超过 500 MB 的文件")
-                            .font(.system(size: 12)).foregroundStyle(.secondary)
-                        Spacer()
-                    }
-                    .padding(14)
-                    .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
-                } else {
-                    VStack(spacing: 0) {
-                        ForEach(Array(analysis.largeFiles.prefix(50).enumerated()), id: \.element.id) { index, item in
-                            Button { reveal(item.url) } label: {
-                                HStack(spacing: 11) {
-                                    Image(systemName: "doc.fill")
-                                        .foregroundStyle(Color.accentColor).frame(width: 24)
-                                    VStack(alignment: .leading, spacing: 3) {
-                                        Text(item.url.lastPathComponent)
-                                            .font(.system(size: 12, weight: .medium)).lineLimit(1)
-                                        Text(item.url.deletingLastPathComponent().path)
-                                            .font(.caption2).foregroundStyle(.secondary).lineLimit(1).truncationMode(.middle)
-                                    }
-                                    Spacer()
-                                    Text(formatted(item.bytes)).font(.system(size: 12, weight: .medium)).monospacedDigit()
-                                    Image(systemName: "arrow.forward.circle").foregroundStyle(.tertiary)
-                                }
-                                .padding(.horizontal, 13).frame(minHeight: 52)
-                                .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
-                            if index < min(analysis.largeFiles.count, 50) - 1 { Divider().padding(.leading, 48) }
-                        }
-                    }
-                    .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
-                }
-
-                Text("已统计 \(analysis.scannedFileCount) 个文件。分类容量是可读取目录的汇总；APFS 快照、系统保护内容和无法访问的目录仍会计入磁盘已用空间。")
+                Text("Folder sizes summarize currently readable content. Protected items may not be fully counted; click any folder to view it in Finder.")
                     .font(.caption).foregroundStyle(.secondary)
             }
             .padding(.horizontal, 18)
             .padding(.bottom, 18)
+        }
+    }
+
+    private func storageDirectoryRow(_ usage: StorageDirectoryUsage) -> some View {
+        Button {
+            if usage.url == analysisRootURL { reveal(usage.url) }
+            else { model.openStorageDirectory(usage.url) }
+        } label: {
+            HStack(spacing: 12) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8).fill(Color.accentColor.opacity(0.11))
+                    Image(systemName: storageDirectoryIcon(usage.url.lastPathComponent))
+                        .foregroundStyle(Color.accentColor)
+                }
+                .frame(width: 34, height: 34)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(usage.url == analysisRootURL ? "files in user directory" : usage.url.lastPathComponent)
+                        .font(.system(size: 12, weight: .medium)).lineLimit(1)
+                    Text(usage.explanation.localized)
+                        .font(.caption2).foregroundStyle(.secondary).lineLimit(1)
+                }
+                Spacer()
+                Text(formatted(usage.bytes))
+                    .font(.system(size: 12, weight: .medium)).monospacedDigit()
+                Image(systemName: "chevron.right").font(.caption2).foregroundStyle(.tertiary)
+            }
+            .padding(.horizontal, 13).frame(minHeight: 56)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var analysisRootURL: URL? { model.storageAnalysis?.analyzedRoots.first }
+
+    private func storageDirectoryIcon(_ name: String) -> String {
+        switch name {
+        case "Desktop": "desktopcomputer"
+        case "Documents": "doc.fill"
+        case "Downloads": "arrow.down.circle.fill"
+        case "Library": "books.vertical.fill"
+        case "Movies": "film.fill"
+        case "Music": "music.note"
+        case "Pictures": "photo.fill"
+        case "Applications": "app.fill"
+        case ".Trash": "trash.fill"
+        default: "folder.fill"
         }
     }
 
@@ -2576,22 +2640,22 @@ struct ContentView: View {
         return VStack(alignment: .leading, spacing: 13) {
             HStack {
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("系统磁盘").font(.system(size: 14, weight: .semibold))
-                    Text("已使用 \(formatted(analysis.usedCapacity))，共 \(formatted(analysis.totalCapacity))")
+                    Text("System Disk").font(.system(size: 14, weight: .semibold))
+                    Text("\(formatted(analysis.usedCapacity)) used of \(formatted(analysis.totalCapacity))")
                         .font(.system(size: 11)).foregroundStyle(.secondary)
                 }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 3) {
                     Text(formatted(analysis.availableCapacity)).font(.system(size: 14, weight: .semibold)).monospacedDigit()
-                    Text("可用空间").font(.caption).foregroundStyle(.secondary)
+                    Text("Available Space").font(.caption).foregroundStyle(.secondary)
                 }
             }
             ProgressView(value: ratio)
                 .tint(ratio > 0.9 ? Color.orange : Color.accentColor)
             HStack {
-                Label("已分类 \(formatted(analysis.scannedBytes))", systemImage: "square.grid.2x2")
+                Label("\(formatted(analysis.scannedBytes)) categorized", systemImage: "square.grid.2x2")
                 Spacer()
-                Text("上次分析 \(model.lastScanText)")
+                Text("Last analyzed \(model.lastScanText)")
             }
             .font(.caption).foregroundStyle(.secondary)
         }
@@ -2611,7 +2675,7 @@ struct ContentView: View {
             VStack(alignment: .leading, spacing: 5) {
                 HStack {
                     Text(usage.category.rawValue.localized).font(.system(size: 12, weight: .medium))
-                    Text("\(usage.fileCount) 个文件").font(.caption2).foregroundStyle(.secondary)
+                    Text("\(usage.fileCount) files").font(.caption2).foregroundStyle(.secondary)
                 }
                 GeometryReader { geometry in
                     Capsule().fill(Color.secondary.opacity(0.10))
@@ -2665,10 +2729,48 @@ struct ContentView: View {
         }
     }
 
+    private func refreshControl(for mode: FeatureMode, action: @escaping () -> Void) -> some View {
+        let isRefreshing = model.isLoading(mode)
+        return HStack(spacing: 7) {
+            Text(model.lastUpdatedText(for: mode))
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+                .monospacedDigit()
+            Button(action: action) {
+                if isRefreshing {
+                    ProgressView().controlSize(.small)
+                } else {
+                    Image(systemName: "arrow.clockwise")
+                }
+            }
+            .buttonStyle(.borderless)
+            .frame(width: 24, height: 24)
+            .contentShape(Rectangle())
+            .help("Update Now")
+            .accessibilityLabel(isRefreshing ? "Updating" : "Update Now")
+            .disabled(isRefreshing)
+        }
+    }
+
+    private func autoUpdateIndicator(active: Bool, detail: String) -> some View {
+        HStack(spacing: 6) {
+            Circle()
+                .fill(active ? Color.green : Color.secondary)
+                .frame(width: 6, height: 6)
+            Text(active ? "Auto Updating" : "Automatic updates paused")
+                .font(.caption.weight(.medium))
+            Text("· \(detail)")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+        }
+        .foregroundStyle(.secondary)
+        .accessibilityElement(children: .combine)
+    }
+
     private var junkSummary: String {
         model.items.isEmpty
-            ? L10n.string("扫描缓存与日志")
-            : L10n.format("可清理 %@", formatted(model.selectedBytes))
+            ? L10n.string("Scan Caches and Logs")
+            : L10n.format("", formatted(model.selectedBytes))
     }
 
     private func scanHome() { model.mode = .home; model.selectHomeAndScan() }

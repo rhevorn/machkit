@@ -22,6 +22,7 @@
 		A1000000000000000000000D /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000F /* Localizable.xcstrings */; };
 		A1000000000000000000000E /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000010 /* InfoPlist.xcstrings */; };
 		A1000000000000000000000F /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000011 /* AppSettings.swift */; };
+		A10000000000000000000010 /* OperationResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000012 /* OperationResultView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +43,7 @@
 		A2000000000000000000000F /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		A20000000000000000000010 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		A20000000000000000000011 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		A20000000000000000000012 /* OperationResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationResultView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,6 +97,7 @@
 				A2000000000000000000000D /* FeatureMode.swift */,
 				A2000000000000000000000E /* Localization.swift */,
 				A20000000000000000000011 /* AppSettings.swift */,
+				A20000000000000000000012 /* OperationResultView.swift */,
 			);
 			path = App/Sources;
 			sourceTree = "<group>";
@@ -189,12 +192,20 @@
 			};
 			buildConfigurationList = A70000000000000000000001 /* Build configuration list for PBXProject "Sift" */;
 			compatibilityVersion = "Xcode 16.0";
-			developmentRegion = "zh-Hans";
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 				"zh-Hans",
+				"zh-Hant",
+				ja,
+				ko,
+				es,
+				fr,
+				de,
+				"pt-BR",
+				ru,
 			);
 			mainGroup = A40000000000000000000001;
 			minimizedProjectReferenceProxies = 1;
@@ -238,6 +249,7 @@
 				A1000000000000000000000B /* FeatureMode.swift in Sources */,
 				A1000000000000000000000C /* Localization.swift in Sources */,
 				A1000000000000000000000F /* AppSettings.swift in Sources */,
+				A10000000000000000000010 /* OperationResultView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -297,7 +309,7 @@
 				CODE_SIGN_ENTITLEMENTS = App/Sift.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEAD_CODE_STRIPPING = YES;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -308,7 +320,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.sift.app;
 				PRODUCT_NAME = Sift;
 				SDKROOT = macosx;
@@ -324,7 +336,7 @@
 				CODE_SIGN_ENTITLEMENTS = App/Sift.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEAD_CODE_STRIPPING = YES;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -335,7 +347,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.sift.app;
 				PRODUCT_NAME = Sift;
 				SDKROOT = macosx;

@@ -23,9 +23,9 @@ struct ComputeHardwareInfo: Sendable {
 }
 
 enum MemoryPressureLevel: String, Sendable {
-    case normal = "正常"
-    case elevated = "较高"
-    case critical = "紧张"
+    case normal = "Normal"
+    case elevated = "High"
+    case critical = "Elevated"
 }
 
 struct ApplicationResourceUsage: Identifiable, Sendable {
@@ -69,7 +69,7 @@ final class PerformanceMonitor {
     private var previousCPUTicks: [UInt64]?
     private var previousProcessSamples: [pid_t: ProcessSample] = [:]
     private lazy var gpuInfo: (name: String, unifiedMemory: Bool, workingSet: Int64) = {
-        guard let device = MTLCreateSystemDefaultDevice() else { return ("未检测到 Metal GPU", false, 0) }
+        guard let device = MTLCreateSystemDefaultDevice() else { return ("Metal GPU not detected", false, 0) }
         return (device.name, device.hasUnifiedMemory, Int64(device.recommendedMaxWorkingSetSize))
     }()
     private lazy var neuralEngineAvailable: Bool = MLComputeDevice.allComputeDevices.contains { device in
@@ -202,7 +202,7 @@ final class PerformanceMonitor {
             }
             let name = application.localizedName
                 ?? application.bundleURL?.deletingPathExtension().lastPathComponent
-                ?? L10n.format("进程 %d", pid)
+                ?? L10n.format("Process ", pid)
             results.append(ApplicationResourceUsage(
                 processIdentifier: pid,
                 name: name,

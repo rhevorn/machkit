@@ -10,15 +10,31 @@ enum AppPreferenceKey {
 enum AppLanguage: String, CaseIterable, Identifiable {
     case system
     case simplifiedChinese = "zh-Hans"
+    case traditionalChinese = "zh-Hant"
     case english = "en"
+    case japanese = "ja"
+    case korean = "ko"
+    case spanish = "es"
+    case french = "fr"
+    case german = "de"
+    case brazilianPortuguese = "pt-BR"
+    case russian = "ru"
 
     var id: String { rawValue }
 
     var title: String {
         switch self {
-        case .system: "跟随系统"
+        case .system: "Follow System".localized
         case .simplifiedChinese: "简体中文"
-        case .english: "英文"
+        case .traditionalChinese: "繁體中文"
+        case .english: "English"
+        case .japanese: "日本語"
+        case .korean: "한국어"
+        case .spanish: "Español"
+        case .french: "Français"
+        case .german: "Deutsch"
+        case .brazilianPortuguese: "Português (Brasil)"
+        case .russian: "Русский"
         }
     }
 
@@ -26,7 +42,15 @@ enum AppLanguage: String, CaseIterable, Identifiable {
         switch self {
         case .system: .autoupdatingCurrent
         case .simplifiedChinese: Locale(identifier: "zh-Hans")
+        case .traditionalChinese: Locale(identifier: "zh-Hant")
         case .english: Locale(identifier: "en")
+        case .japanese: Locale(identifier: "ja")
+        case .korean: Locale(identifier: "ko")
+        case .spanish: Locale(identifier: "es")
+        case .french: Locale(identifier: "fr")
+        case .german: Locale(identifier: "de")
+        case .brazilianPortuguese: Locale(identifier: "pt-BR")
+        case .russian: Locale(identifier: "ru")
         }
     }
 
@@ -45,9 +69,9 @@ enum AppAppearance: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .system: "跟随系统"
-        case .light: "浅色"
-        case .dark: "深色"
+        case .system: "System"
+        case .light: "Light"
+        case .dark: "Dark"
         }
     }
 
@@ -60,31 +84,9 @@ enum AppAppearance: String, CaseIterable, Identifiable {
     }
 }
 
-private enum SettingsCategory: String, CaseIterable, Identifiable {
-    case general = "通用"
-    case appearance = "外观"
-
-    var id: String { rawValue }
-
-    var icon: String {
-        switch self {
-        case .general: "gearshape"
-        case .appearance: "circle.lefthalf.filled"
-        }
-    }
-
-    var subtitle: String {
-        switch self {
-        case .general: "语言与地区"
-        case .appearance: "显示模式"
-        }
-    }
-}
-
 struct AppSettingsView: View {
     @AppStorage(AppPreferenceKey.language) private var languageRawValue = AppLanguage.system.rawValue
     @AppStorage(AppPreferenceKey.appearance) private var appearanceRawValue = AppAppearance.system.rawValue
-    @State private var selectedCategory: SettingsCategory = .general
 
     private var language: AppLanguage {
         AppLanguage(rawValue: languageRawValue) ?? .system
@@ -98,8 +100,8 @@ struct AppSettingsView: View {
         VStack(spacing: 0) {
             HStack {
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("设置").font(.system(size: 18, weight: .semibold))
-                    Text("管理语言、外观与其他偏好设置")
+                    Text("Settings").font(.system(size: 18, weight: .semibold))
+                    Text("Manage language, appearance, and other preferences")
                         .font(.system(size: 11)).foregroundStyle(.secondary)
                 }
                 Spacer()
@@ -108,145 +110,93 @@ struct AppSettingsView: View {
 
             Divider()
 
-            HStack(spacing: 0) {
-                categoryList
-                Divider()
-                settingsDetail
-            }
+            settingsContent
         }
         .environment(\.locale, language.locale)
         .preferredColorScheme(appearance.colorScheme)
     }
 
-    private var categoryList: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            ForEach(SettingsCategory.allCases) { category in
-                Button {
-                    selectedCategory = category
-                } label: {
-                    HStack(spacing: 10) {
-                        Image(systemName: category.icon)
-                            .font(.system(size: 15, weight: .medium))
-                            .frame(width: 22)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(category.rawValue.localized)
-                                .font(.system(size: 12, weight: .semibold))
-                            Text(category.subtitle.localized)
-                                .font(.caption2).foregroundStyle(.secondary)
-                        }
-                        Spacer(minLength: 0)
-                    }
-                    .foregroundStyle(selectedCategory == category ? Color.accentColor : Color.primary)
-                    .padding(.horizontal, 10)
-                    .frame(height: 48)
-                    .background {
-                        if selectedCategory == category {
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color.accentColor.opacity(0.11))
-                        }
-                    }
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-            }
-            Spacer()
-        }
-        .padding(12)
-        .frame(width: 172)
-        .frame(maxHeight: .infinity, alignment: .top)
-        .background(Color(nsColor: .controlBackgroundColor).opacity(0.5))
-    }
-
-    @ViewBuilder
-    private var settingsDetail: some View {
+    private var settingsContent: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 18) {
-                switch selectedCategory {
-                case .general:
-                    generalSettings
-                case .appearance:
-                    appearanceSettings
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Interface and display".localized)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(.secondary)
+                    .padding(.leading, 4)
+
+                VStack(spacing: 0) {
+                    settingRow(
+                        icon: "character.bubble",
+                        color: .blue,
+                        title: "Language",
+                        detail: "Select the interface language used by Sift"
+                    ) {
+                        Picker("Language", selection: $languageRawValue) {
+                            ForEach(AppLanguage.allCases) { option in
+                                Text(verbatim: option.title).tag(option.rawValue)
+                            }
+                        }
+                        .labelsHidden()
+                        .frame(minWidth: 168, idealWidth: 190, maxWidth: 220)
+                    }
+
+                    Divider().padding(.leading, 64)
+
+                    settingRow(
+                        icon: "circle.lefthalf.filled",
+                        color: .indigo,
+                        title: "Display Mode",
+                        detail: "Follow macOS, or stick to light or dark colors"
+                    ) {
+                        Picker("Appearance", selection: $appearanceRawValue) {
+                            ForEach(AppAppearance.allCases) { option in
+                                Text(option.title.localized).tag(option.rawValue)
+                            }
+                        }
+                        .labelsHidden()
+                        .pickerStyle(.segmented)
+                        .frame(width: 270)
+                    }
                 }
+                .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 12))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color(nsColor: .separatorColor).opacity(0.45), lineWidth: 0.5)
+                }
+
+                Label("Changes are applied immediately.".localized, systemImage: "info.circle")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.leading, 4)
+                    .padding(.top, 2)
             }
-            .padding(22)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 28)
+            .padding(.top, 28)
+            .padding(.bottom, 36)
+            .frame(maxWidth: 680)
+            .frame(maxWidth: .infinity, alignment: .top)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    private var generalSettings: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            settingsHeading(
-                title: "通用",
-                subtitle: "设置 Sift 使用的界面语言"
-            )
-
-            settingsCard {
-                HStack(spacing: 14) {
-                    settingsIcon("character.bubble", color: .blue)
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text("语言").font(.system(size: 13, weight: .semibold))
-                        Text("选择跟随系统，或为 Sift 单独指定语言")
-                            .font(.caption).foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    Picker("语言", selection: $languageRawValue) {
-                        ForEach(AppLanguage.allCases) { option in
-                            Text(option.title.localized).tag(option.rawValue)
-                        }
-                    }
-                    .labelsHidden()
-                    .frame(width: 170)
-                }
+    private func settingRow<Control: View>(
+        icon: String,
+        color: Color,
+        title: String,
+        detail: String,
+        @ViewBuilder control: () -> Control
+    ) -> some View {
+        HStack(spacing: 14) {
+            settingsIcon(icon, color: color)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title.localized).font(.system(size: 13, weight: .semibold))
+                Text(detail.localized).font(.caption).foregroundStyle(.secondary)
             }
-
-            settingsNote("语言切换会立即应用，当前扫描结果和选择不会丢失。")
+            Spacer(minLength: 24)
+            control()
         }
-    }
-
-    private var appearanceSettings: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            settingsHeading(
-                title: "外观",
-                subtitle: "选择窗口使用的显示模式"
-            )
-
-            settingsCard {
-                VStack(alignment: .leading, spacing: 14) {
-                    HStack(spacing: 14) {
-                        settingsIcon("circle.lefthalf.filled", color: .indigo)
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text("显示模式").font(.system(size: 13, weight: .semibold))
-                            Text("可以跟随 macOS，也可以固定为浅色或深色")
-                                .font(.caption).foregroundStyle(.secondary)
-                        }
-                    }
-
-                    Picker("外观", selection: $appearanceRawValue) {
-                        ForEach(AppAppearance.allCases) { option in
-                            Text(option.title.localized).tag(option.rawValue)
-                        }
-                    }
-                    .labelsHidden()
-                    .pickerStyle(.segmented)
-                    .frame(maxWidth: .infinity)
-                }
-            }
-        }
-    }
-
-    private func settingsHeading(title: String, subtitle: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title.localized).font(.system(size: 17, weight: .semibold))
-            Text(subtitle.localized).font(.caption).foregroundStyle(.secondary)
-        }
-    }
-
-    private func settingsCard<Content: View>(@ViewBuilder content: () -> Content) -> some View {
-        content()
-            .padding(16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 11))
+        .padding(.horizontal, 16)
+        .frame(minHeight: 72)
     }
 
     private func settingsIcon(_ systemName: String, color: Color) -> some View {
@@ -254,11 +204,6 @@ struct AppSettingsView: View {
             RoundedRectangle(cornerRadius: 8).fill(color.opacity(0.12))
             Image(systemName: systemName).foregroundStyle(color)
         }
-        .frame(width: 36, height: 36)
-    }
-
-    private func settingsNote(_ text: String) -> some View {
-        Label(text.localized, systemImage: "info.circle")
-            .font(.caption).foregroundStyle(.secondary)
+        .frame(width: 34, height: 34)
     }
 }

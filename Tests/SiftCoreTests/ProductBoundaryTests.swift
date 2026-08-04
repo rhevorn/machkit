@@ -47,6 +47,23 @@ import Testing
     #expect(analysis.largeFiles.allSatisfy { $0.rule.risk == .review })
 }
 
+@Test func directoryOverviewOnlyReturnsImmediateChildrenWithExplanations() async throws {
+    let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+    let downloads = root.appending(path: "Downloads", directoryHint: .isDirectory)
+    let nested = downloads.appending(path: "Nested", directoryHint: .isDirectory)
+    try FileManager.default.createDirectory(at: nested, withIntermediateDirectories: true)
+    try Data(repeating: 1, count: 4_096).write(to: nested.appending(path: "archive.bin"))
+    defer { try? FileManager.default.removeItem(at: root) }
+
+    let overview = await FileAnalyzer().directoryOverview(root: root, volumeURL: root)
+    #expect(overview.analyzedRoots == [root.standardizedFileURL])
+    #expect(overview.directories.count == 1)
+    #expect(overview.directories.first?.url.lastPathComponent == "Downloads")
+    #expect(overview.directories.first?.explanation.contains("downloaded") == true)
+    #expect(!overview.directories.contains { $0.url.lastPathComponent == "Nested" })
+    #expect(overview.largeFiles.isEmpty)
+}
+
 @Test func portScannerKeepsListenersAndBoundUDPPortsOnly() {
     let output = """
     p4100
@@ -105,25 +122,25 @@ import Testing
         executablePath: "/opt/homebrew/bin/node",
         commandLine: "node /workspace/node_modules/.bin/vite --host",
         port: 5173
-    ) == "Vite 开发服务器")
+    ) == "Vite Development Server")
     #expect(PortScanner.processDescription(
         processName: "api",
         executablePath: "/private/var/folders/example/go-build/api",
         commandLine: "/private/var/folders/example/go-build/api",
         port: 8080
-    ) == "Go 开发服务")
+    ) == "Go Development Service")
     #expect(PortScanner.processDescription(
         processName: "python3",
         executablePath: "/opt/homebrew/bin/python3",
         commandLine: "python3 -m uvicorn app:main",
         port: 8000
-    ) == "Uvicorn / FastAPI 服务")
+    ) == "Uvicorn / FastAPI Service")
     #expect(PortScanner.processDescription(
         processName: "postgres",
         executablePath: "/opt/homebrew/bin/postgres",
         commandLine: nil,
         port: 5432
-    ) == "PostgreSQL 数据库")
+    ) == "PostgreSQL Database")
 }
 
 @Test func portTerminationProtectsSystemAndUnverifiedProcesses() {
@@ -207,6 +224,28 @@ import Testing
     #expect(items.first(where: { $0.label == "com.example.menu-helper" })?.assessment == .likelyResidue)
     #expect(items.first(where: { $0.label == "com.example.daemon" })?.domain == .daemon)
     #expect(items.first(where: { $0.label == "com.example.daemon" })?.keepsAlive == true)
+}
+
+@Test func loginItemRemovalRejectsNestedAndLookalikeDirectories() async {
+    let home = URL(fileURLWithPath: "/tmp/SiftHome", isDirectory: true)
+    let library = URL(fileURLWithPath: "/tmp/SiftLibrary", isDirectory: true)
+    let nested = home.appending(path: "Library/LaunchAgents/Nested/item.plist")
+    let lookalike = home.appending(path: "Library/LaunchAgents-Old/item.plist")
+    let scanner = SystemInventoryScanner()
+
+    for url in [nested, lookalike] {
+        let item = LoginItem(
+            label: "test",
+            configURL: url,
+            executableURL: nil,
+            domain: .userAgent,
+            runsAtLoad: true,
+            keepsAlive: false
+        )
+        let result = await scanner.moveLoginItemToTrash(item, home: home, libraryRoot: library)
+        #expect(result.movedToTrash.isEmpty)
+        #expect(result.failures.count == 1)
+    }
 }
 
 @Test func extensionInventoryClassifiesEmbeddedSafariExtensions() async throws {
@@ -375,5 +414,5 @@ import Testing
     #expect(await scanner.removeRegisteredBackgroundTaskResidue(trashedItem, home: home) == nil)
     #expect(!FileManager.default.fileExists(atPath: trashedApp.path))
     let missingResult = await scanner.removeRegisteredBackgroundTaskResidue(trashedItem, home: home)
-    #expect(missingResult?.contains("数据库仍保留这个旧路径") == true)
+    #expect(missingResult?.contains("database still retains this old path") == true)
 }

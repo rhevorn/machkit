@@ -1,13 +1,12 @@
 {
-  "sourceLanguage" : "zh-Hans",
+  "sourceLanguage" : "en",
   "strings" : {
     "CFBundleDisplayName" : {
       "comment" : "Bundle display name",
-      "extractionState" : "extracted_with_value",
       "localizations" : {
-        "zh-Hans" : {
+        "en" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Sift"
           }
         }
@@ -15,11 +14,10 @@
     },
     "CFBundleName" : {
       "comment" : "Bundle name",
-      "extractionState" : "extracted_with_value",
       "localizations" : {
-        "zh-Hans" : {
+        "en" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Sift"
           }
         }
@@ -28,10 +26,52 @@
     "NSAppleEventsUsageDescription" : {
       "comment" : "Privacy - AppleEvents Sending Usage Description",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sift benötigt Zugriff auf Systemereignisse, um in macOS konfigurierte Anmeldeobjekte zu lesen und zu entfernen."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sift needs access to System Events to read and remove login items configured in macOS."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sift necesita acceso a Eventos del Sistema para leer y eliminar los ítems de inicio configurados en macOS."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sift doit accéder aux événements système pour lire et supprimer les éléments d’ouverture configurés dans macOS."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SiftがmacOSに設定されたログイン項目を読み取り、削除するには、システムイベントへのアクセスが必要です。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sift가 macOS에 구성된 로그인 항목을 읽고 제거하려면 시스템 이벤트에 접근해야 합니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O Sift precisa acessar os Eventos do Sistema para ler e remover itens de início configurados no macOS."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sift требуется доступ к системным событиям, чтобы читать и удалять объекты входа, настроенные в macOS."
           }
         },
         "zh-Hans" : {
@@ -39,16 +79,21 @@
             "state" : "translated",
             "value" : "Sift 需要访问“系统事件”，以读取和移除你在 macOS 中配置的登录项。"
           }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sift 需要存取「系統事件」，以讀取和移除你在 macOS 中設定的登入項目。"
+          }
         }
       }
     },
     "NSHumanReadableCopyright" : {
       "comment" : "Copyright (human-readable)",
-      "extractionState" : "extracted_with_value",
       "localizations" : {
-        "zh-Hans" : {
+        "en" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Copyright © 2026. All rights reserved."
           }
         }

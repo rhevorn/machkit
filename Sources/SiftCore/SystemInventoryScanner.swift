@@ -41,23 +41,23 @@ public actor SystemInventoryScanner {
         guard result.status == 0 else {
             return LoginApplicationScanResult(
                 items: [],
-                errorMessage: "无法读取 macOS 登录项。请在系统设置中允许 Sift 控制“系统事件”，或直接在系统设置中管理。"
+                errorMessage: "Unable to read macOS login items. Please allow Sift to control System Events in system settings, or manage it directly in system settings."
             )
         }
         return LoginApplicationScanResult(items: Self.parseLoginApplications(result.output, fileManager: fileManager))
     }
 
     public func removeLoginApplication(_ item: LoginApplication) -> String? {
-        let escapedName = item.name
-            .replacingOccurrences(of: "\\", with: "\\\\")
-            .replacingOccurrences(of: "\"", with: "\\\"")
         let script = """
+        on run argv
+            set requestedName to item 1 of argv
         tell application "System Events"
-            delete (first login item whose name is "\(escapedName)")
+                delete (first login item whose name is requestedName)
         end tell
+        end run
         """
-        let result = runAppleScript(script)
-        return result.status == 0 ? nil : "无法移除登录项。请检查自动化权限，或前往系统设置手动移除。"
+        let result = runAppleScript(script, arguments: [item.name])
+        return result.status == 0 ? nil : "Cannot remove login item. Please check automation permissions, or go to system settings to remove manually."
     }
 
     public func registeredBackgroundTasks() -> BackgroundTaskScanResult {
@@ -65,7 +65,7 @@ public actor SystemInventoryScanner {
         guard result.status == 0 else {
             return BackgroundTaskScanResult(
                 items: [],
-                errorMessage: result.message ?? "无法读取 macOS 后台任务数据库。可以重新刷新并授权，或直接在系统设置中查看。"
+                errorMessage: result.message ?? "Unable to read macOS background task database. You can refresh and authorize it again, or view it directly in the system settings."
             )
         }
         return BackgroundTaskScanResult(
@@ -77,7 +77,7 @@ public actor SystemInventoryScanner {
         let result = runPrivilegedSFLTool(action: "resetbtm")
         return result.status == 0
             ? nil
-            : result.message ?? "无法重建 macOS 后台任务数据库。"
+            : result.message ?? "Unable to rebuild macOS background task database."
     }
 
     public func removeRegisteredBackgroundTaskResidue(
@@ -85,17 +85,17 @@ public actor SystemInventoryScanner {
         home: URL
     ) -> String? {
         guard item.isRemovableTrashResidue(home: home), let applicationURL = item.applicationURL else {
-            return "只能移除当前用户废纸篓中已确认的 App 残留。"
+            return "Only confirmed app remnants in the current user's Trash can be removed."
         }
         do {
             try fileManager.removeItem(at: applicationURL)
             return nil
         } catch let error as CocoaError where error.code == .fileNoSuchFile {
-            return "macOS 后台数据库仍保留这个旧路径，但磁盘文件已经不存在；系统没有提供移除单条数据库记录的接口。"
+            return "The macOS background database still retains this old path, but the disk file no longer exists; the system does not provide an interface for removing a single database record."
         } catch let error as CocoaError where error.code == .fileReadNoPermission || error.code == .fileWriteNoPermission {
-            return "Sift 没有权限访问废纸篓。请在首页打开“完全磁盘访问权限”，重新启动 Sift 后再试。"
+            return "Sift does not have permission to access the Trash. Please turn on \"Full Disk Access\" on the home page, restart Sift and try again."
         } catch {
-            return "无法删除废纸篓中的残留：\(error.localizedDescription)"
+            return "Unable to delete residue from Trash: \(error.localizedDescription)"
         }
     }
 
@@ -350,14 +350,14 @@ public actor SystemInventoryScanner {
         home: URL,
         libraryRoot: URL = URL(fileURLWithPath: "/Library", isDirectory: true)
     ) -> CleanResult {
-        let allowedParents = Set([
-            home.appending(path: "Library/LaunchAgents", directoryHint: .isDirectory).standardizedFileURL.path,
-            libraryRoot.appending(path: "LaunchAgents", directoryHint: .isDirectory).standardizedFileURL.path,
-            libraryRoot.appending(path: "LaunchDaemons", directoryHint: .isDirectory).standardizedFileURL.path
-        ])
+        let allowedParents = [
+            home.appending(path: "Library/LaunchAgents", directoryHint: .isDirectory),
+            libraryRoot.appending(path: "LaunchAgents", directoryHint: .isDirectory),
+            libraryRoot.appending(path: "LaunchDaemons", directoryHint: .isDirectory)
+        ]
         guard item.configURL.pathExtension.lowercased() == "plist",
-              allowedParents.contains(item.configURL.deletingLastPathComponent().standardizedFileURL.path) else {
-            return rejectedRemoval(item.configURL, reason: "不在受支持的登录项目录中。")
+              allowedParents.contains(where: { SafetyPolicy.isDirectChild(item.configURL, of: $0) }) else {
+            return rejectedRemoval(item.configURL, reason: "Not in the supported login items directory.")
         }
         return moveToTrash(item.configURL)
     }
@@ -368,18 +368,18 @@ public actor SystemInventoryScanner {
         libraryRoot: URL = URL(fileURLWithPath: "/Library", isDirectory: true)
     ) -> CleanResult {
         guard item.ownerApplicationURL == nil else {
-            return rejectedRemoval(item.bundleURL, reason: "应用内置扩展必须随所属应用一起卸载。")
+            return rejectedRemoval(item.bundleURL, reason: "In-app extensions must be uninstalled together with the app they belong to.")
         }
-        let allowedParents = Set([
-            home.appending(path: "Library/QuickLook", directoryHint: .isDirectory).standardizedFileURL.path,
-            libraryRoot.appending(path: "QuickLook", directoryHint: .isDirectory).standardizedFileURL.path,
-            home.appending(path: "Library/Spotlight", directoryHint: .isDirectory).standardizedFileURL.path,
-            libraryRoot.appending(path: "Spotlight", directoryHint: .isDirectory).standardizedFileURL.path
-        ])
+        let allowedParents = [
+            home.appending(path: "Library/QuickLook", directoryHint: .isDirectory),
+            libraryRoot.appending(path: "QuickLook", directoryHint: .isDirectory),
+            home.appending(path: "Library/Spotlight", directoryHint: .isDirectory),
+            libraryRoot.appending(path: "Spotlight", directoryHint: .isDirectory)
+        ]
         let allowedExtensions = Set(["qlgenerator", "mdimporter"])
         guard allowedExtensions.contains(item.bundleURL.pathExtension.lowercased()),
-              allowedParents.contains(item.bundleURL.deletingLastPathComponent().standardizedFileURL.path) else {
-            return rejectedRemoval(item.bundleURL, reason: "该扩展不能安全地单独移除。")
+              allowedParents.contains(where: { SafetyPolicy.isDirectChild(item.bundleURL, of: $0) }) else {
+            return rejectedRemoval(item.bundleURL, reason: "This extension cannot be safely removed alone.")
         }
         return moveToTrash(item.bundleURL)
     }
@@ -408,7 +408,7 @@ public actor SystemInventoryScanner {
 
     private func moveToTrash(_ url: URL) -> CleanResult {
         guard fileManager.fileExists(atPath: url.path) else {
-            return rejectedRemoval(url, reason: "项目已经不存在。")
+            return rejectedRemoval(url, reason: "The project no longer exists.")
         }
         do {
             var resultingURL: NSURL?
@@ -423,12 +423,12 @@ public actor SystemInventoryScanner {
         CleanResult(movedToTrash: [], failures: [CleanFailure(url: url, reason: reason)])
     }
 
-    private func runAppleScript(_ script: String) -> (status: Int32, output: String) {
+    private func runAppleScript(_ script: String, arguments: [String] = []) -> (status: Int32, output: String) {
         let process = Process()
         let standardOutput = Pipe()
         let standardError = Pipe()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-        process.arguments = ["-e", script]
+        process.arguments = ["-e", script, "--"] + arguments
         process.standardOutput = standardOutput
         process.standardError = standardError
         do {
@@ -445,7 +445,7 @@ public actor SystemInventoryScanner {
 
     private func runPrivilegedSFLTool(action: String) -> (status: Int32, output: String, message: String?) {
         guard action == "dumpbtm" || action == "resetbtm" else {
-            return (-1, "", "不支持的后台数据库操作。")
+            return (-1, "", "Unsupported background database operation.")
         }
 
         let authorization: AuthorizationRef
@@ -498,10 +498,10 @@ public actor SystemInventoryScanner {
 
     private func authorizationFailureMessage(_ status: OSStatus) -> String {
         if status == errAuthorizationCanceled {
-            return "已取消管理员授权。"
+            return "Administrator authorization has been canceled."
         }
-        let detail = SecCopyErrorMessageString(status, nil) as String? ?? "错误代码 \(status)"
-        return "管理员授权失败：\(detail)"
+        let detail = SecCopyErrorMessageString(status, nil) as String? ?? "Error code \(status)"
+        return "Administrator authorization failed: \(detail)"
     }
 
     private func extensionKind(pathExtension: String, pointIdentifier: String?) -> InstalledExtensionKind {

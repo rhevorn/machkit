@@ -6,70 +6,70 @@ public enum DefaultRules {
     public static let conservative: [ScanRule] = [
         ScanRule(
             id: "user-caches",
-            title: "用户缓存",
+            title: "User Caches",
             relativePath: "Library/Caches",
             minimumAgeDays: 30,
             risk: .safe,
-            explanation: "30 天未修改的普通缓存；应用下次启动时可能重新生成。"
+            explanation: "Regular caches unchanged for 30 days; apps may recreate them at next launch."
         ),
         ScanRule(
             id: "user-logs",
-            title: "旧日志",
+            title: "Old Logs",
             relativePath: "Library/Logs",
             minimumAgeDays: 14,
             allowedExtensions: ["log", "txt", "old"],
             risk: .safe,
-            explanation: "14 天前的日志文件，不包含当前正在写入的文件。"
+            explanation: "Log files older than 14 days, excluding files currently being written."
         ),
         ScanRule(
             id: "downloads-archives",
-            title: "旧安装包与压缩包",
+            title: "Old installation packages and compressed packages",
             relativePath: "Downloads",
             minimumAgeDays: 30,
             allowedExtensions: ["dmg", "pkg", "zip"],
             risk: .review,
-            explanation: "旧下载文件可能仍有价值，必须由用户逐项确认。"
+            explanation: "Old downloads may still have value and must be confirmed individually by the user."
         ),
         ScanRule(
             id: "npm-cache",
-            title: "npm 下载缓存",
+            title: "npm Download Cache",
             relativePath: ".npm/_cacache",
             minimumAgeDays: 14,
             risk: .safe,
-            explanation: "npm 可重新下载的内容寻址缓存；不会删除全局包或项目 node_modules。"
+            explanation: "Redownloadable npm content-addressed cache; global packages and project node_modules are not deleted."
         ),
         ScanRule(
             id: "npm-logs",
-            title: "npm 调试日志",
+            title: "npm Debug Logs",
             relativePath: ".npm/_logs",
             minimumAgeDays: 7,
             allowedExtensions: ["log"],
             risk: .safe,
-            explanation: "旧 npm 调试日志。"
+            explanation: "Old npm debug logs."
         ),
         ScanRule(
             id: "python-pip-cache",
-            title: "Python pip 缓存",
+            title: "Python pip cache",
             relativePath: "Library/Caches/pip",
             minimumAgeDays: 14,
             risk: .safe,
-            explanation: "pip 下载和构建缓存；不会删除 Python、site-packages 或虚拟环境。"
+            explanation: "pip download and build cache; Python, site-packages, or virtual environments will not be deleted."
         ),
         ScanRule(
             id: "python-uv-cache",
-            title: "Python uv 缓存",
+            title: "Python uv cache",
             relativePath: ".cache/uv",
             minimumAgeDays: 14,
             risk: .safe,
-            explanation: "uv 可重新生成的缓存；不会删除项目虚拟环境。"
+            explanation: "uv Regenerable cache; project virtual environment will not be deleted."
         ),
         ScanRule(
             id: "cargo-cache",
-            title: "Cargo 下载缓存",
+            title: "Cargo download cache",
             relativePath: ".cargo/registry/cache",
             minimumAgeDays: 30,
             risk: .safe,
-            explanation: "Rust crate 下载缓存；不会删除工具链、源码或已安装命令。"
+            explanation: "Rust crate download cache; does not delete toolchains, source code, or installed commands."
         ),
         ScanRule(
             id: "xcode-derived-data",
@@ -77,7 +77,7 @@ public enum DefaultRules {
             relativePath: "Library/Developer/Xcode/DerivedData",
             minimumAgeDays: 14,
             risk: .review,
-            explanation: "Xcode 构建产物，可重新生成，但下次构建会变慢。"
+            explanation: "Xcode build products can be regenerated, but the next build will be slower."
         )
     ]
 }

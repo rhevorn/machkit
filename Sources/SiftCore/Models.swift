@@ -12,9 +12,9 @@ public enum NetworkTransport: String, CaseIterable, Codable, Sendable {
 }
 
 public enum PortExposure: String, CaseIterable, Codable, Sendable {
-    case loopback = "仅本机"
-    case network = "局域网"
-    case allInterfaces = "所有网络"
+    case loopback = "Local Only"
+    case network = "Local Network"
+    case allInterfaces = "All Interfaces"
 }
 
 public struct ListeningPort: Identifiable, Sendable, Hashable {
@@ -75,7 +75,7 @@ public struct PortScanResult: Sendable {
     }
 }
 
-public struct LoginApplication: Identifiable, Sendable, Hashable {
+public struct LoginApplication: Identifiable, Sendable, Hashable, Codable {
     public let id: String
     public let name: String
     public let applicationURL: URL?
@@ -101,7 +101,7 @@ public struct LoginApplicationScanResult: Sendable {
     }
 }
 
-public struct RegisteredBackgroundTask: Identifiable, Sendable, Hashable {
+public struct RegisteredBackgroundTask: Identifiable, Sendable, Hashable, Codable {
     public let id: String
     public let name: String
     public let bundleIdentifier: String?
@@ -148,34 +148,34 @@ public struct BackgroundTaskScanResult: Sendable {
 }
 
 public enum LoginItemDomain: String, CaseIterable, Codable, Sendable {
-    case userAgent = "用户启动项"
-    case sharedAgent = "所有用户启动项"
-    case daemon = "后台服务"
+    case userAgent = "user-initiated items"
+    case sharedAgent = "All user startup items"
+    case daemon = "Background service"
 
     public var explanation: String {
         switch self {
-        case .userAgent: "登录当前账户时由 launchd 读取"
-        case .sharedAgent: "登录任意账户时由 launchd 读取"
-        case .daemon: "由系统在后台启动，修改通常需要管理员权限"
+        case .userAgent: "Read by launchd when logging into the current account"
+        case .sharedAgent: "Read by launchd when logging in to any account"
+        case .daemon: "Started by the system in the background, modification usually requires administrator rights"
         }
     }
 }
 
 public enum ComponentAssessment: String, CaseIterable, Codable, Sendable {
-    case present = "关联应用存在"
-    case likelyResidue = "可能是卸载残留"
-    case unknown = "需确认"
+    case present = "Related App Present"
+    case likelyResidue = "Possible Uninstall Leftover"
+    case unknown = "Review"
 
     public var explanation: String {
         switch self {
-        case .present: "目标程序或所属应用仍然存在"
-        case .likelyResidue: "配置仍在，但没有找到它指向的程序或所属应用"
-        case .unknown: "缺少足够信息，删除前需要人工确认"
+        case .present: "The target program or owning app is still present"
+        case .likelyResidue: "The configuration remains, but its target program or owning app was not found"
+        case .unknown: "Not enough information; review before deleting"
         }
     }
 }
 
-public struct LoginItem: Identifiable, Sendable, Hashable {
+public struct LoginItem: Identifiable, Sendable, Hashable, Codable {
     public let id: String
     public let label: String
     public let configURL: URL
@@ -206,17 +206,17 @@ public struct LoginItem: Identifiable, Sendable, Hashable {
 }
 
 public enum InstalledExtensionKind: String, CaseIterable, Codable, Sendable {
-    case system = "系统扩展"
-    case network = "网络扩展"
-    case safari = "Safari 扩展"
-    case finder = "Finder 扩展"
-    case quickLook = "快速查看扩展"
-    case spotlight = "Spotlight 导入器"
-    case share = "共享扩展"
-    case app = "应用扩展"
+    case system = "System expansion"
+    case network = "network extension"
+    case safari = "Safari extension"
+    case finder = "Finder extension"
+    case quickLook = "Quick view extension"
+    case spotlight = "Spotlight Importer"
+    case share = "Shared extension"
+    case app = "Application extension"
 }
 
-public struct InstalledExtension: Identifiable, Sendable, Hashable {
+public struct InstalledExtension: Identifiable, Sendable, Hashable, Codable {
     public let id: String
     public let name: String
     public let bundleURL: URL
@@ -294,15 +294,15 @@ public struct ScanItem: Identifiable, Sendable, Hashable {
 }
 
 public enum StorageCategoryKind: String, CaseIterable, Codable, Sendable, Identifiable {
-    case applications = "应用程序"
-    case documents = "文稿"
-    case downloads = "下载"
-    case pictures = "图片"
-    case music = "音乐"
-    case movies = "影片"
-    case developer = "开发文件"
-    case systemData = "系统与应用数据"
-    case other = "其他"
+    case applications = "application"
+    case documents = "Manuscript"
+    case downloads = "Download"
+    case pictures = "pictures"
+    case music = "music"
+    case movies = "Video"
+    case developer = "development files"
+    case systemData = "System and application data"
+    case other = "Others"
 
     public var id: String { rawValue }
 }
@@ -321,6 +321,20 @@ public struct StorageCategoryUsage: Identifiable, Sendable, Hashable {
     }
 }
 
+public struct StorageDirectoryUsage: Identifiable, Sendable, Hashable, Codable {
+    public let url: URL
+    public let bytes: Int64
+    public let explanation: String
+
+    public var id: String { url.standardizedFileURL.path }
+
+    public init(url: URL, bytes: Int64, explanation: String) {
+        self.url = url
+        self.bytes = bytes
+        self.explanation = explanation
+    }
+}
+
 public struct StorageAnalysis: Sendable, Hashable {
     public let totalCapacity: Int64
     public let availableCapacity: Int64
@@ -330,6 +344,7 @@ public struct StorageAnalysis: Sendable, Hashable {
     public let categories: [StorageCategoryUsage]
     public let largeFiles: [ScanItem]
     public let analyzedRoots: [URL]
+    public let directories: [StorageDirectoryUsage]
 
     public var usedCapacity: Int64 { max(0, totalCapacity - availableCapacity) }
 
@@ -341,7 +356,8 @@ public struct StorageAnalysis: Sendable, Hashable {
         inaccessibleItemCount: Int,
         categories: [StorageCategoryUsage],
         largeFiles: [ScanItem],
-        analyzedRoots: [URL]
+        analyzedRoots: [URL],
+        directories: [StorageDirectoryUsage] = []
     ) {
         self.totalCapacity = totalCapacity
         self.availableCapacity = availableCapacity
@@ -351,6 +367,7 @@ public struct StorageAnalysis: Sendable, Hashable {
         self.categories = categories
         self.largeFiles = largeFiles
         self.analyzedRoots = analyzedRoots
+        self.directories = directories
     }
 }
 
@@ -381,7 +398,7 @@ public struct CleanFailure: Sendable {
     public let reason: String
 }
 
-public struct InstalledApplication: Identifiable, Sendable, Hashable {
+public struct InstalledApplication: Identifiable, Sendable, Hashable, Codable {
     public let id: String
     public let name: String
     public let bundleURL: URL
@@ -399,24 +416,24 @@ public struct InstalledApplication: Identifiable, Sendable, Hashable {
     }
 }
 
-public enum CommandLineToolManager: String, Sendable, CaseIterable {
+public enum CommandLineToolManager: String, Sendable, CaseIterable, Codable {
     case homebrew = "Homebrew"
     case homebrewCask = "Homebrew Cask"
-    case npm = "npm 全局包"
-    case pnpm = "pnpm 全局包"
-    case yarn = "Yarn 全局包"
-    case bun = "Bun 全局包"
-    case pip = "pip 用户包"
+    case npm = "npm global package"
+    case pnpm = "pnpm global package"
+    case yarn = "Yarn global package"
+    case bun = "Bun global package"
+    case pip = "pip user package"
     case pipx = "pipx"
     case uv = "uv tools"
-    case conda = "Conda 环境"
+    case conda = "Conda environment"
     case cargo = "Cargo"
-    case go = "Go 工具"
+    case go = "Go tools"
     case rubyGems = "RubyGems"
     case macPorts = "MacPorts"
     case nix = "Nix"
     case sdkman = "SDKMAN"
-    case manual = "其他 PATH 工具"
+    case manual = "Other PATH tools"
 
     public func uninstallCommand(name: String, version: String?) -> String? {
         switch self {
@@ -442,7 +459,7 @@ public enum CommandLineToolManager: String, Sendable, CaseIterable {
     }
 }
 
-public struct CommandLineTool: Identifiable, Sendable, Hashable {
+public struct CommandLineTool: Identifiable, Sendable, Hashable, Codable {
     public let id: String
     public let name: String
     public let version: String?
@@ -461,12 +478,12 @@ public struct CommandLineTool: Identifiable, Sendable, Hashable {
 }
 
 public enum ResidueKind: String, Sendable {
-    case cache = "缓存"
-    case preferences = "偏好设置"
-    case support = "应用数据"
-    case state = "窗口状态"
-    case logs = "日志"
-    case container = "沙盒容器"
+    case cache = "cache"
+    case preferences = "Preferences"
+    case support = "application data"
+    case state = "window status"
+    case logs = "Log"
+    case container = "sandbox container"
 }
 
 public struct ApplicationResidue: Identifiable, Sendable, Hashable {
