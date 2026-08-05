@@ -36,11 +36,11 @@ const values = {
   "Sift": ["Sift", "Sift", "Sift", "Sift", "Sift", "Sift", "Sift", "Sift", "Sift"],
   "Home": ["首页", "首頁", "ホーム", "홈", "Inicio", "Accueil", "Start", "Início", "Главная"],
   "Cleanup": ["垃圾清理", "垃圾清理", "クリーン", "정리", "Limpieza", "Nettoyage", "Bereinigen", "Limpeza", "Очистка"],
-  "Uninstall": ["软件卸载", "軟體移除", "アンインストール", "제거", "Desinstalar", "Désinstaller", "Deinstallieren", "Desinstalar", "Удаление"],
-  "Storage Analysis": ["存储分析", "儲存分析", "ストレージ", "저장 공간", "Almacenamiento", "Stockage", "Speicher", "Armazenamento", "Хранилище"],
+  "Apps": ["应用", "應用程式", "アプリ", "앱", "Aplicaciones", "Applications", "Apps", "Aplicativos", "Приложения"],
+  "Storage": ["存储", "儲存", "ストレージ", "저장 공간", "Almacenamiento", "Stockage", "Speicher", "Armazenamento", "Хранилище"],
   "Performance": ["性能监控", "效能監控", "パフォーマンス", "성능", "Rendimiento", "Performances", "Leistung", "Desempenho", "Ресурсы"],
-  "Port Manager": ["端口管理", "連接埠管理", "ポート", "포트", "Puertos", "Ports", "Ports", "Portas", "Порты"],
-  "Login Items & Extensions": ["登录项与扩展", "登入項目與擴充功能", "ログイン項目", "로그인 항목", "Inicio y extensiones", "Ouverture", "Autostart", "Inicialização", "Автозапуск"],
+  "Ports": ["端口", "連接埠", "ポート", "포트", "Puertos", "Ports", "Ports", "Portas", "Порты"],
+  "System": ["系统", "系統", "システム", "시스템", "Sistema", "Système", "System", "Sistema", "Система"],
   "Settings": ["设置", "設定", "設定", "설정", "Ajustes", "Réglages", "Einstellungen", "Ajustes", "Настройки"],
   "Feedback": ["反馈", "意見回饋", "フィードバック", "피드백", "Comentarios", "Avis", "Feedback", "Feedback", "Отзыв"],
   "Follow System": ["跟随系统", "跟隨系統", "システム設定", "시스템 설정", "Seguir el sistema", "Selon le système", "Systemeinstellung", "Seguir o sistema", "Как в системе"]
@@ -87,5 +87,9 @@ for (const [key, entry] of Object.entries(catalog.strings)) {
 // Removed setting: do not retain obsolete translations as manual entries.
 delete catalog.strings["Allow paths, file types, sizes, and process details to be sent for analysis"];
 delete catalog.strings["Share Technical Metadata"];
+delete catalog.strings["Uninstall"];
+delete catalog.strings["Storage Analysis"];
+delete catalog.strings["Port Manager"];
+delete catalog.strings["Login Items & Extensions"];
 delete catalog.strings[""];
 fs.writeFileSync(file, `${JSON.stringify(catalog, null, 2)}\n`);

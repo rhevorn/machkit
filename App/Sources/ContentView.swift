@@ -244,7 +244,7 @@ struct ContentView: View {
         } label: {
             VStack(spacing: 5) {
                 Image(systemName: "switch.2").font(.system(size: 17, weight: .medium))
-                sidebarLabel("Login Items & Extensions", size: 9.5)
+                sidebarLabel("System", size: 10.5)
             }
             .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
             .frame(width: 84, height: 56)
@@ -309,11 +309,11 @@ struct ContentView: View {
                         icon: "paintbrush.fill", color: .blue, mode: .junk
                     )
                     homeToolTile(
-                        title: "Storage Analysis", subtitle: "Disk categories, folder usage, and large files",
+                        title: "Storage", subtitle: "Disk categories, folder usage, and large files",
                         icon: "chart.pie.fill", color: .indigo, mode: .files
                     )
                     homeToolTile(
-                        title: "Uninstall", subtitle: "Apps, command-line tools, and related leftovers",
+                        title: "Apps", subtitle: "Apps, command-line tools, and related leftovers",
                         icon: "app.badge.checkmark", color: .purple, mode: .uninstall
                     )
                     homeToolTile(
@@ -321,11 +321,11 @@ struct ContentView: View {
                         icon: "gauge.with.dots.needle.67percent", color: .mint, mode: .performance
                     )
                     homeToolTile(
-                        title: "Port Manager", subtitle: "Find and stop forgotten development services",
+                        title: "Ports", subtitle: "Find and stop forgotten development services",
                         icon: "network", color: .orange, mode: .ports
                     )
                     homeToolTile(
-                        title: "Login Items & Extensions", subtitle: "Startup items, background activity, and app extensions",
+                        title: "System", subtitle: "Startup items, background activity, and app extensions",
                         icon: "switch.2", color: .cyan, mode: .loginItems
                     )
                 }
@@ -883,7 +883,7 @@ struct ContentView: View {
     private var uninstallView: some View {
         VStack(spacing: 0) {
             header(
-                title: "Uninstall",
+                title: "Apps",
                 subtitle: "Apps on this Mac were detected automatically",
                 trailing: AnyView(
                     HStack(spacing: 12) {
@@ -1226,7 +1226,7 @@ struct ContentView: View {
     private var loginItemsView: some View {
         VStack(spacing: 0) {
             header(
-                title: "Login Items & Extensions",
+                title: "System",
                 subtitle: "Manage login items, background activity, and extensions",
                 trailing: AnyView(
                     refreshControl(for: .loginItems, action: model.scanLoginItems)
@@ -1318,7 +1318,7 @@ struct ContentView: View {
     private var backgroundActivityView: some View {
         VStack(spacing: 0) {
             header(
-                title: "Login Items & Extensions",
+                title: "System",
                 subtitle: "Manage login items, background activity, and extensions",
                 trailing: AnyView(
                     HStack(spacing: 10) {
@@ -1505,7 +1505,7 @@ struct ContentView: View {
     private var extensionsView: some View {
         VStack(spacing: 0) {
             header(
-                title: "Login Items & Extensions",
+                title: "System",
                 subtitle: "Manage login items, background activity, and extensions",
                 trailing: AnyView(
                     refreshControl(for: .extensions, action: model.scanExtensions)
@@ -1783,7 +1783,7 @@ struct ContentView: View {
     private var portsView: some View {
         VStack(spacing: 0) {
             header(
-                title: "Port Manager",
+                title: "Ports",
                 subtitle: "Inspect TCP listeners, UDP bindings, and their processes",
                 trailing: AnyView(autoUpdateIndicator(
                     active: true,
@@ -2491,7 +2491,7 @@ struct ContentView: View {
     private var filesView: some View {
         VStack(spacing: 0) {
             header(
-                title: "Storage Analysis",
+                title: "Storage",
                 subtitle: "Inspect disk usage, common folders, and large files",
                 trailing: AnyView(
                     HStack(spacing: 8) {
