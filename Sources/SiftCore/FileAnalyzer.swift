@@ -232,8 +232,15 @@ public actor FileAnalyzer {
         process.standardError = FileHandle.nullDevice
         do {
             try process.run()
+            while process.isRunning {
+                if Task.isCancelled {
+                    process.terminate()
+                    process.waitUntilExit()
+                    return [:]
+                }
+                Thread.sleep(forTimeInterval: 0.05)
+            }
             let data = output.fileHandleForReading.readDataToEndOfFile()
-            process.waitUntilExit()
             let text = String(decoding: data, as: UTF8.self)
             return Self.parseDirectorySizes(text)
         } catch {

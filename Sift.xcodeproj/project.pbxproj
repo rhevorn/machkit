@@ -23,6 +23,10 @@
 		A1000000000000000000000E /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000010 /* InfoPlist.xcstrings */; };
 		A1000000000000000000000F /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000011 /* AppSettings.swift */; };
 		A10000000000000000000010 /* OperationResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000012 /* OperationResultView.swift */; };
+		A10000000000000000000011 /* AIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000013 /* AIClient.swift */; };
+		A10000000000000000000012 /* AIConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000014 /* AIConfiguration.swift */; };
+		A10000000000000000000013 /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000015 /* AppPreferences.swift */; };
+		A10000000000000000000014 /* FeatureModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000016 /* FeatureModels.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,6 +48,10 @@
 		A20000000000000000000010 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		A20000000000000000000011 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		A20000000000000000000012 /* OperationResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationResultView.swift; sourceTree = "<group>"; };
+		A20000000000000000000013 /* AIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIClient.swift; sourceTree = "<group>"; };
+		A20000000000000000000014 /* AIConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIConfiguration.swift; sourceTree = "<group>"; };
+		A20000000000000000000015 /* AppPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferences.swift; sourceTree = "<group>"; };
+		A20000000000000000000016 /* FeatureModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureModels.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,6 +106,10 @@
 				A2000000000000000000000E /* Localization.swift */,
 				A20000000000000000000011 /* AppSettings.swift */,
 				A20000000000000000000012 /* OperationResultView.swift */,
+				A20000000000000000000013 /* AIClient.swift */,
+				A20000000000000000000014 /* AIConfiguration.swift */,
+				A20000000000000000000015 /* AppPreferences.swift */,
+				A20000000000000000000016 /* FeatureModels.swift */,
 			);
 			path = App/Sources;
 			sourceTree = "<group>";
@@ -250,6 +262,10 @@
 				A1000000000000000000000C /* Localization.swift in Sources */,
 				A1000000000000000000000F /* AppSettings.swift in Sources */,
 				A10000000000000000000010 /* OperationResultView.swift in Sources */,
+				A10000000000000000000011 /* AIClient.swift in Sources */,
+				A10000000000000000000012 /* AIConfiguration.swift in Sources */,
+				A10000000000000000000013 /* AppPreferences.swift in Sources */,
+				A10000000000000000000014 /* FeatureModels.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -309,7 +325,7 @@
 				CODE_SIGN_ENTITLEMENTS = App/Sift.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEAD_CODE_STRIPPING = YES;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -320,7 +336,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.2.0;
+				MARKETING_VERSION = 0.2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.sift.app;
 				PRODUCT_NAME = Sift;
 				SDKROOT = macosx;
@@ -336,7 +352,7 @@
 				CODE_SIGN_ENTITLEMENTS = App/Sift.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEAD_CODE_STRIPPING = YES;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -347,7 +363,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.2.0;
+				MARKETING_VERSION = 0.2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.sift.app;
 				PRODUCT_NAME = Sift;
 				SDKROOT = macosx;

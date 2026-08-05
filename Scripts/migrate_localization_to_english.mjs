@@ -21,8 +21,7 @@ const missingEnglish = new Map([
   ["目录大小为当前可读取内容的汇总。受权限保护的内容可能未完全计入；点击任意目录可在 Finder 中查看。", "Folder sizes summarize currently readable content. Protected items may not be fully counted; click any folder to view it in Finder."],
   ["立即更新", "Update Now"],
   ["第一层 · 按大小排序", "Top Level · Sorted by Size"],
-  ["自动更新已暂停", "Automatic updates paused"],
-  ["", ""]
+  ["自动更新已暂停", "Automatic updates paused"]
 ]);
 
 const placeholder = /%(?:\d+\$)?(?:lld|llu|ld|lu|zd|zu|d|u|f|g|s|c|@)/g;

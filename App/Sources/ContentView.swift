@@ -41,6 +41,7 @@ private struct ExtensionGroup: Identifiable {
 
 struct ContentView: View {
     @AppStorage(AppPreferenceKey.language) private var languageRawValue = AppLanguage.system.rawValue
+    @AppStorage(AppPreferenceKey.aiAssistanceEnabled) private var aiAssistanceEnabled = false
     @StateObject private var model = CleanerViewModel()
     @StateObject private var permissions = PermissionManager()
     @State private var expandedGroups: Set<String> = []
@@ -185,7 +186,7 @@ struct ContentView: View {
                 .contentShape(Rectangle())
             }.buttonStyle(.plain).foregroundStyle(.secondary).padding(.bottom, 10)
         }
-        .frame(width: 88)
+        .frame(width: 100)
         .background(Color(nsColor: .controlBackgroundColor))
     }
 
@@ -220,7 +221,7 @@ struct ContentView: View {
                 sidebarLabel(mode.rawValue.localized)
             }
             .foregroundStyle(model.mode == mode ? Color.accentColor : Color.secondary)
-            .frame(width: 72, height: 56)
+            .frame(width: 84, height: 56)
             .background {
                 if model.mode == mode {
                     RoundedRectangle(cornerRadius: 8).fill(Color.accentColor.opacity(0.10))
@@ -243,10 +244,10 @@ struct ContentView: View {
         } label: {
             VStack(spacing: 5) {
                 Image(systemName: "switch.2").font(.system(size: 17, weight: .medium))
-                sidebarLabel("Login Items & Extensions", size: 9)
+                sidebarLabel("Login Items & Extensions", size: 9.5)
             }
             .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
-            .frame(width: 72, height: 56)
+            .frame(width: 84, height: 56)
             .background {
                 if isSelected {
                     RoundedRectangle(cornerRadius: 8).fill(Color.accentColor.opacity(0.10))
@@ -264,7 +265,7 @@ struct ContentView: View {
 
     private func sidebarLabel(
         _ title: String,
-        size: CGFloat = 10,
+        size: CGFloat = 10.5,
         weight: Font.Weight = .regular
     ) -> some View {
         Text(title.localized)
@@ -272,7 +273,7 @@ struct ContentView: View {
             .lineLimit(2)
             .multilineTextAlignment(.center)
             .minimumScaleFactor(0.72)
-            .frame(width: 72)
+            .frame(width: 84)
     }
 
     private var homeView: some View {
@@ -304,7 +305,7 @@ struct ContentView: View {
 
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                     homeToolTile(
-                        title: "Junk Cleanup", subtitle: "Caches, logs, and developer tool junk",
+                        title: "Cleanup", subtitle: "Caches, logs, and developer tool junk",
                         icon: "paintbrush.fill", color: .blue, mode: .junk
                     )
                     homeToolTile(
@@ -428,9 +429,9 @@ struct ContentView: View {
                 color: .blue
             )
             homeMetricCard(
-                title: "Memory Pressure",
+                title: "Memory Usage",
                 value: snapshot.map { "\(Int(($0.memoryPressure * 100).rounded()))%" } ?? "—",
-                detail: snapshot?.memoryPressureLevel.rawValue ?? "Loading",
+                detail: snapshot.map { L10n.format("Memory Pressure %@", $0.memoryPressureLevel.rawValue.localized) } ?? "Loading",
                 icon: "memorychip",
                 color: memoryColor
             )
@@ -491,28 +492,28 @@ struct ContentView: View {
             Spacer()
             Button(action: performQuickAction) {
                 HStack(spacing: 6) {
-                    if model.isScanning { ProgressView().controlSize(.small) }
+                    if model.isCleanupScanning { ProgressView().controlSize(.small) }
                     Text(homeQuickActionButtonTitle.localized)
                 }
             }
             .buttonStyle(.bordered)
-            .disabled(model.isScanning)
+            .disabled(model.isCleanupScanning)
         }
         .padding(13)
         .background(Color.accentColor.opacity(0.055), in: RoundedRectangle(cornerRadius: 11))
     }
 
     private var homeQuickActionDescription: String {
-        if model.isScanning { return L10n.string("Looking for caches and logs that are safe to clean…") }
+        if model.isCleanupScanning { return L10n.string("Looking for caches and logs that are safe to clean…") }
         guard let cleanableBytes = model.cleanableBytes else {
             return L10n.string("Scan caches, logs, and regenerable developer tool files")
         }
         if cleanableBytes == 0 { return L10n.string("The latest scan found nothing to clean") }
-        return L10n.format("The latest scan found ", formatted(cleanableBytes))
+        return L10n.format("The latest scan found %@ of cleanable content", formatted(cleanableBytes))
     }
 
     private var homeQuickActionButtonTitle: String {
-        if model.isScanning { return "Scanning" }
+        if model.isCleanupScanning { return "Scanning" }
         if model.selectedCount > 0 { return "Clean Selected" }
         return model.cleanableBytes == nil ? "Start Scan" : "Scan Again"
     }
@@ -567,7 +568,7 @@ struct ContentView: View {
     private func homeStorageDescription(_ storage: SystemStorageSnapshot) -> String {
         guard storage.totalCapacity > 0 else { return L10n.string("Reading system disk capacity") }
         return L10n.format(
-            "",
+            "%@ available of %@ total",
             formatted(storage.availableCapacity),
             formatted(storage.totalCapacity)
         )
@@ -576,7 +577,7 @@ struct ContentView: View {
     private var junkView: some View {
         VStack(spacing: 0) {
             header(
-                title: "Junk Cleanup",
+                title: "Cleanup",
                 subtitle: "Caches, logs, installers, and developer junk",
                 trailing: AnyView(
                     Group {
@@ -589,7 +590,7 @@ struct ContentView: View {
                 )
             )
                 .padding(18)
-            if model.isScanning {
+            if model.isCleanupScanning {
                 scanningView
             } else if model.items.isEmpty {
                 junkEmptyView
@@ -617,14 +618,14 @@ struct ContentView: View {
                             endPoint: .bottomTrailing
                         )
                     )
-                    .frame(width: 176, height: 176)
+                    .frame(width: 150, height: 150)
                 Circle()
                     .stroke(Color.accentColor.opacity(0.10), lineWidth: 1)
-                    .frame(width: 146, height: 146)
+                    .frame(width: 124, height: 124)
                 Image(systemName: "sparkles.rectangle.stack.fill")
                     .symbolRenderingMode(.palette)
                     .foregroundStyle(Color.accentColor, Color.accentColor.opacity(0.22))
-                    .font(.system(size: 62, weight: .light))
+                    .font(.system(size: 52, weight: .light))
             }
             .padding(.bottom, 24)
 
@@ -754,6 +755,9 @@ struct ContentView: View {
     private var junkDetailList: some View {
         ScrollView {
             LazyVStack(spacing: 10) {
+                if aiAssistanceEnabled {
+                    cleanupAIInsightCard
+                }
                 ForEach(model.junkGroups) { group in
                     DisclosureGroup(isExpanded: expansionBinding(group.id)) {
                         groupDetails(group)
@@ -777,6 +781,49 @@ struct ContentView: View {
                     .background { RoundedRectangle(cornerRadius: 9).fill(Color(nsColor: .controlBackgroundColor)) }
                 }
             }.padding(14)
+        }
+    }
+
+    private var cleanupAIInsightCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 9) {
+                Image(systemName: "sparkles")
+                    .foregroundStyle(.purple)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("AI Cleanup Insight").font(.system(size: 14, weight: .semibold))
+                    Text("Uses category totals and risk labels only; file contents are never sent")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                Button(action: model.generateCleanupAIInsight) {
+                    if model.isGeneratingCleanupAIInsight {
+                        ProgressView().controlSize(.small)
+                    } else {
+                        Label((model.cleanupAIInsight == nil ? "Analyze with AI" : "Analyze Again").localized, systemImage: "wand.and.sparkles")
+                    }
+                }
+                .disabled(model.isGeneratingCleanupAIInsight)
+            }
+
+            if let insight = model.cleanupAIInsight {
+                Text(insight)
+                    .font(.system(size: 12))
+                    .textSelection(.enabled)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            if let error = model.cleanupAIError {
+                Label(error.localized, systemImage: "exclamationmark.triangle")
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                    .textSelection(.enabled)
+            }
+        }
+        .padding(14)
+        .background(Color.purple.opacity(0.07), in: RoundedRectangle(cornerRadius: 10))
+        .overlay {
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.purple.opacity(0.18), lineWidth: 0.5)
         }
     }
 
@@ -1577,7 +1624,7 @@ struct ContentView: View {
             Image(systemName: icon).font(.system(size: 18)).foregroundStyle(Color.accentColor).frame(width: 24)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title.localized).font(.system(size: 12, weight: .semibold))
-                Text(detail.localized).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
+                Text(detail.localized).font(.caption2).foregroundStyle(.secondary).lineLimit(2)
             }
             Spacer()
             Button(buttonTitle, action: openLoginItemsSettings).buttonStyle(.bordered).controlSize(.small)
@@ -1679,7 +1726,7 @@ struct ContentView: View {
             return L10n.string("This will be removed from macOS Login Items.")
         }
         let missing = item.assessment == .likelyResidue ? L10n.string("The corresponding file no longer exists.") : ""
-        return L10n.format("", missing, item.name)
+        return L10n.format("%@ “%@” will be removed from Login Items. App files will not be deleted.", missing, item.name)
     }
 
     private var backgroundItemRemovalMessage: String {
@@ -1687,14 +1734,14 @@ struct ContentView: View {
         let assessment = item.assessment == .likelyResidue
             ? L10n.string("The target program was not found; this may be an uninstall leftover.")
             : item.assessment.explanation.localized + L10n.string(".")
-        return L10n.format("", assessment, item.label)
+        return L10n.format("%@ “%@”'s launch configuration will be moved to Trash. Running processes will not be terminated.", assessment, item.label)
     }
 
     private var registeredBackgroundTaskRemovalMessage: String {
         guard let item = model.registeredBackgroundTaskRemovalCandidate else {
             return L10n.string("The app leftover in Trash will be permanently deleted.")
         }
-        return L10n.format("“", item.name)
+        return L10n.format("“%@” is already in Trash. Continuing permanently deletes this app leftover and cannot be undone; the macOS background record may disappear after you sign in again.", item.name)
     }
 
     private var extensionRemovalMessage: String {
@@ -1702,7 +1749,7 @@ struct ContentView: View {
         let assessment = item.assessment == .likelyResidue
             ? L10n.string("No matching owning app was found; this may be an uninstall leftover.")
             : item.assessment.explanation.localized + L10n.string(".")
-        return L10n.format("", assessment, item.name)
+        return L10n.format("%@ “%@” will be moved to Trash. Its features will no longer load after you sign in again.", assessment, item.name)
     }
 
     private func extensionKindExplanation(_ kind: InstalledExtensionKind) -> String {
@@ -2083,7 +2130,7 @@ struct ContentView: View {
     private var portTerminationMessage: String {
         guard let port = model.portTerminationCandidate else { return "" }
         return L10n.format(
-            "",
+            "%@ (PID %d) is using %@ %@:%@. Graceful quit is safer; use force quit only if the process is unresponsive.",
             port.processName,
             port.processIdentifier,
             port.transport.rawValue,
@@ -2136,9 +2183,15 @@ struct ContentView: View {
     private func performanceContent(_ snapshot: PerformanceSnapshot) -> some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 14) {
-                HStack(spacing: 12) {
-                    cpuMetricCard(snapshot)
-                    memoryMetricCard(snapshot)
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 12) {
+                        cpuMetricCard(snapshot)
+                        memoryMetricCard(snapshot)
+                    }
+                    VStack(spacing: 12) {
+                        cpuMetricCard(snapshot)
+                        memoryMetricCard(snapshot)
+                    }
                 }
                 computeHardwareCard(snapshot.computeHardware)
                 performanceTrendCard
@@ -2184,7 +2237,7 @@ struct ContentView: View {
         let color = memoryPressureColor(snapshot.memoryPressureLevel)
         return VStack(alignment: .leading, spacing: 13) {
             HStack(spacing: 6) {
-                Label("Memory Pressure", systemImage: "memorychip.fill").font(.system(size: 14, weight: .semibold))
+                Label("Memory Usage", systemImage: "memorychip.fill").font(.system(size: 14, weight: .semibold))
                 Button { showingMemoryHelp.toggle() } label: {
                     Image(systemName: "questionmark.circle")
                         .font(.system(size: 12, weight: .semibold)).foregroundStyle(.secondary)
@@ -2230,6 +2283,7 @@ struct ContentView: View {
                     }
                 }
                 .frame(minWidth: 76)
+                .fixedSize(horizontal: true, vertical: false)
                 .buttonStyle(.bordered)
                 .controlSize(.small)
                 .disabled(model.isOptimizingMemory)
@@ -2250,7 +2304,7 @@ struct ContentView: View {
                 icon: "display",
                 title: "GPU",
                 subtitle: hardware.recommendedGPUWorkingSet > 0
-                    ? L10n.format("", hardware.gpuName, formatted(hardware.recommendedGPUWorkingSet))
+                    ? L10n.format("%@ · Recommended working set %@", hardware.gpuName, formatted(hardware.recommendedGPUWorkingSet))
                     : hardware.gpuName,
                 status: hardware.hasUnifiedMemory ? "Unified Memory" : "Dedicated Memory",
                 color: .blue
@@ -2323,7 +2377,7 @@ struct ContentView: View {
                 Text("Last 60 Seconds").font(.system(size: 14, weight: .semibold))
                 Spacer()
                 Label("CPU", systemImage: "circle.fill").foregroundStyle(Color.accentColor)
-                Label("Memory Pressure", systemImage: "circle.fill").foregroundStyle(Color.purple)
+                Label("Memory Usage", systemImage: "circle.fill").foregroundStyle(Color.purple)
             }
             .font(.caption)
             Chart(model.performanceHistory) { point in
@@ -2336,8 +2390,8 @@ struct ContentView: View {
                 .interpolationMethod(.catmullRom)
                 LineMark(
                     x: .value("Time", point.sampledAt),
-                    y: .value("Memory Pressure", point.memoryPressurePercent),
-                    series: .value("Metric", "Memory Pressure")
+                    y: .value("Memory Usage", point.memoryPressurePercent),
+                    series: .value("Metric", "Memory Usage")
                 )
                 .foregroundStyle(Color.purple)
                 .interpolationMethod(.catmullRom)
@@ -2367,7 +2421,10 @@ struct ContentView: View {
                 Picker("Sort", selection: $performanceSort) {
                     ForEach(PerformanceSort.allCases) { sort in Text(sort.rawValue.localized).tag(sort) }
                 }
-                .pickerStyle(.segmented).frame(width: 150)
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                .accessibilityLabel("Sort")
+                .frame(width: 150)
             }
             VStack(spacing: 0) {
                 HStack {
@@ -2439,7 +2496,7 @@ struct ContentView: View {
                 trailing: AnyView(
                     HStack(spacing: 8) {
                         Button("Choose Folder", action: model.chooseFolder)
-                        if model.isScanning {
+                        if model.isStorageAnalyzing {
                             Button("Cancel", role: .cancel, action: model.cancelScan)
                         } else if model.storageAnalysis != nil {
                             refreshControl(for: .files, action: model.scanStorageAnalysis)
@@ -2468,13 +2525,13 @@ struct ContentView: View {
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     ))
-                    .frame(width: 176, height: 176)
+                    .frame(width: 150, height: 150)
                 Circle().stroke(Color.accentColor.opacity(0.10), lineWidth: 1)
-                    .frame(width: 146, height: 146)
+                    .frame(width: 124, height: 124)
                 Image(systemName: "chart.pie.fill")
                     .symbolRenderingMode(.palette)
                     .foregroundStyle(Color.accentColor, Color.accentColor.opacity(0.20))
-                    .font(.system(size: 62, weight: .light))
+                    .font(.system(size: 52, weight: .light))
             }
             .padding(.bottom, 24)
 
@@ -2770,7 +2827,7 @@ struct ContentView: View {
     private var junkSummary: String {
         model.items.isEmpty
             ? L10n.string("Scan Caches and Logs")
-            : L10n.format("", formatted(model.selectedBytes))
+            : L10n.format("%@ cleanable", formatted(model.selectedBytes))
     }
 
     private func scanHome() { model.mode = .home; model.selectHomeAndScan() }

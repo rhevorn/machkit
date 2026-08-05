@@ -24,8 +24,8 @@ struct ComputeHardwareInfo: Sendable {
 
 enum MemoryPressureLevel: String, Sendable {
     case normal = "Normal"
-    case elevated = "High"
-    case critical = "Elevated"
+    case elevated = "Elevated"
+    case critical = "Critical"
 }
 
 struct ApplicationResourceUsage: Identifiable, Sendable {
@@ -202,7 +202,7 @@ final class PerformanceMonitor {
             }
             let name = application.localizedName
                 ?? application.bundleURL?.deletingPathExtension().lastPathComponent
-                ?? L10n.format("Process ", pid)
+                ?? L10n.format("Process %d", pid)
             results.append(ApplicationResourceUsage(
                 processIdentifier: pid,
                 name: name,

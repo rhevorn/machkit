@@ -16,11 +16,11 @@ struct SiftApp: App {
     var body: some Scene {
         WindowGroup("Sift") {
             ContentView()
-                .frame(minWidth: 620, minHeight: 720)
+                .frame(minWidth: 760, minHeight: 720)
                 .environment(\.locale, language.locale)
                 .preferredColorScheme(appearance.colorScheme)
         }
         .windowStyle(.hiddenTitleBar)
-        .defaultSize(width: 720, height: 820)
+        .defaultSize(width: 960, height: 820)
     }
 }

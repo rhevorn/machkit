@@ -2,6 +2,24 @@
 import Foundation
 import Testing
 
+private let repositoryRoot = URL(fileURLWithPath: #filePath)
+    .deletingLastPathComponent()
+    .deletingLastPathComponent()
+    .deletingLastPathComponent()
+
+private func formatPlaceholders(in value: String) -> [String] {
+    let expression = try! NSRegularExpression(pattern: #"%(?:\d+\$)?(?:lld|llu|ld|lu|zd|zu|d|u|f|g|s|c|@)"#)
+    let range = NSRange(value.startIndex..., in: value)
+    return expression.matches(in: value, range: range).compactMap { match in
+        guard let range = Range(match.range, in: value) else { return nil }
+        return String(value[range]).replacingOccurrences(
+            of: #"%\d+\$"#,
+            with: "%",
+            options: .regularExpression
+        )
+    }.sorted()
+}
+
 @Test func developerRulesDoNotTargetInstalledDependencies() {
     let paths = DefaultRules.conservative.map(\.relativePath)
     #expect(paths.allSatisfy { !$0.contains("node_modules") })
@@ -415,4 +433,70 @@ import Testing
     #expect(!FileManager.default.fileExists(atPath: trashedApp.path))
     let missingResult = await scanner.removeRegisteredBackgroundTaskResidue(trashedItem, home: home)
     #expect(missingResult?.contains("database still retains this old path") == true)
+}
+
+@Test func aiEndpointsRequireEncryptedTransportExceptForLoopbackDevelopment() {
+    #expect(AIEndpointBuilder.chatCompletionsURL(baseURL: "https://api.openai.com/v1")?.absoluteString ==
+        "https://api.openai.com/v1/chat/completions")
+    #expect(AIEndpointBuilder.chatCompletionsURL(baseURL: "https://example.com/v1/chat/completions")?.absoluteString ==
+        "https://example.com/v1/chat/completions")
+    #expect(AIEndpointBuilder.chatCompletionsURL(baseURL: "http://example.com/v1") == nil)
+    #expect(AIEndpointBuilder.chatCompletionsURL(baseURL: "http://localhost:11434/v1")?.absoluteString ==
+        "http://localhost:11434/v1/chat/completions")
+    #expect(AIEndpointBuilder.chatCompletionsURL(baseURL: "http://127.0.0.1:1234")?.absoluteString ==
+        "http://127.0.0.1:1234/chat/completions")
+}
+
+@Test func localizationCatalogHasNoEmptyKeysAndKeepsFormatArgumentsCompatible() throws {
+    let catalogURL = repositoryRoot.appending(path: "Resources/Localizable.xcstrings")
+    let data = try Data(contentsOf: catalogURL)
+    let object = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
+    let strings = try #require(object["strings"] as? [String: Any])
+
+    #expect(strings[""] == nil)
+    for (key, rawEntry) in strings {
+        guard let entry = rawEntry as? [String: Any],
+              let localizations = entry["localizations"] as? [String: Any] else { continue }
+        let expected = formatPlaceholders(in: key)
+        for (locale, rawLocalization) in localizations {
+            guard let localization = rawLocalization as? [String: Any],
+                  let unit = localization["stringUnit"] as? [String: Any],
+                  let value = unit["value"] as? String else { continue }
+            #expect(
+                formatPlaceholders(in: value) == expected,
+                "Placeholder mismatch for \(locale) translation of \(key)"
+            )
+        }
+    }
+}
+
+@Test func appSourcesNeverUseAnEmptyLocalizationFormatKey() throws {
+    let sources = repositoryRoot.appending(path: "App/Sources")
+    let files = try FileManager.default.contentsOfDirectory(
+        at: sources,
+        includingPropertiesForKeys: nil
+    ).filter { $0.pathExtension == "swift" }
+    let expression = try NSRegularExpression(pattern: #"L10n\s*\.\s*format\s*\(\s*\"\""#)
+
+    for file in files {
+        let source = try String(contentsOf: file, encoding: .utf8)
+        let range = NSRange(source.startIndex..., in: source)
+        #expect(
+            expression.firstMatch(in: source, range: range) == nil,
+            "Empty localization format key in \(file.lastPathComponent)"
+        )
+    }
+}
+
+@Test func changingPagesDoesNotCancelOrClearAnActiveCleanupScan() throws {
+    let sourceURL = repositoryRoot.appending(path: "App/Sources/CleanerViewModel.swift")
+    let source = try String(contentsOf: sourceURL, encoding: .utf8)
+    let start = try #require(source.range(of: "func changeMode(_ newMode: FeatureMode)"))
+    let tail = source[start.lowerBound...]
+    let end = try #require(tail.range(of: "\n    func ", range: start.upperBound..<tail.endIndex))
+    let implementation = String(tail[..<end.lowerBound])
+
+    #expect(!implementation.contains("scanTask?.cancel()"))
+    #expect(!implementation.contains("items = []"))
+    #expect(!implementation.contains("selectedIDs = []"))
 }

@@ -2,91 +2,22 @@ import AppKit
 import Foundation
 import SwiftUI
 
-enum AppPreferenceKey {
-    static let language = "appLanguage"
-    static let appearance = "appAppearance"
-}
-
-enum AppLanguage: String, CaseIterable, Identifiable {
-    case system
-    case simplifiedChinese = "zh-Hans"
-    case traditionalChinese = "zh-Hant"
-    case english = "en"
-    case japanese = "ja"
-    case korean = "ko"
-    case spanish = "es"
-    case french = "fr"
-    case german = "de"
-    case brazilianPortuguese = "pt-BR"
-    case russian = "ru"
-
-    var id: String { rawValue }
-
-    var title: String {
-        switch self {
-        case .system: "Follow System".localized
-        case .simplifiedChinese: "简体中文"
-        case .traditionalChinese: "繁體中文"
-        case .english: "English"
-        case .japanese: "日本語"
-        case .korean: "한국어"
-        case .spanish: "Español"
-        case .french: "Français"
-        case .german: "Deutsch"
-        case .brazilianPortuguese: "Português (Brasil)"
-        case .russian: "Русский"
-        }
-    }
-
-    var locale: Locale {
-        switch self {
-        case .system: .autoupdatingCurrent
-        case .simplifiedChinese: Locale(identifier: "zh-Hans")
-        case .traditionalChinese: Locale(identifier: "zh-Hant")
-        case .english: Locale(identifier: "en")
-        case .japanese: Locale(identifier: "ja")
-        case .korean: Locale(identifier: "ko")
-        case .spanish: Locale(identifier: "es")
-        case .french: Locale(identifier: "fr")
-        case .german: Locale(identifier: "de")
-        case .brazilianPortuguese: Locale(identifier: "pt-BR")
-        case .russian: Locale(identifier: "ru")
-        }
-    }
-
-    static var selected: AppLanguage {
-        let rawValue = UserDefaults.standard.string(forKey: AppPreferenceKey.language) ?? system.rawValue
-        return AppLanguage(rawValue: rawValue) ?? .system
-    }
-}
-
-enum AppAppearance: String, CaseIterable, Identifiable {
-    case system
-    case light
-    case dark
-
-    var id: String { rawValue }
-
-    var title: String {
-        switch self {
-        case .system: "System"
-        case .light: "Light"
-        case .dark: "Dark"
-        }
-    }
-
-    var colorScheme: ColorScheme? {
-        switch self {
-        case .system: nil
-        case .light: .light
-        case .dark: .dark
-        }
-    }
-}
-
 struct AppSettingsView: View {
     @AppStorage(AppPreferenceKey.language) private var languageRawValue = AppLanguage.system.rawValue
     @AppStorage(AppPreferenceKey.appearance) private var appearanceRawValue = AppAppearance.system.rawValue
+    @AppStorage(AppPreferenceKey.aiAssistanceEnabled) private var aiAssistanceEnabled = false
+    @AppStorage(AppPreferenceKey.aiBaseURL) private var aiBaseURL = "https://api.openai.com/v1"
+    @AppStorage(AppPreferenceKey.aiModel) private var aiModel = ""
+    @AppStorage(AppPreferenceKey.aiModels) private var aiModelsJSON = "[]"
+    @State private var aiAPIKey = ""
+    @State private var aiKeyStatus: String?
+    @State private var newAIModel = ""
+
+    private var aiModels: [String] {
+        guard let data = aiModelsJSON.data(using: .utf8),
+              let values = try? JSONDecoder().decode([String].self, from: data) else { return [] }
+        return values
+    }
 
     private var language: AppLanguage {
         AppLanguage(rawValue: languageRawValue) ?? .system
@@ -155,7 +86,7 @@ struct AppSettingsView: View {
                         }
                         .labelsHidden()
                         .pickerStyle(.segmented)
-                        .frame(width: 270)
+                        .frame(minWidth: 180, idealWidth: 270, maxWidth: 340)
                     }
                 }
                 .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 12))
@@ -169,14 +100,130 @@ struct AppSettingsView: View {
                     .foregroundStyle(.secondary)
                     .padding(.leading, 4)
                     .padding(.top, 2)
+
+                Text("AI Features".localized)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(.secondary)
+                    .padding(.leading, 4)
+                    .padding(.top, 14)
+
+                VStack(spacing: 0) {
+                    settingRow(
+                        icon: "sparkles",
+                        color: .purple,
+                        title: "AI Assistance",
+                        detail: "Enable AI explanations and personalized recommendations"
+                    ) {
+                        Toggle("AI Assistance", isOn: $aiAssistanceEnabled)
+                            .labelsHidden()
+                            .toggleStyle(.switch)
+                    }
+
+                    Divider().padding(.leading, 64)
+
+                    settingRow(
+                        icon: "link",
+                        color: .teal,
+                        title: "Base URL",
+                        detail: "OpenAI-compatible API endpoint"
+                    ) {
+                        TextField("Base URL", text: $aiBaseURL)
+                            .textFieldStyle(.roundedBorder)
+                            .frame(minWidth: 180, idealWidth: 300, maxWidth: 340)
+                            .disabled(!aiAssistanceEnabled)
+                    }
+
+                    Divider().padding(.leading, 64)
+
+                    settingRow(
+                        icon: "key",
+                        color: .orange,
+                        title: "API Key",
+                        detail: aiKeyStatus ?? "Stored securely in the macOS Keychain"
+                    ) {
+                        HStack(spacing: 8) {
+                            SecureField("API Key", text: $aiAPIKey)
+                                .textFieldStyle(.roundedBorder)
+                                .onSubmit(saveAPIKey)
+                            Button("Save", action: saveAPIKey)
+                        }
+                        .frame(minWidth: 180, idealWidth: 300, maxWidth: 340)
+                        .disabled(!aiAssistanceEnabled)
+                    }
+
+                    Divider().padding(.leading, 64)
+
+                    settingRow(
+                        icon: "cpu",
+                        color: .blue,
+                        title: "Model",
+                        detail: "Model identifier used for AI requests"
+                    ) {
+                        HStack(spacing: 8) {
+                            Picker("Model", selection: $aiModel) {
+                                if aiModels.isEmpty {
+                                    Text("No models added").tag("")
+                                } else {
+                                    ForEach(aiModels, id: \.self) { Text(verbatim: $0).tag($0) }
+                                }
+                            }
+                            .labelsHidden()
+                            .frame(minWidth: 150, idealWidth: 220, maxWidth: 270)
+
+                            Button {
+                                removeSelectedModel()
+                            } label: {
+                                Image(systemName: "minus")
+                            }
+                            .disabled(!aiAssistanceEnabled || aiModel.isEmpty)
+                        }
+                        .disabled(!aiAssistanceEnabled)
+                    }
+
+                    Divider().padding(.leading, 64)
+
+                    settingRow(
+                        icon: "plus",
+                        color: .green,
+                        title: "Add Model",
+                        detail: "Add a model identifier supported by this endpoint"
+                    ) {
+                        HStack(spacing: 8) {
+                            TextField("Model identifier", text: $newAIModel)
+                                .textFieldStyle(.roundedBorder)
+                                .onSubmit(addModel)
+                            Button("Add", action: addModel)
+                                .disabled(newAIModel.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                        }
+                        .frame(minWidth: 180, idealWidth: 300, maxWidth: 340)
+                        .disabled(!aiAssistanceEnabled)
+                    }
+                }
+                .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 12))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color(nsColor: .separatorColor).opacity(0.45), lineWidth: 0.5)
+                }
+
+                Label(
+                    "AI only provides explanations and recommendations. It never deletes files or ends processes automatically.".localized,
+                    systemImage: "shield.checkered"
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.leading, 4)
+                .padding(.top, 2)
             }
             .padding(.horizontal, 28)
             .padding(.top, 28)
             .padding(.bottom, 36)
-            .frame(maxWidth: 680)
             .frame(maxWidth: .infinity, alignment: .top)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onAppear {
+            if aiAPIKey.isEmpty { aiAPIKey = AIKeychain.load() }
+            if aiModels.isEmpty, !aiModel.isEmpty { saveModels([aiModel]) }
+        }
     }
 
     private func settingRow<Control: View>(
@@ -205,5 +252,37 @@ struct AppSettingsView: View {
             Image(systemName: systemName).foregroundStyle(color)
         }
         .frame(width: 34, height: 34)
+    }
+
+    private func addModel() {
+        let value = newAIModel.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !value.isEmpty else { return }
+        var models = aiModels
+        if !models.contains(value) { models.append(value) }
+        saveModels(models)
+        aiModel = value
+        newAIModel = ""
+    }
+
+    private func removeSelectedModel() {
+        var models = aiModels
+        models.removeAll { $0 == aiModel }
+        saveModels(models)
+        aiModel = models.first ?? ""
+    }
+
+    private func saveModels(_ models: [String]) {
+        guard let data = try? JSONEncoder().encode(models),
+              let value = String(data: data, encoding: .utf8) else { return }
+        aiModelsJSON = value
+    }
+
+    private func saveAPIKey() {
+        switch AIKeychain.save(aiAPIKey) {
+        case .success:
+            aiKeyStatus = aiAPIKey.isEmpty ? "API Key removed".localized : "API Key saved".localized
+        case .failure(let error):
+            aiKeyStatus = error.localizedDescription
+        }
     }
 }
