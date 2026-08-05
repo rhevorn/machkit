@@ -167,7 +167,3 @@ Tests/
 
 Sift.xcodeproj/    正式 macOS App 工程、App Target、测试 Target 和共享 Scheme
 ```
-
-## 当前状态
-
-当前工程版本为 `0.3.0`（build 4），仍处于开发阶段。执行清理前请检查候选项目，尤其是偏好设置、应用数据、容器、全局登录项和无法确认归属的扩展。
