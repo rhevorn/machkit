@@ -22,6 +22,12 @@ xcuserdata/
 .env.*
 !.env.example
 
+# GitHub Pages website
+/Website/node_modules/
+/Website/dist/
+/Website/.vite/
+/Website/qa-*.png
+
 # macOS
 .DS_Store
 .AppleDouble
