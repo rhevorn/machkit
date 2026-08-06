@@ -8,13 +8,14 @@ public actor ApplicationScanner {
     }
 
     public func applications(in root: URL) -> [InstalledApplication] {
-        guard let children = try? fileManager.contentsOfDirectory(
+        guard let enumerator = fileManager.enumerator(
             at: root,
             includingPropertiesForKeys: [.isApplicationKey, .totalFileAllocatedSizeKey],
-            options: [.skipsHiddenFiles]
+            options: [.skipsHiddenFiles, .skipsPackageDescendants]
         ) else { return [] }
 
-        return children.compactMap { url in
+        return enumerator.compactMap { entry in
+            guard let url = entry as? URL else { return nil }
             guard url.pathExtension.lowercased() == "app",
                   let bundle = Bundle(url: url) else { return nil }
             return InstalledApplication(
@@ -38,6 +39,25 @@ public actor ApplicationScanner {
             }
         }
         return result.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+    }
+
+    /// Reads app identifiers without calculating bundle sizes. Cleanup uses this
+    /// lightweight inventory so large apps such as Xcode cannot stall the final rule.
+    public func installedBundleIdentifiers(in roots: [URL]) -> Set<String> {
+        var identifiers = Set<String>()
+        for root in roots {
+            guard let enumerator = fileManager.enumerator(
+                at: root,
+                includingPropertiesForKeys: [.isApplicationKey],
+                options: [.skipsHiddenFiles, .skipsPackageDescendants]
+            ) else { continue }
+            while let url = enumerator.nextObject() as? URL {
+                guard url.pathExtension.lowercased() == "app",
+                      let identifier = Bundle(url: url)?.bundleIdentifier else { continue }
+                identifiers.insert(identifier)
+            }
+        }
+        return identifiers
     }
 
     public func commandLineTools(home: URL) -> [CommandLineTool] {
@@ -142,6 +162,108 @@ public actor ApplicationScanner {
         }
     }
 
+    /// Finds identifier-based data whose owning app is no longer installed.
+    /// Results are review-only candidates: a missing app bundle is useful
+    /// evidence, but helpers and command-line tools can own similar files.
+    public func orphanedResidues(
+        installedBundleIdentifiers: Set<String>,
+        home: URL,
+        onProgress: (@Sendable (ApplicationResidueScanProgress) -> Void)? = nil
+    ) async -> [ApplicationResidueGroup] {
+        let locations: [(String, ResidueKind, String?)] = [
+            ("Library/Caches", .cache, nil),
+            ("Library/Preferences", .preferences, ".plist"),
+            ("Library/Application Support", .support, nil),
+            ("Library/Saved Application State", .state, ".savedState"),
+            ("Library/Logs", .logs, nil),
+            ("Library/Containers", .container, nil),
+            ("Library/Group Containers", .container, nil),
+            ("Library/Application Scripts", .support, nil),
+            ("Library/HTTPStorages", .cache, nil),
+            ("Library/WebKit", .cache, nil),
+            ("Library/Cookies", .cache, ".binarycookies")
+        ]
+        var candidates: [String: [(url: URL, kind: ResidueKind)]] = [:]
+
+        for (relativeRoot, kind, suffix) in locations {
+            let root = home.appending(path: relativeRoot, directoryHint: .isDirectory)
+            guard let children = try? fileManager.contentsOfDirectory(
+                at: root,
+                includingPropertiesForKeys: [.isDirectoryKey, .isRegularFileKey],
+                options: [.skipsHiddenFiles]
+            ) else { continue }
+
+            for child in children {
+                var identifier = child.lastPathComponent
+                if let suffix {
+                    guard identifier.hasSuffix(suffix) else { continue }
+                    identifier.removeLast(suffix.count)
+                }
+                guard looksLikeThirdPartyBundleIdentifier(identifier),
+                      !belongsToInstalledApplication(identifier, installed: installedBundleIdentifiers) else { continue }
+                candidates[identifier, default: []].append((child, kind))
+            }
+        }
+
+        let qualifiedCandidates = candidates.compactMap { identifier, evidence -> (String, [(url: URL, kind: ResidueKind)])? in
+            var seenPaths = Set<String>()
+            let unique = evidence.filter { seenPaths.insert($0.url.standardizedFileURL.path).inserted }
+            let hasStrongEvidence = unique.contains {
+                $0.kind == .container || $0.kind == .state || $0.kind == .preferences || $0.kind == .support
+            }
+            guard unique.count >= 2 || hasStrongEvidence else { return nil }
+            return (identifier, unique)
+        }
+        let totalPaths = qualifiedCandidates.reduce(0) { $0 + $1.1.count }
+        var completedPaths = 0
+        var inspectedFiles = 0
+        var lastProgressUpdate = Date.distantPast
+        var groups: [ApplicationResidueGroup] = []
+
+        for (identifier, evidence) in qualifiedCandidates {
+            guard !Task.isCancelled else { break }
+            var residues: [ApplicationResidue] = []
+            for item in evidence {
+                var currentPathInspectedFiles = 0
+                let bytes = await allocatedSizeCooperatively(at: item.url) { visited in
+                    inspectedFiles += visited
+                    currentPathInspectedFiles += visited
+                    let now = Date()
+                    if now.timeIntervalSince(lastProgressUpdate) >= 0.15 {
+                        lastProgressUpdate = now
+                        onProgress?(ApplicationResidueScanProgress(
+                            completedPaths: completedPaths,
+                            totalPaths: totalPaths,
+                            inspectedFiles: inspectedFiles,
+                            currentPathInspectedFiles: currentPathInspectedFiles
+                        ))
+                    }
+                }
+                residues.append(ApplicationResidue(
+                    url: item.url,
+                    kind: item.kind,
+                    bytes: bytes,
+                    risk: .review
+                ))
+                completedPaths += 1
+                onProgress?(ApplicationResidueScanProgress(
+                    completedPaths: completedPaths,
+                    totalPaths: totalPaths,
+                    inspectedFiles: inspectedFiles,
+                    currentPathInspectedFiles: 0
+                ))
+            }
+            groups.append(ApplicationResidueGroup(
+                identifier: identifier,
+                residues: residues.sorted { $0.bytes > $1.bytes }
+            ))
+        }
+        return groups.sorted {
+            if $0.bytes != $1.bytes { return $0.bytes > $1.bytes }
+            return $0.identifier.localizedStandardCompare($1.identifier) == .orderedAscending
+        }
+    }
+
     public func moveToTrash(
         app: InstalledApplication,
         residues: [ApplicationResidue],
@@ -194,6 +316,63 @@ public actor ApplicationScanner {
             }
         }
         return total
+    }
+
+    private func allocatedSizeCooperatively(
+        at url: URL,
+        onVisited: (Int) -> Void
+    ) async -> Int64 {
+        let keys: Set<URLResourceKey> = [.isRegularFileKey, .fileAllocatedSizeKey]
+        if let values = try? url.resourceValues(forKeys: keys), values.isRegularFile == true {
+            onVisited(1)
+            return Int64(values.fileAllocatedSize ?? 0)
+        }
+        guard let enumerator = fileManager.enumerator(
+            at: url,
+            includingPropertiesForKeys: Array(keys),
+            options: [.skipsHiddenFiles]
+        ) else { return 0 }
+        var total: Int64 = 0
+        var pendingVisited = 0
+        while let child = enumerator.nextObject() as? URL {
+            guard !Task.isCancelled else { break }
+            pendingVisited += 1
+            if let values = try? child.resourceValues(forKeys: keys), values.isRegularFile == true {
+                total += Int64(values.fileAllocatedSize ?? 0)
+            }
+            if pendingVisited >= 512 {
+                onVisited(pendingVisited)
+                pendingVisited = 0
+                await Task.yield()
+            }
+        }
+        if pendingVisited > 0 { onVisited(pendingVisited) }
+        return total
+    }
+
+    private func looksLikeThirdPartyBundleIdentifier(_ value: String) -> Bool {
+        let normalized = value
+            .replacingOccurrences(of: "group.", with: "", options: [.anchored])
+            .replacingOccurrences(of: "systemgroup.", with: "", options: [.anchored])
+        let components = normalized.split(separator: ".", omittingEmptySubsequences: false)
+        guard components.count >= 3,
+              !value.hasPrefix("com.apple."),
+              !normalized.hasPrefix("com.apple.") else { return false }
+        let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-_"))
+        return components.allSatisfy { component in
+            !component.isEmpty && component.unicodeScalars.allSatisfy(allowed.contains)
+        }
+    }
+
+    private func belongsToInstalledApplication(_ identifier: String, installed: Set<String>) -> Bool {
+        let identifier = identifier
+            .replacingOccurrences(of: "group.", with: "", options: [.anchored])
+            .replacingOccurrences(of: "systemgroup.", with: "", options: [.anchored])
+        return installed.contains { owner in
+            identifier == owner
+                || identifier.hasPrefix(owner + ".")
+                || owner.hasPrefix(identifier + ".")
+        }
     }
 
     private func packageDirectories(

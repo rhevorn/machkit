@@ -1,6 +1,15 @@
 import Foundation
 
 public enum DefaultRules {
+    public static let uninstallLeftovers = ScanRule(
+        id: "uninstall-leftovers",
+        title: "Uninstall Leftovers",
+        relativePath: "Library",
+        minimumAgeDays: 0,
+        risk: .review,
+        explanation: "Files whose app is no longer installed; review them before moving them to Trash."
+    )
+
     /// Conservative rules only. These paths are resolved beneath a directory
     /// explicitly chosen by the user; no absolute path is accepted here.
     public static let conservative: [ScanRule] = [
@@ -9,6 +18,7 @@ public enum DefaultRules {
             title: "User Caches",
             relativePath: "Library/Caches",
             minimumAgeDays: 30,
+            excludedRelativePaths: ["Homebrew", "CocoaPods", "org.swift.swiftpm", "Yarn", "pip"],
             risk: .safe,
             explanation: "Regular caches unchanged for 30 days; apps may recreate them at next launch."
         ),
@@ -46,6 +56,62 @@ public enum DefaultRules {
             allowedExtensions: ["log"],
             risk: .safe,
             explanation: "Old npm debug logs."
+        ),
+        ScanRule(
+            id: "homebrew-download-cache",
+            title: "Homebrew Download Cache",
+            relativePath: "Library/Caches/Homebrew/downloads",
+            minimumAgeDays: 30,
+            risk: .safe,
+            explanation: "Downloaded formula and cask archives; installed packages in Cellar and Caskroom are not touched."
+        ),
+        ScanRule(
+            id: "cocoapods-cache",
+            title: "CocoaPods Cache",
+            relativePath: "Library/Caches/CocoaPods",
+            minimumAgeDays: 30,
+            risk: .safe,
+            explanation: "Downloaded pod archives and specs can be fetched again; project Pods directories are not scanned."
+        ),
+        ScanRule(
+            id: "swiftpm-cache",
+            title: "Swift Package Manager Cache",
+            relativePath: "Library/Caches/org.swift.swiftpm",
+            minimumAgeDays: 30,
+            risk: .safe,
+            explanation: "Swift package metadata and downloads can be resolved again; project checkouts and source packages are preserved."
+        ),
+        ScanRule(
+            id: "yarn-cache",
+            title: "Yarn Download Cache",
+            relativePath: "Library/Caches/Yarn",
+            minimumAgeDays: 30,
+            risk: .safe,
+            explanation: "Global Yarn download cache; project node_modules and offline mirrors are not scanned."
+        ),
+        ScanRule(
+            id: "gradle-cache",
+            title: "Gradle Build Cache",
+            relativePath: ".gradle/caches",
+            minimumAgeDays: 30,
+            risk: .review,
+            explanation: "Gradle can rebuild or redownload these files, but the next Android or JVM build may be much slower."
+        ),
+        ScanRule(
+            id: "android-cache",
+            title: "Android Tool Cache",
+            relativePath: ".android/cache",
+            minimumAgeDays: 30,
+            risk: .safe,
+            explanation: "Regenerable Android tool downloads and metadata; SDK platforms, emulators, and projects are not scanned."
+        ),
+        ScanRule(
+            id: "simulator-cache",
+            title: "Apple Simulator Cache",
+            relativePath: "Library/Developer/CoreSimulator/Caches",
+            minimumAgeDays: 30,
+            risk: .review,
+            explanation: "Regenerable simulator caches only; simulator devices, installed runtimes, and app data are preserved."
         ),
         ScanRule(
             id: "python-pip-cache",

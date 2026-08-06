@@ -29,6 +29,49 @@ private func formatPlaceholders(in value: String) -> [String] {
     #expect(paths.allSatisfy { !$0.contains("Cellar") })
 }
 
+@Test func broadCacheRuleExcludesDedicatedDeveloperCacheRoots() throws {
+    let broadRule = try #require(DefaultRules.conservative.first { $0.id == "user-caches" })
+    let nestedRules = DefaultRules.conservative.filter {
+        $0.id != broadRule.id && $0.relativePath.hasPrefix("Library/Caches/")
+    }
+
+    for rule in nestedRules {
+        let relative = String(rule.relativePath.dropFirst("Library/Caches/".count))
+        #expect(broadRule.excludedRelativePaths.contains { excluded in
+            relative == excluded || relative.hasPrefix(excluded + "/")
+        }, "Dedicated cache rule overlaps the broad user cache rule: \(rule.id)")
+    }
+}
+
+@Test func scannerDoesNotDescendIntoExcludedCacheRoots() async throws {
+    let root = FileManager.default.temporaryDirectory
+        .appending(path: "sift-exclusions-\(UUID().uuidString)", directoryHint: .isDirectory)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let cache = root.appending(path: "Library/Caches", directoryHint: .isDirectory)
+    let ordinary = cache.appending(path: "ordinary/old.data")
+    let excluded = cache.appending(path: "Developer/old.data")
+    try FileManager.default.createDirectory(at: ordinary.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try FileManager.default.createDirectory(at: excluded.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try Data("ordinary".utf8).write(to: ordinary)
+    try Data("excluded".utf8).write(to: excluded)
+    let oldDate = Date(timeIntervalSinceNow: -3 * 24 * 60 * 60)
+    try FileManager.default.setAttributes([.modificationDate: oldDate], ofItemAtPath: ordinary.path)
+    try FileManager.default.setAttributes([.modificationDate: oldDate], ofItemAtPath: excluded.path)
+
+    let rule = ScanRule(
+        id: "cache",
+        title: "Cache",
+        relativePath: "Library/Caches",
+        minimumAgeDays: 1,
+        excludedRelativePaths: ["Developer"],
+        risk: .safe,
+        explanation: ""
+    )
+    let items = await Scanner().scan(root: root, rules: [rule])
+
+    #expect(items.map { $0.url.resolvingSymlinksInPath().path } == [ordinary.resolvingSymlinksInPath().path])
+}
+
 @Test func fileAnalysisNeverDefaultsToSafeDeletion() async throws {
     let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
     try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
@@ -487,4 +530,38 @@ private func formatPlaceholders(in value: String) -> [String] {
     #expect(!implementation.contains("scanTask?.cancel()"))
     #expect(!implementation.contains("items = []"))
     #expect(!implementation.contains("selectedIDs = []"))
+}
+
+@Test func orphanedApplicationResiduesRequireConservativeEvidence() async throws {
+    let home = FileManager.default.temporaryDirectory
+        .appending(path: "sift-residue-\(UUID().uuidString)", directoryHint: .isDirectory)
+    defer { try? FileManager.default.removeItem(at: home) }
+
+    func makeDirectory(_ relativePath: String) throws {
+        try FileManager.default.createDirectory(
+            at: home.appending(path: relativePath, directoryHint: .isDirectory),
+            withIntermediateDirectories: true
+        )
+    }
+
+    try makeDirectory("Library/Caches/com.example.removed")
+    try makeDirectory("Library/Preferences")
+    try Data("settings".utf8).write(to: home.appending(path: "Library/Preferences/com.example.removed.plist"))
+    try makeDirectory("Library/Caches/com.example.present")
+    try Data("settings".utf8).write(to: home.appending(path: "Library/Preferences/com.example.present.plist"))
+    try makeDirectory("Library/Caches/com.example.lonely")
+    try makeDirectory("Library/Containers/com.example.container")
+    try makeDirectory("Library/Containers/com.apple.system-helper")
+
+    let groups = await ApplicationScanner().orphanedResidues(
+        installedBundleIdentifiers: ["com.example.present"],
+        home: home
+    )
+
+    #expect(groups.contains { $0.identifier == "com.example.removed" && $0.residues.count == 2 })
+    #expect(groups.contains { $0.identifier == "com.example.container" && $0.residues.count == 1 })
+    #expect(!groups.contains { $0.identifier == "com.example.present" })
+    #expect(!groups.contains { $0.identifier == "com.example.lonely" })
+    #expect(!groups.contains { $0.identifier.hasPrefix("com.apple.") })
+    #expect(groups.flatMap(\.residues).allSatisfy { $0.risk == .review })
 }

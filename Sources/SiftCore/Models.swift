@@ -255,6 +255,7 @@ public struct ScanRule: Identifiable, Codable, Sendable, Hashable {
     public let relativePath: String
     public let minimumAgeDays: Int
     public let allowedExtensions: Set<String>
+    public let excludedRelativePaths: Set<String>
     public let risk: RiskLevel
     public let explanation: String
 
@@ -264,6 +265,7 @@ public struct ScanRule: Identifiable, Codable, Sendable, Hashable {
         relativePath: String,
         minimumAgeDays: Int,
         allowedExtensions: Set<String> = [],
+        excludedRelativePaths: Set<String> = [],
         risk: RiskLevel,
         explanation: String
     ) {
@@ -272,6 +274,7 @@ public struct ScanRule: Identifiable, Codable, Sendable, Hashable {
         self.relativePath = relativePath
         self.minimumAgeDays = minimumAgeDays
         self.allowedExtensions = allowedExtensions
+        self.excludedRelativePaths = excludedRelativePaths
         self.risk = risk
         self.explanation = explanation
     }
@@ -499,5 +502,43 @@ public struct ApplicationResidue: Identifiable, Sendable, Hashable {
         self.kind = kind
         self.bytes = bytes
         self.risk = risk
+    }
+}
+
+public struct ApplicationResidueGroup: Identifiable, Sendable, Hashable {
+    public let identifier: String
+    public let residues: [ApplicationResidue]
+
+    public var id: String { identifier }
+    public var bytes: Int64 { residues.reduce(0) { $0 + $1.bytes } }
+
+    public init(identifier: String, residues: [ApplicationResidue]) {
+        self.identifier = identifier
+        self.residues = residues
+    }
+}
+
+public struct ApplicationResidueScanProgress: Sendable {
+    public let completedPaths: Int
+    public let totalPaths: Int
+    public let inspectedFiles: Int
+    public let currentPathInspectedFiles: Int
+
+    public var fractionCompleted: Double {
+        guard totalPaths > 0 else { return 1 }
+        let activity: Double
+        if currentPathInspectedFiles > 0 {
+            activity = min(0.9, 0.12 + log10(Double(currentPathInspectedFiles) + 1) * 0.13)
+        } else {
+            activity = 0
+        }
+        return min((Double(completedPaths) + activity) / Double(totalPaths), 1)
+    }
+
+    public init(completedPaths: Int, totalPaths: Int, inspectedFiles: Int, currentPathInspectedFiles: Int) {
+        self.completedPaths = completedPaths
+        self.totalPaths = totalPaths
+        self.inspectedFiles = inspectedFiles
+        self.currentPathInspectedFiles = currentPathInspectedFiles
     }
 }
