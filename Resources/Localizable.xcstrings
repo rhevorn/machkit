@@ -25003,13 +25003,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ を占める %lld 個のアイテムを読み取ります。"
+            "value": "%lld 個のアイテムを読み取りました。使用容量は %@ です。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@을 차지하는 %lld개의 항목을 읽어보세요."
+            "value": "%lld개의 항목을 읽었으며, %@을 차지합니다."
           }
         },
         "pt-BR": {
