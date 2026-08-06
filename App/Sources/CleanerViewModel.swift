@@ -65,9 +65,6 @@ final class CleanerViewModel: ObservableObject {
     @Published var discoveredFileCount = 0
     @Published var discoveredBytes: Int64 = 0
     @Published var status = L10n.string("Choose your user folder or a test folder.")
-    @Published private(set) var cleanupAIInsight: String?
-    @Published private(set) var isGeneratingCleanupAIInsight = false
-    @Published private(set) var cleanupAIError: String?
 
     private let scanner = SiftCore.Scanner()
     private let cleaner = Cleaner()
@@ -76,7 +73,6 @@ final class CleanerViewModel: ObservableObject {
     private let fileAnalyzer = FileAnalyzer()
     private let performanceMonitor = PerformanceMonitor()
     private let portScanner = PortScanner()
-    private let aiClient = AIClient()
     private var scanTask: Task<Void, Never>?
     private var storageAnalysisTask: Task<Void, Never>?
     private var featureTasks: [FeatureMode: Task<Void, Never>] = [:]
@@ -192,8 +188,6 @@ final class CleanerViewModel: ObservableObject {
         inspectedFileCount = 0
         discoveredFileCount = 0
         discoveredBytes = 0
-        cleanupAIInsight = nil
-        cleanupAIError = nil
         status = L10n.string("Scanning…")
         scanTask = Task {
             switch scanMode {
@@ -618,26 +612,6 @@ final class CleanerViewModel: ObservableObject {
                 self.discoveredFileCount = progress.matchedFiles
                 self.discoveredBytes = progress.matchedBytes
             }
-        }
-    }
-
-    func generateCleanupAIInsight() {
-        guard !junkGroups.isEmpty, !isGeneratingCleanupAIInsight else { return }
-        cleanupAIError = nil
-        isGeneratingCleanupAIInsight = true
-        let summary = junkGroups.map { group in
-            "- \(group.title): \(group.items.count) items, \(group.bytes) bytes, risk=\(group.risk.rawValue); \(group.explanation)"
-        }.joined(separator: "\n")
-        let language = AppLanguage.selected.locale.localizedString(forIdentifier: AppLanguage.selected.locale.identifier)
-            ?? AppLanguage.selected.locale.identifier
-
-        Task {
-            do {
-                cleanupAIInsight = try await aiClient.cleanupInsight(summary: summary, language: language)
-            } catch {
-                cleanupAIError = error.localizedDescription
-            }
-            isGeneratingCleanupAIInsight = false
         }
     }
 

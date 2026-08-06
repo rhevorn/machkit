@@ -1,25 +1,12 @@
 import AppKit
-import CoreML
 import Darwin
 import Foundation
-import FoundationModels
 import Metal
-
-enum AppleIntelligenceState: Sendable {
-    case available
-    case notEnabled
-    case deviceNotEligible
-    case modelNotReady
-    case unsupportedSystem
-    case unknown
-}
 
 struct ComputeHardwareInfo: Sendable {
     let gpuName: String
     let hasUnifiedMemory: Bool
     let recommendedGPUWorkingSet: Int64
-    let neuralEngineAvailable: Bool
-    let appleIntelligenceState: AppleIntelligenceState
 }
 
 enum MemoryPressureLevel: String, Sendable {
@@ -72,11 +59,6 @@ final class PerformanceMonitor {
         guard let device = MTLCreateSystemDefaultDevice() else { return ("Metal GPU not detected", false, 0) }
         return (device.name, device.hasUnifiedMemory, Int64(device.recommendedMaxWorkingSetSize))
     }()
-    private lazy var neuralEngineAvailable: Bool = MLComputeDevice.allComputeDevices.contains { device in
-        if case .neuralEngine = device { return true }
-        return false
-    }
-
     func sample() -> PerformanceSnapshot {
         let now = Date()
         let cpuPercent = sampleCPUPercent()
@@ -96,28 +78,10 @@ final class PerformanceMonitor {
             computeHardware: ComputeHardwareInfo(
                 gpuName: gpuInfo.name,
                 hasUnifiedMemory: gpuInfo.unifiedMemory,
-                recommendedGPUWorkingSet: gpuInfo.workingSet,
-                neuralEngineAvailable: neuralEngineAvailable,
-                appleIntelligenceState: sampleAppleIntelligenceState()
+                recommendedGPUWorkingSet: gpuInfo.workingSet
             ),
             applications: applications
         )
-    }
-
-    private func sampleAppleIntelligenceState() -> AppleIntelligenceState {
-        guard #available(macOS 26.0, *) else { return .unsupportedSystem }
-        switch SystemLanguageModel.default.availability {
-        case .available:
-            return .available
-        case .unavailable(.appleIntelligenceNotEnabled):
-            return .notEnabled
-        case .unavailable(.deviceNotEligible):
-            return .deviceNotEligible
-        case .unavailable(.modelNotReady):
-            return .modelNotReady
-        @unknown default:
-            return .unknown
-        }
     }
 
     private func sampleCPUPercent() -> Double {

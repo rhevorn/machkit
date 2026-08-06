@@ -41,7 +41,6 @@ private struct ExtensionGroup: Identifiable {
 
 struct ContentView: View {
     @AppStorage(AppPreferenceKey.language) private var languageRawValue = AppLanguage.system.rawValue
-    @AppStorage(AppPreferenceKey.aiAssistanceEnabled) private var aiAssistanceEnabled = false
     @StateObject private var model = CleanerViewModel()
     @StateObject private var permissions = PermissionManager()
     @State private var expandedGroups: Set<String> = []
@@ -755,9 +754,6 @@ struct ContentView: View {
     private var junkDetailList: some View {
         ScrollView {
             LazyVStack(spacing: 10) {
-                if aiAssistanceEnabled {
-                    cleanupAIInsightCard
-                }
                 ForEach(model.junkGroups) { group in
                     DisclosureGroup(isExpanded: expansionBinding(group.id)) {
                         groupDetails(group)
@@ -781,49 +777,6 @@ struct ContentView: View {
                     .background { RoundedRectangle(cornerRadius: 9).fill(Color(nsColor: .controlBackgroundColor)) }
                 }
             }.padding(14)
-        }
-    }
-
-    private var cleanupAIInsightCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 9) {
-                Image(systemName: "sparkles")
-                    .foregroundStyle(.purple)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("AI Cleanup Insight").font(.system(size: 14, weight: .semibold))
-                    Text("Uses category totals and risk labels only; file contents are never sent")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                Spacer()
-                Button(action: model.generateCleanupAIInsight) {
-                    if model.isGeneratingCleanupAIInsight {
-                        ProgressView().controlSize(.small)
-                    } else {
-                        Label((model.cleanupAIInsight == nil ? "Analyze with AI" : "Analyze Again").localized, systemImage: "wand.and.sparkles")
-                    }
-                }
-                .disabled(model.isGeneratingCleanupAIInsight)
-            }
-
-            if let insight = model.cleanupAIInsight {
-                Text(insight)
-                    .font(.system(size: 12))
-                    .textSelection(.enabled)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            if let error = model.cleanupAIError {
-                Label(error.localized, systemImage: "exclamationmark.triangle")
-                    .font(.caption)
-                    .foregroundStyle(.red)
-                    .textSelection(.enabled)
-            }
-        }
-        .padding(14)
-        .background(Color.purple.opacity(0.07), in: RoundedRectangle(cornerRadius: 10))
-        .overlay {
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(Color.purple.opacity(0.18), lineWidth: 0.5)
         }
     }
 
@@ -2309,16 +2262,6 @@ struct ContentView: View {
                 status: hardware.hasUnifiedMemory ? "Unified Memory" : "Dedicated Memory",
                 color: .blue
             )
-            Divider().padding(.leading, 50)
-            computeHardwareRow(
-                icon: "brain.head.profile",
-                title: "Neural Engine",
-                subtitle: hardware.neuralEngineAvailable ? "Available to Core ML" : "No available Neural Engine detected",
-                status: hardware.neuralEngineAvailable ? "Available" : "Unavailable",
-                color: hardware.neuralEngineAvailable ? .purple : .secondary
-            )
-            Divider().padding(.leading, 50)
-            appleIntelligenceRow(hardware.appleIntelligenceState)
         }
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
     }
@@ -2341,34 +2284,6 @@ struct ContentView: View {
                 .background(color.opacity(0.10), in: Capsule())
         }
         .padding(.horizontal, 14).frame(minHeight: 55)
-    }
-
-    private func appleIntelligenceRow(_ state: AppleIntelligenceState) -> some View {
-        let presentation = appleIntelligencePresentation(state)
-        return computeHardwareRow(
-            icon: "sparkles",
-            title: "Apple Intelligence",
-            subtitle: presentation.explanation,
-            status: presentation.status,
-            color: presentation.color
-        )
-    }
-
-    private func appleIntelligencePresentation(_ state: AppleIntelligenceState) -> (status: String, explanation: String, color: Color) {
-        switch state {
-        case .available:
-            ("Available", "On-device language models are ready for supported apps", .green)
-        case .notEnabled:
-            ("Not Enabled", "The device is supported, but Apple Intelligence is not enabled in System Settings", .orange)
-        case .deviceNotEligible:
-            ("Device Not Supported", "This Mac does not meet Apple Intelligence hardware requirements", .secondary)
-        case .modelNotReady:
-            ("Model Not Ready", "Models may still be preparing, or the current language and region may not be available", .orange)
-        case .unsupportedSystem:
-            ("Not Supported", "macOS 26 or later is required to inspect system language models", .secondary)
-        case .unknown:
-            ("Status Unknown", "The system did not return a recognized availability state", .secondary)
-        }
     }
 
     private var performanceTrendCard: some View {

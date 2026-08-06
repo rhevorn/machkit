@@ -435,18 +435,6 @@ private func formatPlaceholders(in value: String) -> [String] {
     #expect(missingResult?.contains("database still retains this old path") == true)
 }
 
-@Test func aiEndpointsRequireEncryptedTransportExceptForLoopbackDevelopment() {
-    #expect(AIEndpointBuilder.chatCompletionsURL(baseURL: "https://api.openai.com/v1")?.absoluteString ==
-        "https://api.openai.com/v1/chat/completions")
-    #expect(AIEndpointBuilder.chatCompletionsURL(baseURL: "https://example.com/v1/chat/completions")?.absoluteString ==
-        "https://example.com/v1/chat/completions")
-    #expect(AIEndpointBuilder.chatCompletionsURL(baseURL: "http://example.com/v1") == nil)
-    #expect(AIEndpointBuilder.chatCompletionsURL(baseURL: "http://localhost:11434/v1")?.absoluteString ==
-        "http://localhost:11434/v1/chat/completions")
-    #expect(AIEndpointBuilder.chatCompletionsURL(baseURL: "http://127.0.0.1:1234")?.absoluteString ==
-        "http://127.0.0.1:1234/chat/completions")
-}
-
 @Test func localizationCatalogHasNoEmptyKeysAndKeepsFormatArgumentsCompatible() throws {
     let catalogURL = repositoryRoot.appending(path: "Resources/Localizable.xcstrings")
     let data = try Data(contentsOf: catalogURL)
