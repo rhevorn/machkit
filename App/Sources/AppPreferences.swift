@@ -4,10 +4,6 @@ import SwiftUI
 enum AppPreferenceKey {
     static let language = "appLanguage"
     static let appearance = "appAppearance"
-    static let aiAssistanceEnabled = "aiAssistanceEnabled"
-    static let aiBaseURL = "aiBaseURL"
-    static let aiModel = "aiModel"
-    static let aiModels = "aiModels"
 }
 
 enum AppLanguage: String, CaseIterable, Identifiable {
