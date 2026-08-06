@@ -5,12 +5,19 @@ public struct ScanProgress: Sendable {
     public let totalRules: Int
     public let currentRuleTitle: String
     public let inspectedFiles: Int
+    public let currentRuleInspectedFiles: Int
     public let matchedFiles: Int
     public let matchedBytes: Int64
 
     public var fractionCompleted: Double {
         guard totalRules > 0 else { return 0 }
-        return min(Double(completedRules) / Double(totalRules), 1)
+        let activity: Double
+        if currentRuleInspectedFiles > 0 {
+            activity = min(0.9, 0.12 + log10(Double(currentRuleInspectedFiles) + 1) * 0.13)
+        } else {
+            activity = 0
+        }
+        return min((Double(completedRules) + activity) / Double(totalRules), 1)
     }
 }
 
@@ -25,7 +32,7 @@ public actor Scanner {
         root: URL,
         rules: [ScanRule],
         onProgress: (@Sendable (ScanProgress) -> Void)? = nil
-    ) -> [ScanItem] {
+    ) async -> [ScanItem] {
         var results: [ScanItem] = []
         var inspectedFiles = 0
         var matchedBytes: Int64 = 0
@@ -35,12 +42,15 @@ public actor Scanner {
 
         for (ruleIndex, rule) in activeRules.enumerated() {
             guard !Task.isCancelled else { break }
+            var inspectedInCurrentRule = 0
+            var lastProgressUpdate = Date.distantPast
             emitProgress(
                 completedRules: ruleIndex,
                 totalRules: activeRules.count,
                 currentRule: rule.title,
                 inspected: inspectedFiles,
-                results: results,
+                currentRuleInspected: 0,
+                resultCount: results.count,
                 bytes: matchedBytes,
                 callback: onProgress
             )
@@ -52,16 +62,33 @@ public actor Scanner {
                   ) else { continue }
 
             let cutoff = cutoffCalendar.date(byAdding: .day, value: -rule.minimumAgeDays, to: Date()) ?? .distantPast
-            for case let fileURL as URL in enumerator {
+            let excludedPaths = rule.excludedRelativePaths.map {
+                target.appending(path: $0, directoryHint: .isDirectory).standardizedFileURL.path
+            }
+            while let fileURL = enumerator.nextObject() as? URL {
                 guard !Task.isCancelled else { break }
+                let standardizedPath = fileURL.standardizedFileURL.path
+                if let excludedRoot = excludedPaths.first(where: {
+                    standardizedPath == $0 || standardizedPath.hasPrefix($0 + "/")
+                }) {
+                    if standardizedPath == excludedRoot { enumerator.skipDescendants() }
+                    continue
+                }
                 inspectedFiles += 1
-                if inspectedFiles.isMultiple(of: 128) {
+                inspectedInCurrentRule += 1
+                if inspectedInCurrentRule.isMultiple(of: 512) {
+                    await Task.yield()
+                }
+                let now = Date()
+                if now.timeIntervalSince(lastProgressUpdate) >= 0.15 {
+                    lastProgressUpdate = now
                     emitProgress(
                         completedRules: ruleIndex,
                         totalRules: activeRules.count,
                         currentRule: rule.title,
                         inspected: inspectedFiles,
-                        results: results,
+                        currentRuleInspected: inspectedInCurrentRule,
+                        resultCount: results.count,
                         bytes: matchedBytes,
                         callback: onProgress
                     )
@@ -83,7 +110,8 @@ public actor Scanner {
                 totalRules: activeRules.count,
                 currentRule: rule.title,
                 inspected: inspectedFiles,
-                results: results,
+                currentRuleInspected: 0,
+                resultCount: results.count,
                 bytes: matchedBytes,
                 callback: onProgress
             )
@@ -96,7 +124,8 @@ public actor Scanner {
         totalRules: Int,
         currentRule: String,
         inspected: Int,
-        results: [ScanItem],
+        currentRuleInspected: Int,
+        resultCount: Int,
         bytes: Int64,
         callback: (@Sendable (ScanProgress) -> Void)?
     ) {
@@ -105,7 +134,8 @@ public actor Scanner {
             totalRules: totalRules,
             currentRuleTitle: currentRule,
             inspectedFiles: inspected,
-            matchedFiles: results.count,
+            currentRuleInspectedFiles: currentRuleInspected,
+            matchedFiles: resultCount,
             matchedBytes: bytes
         ))
     }

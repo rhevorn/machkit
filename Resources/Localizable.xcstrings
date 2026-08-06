@@ -2055,60 +2055,120 @@
         }
       }
     },
-    "%lld apps · %lld command-line tools": {
+    "%lld apps · %lld possible leftovers": {
+      "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld Apps · %lld Befehlszeilentools"
+            "value": "%lld Apps · %lld mögliche Überreste"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld aplicaciones · %lld herramientas de línea de comandos"
+            "value": "%lld aplicaciones · %lld posibles restos"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld applications · %lld outils de ligne de commande"
+            "value": "%lld apps · %lld résidus possibles"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld アプリ · %lld コマンドライン ツール"
+            "value": "%lld 個のアプリ・%lld 件の残留候補"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld 앱 · %lld 명령줄 도구"
+            "value": "앱 %lld개 · 잔여 파일 후보 %lld개"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld aplicativos · %lld ferramentas de linha de comando"
+            "value": "%lld apps · %lld possíveis resíduos"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld приложений · %lld инструменты командной строки"
+            "value": "%lld приложений · %lld возможных остатков"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld 个应用 · %lld 个命令行工具"
+            "value": "%lld 个应用 · %lld 组可能残留"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld 個應用程式 · %lld 個命令列工具"
+            "value": "%lld 個 App · %lld 組可能殘留"
+          }
+        }
+      }
+    },
+    "%lld apps and %lld possible leftovers found.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld Apps und %lld mögliche Überreste gefunden."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se encontraron %lld aplicaciones y %lld posibles restos."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld apps et %lld résidus possibles trouvés."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 個のアプリと %lld 件の残留候補が見つかりました。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "앱 %lld개와 잔여 파일 후보 %lld개를 찾았습니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld apps e %lld possíveis resíduos encontrados."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Найдено приложений: %lld; возможных остатков: %lld."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "发现 %lld 个应用和 %lld 组可能残留。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "發現 %lld 個 App 和 %lld 組可能殘留。"
           }
         }
       }
@@ -2243,13 +2303,13 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld aplicaciones encontradas."
+            "value": "Se encontraron %lld aplicaciones."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld applications trouvées."
+            "value": "%lld apps trouvées."
           }
         },
         "ja": {
@@ -2261,31 +2321,31 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld개의 앱을 찾았습니다."
+            "value": "앱 %lld개를 찾았습니다."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld aplicativos encontrados."
+            "value": "%lld apps encontrados."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Найдено %lld приложений."
+            "value": "Найдено приложений: %lld."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "找到 %lld 个应用。"
+            "value": "发现 %lld 个应用。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "找到 %lld 個應用程式。"
+            "value": "發現 %lld 個 App。"
           }
         }
       }
@@ -3289,6 +3349,65 @@
         }
       }
     },
+    "%lld not selected": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld nicht ausgewählt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld no seleccionados"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld non sélectionnés"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 件は未選択"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld개 선택 안 함"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld não selecionados"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld не выбрано"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 项未选择"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 項未選取"
+          }
+        }
+      }
+    },
     "%lld ports cached; refresh to scan again.": {
       "extractionState": "manual",
       "localizations": {
@@ -3344,6 +3463,124 @@
           "stringUnit": {
             "state": "translated",
             "value": "已快取 %lld 個連接埠；點擊刷新可重新掃描。"
+          }
+        }
+      }
+    },
+    "%lld related files · Review only": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld zugehörige Dateien · Nur prüfen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld archivos relacionados · Solo revisión"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld fichiers associés · Vérification uniquement"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 個の関連ファイル・確認のみ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "관련 파일 %lld개 · 검토 전용"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld arquivos relacionados · Apenas revisão"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld связанных файлов · Только проверка"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 个相关文件 · 仅供检查"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 個相關檔案 · 僅供檢查"
+          }
+        }
+      }
+    },
+    "%lld selected by default": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld standardmäßig ausgewählt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld seleccionados de forma predeterminada"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld sélectionnés par défaut"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 件をデフォルトで選択"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기본 선택 %lld개"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld selecionados por padrão"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld выбрано по умолчанию"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "默认选择 %lld 项"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "預設選取 %lld 項"
           }
         }
       }
@@ -3406,6 +3643,7 @@
         }
       }
     },
+    "~/%@": {},
     "A quiet, reliable way to manage Mac storage": {
       "extractionState": "manual",
       "localizations": {
@@ -4761,6 +4999,65 @@
         }
       }
     },
+    "Android Tool Cache": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Android-Tool-Cache"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caché de herramientas de Android"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache des outils Android"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Android ツールキャッシュ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Android 도구 캐시"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache de ferramentas do Android"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кэш инструментов Android"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Android 工具缓存"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Android 工具快取"
+          }
+        }
+      }
+    },
     "Apache Web Server": {
       "extractionState": "manual",
       "localizations": {
@@ -5345,6 +5642,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Apple 裝置通訊服務"
+          }
+        }
+      }
+    },
+    "Apple Simulator Cache": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple-Simulator-Cache"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caché del simulador de Apple"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache du simulateur Apple"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple シミュレータキャッシュ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple 시뮬레이터 캐시"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache do simulador da Apple"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кэш симулятора Apple"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple 模拟器缓存"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple 模擬器快取"
           }
         }
       }
@@ -7817,6 +8173,124 @@
         }
       }
     },
+    "Checking command-line tools and possible leftovers…": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Befehlszeilentools und mögliche Überreste werden geprüft…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comprobando herramientas de línea de comandos y posibles restos…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérification des outils en ligne de commande et des résidus possibles…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コマンドラインツールと残留候補を確認中…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "명령줄 도구와 잔여 파일 후보 확인 중…"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verificando ferramentas de linha de comando e possíveis resíduos…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проверка консольных инструментов и возможных остатков…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在检查命令行工具和可能残留…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在檢查命令列工具和可能殘留…"
+          }
+        }
+      }
+    },
+    "Checking command-line tools…": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Befehlszeilentools werden geprüft…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comprobando herramientas de línea de comandos…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérification des outils en ligne de commande…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コマンドラインツールを確認中…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "명령줄 도구 확인 중…"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verificando ferramentas de linha de comando…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проверка консольных инструментов…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在检查命令行工具…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在檢查命令列工具…"
+          }
+        }
+      }
+    },
     "Choose Applications Folder": {
       "extractionState": "manual",
       "localizations": {
@@ -8636,6 +9110,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "關閉"
+          }
+        }
+      }
+    },
+    "CocoaPods Cache": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CocoaPods-Cache"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caché de CocoaPods"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache CocoaPods"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CocoaPods キャッシュ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CocoaPods 캐시"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache do CocoaPods"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кэш CocoaPods"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CocoaPods 缓存"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CocoaPods 快取"
           }
         }
       }
@@ -9873,7 +10406,7 @@
       }
     },
     "Critical": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -11109,6 +11642,124 @@
         }
       }
     },
+    "Downloaded formula and cask archives; installed packages in Cellar and Caskroom are not touched.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geladene Formula- und Cask-Archive; installierte Pakete in Cellar und Caskroom bleiben erhalten."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archivos descargados de fórmulas y casks; no se tocan los paquetes instalados en Cellar y Caskroom."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archives de formules et casks téléchargées ; les paquets installés dans Cellar et Caskroom sont conservés."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ダウンロード済みの formula と cask アーカイブです。Cellar と Caskroom のインストール済みパッケージは削除しません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다운로드된 formula 및 cask 아카이브입니다. Cellar와 Caskroom의 설치된 패키지는 유지됩니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arquivos de fórmulas e casks baixados; pacotes instalados no Cellar e Caskroom são preservados."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Загруженные архивы formula и cask; пакеты в Cellar и Caskroom не затрагиваются."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已下载的 formula 和 cask 安装包；不会处理 Cellar 和 Caskroom 中已安装的软件。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已下載的 formula 和 cask 安裝包；不會處理 Cellar 和 Caskroom 中已安裝的軟體。"
+          }
+        }
+      }
+    },
+    "Downloaded pod archives and specs can be fetched again; project Pods directories are not scanned.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pod-Archive und Specs können erneut geladen werden; Pods-Ordner in Projekten werden nicht gescannt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los archivos y especificaciones de pods pueden volver a descargarse; no se analizan las carpetas Pods de los proyectos."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les archives et specs de pods peuvent être retéléchargées ; les dossiers Pods des projets ne sont pas analysés."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ダウンロード済みの Pod アーカイブと spec は再取得可能です。プロジェクトの Pods はスキャンしません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다운로드된 Pod 아카이브와 spec은 다시 받을 수 있습니다. 프로젝트 Pods 폴더는 스캔하지 않습니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arquivos e especificações de pods podem ser baixados novamente; pastas Pods dos projetos não são verificadas."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Архивы и спецификации pods можно скачать заново; папки Pods в проектах не сканируются."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已下载的 Pod 安装包和索引可重新获取；不扫描项目中的 Pods 目录。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已下載的 Pod 安裝包和索引可重新取得；不掃描專案中的 Pods 目錄。"
+          }
+        }
+      }
+    },
     "Elevated": {
       "extractionState": "manual",
       "localizations": {
@@ -12048,6 +12699,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "直接存放在使用者目錄下的文件"
+          }
+        }
+      }
+    },
+    "Files whose app is no longer installed; review them before moving them to Trash.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dateien, deren App nicht mehr installiert ist; vor dem Verschieben in den Papierkorb prüfen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archivos cuya app ya no está instalada; revíselos antes de moverlos a la Papelera."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fichiers dont l’app n’est plus installée ; vérifiez-les avant de les placer dans la Corbeille."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "対応するアプリがインストールされていないファイルです。ゴミ箱へ移動する前に確認してください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "해당 앱이 더 이상 설치되어 있지 않은 파일입니다. 휴지통으로 옮기기 전에 확인하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arquivos cujo app não está mais instalado; revise antes de mover para o Lixo."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Файлы приложений, которые больше не установлены; проверьте их перед перемещением в Корзину."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "对应应用已不存在的文件；移入废纸篓前请逐项检查。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "對應 App 已不存在的檔案；移入垃圾桶前請逐項檢查。"
           }
         }
       }
@@ -13346,6 +14056,65 @@
         }
       }
     },
+    "Found": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gefunden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encontrado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trouvé"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "検出"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "발견됨"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encontrado"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Найдено"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已发现"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已發現"
+          }
+        }
+      }
+    },
     "Full Disk Access granted": {
       "localizations": {
         "de": {
@@ -13638,6 +14407,65 @@
         }
       }
     },
+    "Global Yarn download cache; project node_modules and offline mirrors are not scanned.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Globaler Yarn-Download-Cache; node_modules und Offline-Mirrors in Projekten werden nicht gescannt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caché global de Yarn; no se analizan node_modules ni espejos sin conexión de los proyectos."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache globale de Yarn ; les node_modules et miroirs hors ligne des projets ne sont pas analysés."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yarn のグローバルダウンロードキャッシュです。プロジェクトの node_modules とオフラインミラーはスキャンしません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yarn 전역 다운로드 캐시입니다. 프로젝트 node_modules와 오프라인 미러는 스캔하지 않습니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache global do Yarn; node_modules e espelhos offline dos projetos não são verificados."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Глобальный кэш Yarn; node_modules и офлайн-зеркала проектов не сканируются."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yarn 全局下载缓存；不扫描项目 node_modules 和离线镜像。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yarn 全域下載快取；不掃描專案 node_modules 和離線鏡像。"
+          }
+        }
+      }
+    },
     "Go Development Service": {
       "extractionState": "manual",
       "localizations": {
@@ -13869,6 +14697,124 @@
           "stringUnit": {
             "state": "translated",
             "value": "正常結束會發送 SIGTERM，讓進程自行清理後退出。強制結束可能造成未儲存資料遺失；launchd、容器或監護腳本也可能自動重新啟動進程。"
+          }
+        }
+      }
+    },
+    "Gradle Build Cache": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradle-Build-Cache"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caché de compilación de Gradle"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache de build Gradle"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradle ビルドキャッシュ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradle 빌드 캐시"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache de build do Gradle"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кэш сборки Gradle"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradle 构建缓存"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradle 建置快取"
+          }
+        }
+      }
+    },
+    "Gradle can rebuild or redownload these files, but the next Android or JVM build may be much slower.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradle kann diese Dateien neu erstellen oder laden; der nächste Android- oder JVM-Build kann deutlich langsamer sein."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradle puede regenerar o descargar estos archivos, pero la próxima compilación Android o JVM puede ser mucho más lenta."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradle peut recréer ou retélécharger ces fichiers, mais le prochain build Android ou JVM peut être bien plus lent."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradle で再生成または再ダウンロードできますが、次回の Android/JVM ビルドが大幅に遅くなる場合があります。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradle이 다시 빌드하거나 다운로드할 수 있지만 다음 Android/JVM 빌드가 크게 느려질 수 있습니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Gradle pode recriar ou baixar esses arquivos, mas o próximo build Android ou JVM pode ficar bem mais lento."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradle может пересоздать или скачать эти файлы, но следующая сборка Android/JVM может быть значительно медленнее."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradle 可以重建或重新下载这些文件，但下次 Android 或 JVM 构建可能明显变慢。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradle 可以重建或重新下載這些檔案，但下次 Android 或 JVM 建置可能明顯變慢。"
           }
         }
       }
@@ -14285,6 +15231,65 @@
         }
       }
     },
+    "Homebrew Download Cache": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Homebrew-Download-Cache"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caché de descargas de Homebrew"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache de téléchargement Homebrew"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Homebrew ダウンロードキャッシュ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Homebrew 다운로드 캐시"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache de downloads do Homebrew"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кэш загрузок Homebrew"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Homebrew 下载缓存"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Homebrew 下載快取"
+          }
+        }
+      }
+    },
     "In-app extensions must be uninstalled together with the app they belong to.": {
       "extractionState": "manual",
       "localizations": {
@@ -14694,6 +15699,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "正在檢查已安裝應用程式…"
+          }
+        }
+      }
+    },
+    "Installed apps and command-line tools": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installierte Apps und Befehlszeilentools"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apps instaladas y herramientas de línea de comandos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apps installées et outils en ligne de commande"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インストール済みアプリとコマンドラインツール"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설치된 앱과 명령줄 도구"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apps instalados e ferramentas de linha de comando"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Установленные приложения и консольные инструменты"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已安装的应用和命令行工具"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已安裝的 App 和命令列工具"
           }
         }
       }
@@ -15693,6 +16757,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "啟動命令"
+          }
+        }
+      }
+    },
+    "Leftovers": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Überreste"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Résidus"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アンインストール残留"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "제거 잔여 파일"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resíduos"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Остатки"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "卸载残留"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解除安裝殘留"
           }
         }
       }
@@ -17457,65 +18580,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "記憶體優化"
-          }
-        }
-      }
-    },
-    "Memory Pressure": {
-      "extractionState": "stale",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gedächtnisdruck"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Presión de la memoria"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pression de la mémoire"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "記憶のプレッシャー"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "메모리 압박"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pressão de memória"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Давление на память"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "内存压力"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "記憶體壓力"
           }
         }
       }
@@ -22925,7 +23989,7 @@
       }
     },
     "Ports": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -26387,6 +27451,124 @@
         }
       }
     },
+    "Regenerable Android tool downloads and metadata; SDK platforms, emulators, and projects are not scanned.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neu erzeugbare Android-Tool-Downloads und Metadaten; SDKs, Emulatoren und Projekte werden nicht gescannt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descargas y metadatos regenerables de Android; no se analizan plataformas SDK, emuladores ni proyectos."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Téléchargements et métadonnées Android régénérables ; les SDK, émulateurs et projets ne sont pas analysés."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再生可能な Android ツールのダウンロードとメタデータです。SDK、エミュレータ、プロジェクトはスキャンしません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다시 생성 가능한 Android 도구 다운로드와 메타데이터입니다. SDK, 에뮬레이터, 프로젝트는 스캔하지 않습니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloads e metadados regeneráveis do Android; SDKs, emuladores e projetos não são verificados."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Восстанавливаемые загрузки и метаданные Android; SDK, эмуляторы и проекты не сканируются."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可重新生成的 Android 工具下载内容和元数据；不扫描 SDK 平台、模拟器和项目。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可重新生成的 Android 工具下載內容和中繼資料；不掃描 SDK 平台、模擬器和專案。"
+          }
+        }
+      }
+    },
+    "Regenerable simulator caches only; simulator devices, installed runtimes, and app data are preserved.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur neu erzeugbare Simulator-Caches; Geräte, installierte Runtimes und App-Daten bleiben erhalten."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo cachés regenerables del simulador; se conservan dispositivos, runtimes instalados y datos de apps."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uniquement les caches régénérables du simulateur ; appareils, runtimes installés et données d’apps sont conservés."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再生可能なシミュレータキャッシュのみです。デバイス、ランタイム、アプリデータは保持します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다시 생성 가능한 시뮬레이터 캐시만 스캔합니다. 기기, 런타임, 앱 데이터는 유지됩니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apenas caches regeneráveis do simulador; dispositivos, runtimes instalados e dados de apps são preservados."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Только восстанавливаемые кэши симулятора; устройства, runtime и данные приложений сохраняются."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仅扫描可重新生成的模拟器缓存；保留模拟器设备、已安装运行时和应用数据。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "僅掃描可重新生成的模擬器快取；保留模擬器裝置、已安裝執行環境和 App 資料。"
+          }
+        }
+      }
+    },
     "Regular caches unchanged for 30 days; apps may recreate them at next launch.": {
       "extractionState": "manual",
       "localizations": {
@@ -27501,6 +28683,65 @@
         }
       }
     },
+    "Rule %lld of %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regel %lld von %lld"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regla %lld de %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Règle %lld sur %lld"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ルール %lld/%lld"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "규칙 %lld/%lld"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regra %lld de %lld"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Правило %lld из %lld"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "第 %lld/%lld 条规则"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "第 %lld/%lld 條規則"
+          }
+        }
+      }
+    },
     "Run at Load": {
       "extractionState": "manual",
       "localizations": {
@@ -27733,6 +28974,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Safari 擴充"
+          }
+        }
+      }
+    },
+    "Safe to Clean": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sicher zu bereinigen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seguro para limpiar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nettoyage sûr"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安全に削除可能"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "안전하게 정리 가능"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seguro para limpar"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Можно безопасно очистить"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可安全清理"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可安全清理"
           }
         }
       }
@@ -30963,6 +32263,65 @@
         }
       }
     },
+    "Storage": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speicher"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Almacenamiento"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stockage"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ストレージ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "저장 공간"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Armazenamento"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Хранилище"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "存储"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "儲存"
+          }
+        }
+      }
+    },
     "Storage analysis is running in the background": {
       "localizations": {
         "de": {
@@ -31193,6 +32552,124 @@
           "stringUnit": {
             "state": "translated",
             "value": "交換 %@"
+          }
+        }
+      }
+    },
+    "Swift Package Manager Cache": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swift-Package-Manager-Cache"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caché de Swift Package Manager"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache Swift Package Manager"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swift Package Manager キャッシュ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swift Package Manager 캐시"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache do Swift Package Manager"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кэш Swift Package Manager"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swift Package Manager 缓存"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swift Package Manager 快取"
+          }
+        }
+      }
+    },
+    "Swift package metadata and downloads can be resolved again; project checkouts and source packages are preserved.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swift-Paketmetadaten und Downloads können neu aufgelöst werden; Projekt-Checkouts und Quellen bleiben erhalten."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los metadatos y descargas de paquetes Swift pueden resolverse de nuevo; se conservan los checkouts y fuentes de los proyectos."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les métadonnées et téléchargements Swift peuvent être résolus à nouveau ; les checkouts et sources des projets sont conservés."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swift パッケージのメタデータとダウンロードは再解決できます。プロジェクトの checkout とソースは保持します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swift 패키지 메타데이터와 다운로드는 다시 해결할 수 있습니다. 프로젝트 checkout과 소스는 유지됩니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Metadados e downloads de pacotes Swift podem ser resolvidos novamente; checkouts e fontes dos projetos são preservados."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Метаданные и загрузки Swift-пакетов можно получить заново; checkout и исходники проектов сохраняются."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swift 包元数据和下载内容可重新解析；保留项目检出内容和源码包。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swift 套件中繼資料和下載內容可重新解析；保留專案檢出內容和原始碼套件。"
           }
         }
       }
@@ -35136,6 +36613,65 @@
         }
       }
     },
+    "Uninstall Leftovers": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deinstallationsreste"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restos de desinstalación"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Résidus de désinstallation"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アンインストール残留"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "제거 잔여 파일"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resíduos de desinstalação"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Остатки после удаления"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "卸载残留"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解除安裝殘留"
+          }
+        }
+      }
+    },
     "Uninstall this app?": {
       "localizations": {
         "de": {
@@ -37898,6 +39434,65 @@
         }
       }
     },
+    "Yarn Download Cache": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yarn-Download-Cache"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caché de descargas de Yarn"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache de téléchargement Yarn"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yarn ダウンロードキャッシュ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yarn 다운로드 캐시"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache de downloads do Yarn"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кэш загрузок Yarn"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yarn 下载缓存"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yarn 下載快取"
+          }
+        }
+      }
+    },
     "Yarn global package": {
       "extractionState": "manual",
       "localizations": {
@@ -38071,6 +39666,412 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mac 儲存空間不足"
+          }
+        }
+      }
+    },
+    "Possible Uninstall Leftovers": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可能的卸载残留"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可能的解除安裝殘留"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アンインストール残留の候補"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "제거 잔여 파일 후보"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posibles restos de desinstalación"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Résidus de désinstallation possibles"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mögliche Deinstallationsreste"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Possíveis resíduos de desinstalação"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Возможные остатки после удаления"
+          }
+        }
+      }
+    },
+    "Sift found app-style identifiers with no matching installed app. These are review-only because helpers and command-line tools can own similar files.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sift 发现了一些没有对应已安装应用的 App 标识符。辅助程序和命令行工具也可能拥有类似文件，因此这里只供检查。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sift 發現了一些沒有對應已安裝 App 的識別碼。輔助程式和命令列工具也可能擁有類似檔案，因此這裡只供檢查。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インストール済みアプリに一致しないアプリ形式の識別子が見つかりました。ヘルパーやコマンドラインツールも同様のファイルを所有する場合があるため、確認専用です。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설치된 앱과 일치하지 않는 앱 형식 식별자를 찾았습니다. 도우미 및 명령줄 도구도 비슷한 파일을 소유할 수 있으므로 검토용으로만 표시됩니다."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sift encontró identificadores de aplicación sin una app instalada correspondiente. Solo se muestran para revisión porque los auxiliares y las herramientas de línea de comandos pueden tener archivos similares."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sift a trouvé des identifiants d’app sans application installée correspondante. Ils sont uniquement à vérifier, car des utilitaires et outils en ligne de commande peuvent posséder des fichiers similaires."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sift hat App-Kennungen ohne passende installierte App gefunden. Sie dienen nur zur Prüfung, da Hilfsprogramme und Befehlszeilentools ähnliche Dateien besitzen können."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Sift encontrou identificadores de app sem um aplicativo instalado correspondente. Eles são apenas para revisão, pois auxiliares e ferramentas de linha de comando podem ter arquivos semelhantes."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sift обнаружил идентификаторы приложений без соответствующего установленного приложения. Они показаны только для проверки, поскольку похожие файлы могут принадлежать вспомогательным и консольным программам."
+          }
+        }
+      }
+    },
+    "No possible app leftovers found": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未发现可能的应用残留"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未發現可能的 App 殘留"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アプリの残留候補はありません"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "앱 잔여 파일 후보 없음"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se encontraron posibles restos de aplicaciones"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun résidu d’app possible trouvé"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine möglichen App-Überreste gefunden"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nenhum possível resíduo de app encontrado"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Возможных остатков приложений не найдено"
+          }
+        }
+      }
+    },
+    "Only identifier-based caches, preferences, saved state, logs, and sandbox containers are checked.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仅检查以 App 标识符命名的缓存、偏好设置、保存状态、日志和沙盒容器。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "僅檢查以 App 識別碼命名的快取、偏好設定、儲存狀態、日誌和沙盒容器。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "識別子ベースのキャッシュ、環境設定、保存状態、ログ、サンドボックスコンテナのみを確認します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "식별자 기반 캐시, 환경설정, 저장 상태, 로그 및 샌드박스 컨테이너만 확인합니다."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo se comprueban cachés, preferencias, estados guardados, registros y contenedores de sandbox basados en identificadores."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seuls les caches, préférences, états enregistrés, journaux et conteneurs sandbox basés sur un identifiant sont vérifiés."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geprüft werden nur kennungsbasierte Caches, Einstellungen, gespeicherte Zustände, Protokolle und Sandbox-Container."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apenas caches, preferências, estados salvos, logs e contêineres de sandbox baseados em identificadores são verificados."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проверяются только кэши, настройки, сохранённые состояния, журналы и контейнеры песочницы с идентификаторами."
+          }
+        }
+      }
+    },
+    "Reveal in Finder": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在访达中显示"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 Finder 中顯示"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finder に表示"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finder에서 보기"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar en Finder"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher dans le Finder"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Im Finder zeigen"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar no Finder"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Показать в Finder"
+          }
+        }
+      }
+    },
+    "Checking app caches, preferences, logs, and containers…": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在检查应用缓存、偏好设置、日志和容器…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在檢查 App 快取、偏好設定、日誌和容器…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アプリのキャッシュ、設定、ログ、コンテナを確認中…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "앱 캐시, 환경설정, 로그 및 컨테이너 확인 중…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comprobando cachés, preferencias, registros y contenedores de apps…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérification des caches, préférences, journaux et conteneurs d’apps…"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App-Caches, Einstellungen, Protokolle und Container werden geprüft…"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verificando caches, preferências, logs e contêineres de apps…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проверка кэшей, настроек, журналов и контейнеров приложений…"
+          }
+        }
+      }
+    },
+    "%lld possible leftovers need review": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 组可能残留需要检查"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 組可能殘留需要檢查"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 件の残留候補を確認"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "잔여 파일 후보 %lld개 검토 필요"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld posibles restos para revisar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld résidus possibles à vérifier"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld mögliche Überreste prüfen"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld possíveis resíduos para revisar"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нужно проверить возможные остатки: %lld"
           }
         }
       }

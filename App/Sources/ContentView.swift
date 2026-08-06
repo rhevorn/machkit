@@ -311,7 +311,7 @@ struct ContentView: View {
                         icon: "chart.pie.fill", color: .indigo, mode: .files
                     )
                     homeToolTile(
-                        title: "Apps", subtitle: "Apps, command-line tools, and related leftovers",
+                        title: "Apps", subtitle: "Installed apps and command-line tools",
                         icon: "app.badge.checkmark", color: .purple, mode: .uninstall
                     )
                     homeToolTile(
@@ -706,25 +706,55 @@ struct ContentView: View {
         .opacity(model.selectedIDs.isEmpty ? 0.45 : 1)
     }
 
-    private var scanningView: some View {
-        VStack(spacing: 22) {
-            Spacer()
-            ZStack {
-                Circle().stroke(Color.accentColor.opacity(0.12), lineWidth: 12)
-                Circle()
-                    .trim(from: 0, to: max(model.scanProgress, 0.025))
-                    .stroke(Color.accentColor, style: StrokeStyle(lineWidth: 12, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
-                Image(systemName: "magnifyingglass")
-                    .font(.system(size: 32, weight: .medium)).foregroundStyle(Color.accentColor)
-            }
-            .frame(width: 112, height: 112)
+    private var activeCleanupRule: ScanRule? {
+        (DefaultRules.conservative + [DefaultRules.uninstallLeftovers]).first { rule in
+            rule.title.localized == model.currentScanCategory || rule.title == model.currentScanCategory
+        }
+    }
 
-            VStack(spacing: 7) {
+    private var activeCleanupRuleNumber: Int {
+        guard let rule = activeCleanupRule,
+              let index = (DefaultRules.conservative + [DefaultRules.uninstallLeftovers])
+                .firstIndex(where: { $0.id == rule.id }) else { return 1 }
+        return index + 1
+    }
+
+    private var scanningView: some View {
+        VStack(spacing: 20) {
+            Spacer()
+            VStack(spacing: 6) {
                 Text("Scanning \(model.currentScanCategory)")
                     .font(.title3.weight(.semibold))
                 Text("Reads file metadata only; contents are never read or uploaded")
                     .font(.caption).foregroundStyle(.secondary)
+            }
+
+            if let rule = activeCleanupRule {
+                VStack(spacing: 7) {
+                    HStack(spacing: 7) {
+                        Text(L10n.format(
+                            "Rule %lld of %lld",
+                            Int64(activeCleanupRuleNumber),
+                            Int64(DefaultRules.conservative.count + 1)
+                        ))
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(Color.accentColor)
+                            .padding(.horizontal, 8).frame(height: 21)
+                            .background(Color.accentColor.opacity(0.10), in: Capsule())
+                        Text("~/\(rule.relativePath)")
+                            .font(.caption2).monospaced().foregroundStyle(.tertiary).lineLimit(1)
+                    }
+                    Text(rule.explanation.localized)
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                }
+                .id(rule.id)
+                .transition(.opacity.combined(with: .move(edge: .bottom)))
+                .animation(.easeInOut(duration: 0.28), value: rule.id)
+                .frame(width: 470)
+                .frame(minHeight: 52)
             }
 
             ProgressView(value: model.scanProgress)
@@ -753,6 +783,7 @@ struct ContentView: View {
     private var junkDetailList: some View {
         ScrollView {
             LazyVStack(spacing: 10) {
+                cleanupResultOverview
                 ForEach(model.junkGroups) { group in
                     DisclosureGroup(isExpanded: expansionBinding(group.id)) {
                         groupDetails(group)
@@ -777,6 +808,59 @@ struct ContentView: View {
                 }
             }.padding(14)
         }
+    }
+
+    private var cleanupResultOverview: some View {
+        let safeItems = model.items.filter { $0.rule.risk == .safe }
+        let reviewItems = model.items.filter { $0.rule.risk == .review }
+        return HStack(spacing: 10) {
+            cleanupSummaryMetric(
+                title: "Found",
+                value: formatted(model.totalBytes),
+                detail: L10n.format("%lld files", Int64(model.items.count)),
+                icon: "sparkles.rectangle.stack",
+                color: .blue
+            )
+            cleanupSummaryMetric(
+                title: "Safe to Clean",
+                value: formatted(safeItems.reduce(0) { $0 + $1.bytes }),
+                detail: L10n.format("%lld selected by default", Int64(safeItems.count)),
+                icon: "checkmark.shield.fill",
+                color: .green
+            )
+            cleanupSummaryMetric(
+                title: "Review",
+                value: formatted(reviewItems.reduce(0) { $0 + $1.bytes }),
+                detail: L10n.format("%lld not selected", Int64(reviewItems.count)),
+                icon: "exclamationmark.triangle.fill",
+                color: .orange
+            )
+        }
+        .padding(.horizontal, 14).padding(.top, 14)
+    }
+
+    private func cleanupSummaryMetric(
+        title: String,
+        value: String,
+        detail: String,
+        icon: String,
+        color: Color
+    ) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: icon)
+                .font(.system(size: 17, weight: .semibold)).foregroundStyle(color)
+                .frame(width: 34, height: 34)
+                .background(color.opacity(0.10), in: RoundedRectangle(cornerRadius: 9))
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title.localized).font(.caption).foregroundStyle(.secondary)
+                Text(value).font(.system(size: 15, weight: .semibold)).monospacedDigit()
+                Text(detail).font(.caption2).foregroundStyle(.tertiary).lineLimit(1)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, minHeight: 78, alignment: .leading)
+        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
     }
 
     private func groupDetails(_ group: JunkScanGroup) -> some View {
@@ -839,7 +923,7 @@ struct ContentView: View {
                 subtitle: "Apps on this Mac were detected automatically",
                 trailing: AnyView(
                     HStack(spacing: 12) {
-                        Text("\(model.applications.count) apps · \(model.commandLineTools.count) command-line tools")
+                        Text(L10n.format("%lld apps", Int64(model.applications.count)))
                             .font(.system(size: 12, weight: .medium)).foregroundStyle(.secondary)
                         refreshControl(for: .uninstall, action: model.scanInstalledApplications)
                     }

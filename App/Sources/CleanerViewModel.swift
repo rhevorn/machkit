@@ -152,11 +152,12 @@ final class CleanerViewModel: ObservableObject {
                 home.appending(path: "Applications", directoryHint: .isDirectory)
             ])
             guard !Task.isCancelled else { return }
+            applications = foundApplications
+            rebuildApplicationGroups()
+            if mode == .uninstall { status = L10n.string("Checking command-line tools…") }
             let foundTools = await applicationScanner.commandLineTools(home: home)
             guard !Task.isCancelled else { return }
-            applications = foundApplications
             commandLineTools = foundTools
-            rebuildApplicationGroups()
             items = []
             selectedIDs = []
             lastScanAt = Date()
@@ -603,16 +604,66 @@ final class CleanerViewModel: ObservableObject {
     }
 
     private func scanJunk(root: URL) async -> [ScanItem] {
-        await scanner.scan(root: root, rules: DefaultRules.conservative) { [weak self] progress in
+        let regularItems = await scanner.scan(root: root, rules: DefaultRules.conservative) { [weak self] progress in
             Task { @MainActor [weak self] in
                 guard let self else { return }
-                self.scanProgress = progress.fractionCompleted
+                self.scanProgress = progress.fractionCompleted * 0.88
                 self.currentScanCategory = progress.currentRuleTitle.localized
                 self.inspectedFileCount = progress.inspectedFiles
                 self.discoveredFileCount = progress.matchedFiles
                 self.discoveredBytes = progress.matchedBytes
             }
         }
+        guard !Task.isCancelled else { return [] }
+
+        let home = FileManager.default.homeDirectoryForCurrentUser.standardizedFileURL.resolvingSymlinksInPath()
+        let selectedRoot = root.standardizedFileURL.resolvingSymlinksInPath()
+        guard selectedRoot == home else {
+            scanProgress = 1
+            return regularItems
+        }
+
+        currentScanCategory = L10n.string("Uninstall Leftovers")
+        scanProgress = 0.92
+        let installedIdentifiers = await applicationScanner.installedBundleIdentifiers(in: [
+            URL(fileURLWithPath: "/Applications", isDirectory: true),
+            URL(fileURLWithPath: "/System/Applications", isDirectory: true),
+            home.appending(path: "Applications", directoryHint: .isDirectory)
+        ])
+        guard !Task.isCancelled else { return [] }
+        let previouslyInspectedFiles = inspectedFileCount
+        let residueGroups = await applicationScanner.orphanedResidues(
+            installedBundleIdentifiers: installedIdentifiers,
+            home: home
+        ) { [weak self] progress in
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                self.scanProgress = 0.92 + progress.fractionCompleted * 0.08
+                self.inspectedFileCount = previouslyInspectedFiles + progress.inspectedFiles
+            }
+        }
+        guard !Task.isCancelled else { return [] }
+
+        let residueItems = residueGroups.flatMap(\.residues).map { residue in
+            let modifiedAt = try? residue.url.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate
+            return ScanItem(
+                url: residue.url,
+                bytes: residue.bytes,
+                modifiedAt: modifiedAt,
+                rule: DefaultRules.uninstallLeftovers
+            )
+        }
+        let residueURLs = residueItems.map(\.url)
+        let deduplicatedRegularItems = regularItems.filter { item in
+            !residueURLs.contains { residueURL in
+                SafetyPolicy.contains(item.url, in: residueURL, allowDirectoryItself: true)
+            }
+        }
+        let combined = deduplicatedRegularItems + residueItems
+        scanProgress = 1
+        discoveredFileCount = combined.count
+        discoveredBytes = combined.reduce(0) { $0 + $1.bytes }
+        return combined
     }
 
     func changeMode(_ newMode: FeatureMode) {
@@ -1118,7 +1169,8 @@ final class CleanerViewModel: ObservableObject {
     private func rebuildJunkGroups() {
         itemByID = Dictionary(uniqueKeysWithValues: items.map { ($0.id, $0) })
         totalBytes = items.reduce(0) { $0 + $1.bytes }
-        let ruleOrder = Dictionary(uniqueKeysWithValues: DefaultRules.conservative.enumerated().map { ($0.element.id, $0.offset) })
+        var ruleOrder = Dictionary(uniqueKeysWithValues: DefaultRules.conservative.enumerated().map { ($0.element.id, $0.offset + 1) })
+        ruleOrder[DefaultRules.uninstallLeftovers.id] = 0
         let grouped = Dictionary(grouping: items, by: { $0.rule.id })
         junkGroups = grouped.values.compactMap { groupItems in
             guard let first = groupItems.first else { return nil }
