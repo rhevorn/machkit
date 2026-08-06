@@ -168,7 +168,7 @@ struct ContentView: View {
                         ProgressView().controlSize(.mini)
                         sidebarLabel("Analyzing", size: 9, weight: .medium)
                     }
-                    .frame(width: 56, height: 42)
+                    .frame(width: 52, height: 42)
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -181,11 +181,11 @@ struct ContentView: View {
                     Image(systemName: "bubble.left.and.bubble.right").font(.system(size: 16))
                     sidebarLabel("Feedback")
                 }
-                .frame(width: 56, height: 48)
+                .frame(width: 52, height: 48)
                 .contentShape(Rectangle())
             }.buttonStyle(.plain).foregroundStyle(.secondary).padding(.bottom, 10)
         }
-        .frame(width: 82)
+        .frame(width: 72)
         .background(Color(nsColor: .controlBackgroundColor))
     }
 
@@ -206,7 +206,7 @@ struct ContentView: View {
         Image("BrandMark")
             .resizable()
             .scaledToFit()
-            .frame(width: 38, height: 38)
+            .frame(width: 34, height: 34)
             .help("Sift")
     }
 
@@ -220,7 +220,7 @@ struct ContentView: View {
                 sidebarLabel(mode.rawValue.localized)
             }
             .foregroundStyle(model.mode == mode ? Color.accentColor : Color.secondary)
-            .frame(width: 68, height: 54)
+            .frame(width: 60, height: 52)
             .background {
                 if model.mode == mode {
                     RoundedRectangle(cornerRadius: 8).fill(Color.accentColor.opacity(0.10))
@@ -246,7 +246,7 @@ struct ContentView: View {
                 sidebarLabel("System", size: 10.5)
             }
             .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
-            .frame(width: 68, height: 54)
+            .frame(width: 60, height: 52)
             .background {
                 if isSelected {
                     RoundedRectangle(cornerRadius: 8).fill(Color.accentColor.opacity(0.10))
@@ -269,10 +269,9 @@ struct ContentView: View {
     ) -> some View {
         Text(title.localized)
             .font(.system(size: size, weight: weight))
-            .lineLimit(2)
-            .multilineTextAlignment(.center)
-            .minimumScaleFactor(0.72)
-            .frame(width: 68)
+            .lineLimit(1)
+            .truncationMode(.tail)
+            .frame(width: 60)
     }
 
     private var homeView: some View {
