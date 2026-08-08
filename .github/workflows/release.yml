@@ -1,0 +1,117 @@
+name: Release macOS app
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout complete history
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Validate tag and app version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(Scripts/validate_release_version.sh "$GITHUB_REF_NAME")"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Build Release app
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project Sift.xcodeproj \
+            -scheme "Sift App" \
+            -configuration Release \
+            -derivedDataPath build/XcodeDerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Locate built app
+        id: app
+        shell: bash
+        run: |
+          set -euo pipefail
+          build_settings="$(xcodebuild \
+            -project Sift.xcodeproj \
+            -scheme "Sift App" \
+            -configuration Release \
+            -derivedDataPath build/XcodeDerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            -showBuildSettings)"
+          target_build_dir="$(printf '%s\n' "$build_settings" | awk -F ' = ' '/^[[:space:]]*TARGET_BUILD_DIR = / { print $2; exit }')"
+          wrapper_name="$(printf '%s\n' "$build_settings" | awk -F ' = ' '/^[[:space:]]*WRAPPER_NAME = / { print $2; exit }')"
+          app_path="$target_build_dir/$wrapper_name"
+          if [[ -z "$target_build_dir" || -z "$wrapper_name" || ! -d "$app_path" ]]; then
+            echo "Unable to locate built app from Xcode build settings: $app_path" >&2
+            exit 1
+          fi
+          echo "path=$app_path" >> "$GITHUB_OUTPUT"
+
+      - name: Apply and verify ad-hoc signature
+        shell: bash
+        env:
+          APP_PATH: ${{ steps.app.outputs.path }}
+        run: |
+          set -euo pipefail
+          codesign --force --deep --sign - "$APP_PATH"
+          codesign --verify --deep --strict --verbose=2 "$APP_PATH"
+
+      - name: Package macOS ZIP
+        id: package
+        shell: bash
+        env:
+          APP_PATH: ${{ steps.app.outputs.path }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          release_directory="$GITHUB_WORKSPACE/build/release"
+          archive_path="$release_directory/Sift-$VERSION-macOS.zip"
+          mkdir -p "$release_directory"
+          ditto \
+            -c \
+            -k \
+            --sequesterRsrc \
+            --keepParent \
+            "$APP_PATH" \
+            "$archive_path"
+          test -s "$archive_path"
+          echo "path=$archive_path" >> "$GITHUB_OUTPUT"
+
+      - name: Generate Release Notes
+        id: notes
+        shell: bash
+        run: |
+          set -euo pipefail
+          notes_path="$GITHUB_WORKSPACE/build/release/release-notes.md"
+          Scripts/generate_release_notes.sh "$GITHUB_REF_NAME" "$notes_path"
+          test -s "$notes_path"
+          echo "path=$notes_path" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARCHIVE_PATH: ${{ steps.package.outputs.path }}
+          NOTES_PATH: ${{ steps.notes.outputs.path }}
+        run: |
+          set -euo pipefail
+          gh release create "$GITHUB_REF_NAME" "$ARCHIVE_PATH" \
+            --verify-tag \
+            --title "Sift $GITHUB_REF_NAME" \
+            --notes-file "$NOTES_PATH"
