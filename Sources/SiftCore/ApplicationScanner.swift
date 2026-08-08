@@ -1,5 +1,49 @@
 import Foundation
 
+private struct ResidueSizeWorkItem: Sendable {
+    let identifier: String
+    let url: URL
+    let kind: ResidueKind
+}
+
+private actor ResidueProgressTracker {
+    private let totalPaths: Int
+    private let callback: (@Sendable (ApplicationResidueScanProgress) -> Void)?
+    private var completedPaths = 0
+    private var inspectedFiles = 0
+    private var activeInspectedFiles: [String: Int] = [:]
+    private var lastUpdate = Date.distantPast
+
+    init(totalPaths: Int, callback: (@Sendable (ApplicationResidueScanProgress) -> Void)?) {
+        self.totalPaths = totalPaths
+        self.callback = callback
+    }
+
+    func visited(path: String, count: Int) {
+        inspectedFiles += count
+        activeInspectedFiles[path, default: 0] += count
+        emitIfNeeded(force: false)
+    }
+
+    func completed(path: String) {
+        activeInspectedFiles.removeValue(forKey: path)
+        completedPaths += 1
+        emitIfNeeded(force: true)
+    }
+
+    private func emitIfNeeded(force: Bool) {
+        let now = Date()
+        guard force || now.timeIntervalSince(lastUpdate) >= 0.15 else { return }
+        lastUpdate = now
+        callback?(ApplicationResidueScanProgress(
+            completedPaths: completedPaths,
+            totalPaths: totalPaths,
+            inspectedFiles: inspectedFiles,
+            currentPathInspectedFiles: activeInspectedFiles.values.max() ?? 0
+        ))
+    }
+}
+
 public actor ApplicationScanner {
     private let fileManager: FileManager
 
@@ -214,51 +258,38 @@ public actor ApplicationScanner {
             guard unique.count >= 2 || hasStrongEvidence else { return nil }
             return (identifier, unique)
         }
-        let totalPaths = qualifiedCandidates.reduce(0) { $0 + $1.1.count }
-        var completedPaths = 0
-        var inspectedFiles = 0
-        var lastProgressUpdate = Date.distantPast
-        var groups: [ApplicationResidueGroup] = []
+        let workItems = qualifiedCandidates.flatMap { identifier, evidence in
+            evidence.map { ResidueSizeWorkItem(identifier: identifier, url: $0.url, kind: $0.kind) }
+        }
+        let tracker = ResidueProgressTracker(totalPaths: workItems.count, callback: onProgress)
+        var residuesByIdentifier: [String: [ApplicationResidue]] = [:]
+        let concurrencyLimit = min(3, workItems.count)
 
-        for (identifier, evidence) in qualifiedCandidates {
-            guard !Task.isCancelled else { break }
-            var residues: [ApplicationResidue] = []
-            for item in evidence {
-                var currentPathInspectedFiles = 0
-                let bytes = await allocatedSizeCooperatively(at: item.url) { visited in
-                    inspectedFiles += visited
-                    currentPathInspectedFiles += visited
-                    let now = Date()
-                    if now.timeIntervalSince(lastProgressUpdate) >= 0.15 {
-                        lastProgressUpdate = now
-                        onProgress?(ApplicationResidueScanProgress(
-                            completedPaths: completedPaths,
-                            totalPaths: totalPaths,
-                            inspectedFiles: inspectedFiles,
-                            currentPathInspectedFiles: currentPathInspectedFiles
-                        ))
-                    }
-                }
-                residues.append(ApplicationResidue(
-                    url: item.url,
-                    kind: item.kind,
-                    bytes: bytes,
-                    risk: .review
-                ))
-                completedPaths += 1
-                onProgress?(ApplicationResidueScanProgress(
-                    completedPaths: completedPaths,
-                    totalPaths: totalPaths,
-                    inspectedFiles: inspectedFiles,
-                    currentPathInspectedFiles: 0
-                ))
+        await withTaskGroup(of: (String, ApplicationResidue)?.self) { group in
+            var nextIndex = 0
+            for _ in 0..<concurrencyLimit {
+                let work = workItems[nextIndex]
+                nextIndex += 1
+                group.addTask { await Self.measureResidue(work, tracker: tracker) }
             }
-            groups.append(ApplicationResidueGroup(
+
+            while let result = await group.next() {
+                if let (identifier, residue) = result {
+                    residuesByIdentifier[identifier, default: []].append(residue)
+                }
+                guard nextIndex < workItems.count, !Task.isCancelled else { continue }
+                let work = workItems[nextIndex]
+                nextIndex += 1
+                group.addTask { await Self.measureResidue(work, tracker: tracker) }
+            }
+        }
+
+        return residuesByIdentifier.map { identifier, residues in
+            ApplicationResidueGroup(
                 identifier: identifier,
                 residues: residues.sorted { $0.bytes > $1.bytes }
-            ))
-        }
-        return groups.sorted {
+            )
+        }.sorted {
             if $0.bytes != $1.bytes { return $0.bytes > $1.bytes }
             return $0.identifier.localizedStandardCompare($1.identifier) == .orderedAscending
         }
@@ -318,13 +349,32 @@ public actor ApplicationScanner {
         return total
     }
 
-    private func allocatedSizeCooperatively(
+    private nonisolated static func measureResidue(
+        _ work: ResidueSizeWorkItem,
+        tracker: ResidueProgressTracker
+    ) async -> (String, ApplicationResidue)? {
+        guard !Task.isCancelled else { return nil }
+        let bytes = await allocatedSizeCooperatively(at: work.url) { visited in
+            await tracker.visited(path: work.url.path, count: visited)
+        }
+        guard !Task.isCancelled else { return nil }
+        await tracker.completed(path: work.url.path)
+        return (work.identifier, ApplicationResidue(
+            url: work.url,
+            kind: work.kind,
+            bytes: bytes,
+            risk: .review
+        ))
+    }
+
+    private nonisolated static func allocatedSizeCooperatively(
         at url: URL,
-        onVisited: (Int) -> Void
+        onVisited: @Sendable (Int) async -> Void
     ) async -> Int64 {
+        let fileManager = FileManager.default
         let keys: Set<URLResourceKey> = [.isRegularFileKey, .fileAllocatedSizeKey]
         if let values = try? url.resourceValues(forKeys: keys), values.isRegularFile == true {
-            onVisited(1)
+            await onVisited(1)
             return Int64(values.fileAllocatedSize ?? 0)
         }
         guard let enumerator = fileManager.enumerator(
@@ -341,12 +391,12 @@ public actor ApplicationScanner {
                 total += Int64(values.fileAllocatedSize ?? 0)
             }
             if pendingVisited >= 512 {
-                onVisited(pendingVisited)
+                await onVisited(pendingVisited)
                 pendingVisited = 0
                 await Task.yield()
             }
         }
-        if pendingVisited > 0 { onVisited(pendingVisited) }
+        if pendingVisited > 0 { await onVisited(pendingVisited) }
         return total
     }
 

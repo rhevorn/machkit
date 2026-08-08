@@ -29,6 +29,43 @@ private func formatPlaceholders(in value: String) -> [String] {
     #expect(paths.allSatisfy { !$0.contains("Cellar") })
 }
 
+@Test func cleanupRuleRegistryKeepsOneRulePerDefinitionFile() throws {
+    let rulesDirectory = repositoryRoot.appending(path: "Sources/SiftCore/CleanupRules", directoryHint: .isDirectory)
+    let definitionFiles = try FileManager.default.contentsOfDirectory(
+        at: rulesDirectory,
+        includingPropertiesForKeys: nil
+    ).filter {
+        $0.pathExtension == "swift" && $0.lastPathComponent != "CleanupRuleDefinition.swift"
+    }
+    let registeredRules = DefaultRules.conservative + [DefaultRules.uninstallLeftovers]
+
+    #expect(definitionFiles.count == registeredRules.count)
+    #expect(Set(registeredRules.map(\.id)).count == registeredRules.count)
+}
+
+@Test func scannerCombinesResultsFromIndependentRules() async throws {
+    let root = FileManager.default.temporaryDirectory
+        .appending(path: "sift-parallel-rules-\(UUID().uuidString)", directoryHint: .isDirectory)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let firstFile = root.appending(path: "First/old.one")
+    let secondFile = root.appending(path: "Second/old.two")
+    try FileManager.default.createDirectory(at: firstFile.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try FileManager.default.createDirectory(at: secondFile.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try Data("one".utf8).write(to: firstFile)
+    try Data("two".utf8).write(to: secondFile)
+    let oldDate = Date(timeIntervalSinceNow: -3 * 24 * 60 * 60)
+    try FileManager.default.setAttributes([.modificationDate: oldDate], ofItemAtPath: firstFile.path)
+    try FileManager.default.setAttributes([.modificationDate: oldDate], ofItemAtPath: secondFile.path)
+    let rules = [
+        ScanRule(id: "first", title: "First", relativePath: "First", minimumAgeDays: 1, risk: .safe, explanation: ""),
+        ScanRule(id: "second", title: "Second", relativePath: "Second", minimumAgeDays: 1, risk: .safe, explanation: "")
+    ]
+
+    let items = await Scanner(maximumConcurrentRules: 2).scan(root: root, rules: rules)
+
+    #expect(Set(items.map { $0.rule.id }) == ["first", "second"])
+}
+
 @Test func broadCacheRuleExcludesDedicatedDeveloperCacheRoots() throws {
     let broadRule = try #require(DefaultRules.conservative.first { $0.id == "user-caches" })
     let nestedRules = DefaultRules.conservative.filter {
