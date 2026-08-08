@@ -90,6 +90,11 @@ final class CleanerViewModel: ObservableObject {
     private var selectedCountByGroup: [String: Int] = [:]
     private var itemByID: [UUID: ScanItem] = [:]
     private var cleanupRoot = FileManager.default.homeDirectoryForCurrentUser
+    private var standardCleanupProgress = 0.0
+    private var residueCleanupProgress = 0.0
+    private var standardCleanupInspectedFiles = 0
+    private var residueCleanupInspectedFiles = 0
+    private var cleanupIncludesResidues = false
     var selectedCount: Int { selectedIDs.count }
     var lastScanText: String {
         guard let lastScanAt else { return L10n.string("Not scanned yet") }
@@ -185,6 +190,12 @@ final class CleanerViewModel: ObservableObject {
         scanTask?.cancel()
         isCleanupScanning = true
         scanProgress = 0
+        standardCleanupProgress = 0
+        residueCleanupProgress = 0
+        standardCleanupInspectedFiles = 0
+        residueCleanupInspectedFiles = 0
+        cleanupIncludesResidues = selectedRoot.resolvingSymlinksInPath()
+            == FileManager.default.homeDirectoryForCurrentUser.standardizedFileURL.resolvingSymlinksInPath()
         currentScanCategory = L10n.string("Preparing to scan")
         inspectedFileCount = 0
         discoveredFileCount = 0
@@ -604,44 +615,12 @@ final class CleanerViewModel: ObservableObject {
     }
 
     private func scanJunk(root: URL) async -> [ScanItem] {
-        let regularItems = await scanner.scan(root: root, rules: DefaultRules.conservative) { [weak self] progress in
-            Task { @MainActor [weak self] in
-                guard let self else { return }
-                self.scanProgress = progress.fractionCompleted * 0.88
-                self.currentScanCategory = progress.currentRuleTitle.localized
-                self.inspectedFileCount = progress.inspectedFiles
-                self.discoveredFileCount = progress.matchedFiles
-                self.discoveredBytes = progress.matchedBytes
-            }
-        }
-        guard !Task.isCancelled else { return [] }
-
+        guard cleanupIncludesResidues else { return await scanRegularJunk(root: root) }
         let home = FileManager.default.homeDirectoryForCurrentUser.standardizedFileURL.resolvingSymlinksInPath()
-        let selectedRoot = root.standardizedFileURL.resolvingSymlinksInPath()
-        guard selectedRoot == home else {
-            scanProgress = 1
-            return regularItems
-        }
 
-        currentScanCategory = L10n.string("Uninstall Leftovers")
-        scanProgress = 0.92
-        let installedIdentifiers = await applicationScanner.installedBundleIdentifiers(in: [
-            URL(fileURLWithPath: "/Applications", isDirectory: true),
-            URL(fileURLWithPath: "/System/Applications", isDirectory: true),
-            home.appending(path: "Applications", directoryHint: .isDirectory)
-        ])
-        guard !Task.isCancelled else { return [] }
-        let previouslyInspectedFiles = inspectedFileCount
-        let residueGroups = await applicationScanner.orphanedResidues(
-            installedBundleIdentifiers: installedIdentifiers,
-            home: home
-        ) { [weak self] progress in
-            Task { @MainActor [weak self] in
-                guard let self else { return }
-                self.scanProgress = 0.92 + progress.fractionCompleted * 0.08
-                self.inspectedFileCount = previouslyInspectedFiles + progress.inspectedFiles
-            }
-        }
+        async let regularScan = scanRegularJunk(root: root)
+        async let residueScan = scanCleanupResidues(home: home)
+        let (regularItems, residueGroups) = await (regularScan, residueScan)
         guard !Task.isCancelled else { return [] }
 
         let residueItems = residueGroups.flatMap(\.residues).map { residue in
@@ -664,6 +643,65 @@ final class CleanerViewModel: ObservableObject {
         discoveredFileCount = combined.count
         discoveredBytes = combined.reduce(0) { $0 + $1.bytes }
         return combined
+    }
+
+    private func scanRegularJunk(root: URL) async -> [ScanItem] {
+        await scanner.scan(root: root, rules: DefaultRules.conservative) { [weak self] progress in
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                self.standardCleanupProgress = progress.fractionCompleted
+                self.standardCleanupInspectedFiles = progress.inspectedFiles
+                self.publishCleanupProgress()
+                if self.cleanupIncludesResidues,
+                   progress.fractionCompleted >= 1,
+                   self.residueCleanupProgress < 1 {
+                    self.currentScanCategory = L10n.string("Uninstall Leftovers")
+                } else {
+                    self.currentScanCategory = progress.currentRuleTitle.localized
+                }
+                self.discoveredFileCount = progress.matchedFiles
+                self.discoveredBytes = progress.matchedBytes
+            }
+        }
+    }
+
+    private func scanCleanupResidues(home: URL) async -> [ApplicationResidueGroup] {
+        let installedIdentifiers = await applicationScanner.installedBundleIdentifiers(in: [
+            URL(fileURLWithPath: "/Applications", isDirectory: true),
+            URL(fileURLWithPath: "/System/Applications", isDirectory: true),
+            home.appending(path: "Applications", directoryHint: .isDirectory)
+        ])
+        guard !Task.isCancelled else { return [] }
+        let residueGroups = await applicationScanner.orphanedResidues(
+            installedBundleIdentifiers: installedIdentifiers,
+            home: home
+        ) { [weak self] progress in
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                self.residueCleanupProgress = progress.fractionCompleted
+                self.residueCleanupInspectedFiles = progress.inspectedFiles
+                self.publishCleanupProgress()
+                if self.standardCleanupProgress >= 1 {
+                    self.currentScanCategory = L10n.string("Uninstall Leftovers")
+                }
+            }
+        }
+        guard !Task.isCancelled else { return [] }
+        residueCleanupProgress = 1
+        publishCleanupProgress()
+        return residueGroups
+    }
+
+    private func publishCleanupProgress() {
+        inspectedFileCount = standardCleanupInspectedFiles + residueCleanupInspectedFiles
+        guard cleanupIncludesResidues else {
+            scanProgress = standardCleanupProgress
+            return
+        }
+        let totalRuleCount = Double(DefaultRules.conservative.count + 1)
+        let standardWeight = Double(DefaultRules.conservative.count) / totalRuleCount
+        scanProgress = standardCleanupProgress * standardWeight
+            + residueCleanupProgress / totalRuleCount
     }
 
     func changeMode(_ newMode: FeatureMode) {
