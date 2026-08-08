@@ -572,9 +572,7 @@ struct ContentView: View {
                 subtitle: "Caches, logs, installers, and developer junk",
                 trailing: AnyView(
                     Group {
-                        if model.isStorageAnalyzing {
-                            Button("Cancel", role: .cancel, action: model.cancelScan)
-                        } else if !model.items.isEmpty {
+                        if !model.isCleanupScanning, !model.items.isEmpty {
                             compactScanButton
                         }
                     }
@@ -595,6 +593,27 @@ struct ContentView: View {
                 }.padding(12)
             }
         }
+    }
+
+    private var cleanupScanFocusAreas: [(icon: String, title: String)] {
+        [
+            ("internaldrive", "App caches"),
+            ("doc.text", "Developer logs"),
+            ("shippingbox", "Dependency libraries"),
+            ("hammer", "Build caches"),
+            ("app.badge", "Leftover app data")
+        ]
+    }
+
+    private var activeCleanupFocusIndex: Int {
+        let phase = model.currentScanCategory.lowercased()
+        if phase.contains("log") { return 1 }
+        if phase.contains("dependenc") || phase.contains("installer") { return 2 }
+        if phase.contains("build") || phase.contains("simulator") { return 3 }
+        if phase.contains("leftover") { return 4 }
+        if phase.contains("cache") { return 0 }
+        let step = min(max(Int(model.scanProgress * Double(cleanupScanFocusAreas.count)), 0), cleanupScanFocusAreas.count - 1)
+        return step
     }
 
     private var junkEmptyView: some View {
@@ -699,78 +718,104 @@ struct ContentView: View {
         .opacity(model.selectedIDs.isEmpty ? 0.45 : 1)
     }
 
-    private var activeCleanupRule: ScanRule? {
-        (DefaultRules.conservative + [DefaultRules.uninstallLeftovers]).first { rule in
-            rule.title.localized == model.currentScanCategory || rule.title == model.currentScanCategory
-        }
-    }
-
-    private var activeCleanupRuleNumber: Int {
-        guard let rule = activeCleanupRule,
-              let index = (DefaultRules.conservative + [DefaultRules.uninstallLeftovers])
-                .firstIndex(where: { $0.id == rule.id }) else { return 1 }
-        return index + 1
-    }
-
     private var scanningView: some View {
-        VStack(spacing: 20) {
-            Spacer()
-            VStack(spacing: 6) {
-                Text("Scanning \(model.currentScanCategory)")
-                    .font(.title3.weight(.semibold))
-                Text("Reads file metadata only; contents are never read or uploaded")
-                    .font(.caption).foregroundStyle(.secondary)
+        VStack(spacing: 0) {
+            Spacer(minLength: 28)
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.accentColor.opacity(0.18), Color.cyan.opacity(0.05)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 132, height: 132)
+                Circle()
+                    .stroke(Color.accentColor.opacity(0.12), lineWidth: 1)
+                    .frame(width: 108, height: 108)
+                Image(systemName: "sparkles.rectangle.stack.fill")
+                    .symbolRenderingMode(.palette)
+                    .foregroundStyle(Color.accentColor, Color.accentColor.opacity(0.25))
+                    .font(.system(size: 46, weight: .light))
+                    .symbolEffect(.pulse, options: .repeating, value: model.isCleanupScanning)
             }
+            .padding(.bottom, 22)
 
-            if let rule = activeCleanupRule {
-                VStack(spacing: 7) {
-                    HStack(spacing: 7) {
-                        Text(L10n.format(
-                            "Rule %lld of %lld",
-                            Int64(activeCleanupRuleNumber),
-                            Int64(DefaultRules.conservative.count + 1)
-                        ))
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundStyle(Color.accentColor)
-                            .padding(.horizontal, 8).frame(height: 21)
-                            .background(Color.accentColor.opacity(0.10), in: Capsule())
-                        Text("~/\(rule.relativePath)")
-                            .font(.caption2).monospaced().foregroundStyle(.tertiary).lineLimit(1)
-                    }
-                    Text(rule.explanation.localized)
-                        .font(.system(size: 12))
+            Text(model.currentScanCategory)
+                .font(.system(size: 22, weight: .semibold, design: .rounded))
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 440)
+                .contentTransition(.opacity)
+
+            Text("Reads file metadata only; contents are never read or uploaded")
+                .font(.system(size: 12))
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 380)
+                .padding(.top, 7)
+
+            VStack(spacing: 10) {
+                ProgressView(value: model.scanProgress)
+                HStack {
+                    Text("\(Int(model.scanProgress * 100))%")
+                        .font(.system(size: 11, weight: .semibold))
+                        .monospacedDigit()
+                        .foregroundStyle(Color.accentColor)
+                    Spacer()
+                    Text("\(formatted(model.discoveredBytes)) found so far")
+                        .font(.system(size: 11))
                         .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                        .lineLimit(2)
                 }
-                .id(rule.id)
-                .transition(.opacity.combined(with: .move(edge: .bottom)))
-                .animation(.easeInOut(duration: 0.28), value: rule.id)
-                .frame(width: 470)
-                .frame(minHeight: 52)
             }
+            .frame(width: 360)
+            .padding(.top, 22)
 
-            ProgressView(value: model.scanProgress)
-                .frame(width: 330)
-
-            HStack(spacing: 34) {
-                scanMetric(title: "Inspected", value: "\(model.inspectedFileCount) files")
-                Divider().frame(height: 34)
-                scanMetric(title: "Discovered", value: "\(model.discoveredFileCount) items")
-                Divider().frame(height: 34)
-                scanMetric(title: "Cleanable", value: formatted(model.discoveredBytes))
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(Array(cleanupScanFocusAreas.enumerated()), id: \.offset) { index, area in
+                    let isActive = index == activeCleanupFocusIndex
+                    let isDone = index < activeCleanupFocusIndex
+                    HStack(spacing: 10) {
+                        Image(systemName: isDone ? "checkmark.circle.fill" : (isActive ? area.icon : "circle"))
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(isDone || isActive ? Color.accentColor : Color.secondary.opacity(0.55))
+                            .frame(width: 18)
+                        Text(area.title.localized)
+                            .font(.system(size: 13, weight: isActive ? .semibold : .regular))
+                            .foregroundStyle(isActive ? Color.primary : Color.secondary)
+                        Spacer(minLength: 0)
+                        if isActive {
+                            ProgressView()
+                                .controlSize(.small)
+                        }
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .fill(isActive ? Color.accentColor.opacity(0.08) : Color.clear)
+                    )
+                }
             }
+            .frame(width: 360)
+            .padding(12)
+            .background(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Color(nsColor: .controlBackgroundColor).opacity(0.72))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+            )
+            .padding(.top, 26)
+            .animation(.easeInOut(duration: 0.22), value: activeCleanupFocusIndex)
+
             Button("Cancel Scan", role: .cancel, action: model.cancelScan)
-            Spacer()
+                .padding(.top, 22)
+            Spacer(minLength: 36)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-
-    private func scanMetric(title: String, value: String) -> some View {
-        VStack(spacing: 4) {
-            Text(value).font(.system(size: 14, weight: .semibold)).monospacedDigit()
-            Text(title.localized).font(.caption).foregroundStyle(.secondary)
-        }
+        .animation(.easeInOut(duration: 0.2), value: model.currentScanCategory)
     }
 
     private var junkDetailList: some View {
