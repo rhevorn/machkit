@@ -1001,6 +1001,9 @@
         }
       }
     },
+    "%@ found so far" : {
+
+    },
     "%@ items" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3704,9 +3707,6 @@
           }
         }
       }
-    },
-    "~/%@" : {
-
     },
     "A quiet, reliable way to manage Mac storage" : {
       "extractionState" : "manual",
@@ -30103,6 +30103,7 @@
       }
     },
     "Scanning %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
