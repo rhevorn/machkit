@@ -7,11 +7,11 @@ A privacy-first macOS utility for storage analysis, cleanup, app uninstall, port
 Everything runs locally on your Mac. Scans read file metadata only, risky items stay unchecked by default, and deletions go to the Trash.
 
 <p align="center">
-  <img src="Website/public/assets/img1.png" alt="Sift cleanup results in light appearance" width="900" />
+  <img src="Website/public/assets/img10.png" alt="Sift overview in light appearance" width="900" />
 </p>
 
 <p align="center">
-  <img src="Website/public/assets/img2.png" alt="Sift overview in dark appearance" width="900" />
+  <img src="Website/public/assets/img11.png" alt="Sift cleanup results in light appearance" width="900" />
 </p>
 
 ## Features

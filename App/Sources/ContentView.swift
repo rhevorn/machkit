@@ -190,16 +190,9 @@ struct ContentView: View {
     }
 
     private func openFeedback() {
-        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Development version"
-        let body = "Sift version: \(version)\nmacOS: \(ProcessInfo.processInfo.operatingSystemVersionString)"
-        var components = URLComponents()
-        components.scheme = "mailto"
-        components.path = ""
-        components.queryItems = [
-            URLQueryItem(name: "subject", value: "Feedback"),
-            URLQueryItem(name: "body", value: body)
-        ]
-        if let url = components.url { NSWorkspace.shared.open(url) }
+        if let url = URL(string: "https://github.com/rhevorn/sift/issues") {
+            NSWorkspace.shared.open(url)
+        }
     }
 
     private var brandMark: some View {

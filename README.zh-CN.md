@@ -7,11 +7,11 @@
 所有处理都在本机完成。扫描只读取文件元数据，风险项默认不勾选，删除统一移入废纸篓。
 
 <p align="center">
-  <img src="Website/public/assets/img1.png" alt="Sift 浅色模式清理结果" width="900" />
+  <img src="Website/public/assets/img10.png" alt="Sift 浅色模式总览界面" width="900" />
 </p>
 
 <p align="center">
-  <img src="Website/public/assets/img2.png" alt="Sift 深色模式总览界面" width="900" />
+  <img src="Website/public/assets/img11.png" alt="Sift 浅色模式清理结果" width="900" />
 </p>
 
 ## 功能
