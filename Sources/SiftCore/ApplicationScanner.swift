@@ -257,24 +257,11 @@ public actor ApplicationScanner {
         }
         let tracker = ResidueProgressTracker(totalPaths: workItems.count, callback: onProgress)
         var residuesByIdentifier: [String: [ApplicationResidue]] = [:]
-        let concurrencyLimit = min(2, workItems.count)
 
-        await withTaskGroup(of: (String, ApplicationResidue)?.self) { group in
-            var nextIndex = 0
-            for _ in 0..<concurrencyLimit {
-                let work = workItems[nextIndex]
-                nextIndex += 1
-                group.addTask { await Self.measureResidue(work, tracker: tracker) }
-            }
-
-            while let result = await group.next() {
-                if let (identifier, residue) = result {
-                    residuesByIdentifier[identifier, default: []].append(residue)
-                }
-                guard nextIndex < workItems.count, !Task.isCancelled else { continue }
-                let work = workItems[nextIndex]
-                nextIndex += 1
-                group.addTask { await Self.measureResidue(work, tracker: tracker) }
+        for work in workItems {
+            guard !Task.isCancelled else { break }
+            if let (identifier, residue) = await Self.measureResidue(work, tracker: tracker) {
+                residuesByIdentifier[identifier, default: []].append(residue)
             }
         }
 

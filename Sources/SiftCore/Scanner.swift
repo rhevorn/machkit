@@ -4,6 +4,7 @@ public struct ScanProgress: Sendable {
     public let completedRules: Int
     public let totalRules: Int
     public let currentRuleTitle: String
+    public let completedRuleTitles: [String]
     public let inspectedFiles: Int
     public let currentRuleInspectedFiles: Int
     public let matchedFiles: Int
@@ -41,6 +42,7 @@ private actor RuleProgressTracker {
     private let callback: (@Sendable (ScanProgress) -> Void)?
     private var statsByRuleID: [String: RuleScanStats] = [:]
     private var completedRuleIDs = Set<String>()
+    private var completedRuleTitles: [String] = []
     private var lastUpdate = Date.distantPast
 
     init(totalRules: Int, callback: (@Sendable (ScanProgress) -> Void)?) {
@@ -60,7 +62,9 @@ private actor RuleProgressTracker {
 
     func completed(rule: ScanRule, stats: RuleScanStats) {
         statsByRuleID[rule.id] = stats
-        completedRuleIDs.insert(rule.id)
+        if completedRuleIDs.insert(rule.id).inserted {
+            completedRuleTitles.append(rule.title)
+        }
         emit(rule: rule, force: true)
     }
 
@@ -77,6 +81,7 @@ private actor RuleProgressTracker {
             completedRules: completedRuleIDs.count,
             totalRules: totalRules,
             currentRuleTitle: rule.title,
+            completedRuleTitles: completedRuleTitles,
             inspectedFiles: aggregate.inspectedFiles,
             currentRuleInspectedFiles: statsByRuleID[rule.id]?.inspectedFiles ?? 0,
             matchedFiles: aggregate.matchedFiles,
@@ -87,11 +92,9 @@ private actor RuleProgressTracker {
 
 public actor Scanner {
     private let fileManager: FileManager
-    private let maximumConcurrentRules: Int
 
-    public init(fileManager: FileManager = .default, maximumConcurrentRules: Int = 3) {
+    public init(fileManager: FileManager = .default) {
         self.fileManager = fileManager
-        self.maximumConcurrentRules = max(1, maximumConcurrentRules)
     }
 
     public func scan(
@@ -103,47 +106,22 @@ public actor Scanner {
         guard !activeRules.isEmpty else { return [] }
 
         let tracker = RuleProgressTracker(totalRules: activeRules.count, callback: onProgress)
-        let concurrencyLimit = min(maximumConcurrentRules, activeRules.count)
         let fileManager = SendableFileManager(value: self.fileManager)
-        var resultsByIndex: [Int: [ScanItem]] = [:]
+        var results: [ScanItem] = []
 
-        await withTaskGroup(of: RuleScanResult.self) { group in
-            var nextIndex = 0
-            for _ in 0..<concurrencyLimit {
-                let index = nextIndex
-                let rule = activeRules[index]
-                nextIndex += 1
-                group.addTask {
-                    await Self.scanRule(
-                        rule,
-                        ruleIndex: index,
-                        root: root,
-                        fileManager: fileManager,
-                        tracker: tracker
-                    )
-                }
-            }
-
-            while let result = await group.next() {
-                resultsByIndex[result.ruleIndex] = result.items
-                guard nextIndex < activeRules.count, !Task.isCancelled else { continue }
-                let index = nextIndex
-                let rule = activeRules[index]
-                nextIndex += 1
-                group.addTask {
-                    await Self.scanRule(
-                        rule,
-                        ruleIndex: index,
-                        root: root,
-                        fileManager: fileManager,
-                        tracker: tracker
-                    )
-                }
-            }
+        for (index, rule) in activeRules.enumerated() {
+            guard !Task.isCancelled else { break }
+            let scanned = await Self.scanRule(
+                rule,
+                ruleIndex: index,
+                root: root,
+                fileManager: fileManager,
+                tracker: tracker
+            )
+            results.append(contentsOf: scanned.items)
         }
 
-        return resultsByIndex.keys.sorted().flatMap { resultsByIndex[$0] ?? [] }
-            .sorted { $0.bytes > $1.bytes }
+        return results.sorted { $0.bytes > $1.bytes }
     }
 
     private nonisolated static func scanRule(

@@ -586,34 +586,40 @@ struct ContentView: View {
             } else {
                 junkDetailList
                 Divider()
-                HStack {
+                HStack(spacing: 10) {
                     Text("\(model.selectedCount) items selected, \(formatted(model.selectedBytes))")
-                    Spacer()
+                    junkSelectionControls
+                    Spacer(minLength: 8)
                     cleanSelectionButton
                 }.padding(12)
             }
         }
     }
 
-    private var cleanupScanFocusAreas: [(icon: String, title: String)] {
-        [
-            ("internaldrive", "App caches"),
-            ("doc.text", "Developer logs"),
-            ("shippingbox", "Dependency libraries"),
-            ("hammer", "Build caches"),
-            ("app.badge", "Leftover app data")
-        ]
+    private var junkSelectionControls: some View {
+        HStack(spacing: 6) {
+            Button("Select All", action: model.selectAllJunkItems)
+                .disabled(model.items.isEmpty || model.selectedCount == model.items.count)
+            Button("Deselect All", action: model.deselectAllJunkItems)
+                .disabled(model.selectedIDs.isEmpty)
+        }
+        .buttonStyle(.borderless)
+        .font(.system(size: 11, weight: .semibold))
+        .foregroundStyle(Color.accentColor)
+        .controlSize(.small)
     }
 
-    private var activeCleanupFocusIndex: Int {
-        let phase = model.currentScanCategory.lowercased()
-        if phase.contains("log") { return 1 }
-        if phase.contains("dependenc") || phase.contains("installer") { return 2 }
-        if phase.contains("build") || phase.contains("simulator") { return 3 }
-        if phase.contains("leftover") { return 4 }
-        if phase.contains("cache") { return 0 }
-        let step = min(max(Int(model.scanProgress * Double(cleanupScanFocusAreas.count)), 0), cleanupScanFocusAreas.count - 1)
-        return step
+    private var cleanupScanFocusAreas: [(id: String, icon: String, title: String)] {
+        var areas: [(id: String, icon: String, title: String)] = [
+            ("appCaches", "internaldrive", "App caches"),
+            ("developerLogs", "doc.text", "Developer logs"),
+            ("dependencyLibraries", "shippingbox", "Dependency libraries"),
+            ("buildCaches", "hammer", "Build caches")
+        ]
+        if model.showsLeftoverScanPhase {
+            areas.append(("leftoverAppData", "app.badge", "Leftover app data"))
+        }
+        return areas
     }
 
     private var junkEmptyView: some View {
@@ -772,9 +778,9 @@ struct ContentView: View {
             .padding(.top, 22)
 
             VStack(alignment: .leading, spacing: 8) {
-                ForEach(Array(cleanupScanFocusAreas.enumerated()), id: \.offset) { index, area in
-                    let isActive = index == activeCleanupFocusIndex
-                    let isDone = index < activeCleanupFocusIndex
+                ForEach(cleanupScanFocusAreas, id: \.id) { area in
+                    let isDone = model.completedCleanupPhases.contains(area.id)
+                    let isActive = !isDone && model.activeCleanupPhaseID == area.id
                     HStack(spacing: 10) {
                         Image(systemName: isDone ? "checkmark.circle.fill" : (isActive ? area.icon : "circle"))
                             .font(.system(size: 14, weight: .semibold))
@@ -782,7 +788,7 @@ struct ContentView: View {
                             .frame(width: 18)
                         Text(area.title.localized)
                             .font(.system(size: 13, weight: isActive ? .semibold : .regular))
-                            .foregroundStyle(isActive ? Color.primary : Color.secondary)
+                            .foregroundStyle(isDone || isActive ? Color.primary : Color.secondary)
                         Spacer(minLength: 0)
                         if isActive {
                             ProgressView()
@@ -808,7 +814,8 @@ struct ContentView: View {
                     .stroke(Color.primary.opacity(0.06), lineWidth: 1)
             )
             .padding(.top, 26)
-            .animation(.easeInOut(duration: 0.22), value: activeCleanupFocusIndex)
+            .animation(.easeInOut(duration: 0.22), value: model.completedCleanupPhases)
+            .animation(.easeInOut(duration: 0.22), value: model.activeCleanupPhaseID)
 
             Button("Cancel Scan", role: .cancel, action: model.cancelScan)
                 .padding(.top, 22)
@@ -987,18 +994,30 @@ struct ContentView: View {
 
                     softwareCategoryTabs
 
-                    ScrollView {
-                        LazyVStack(spacing: 16) {
-                            if softwareTab != .commandLine {
-                                ForEach(filteredApplicationGroups) { group in applicationSection(group) }
-                            }
-                            if softwareTab == .all || softwareTab == .commandLine {
-                                ForEach(filteredCommandLineGroups, id: \.manager) { group in
-                                    commandLineSection(manager: group.manager, tools: group.tools)
+                    ScrollViewReader { proxy in
+                        ScrollView {
+                            LazyVStack(spacing: 16) {
+                                Color.clear
+                                    .frame(height: 0)
+                                    .id("softwareListTop")
+                                if softwareTab != .commandLine {
+                                    ForEach(filteredApplicationGroups) { group in applicationSection(group) }
+                                }
+                                if softwareTab == .all || softwareTab == .commandLine {
+                                    ForEach(filteredCommandLineGroups, id: \.manager) { group in
+                                        commandLineSection(manager: group.manager, tools: group.tools)
+                                    }
                                 }
                             }
+                            .padding(.horizontal, 16).padding(.bottom, 16)
                         }
-                        .padding(.horizontal, 16).padding(.bottom, 16)
+                        .onChange(of: softwareTab) { _, _ in
+                            var transaction = Transaction()
+                            transaction.disablesAnimations = true
+                            withTransaction(transaction) {
+                                proxy.scrollTo("softwareListTop", anchor: .top)
+                            }
+                        }
                     }
                 }
             }
@@ -1009,7 +1028,10 @@ struct ContentView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 7) {
                 ForEach(SoftwareTab.allCases) { tab in
-                    Button { withAnimation(.easeOut(duration: 0.16)) { softwareTab = tab } } label: {
+                    Button {
+                        guard softwareTab != tab else { return }
+                        withAnimation(.easeOut(duration: 0.16)) { softwareTab = tab }
+                    } label: {
                         HStack(spacing: 6) {
                             Image(systemName: softwareTabIcon(tab))
                                 .font(.system(size: 11, weight: .semibold))
