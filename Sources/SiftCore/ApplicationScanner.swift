@@ -10,8 +10,6 @@ private actor ResidueProgressTracker {
     private let totalPaths: Int
     private let callback: (@Sendable (ApplicationResidueScanProgress) -> Void)?
     private var completedPaths = 0
-    private var inspectedFiles = 0
-    private var activeInspectedFiles: [String: Int] = [:]
     private var lastUpdate = Date.distantPast
 
     init(totalPaths: Int, callback: (@Sendable (ApplicationResidueScanProgress) -> Void)?) {
@@ -19,27 +17,16 @@ private actor ResidueProgressTracker {
         self.callback = callback
     }
 
-    func visited(path: String, count: Int) {
-        inspectedFiles += count
-        activeInspectedFiles[path, default: 0] += count
-        emitIfNeeded(force: false)
-    }
-
-    func completed(path: String) {
-        activeInspectedFiles.removeValue(forKey: path)
+    func completed() {
         completedPaths += 1
-        emitIfNeeded(force: true)
-    }
-
-    private func emitIfNeeded(force: Bool) {
         let now = Date()
-        guard force || now.timeIntervalSince(lastUpdate) >= 0.15 else { return }
+        guard now.timeIntervalSince(lastUpdate) >= 0.15 || completedPaths >= totalPaths else { return }
         lastUpdate = now
         callback?(ApplicationResidueScanProgress(
             completedPaths: completedPaths,
             totalPaths: totalPaths,
-            inspectedFiles: inspectedFiles,
-            currentPathInspectedFiles: activeInspectedFiles.values.max() ?? 0
+            inspectedFiles: completedPaths,
+            currentPathInspectedFiles: 0
         ))
     }
 }
@@ -258,12 +245,19 @@ public actor ApplicationScanner {
             guard unique.count >= 2 || hasStrongEvidence else { return nil }
             return (identifier, unique)
         }
+        // Discovery is shallow (top-level paths only). Size comes from one `du -sk`
+        // per path so Containers never need a custom recursive walk.
         let workItems = qualifiedCandidates.flatMap { identifier, evidence in
             evidence.map { ResidueSizeWorkItem(identifier: identifier, url: $0.url, kind: $0.kind) }
+        }.sorted { lhs, rhs in
+            let leftPriority = lhs.kind == .container ? 1 : 0
+            let rightPriority = rhs.kind == .container ? 1 : 0
+            if leftPriority != rightPriority { return leftPriority < rightPriority }
+            return lhs.url.path.localizedStandardCompare(rhs.url.path) == .orderedAscending
         }
         let tracker = ResidueProgressTracker(totalPaths: workItems.count, callback: onProgress)
         var residuesByIdentifier: [String: [ApplicationResidue]] = [:]
-        let concurrencyLimit = min(3, workItems.count)
+        let concurrencyLimit = min(2, workItems.count)
 
         await withTaskGroup(of: (String, ApplicationResidue)?.self) { group in
             var nextIndex = 0
@@ -354,11 +348,9 @@ public actor ApplicationScanner {
         tracker: ResidueProgressTracker
     ) async -> (String, ApplicationResidue)? {
         guard !Task.isCancelled else { return nil }
-        let bytes = await allocatedSizeCooperatively(at: work.url) { visited in
-            await tracker.visited(path: work.url.path, count: visited)
-        }
+        let bytes = await directoryAllocatedBytes(at: work.url)
         guard !Task.isCancelled else { return nil }
-        await tracker.completed(path: work.url.path)
+        await tracker.completed()
         return (work.identifier, ApplicationResidue(
             url: work.url,
             kind: work.kind,
@@ -367,37 +359,30 @@ public actor ApplicationScanner {
         ))
     }
 
-    private nonisolated static func allocatedSizeCooperatively(
-        at url: URL,
-        onVisited: @Sendable (Int) async -> Void
-    ) async -> Int64 {
-        let fileManager = FileManager.default
-        let keys: Set<URLResourceKey> = [.isRegularFileKey, .fileAllocatedSizeKey]
-        if let values = try? url.resourceValues(forKeys: keys), values.isRegularFile == true {
-            await onVisited(1)
-            return Int64(values.fileAllocatedSize ?? 0)
-        }
-        guard let enumerator = fileManager.enumerator(
-            at: url,
-            includingPropertiesForKeys: Array(keys),
-            options: [.skipsHiddenFiles]
-        ) else { return 0 }
-        var total: Int64 = 0
-        var pendingVisited = 0
-        while let child = enumerator.nextObject() as? URL {
-            guard !Task.isCancelled else { break }
-            pendingVisited += 1
-            if let values = try? child.resourceValues(forKeys: keys), values.isRegularFile == true {
-                total += Int64(values.fileAllocatedSize ?? 0)
+    /// One system-level size query per top-level residue path.
+    private nonisolated static func directoryAllocatedBytes(at url: URL) async -> Int64 {
+        await Task.detached(priority: .utility) {
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: "/usr/bin/du")
+            process.arguments = ["-sk", url.path]
+            let stdout = Pipe()
+            process.standardOutput = stdout
+            process.standardError = Pipe()
+            do {
+                try process.run()
+                process.waitUntilExit()
+            } catch {
+                return 0
             }
-            if pendingVisited >= 512 {
-                await onVisited(pendingVisited)
-                pendingVisited = 0
-                await Task.yield()
+            guard process.terminationStatus == 0 else { return 0 }
+            let data = stdout.fileHandleForReading.readDataToEndOfFile()
+            guard let output = String(data: data, encoding: .utf8),
+                  let token = output.split(whereSeparator: \.isWhitespace).first,
+                  let kilobytes = Int64(token) else {
+                return 0
             }
-        }
-        if pendingVisited > 0 { await onVisited(pendingVisited) }
-        return total
+            return kilobytes * 1_024
+        }.value
     }
 
     private func looksLikeThirdPartyBundleIdentifier(_ value: String) -> Bool {

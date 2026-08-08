@@ -196,7 +196,7 @@ final class CleanerViewModel: ObservableObject {
         residueCleanupInspectedFiles = 0
         cleanupIncludesResidues = selectedRoot.resolvingSymlinksInPath()
             == FileManager.default.homeDirectoryForCurrentUser.standardizedFileURL.resolvingSymlinksInPath()
-        currentScanCategory = L10n.string("Preparing to scan")
+        currentScanCategory = L10n.string("Getting ready…")
         inspectedFileCount = 0
         discoveredFileCount = 0
         discoveredBytes = 0
@@ -228,7 +228,7 @@ final class CleanerViewModel: ObservableObject {
             }
             lastScanAt = Date()
             lastUpdatedAt[scanMode] = lastScanAt
-            currentScanCategory = L10n.string(Task.isCancelled ? "Scan canceled" : "Scan complete")
+            currentScanCategory = L10n.string(Task.isCancelled ? "Scan canceled" : "Wrapping up…")
             if !Task.isCancelled { scanProgress = 1 }
             isCleanupScanning = false
             scanTask = nil
@@ -632,10 +632,11 @@ final class CleanerViewModel: ObservableObject {
                 rule: DefaultRules.uninstallLeftovers
             )
         }
-        let residueURLs = residueItems.map(\.url)
+        let residueRoots = residueItems.map { $0.url.standardizedFileURL.path }
         let deduplicatedRegularItems = regularItems.filter { item in
-            !residueURLs.contains { residueURL in
-                SafetyPolicy.contains(item.url, in: residueURL, allowDirectoryItself: true)
+            let path = item.url.standardizedFileURL.path
+            return !residueRoots.contains { root in
+                path == root || path.hasPrefix(root + "/")
             }
         }
         let combined = deduplicatedRegularItems + residueItems
@@ -655,9 +656,9 @@ final class CleanerViewModel: ObservableObject {
                 if self.cleanupIncludesResidues,
                    progress.fractionCompleted >= 1,
                    self.residueCleanupProgress < 1 {
-                    self.currentScanCategory = L10n.string("Uninstall Leftovers")
+                    self.currentScanCategory = Self.friendlyCleanupPhase(for: DefaultRules.uninstallLeftovers.title)
                 } else {
-                    self.currentScanCategory = progress.currentRuleTitle.localized
+                    self.currentScanCategory = Self.friendlyCleanupPhase(for: progress.currentRuleTitle)
                 }
                 self.discoveredFileCount = progress.matchedFiles
                 self.discoveredBytes = progress.matchedBytes
@@ -682,7 +683,7 @@ final class CleanerViewModel: ObservableObject {
                 self.residueCleanupInspectedFiles = progress.inspectedFiles
                 self.publishCleanupProgress()
                 if self.standardCleanupProgress >= 1 {
-                    self.currentScanCategory = L10n.string("Uninstall Leftovers")
+                    self.currentScanCategory = Self.friendlyCleanupPhase(for: DefaultRules.uninstallLeftovers.title)
                 }
             }
         }
@@ -702,6 +703,37 @@ final class CleanerViewModel: ObservableObject {
         let standardWeight = Double(DefaultRules.conservative.count) / totalRuleCount
         scanProgress = standardCleanupProgress * standardWeight
             + residueCleanupProgress / totalRuleCount
+    }
+
+    /// Human-friendly scan phases — never expose rule numbers, paths, or technical titles.
+    private static func friendlyCleanupPhase(for ruleTitle: String) -> String {
+        switch ruleTitle {
+        case "User Caches":
+            return L10n.string("Checking app caches…")
+        case "Old Logs", "npm Debug Logs":
+            return L10n.string("Checking developer logs…")
+        case "Old installation packages and compressed packages":
+            return L10n.string("Checking old installers…")
+        case "npm Download Cache",
+             "Homebrew Download Cache",
+             "CocoaPods Cache",
+             "Swift Package Manager Cache",
+             "Yarn Download Cache",
+             "Python pip cache",
+             "Python uv cache",
+             "Cargo download cache":
+            return L10n.string("Checking dependency libraries…")
+        case "Gradle Build Cache",
+             "Android Tool Cache",
+             "Xcode Derived Data":
+            return L10n.string("Checking build caches…")
+        case "Apple Simulator Cache":
+            return L10n.string("Checking simulator data…")
+        case "Uninstall Leftovers":
+            return L10n.string("Checking leftover app data…")
+        default:
+            return L10n.string("Looking around…")
+        }
     }
 
     func changeMode(_ newMode: FeatureMode) {
