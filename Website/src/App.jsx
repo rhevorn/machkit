@@ -26,8 +26,8 @@ const REPOSITORY_URL = "https://github.com/rhevorn/sift";
 const DOWNLOAD_URL = `${REPOSITORY_URL}/releases/latest`;
 
 const HERO_IMAGES = {
-  light: ["./assets/sift-overview-light-crop.png", "./assets/img1.png"],
-  dark: ["./assets/img2.png", "./assets/sift-overview-dark-crop.png"],
+  light: ["./assets/img10.png", "./assets/img11.png"],
+  dark: ["./assets/img20.png", "./assets/img21.png"],
 };
 
 function preferredTheme() {
@@ -45,7 +45,7 @@ function preferredLocale() {
 function Brand() {
   return (
     <a className="brand" href="#top" aria-label="Sift home">
-      <img src="./assets/sift-mark-tight.png" alt="" />
+      <img src="./assets/logo.png" alt="" />
       <span>Sift</span>
     </a>
   );
