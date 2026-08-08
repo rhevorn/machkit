@@ -10999,6 +10999,9 @@
         }
       }
     },
+    "Deselect All" : {
+
+    },
     "Developer Caches" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -30805,6 +30808,9 @@
           }
         }
       }
+    },
+    "Select All" : {
+
     },
     "Select Apps to Quit" : {
       "extractionState" : "manual",

@@ -61,7 +61,7 @@ private func formatPlaceholders(in value: String) -> [String] {
         ScanRule(id: "second", title: "Second", relativePath: "Second", minimumAgeDays: 1, risk: .safe, explanation: "")
     ]
 
-    let items = await Scanner(maximumConcurrentRules: 2).scan(root: root, rules: rules)
+    let items = await Scanner().scan(root: root, rules: rules)
 
     #expect(Set(items.map { $0.rule.id }) == ["first", "second"])
 }
