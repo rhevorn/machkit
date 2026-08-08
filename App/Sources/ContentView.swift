@@ -994,18 +994,30 @@ struct ContentView: View {
 
                     softwareCategoryTabs
 
-                    ScrollView {
-                        LazyVStack(spacing: 16) {
-                            if softwareTab != .commandLine {
-                                ForEach(filteredApplicationGroups) { group in applicationSection(group) }
-                            }
-                            if softwareTab == .all || softwareTab == .commandLine {
-                                ForEach(filteredCommandLineGroups, id: \.manager) { group in
-                                    commandLineSection(manager: group.manager, tools: group.tools)
+                    ScrollViewReader { proxy in
+                        ScrollView {
+                            LazyVStack(spacing: 16) {
+                                Color.clear
+                                    .frame(height: 0)
+                                    .id("softwareListTop")
+                                if softwareTab != .commandLine {
+                                    ForEach(filteredApplicationGroups) { group in applicationSection(group) }
+                                }
+                                if softwareTab == .all || softwareTab == .commandLine {
+                                    ForEach(filteredCommandLineGroups, id: \.manager) { group in
+                                        commandLineSection(manager: group.manager, tools: group.tools)
+                                    }
                                 }
                             }
+                            .padding(.horizontal, 16).padding(.bottom, 16)
                         }
-                        .padding(.horizontal, 16).padding(.bottom, 16)
+                        .onChange(of: softwareTab) { _, _ in
+                            var transaction = Transaction()
+                            transaction.disablesAnimations = true
+                            withTransaction(transaction) {
+                                proxy.scrollTo("softwareListTop", anchor: .top)
+                            }
+                        }
                     }
                 }
             }
@@ -1016,7 +1028,10 @@ struct ContentView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 7) {
                 ForEach(SoftwareTab.allCases) { tab in
-                    Button { withAnimation(.easeOut(duration: 0.16)) { softwareTab = tab } } label: {
+                    Button {
+                        guard softwareTab != tab else { return }
+                        withAnimation(.easeOut(duration: 0.16)) { softwareTab = tab }
+                    } label: {
                         HStack(spacing: 6) {
                             Image(systemName: softwareTabIcon(tab))
                                 .font(.system(size: 11, weight: .semibold))
