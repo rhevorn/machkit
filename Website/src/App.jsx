@@ -1,24 +1,34 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
+  AppleLogo,
   ArrowRight,
-  CaretRight,
+  ChartDonut,
   CheckCircle,
+  Cpu,
   DownloadSimple,
   GithubLogo,
   Globe,
-  HardDrive,
-  Eye,
+  HardDrives,
   LockKey,
-  Monitor,
   Moon,
+  Package,
+  Plugs,
   ShieldCheck,
+  Sparkle,
   Sun,
   Trash,
 } from "@phosphor-icons/react";
-import { messages, supportedLocales } from "./i18n.js";
+import { messages } from "./i18n.js";
 
 const THEME_KEY = "sift-website-theme";
 const LOCALE_KEY = "sift-website-locale";
+const REPOSITORY_URL = "https://github.com/rhevorn/sift";
+const DOWNLOAD_URL = `${REPOSITORY_URL}/releases/latest`;
+
+const HERO_IMAGES = {
+  light: ["./assets/sift-overview-light-crop.png", "./assets/img1.png"],
+  dark: ["./assets/img2.png", "./assets/sift-overview-dark-crop.png"],
+};
 
 function preferredTheme() {
   const savedTheme = window.localStorage.getItem(THEME_KEY);
@@ -26,17 +36,10 @@ function preferredTheme() {
   return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
 }
 
-function repositoryUrl() {
-  if (import.meta.env.VITE_REPOSITORY_URL) return import.meta.env.VITE_REPOSITORY_URL;
-
-  const { hostname, pathname } = window.location;
-  if (hostname.endsWith(".github.io")) {
-    const owner = hostname.slice(0, -".github.io".length);
-    const repository = pathname.split("/").filter(Boolean)[0];
-    return repository ? `https://github.com/${owner}/${repository}` : `https://github.com/${owner}`;
-  }
-
-  return "#download";
+function preferredLocale() {
+  const savedLocale = window.localStorage.getItem(LOCALE_KEY);
+  if (savedLocale === "en" || savedLocale === "zh-CN") return savedLocale;
+  return navigator.language?.toLowerCase().startsWith("zh") ? "zh-CN" : "en";
 }
 
 function Brand() {
@@ -48,42 +51,65 @@ function Brand() {
   );
 }
 
-function Feature({ icon: Icon, title, children }) {
+function Feature({ icon: Icon, title, children, tone }) {
   return (
-    <article className="feature">
-      <div className="feature-icon" aria-hidden="true"><Icon size={21} weight="regular" /></div>
-      <div>
-        <h3>{title}</h3>
-        <p>{children}</p>
-      </div>
-      <CaretRight size={18} className="feature-caret" aria-hidden="true" />
+    <article className={`feature-card feature-card-${tone}`}>
+      <div className="feature-icon" aria-hidden="true"><Icon size={22} weight="duotone" /></div>
+      <h3>{title}</h3>
+      <p>{children}</p>
     </article>
   );
 }
 
 export function App() {
   const [theme, setTheme] = useState(preferredTheme);
-  const [locale, setLocale] = useState(() => {
-    const savedLocale = window.localStorage.getItem(LOCALE_KEY);
-    return supportedLocales.some((item) => item.code === savedLocale) ? savedLocale : "en";
-  });
+  const [locale, setLocale] = useState(preferredLocale);
+  const [slide, setSlide] = useState(0);
   const copy = messages[locale] ?? messages.en;
-  const repoUrl = useMemo(repositoryUrl, []);
-  const hasRepository = repoUrl !== "#download";
-  const downloadUrl = hasRepository ? `${repoUrl}/releases/latest` : "#download";
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     document.documentElement.style.colorScheme = theme;
-    window.localStorage.setItem(THEME_KEY, theme);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute(
+      "content",
+      theme === "dark" ? "#080b12" : "#f7f9fc",
+    );
   }, [theme]);
 
   useEffect(() => {
+    const media = window.matchMedia("(prefers-color-scheme: light)");
+    const followSystem = () => {
+      if (window.localStorage.getItem(THEME_KEY) == null) {
+        setTheme(media.matches ? "light" : "dark");
+      }
+    };
+    media.addEventListener("change", followSystem);
+    return () => media.removeEventListener("change", followSystem);
+  }, []);
+
+  useEffect(() => {
     document.documentElement.lang = locale;
-    window.localStorage.setItem(LOCALE_KEY, locale);
   }, [locale]);
 
-  const toggleTheme = () => setTheme((current) => (current === "dark" ? "light" : "dark"));
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+    const timer = window.setInterval(() => setSlide((current) => (current + 1) % 2), 6000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const toggleTheme = () =>
+    setTheme((current) => {
+      const next = current === "dark" ? "light" : "dark";
+      window.localStorage.setItem(THEME_KEY, next);
+      return next;
+    });
+
+  const toggleLocale = () =>
+    setLocale((current) => {
+      const next = current === "en" ? "zh-CN" : "en";
+      window.localStorage.setItem(LOCALE_KEY, next);
+      return next;
+    });
 
   return (
     <div className="site-shell" id="top">
@@ -93,25 +119,31 @@ export function App() {
           <div className="nav-links">
             <a href="#features">{copy.nav.features}</a>
             <a href="#safety">{copy.nav.safety}</a>
-            <a href={repoUrl} target={hasRepository ? "_blank" : undefined} rel="noreferrer">
-              {copy.nav.github}
-            </a>
+            <a href={REPOSITORY_URL} target="_blank" rel="noreferrer">{copy.nav.github}</a>
           </div>
           <div className="nav-actions">
-            <label className="language-control" aria-label={copy.controls.language}>
+            <button
+              className="nav-control language-button"
+              type="button"
+              onClick={toggleLocale}
+              aria-label={copy.controls.language}
+              title={copy.controls.language}
+            >
               <Globe size={16} aria-hidden="true" />
-              <select value={locale} onChange={(event) => setLocale(event.target.value)}>
-                {supportedLocales.map((item) => (
-                  <option value={item.code} key={item.code}>{item.nativeName}</option>
-                ))}
-              </select>
-            </label>
-            <button className="icon-button" type="button" onClick={toggleTheme} aria-label={copy.controls.theme}>
+              <span>{locale === "en" ? "EN" : "中"}</span>
+            </button>
+            <button
+              className="nav-control theme-button"
+              type="button"
+              onClick={toggleTheme}
+              aria-label={copy.controls.theme}
+              title={copy.controls.theme}
+            >
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
-            <a className="button button-small" href={downloadUrl} target={hasRepository ? "_blank" : undefined} rel="noreferrer">
+            <a className="nav-download" href={DOWNLOAD_URL} target="_blank" rel="noreferrer">
               <DownloadSimple size={17} weight="bold" />
-              {copy.nav.download}
+              <span>{copy.nav.download}</span>
             </a>
           </div>
         </nav>
@@ -119,96 +151,129 @@ export function App() {
 
       <main>
         <section className="hero" aria-labelledby="hero-title">
-          <img className="hero-mark" src="./assets/sift-mark-tight.png" alt="" />
-          <h1 id="hero-title">{copy.hero.title}</h1>
-          <p className="hero-copy">{copy.hero.description}</p>
-          <div className="hero-actions">
-            <a className="button" href={downloadUrl} target={hasRepository ? "_blank" : undefined} rel="noreferrer">
-              <DownloadSimple size={19} weight="bold" />
-              {copy.hero.primary}
-            </a>
-            <a className="button button-quiet" href={repoUrl} target={hasRepository ? "_blank" : undefined} rel="noreferrer">
-              <GithubLogo size={20} weight="fill" />
-              {copy.hero.secondary}
-            </a>
+          <div className="hero-copy-block">
+            <div className="eyebrow">
+              <Sparkle size={15} weight="fill" />
+              {copy.hero.eyebrow}
+            </div>
+            <h1 id="hero-title">{copy.hero.title}</h1>
+            <p className="hero-copy">{copy.hero.description}</p>
+            <div className="hero-actions">
+              <a className="button" href={DOWNLOAD_URL} target="_blank" rel="noreferrer">
+                <DownloadSimple size={19} weight="bold" />
+                {copy.hero.primary}
+              </a>
+              <a className="button button-quiet" href={REPOSITORY_URL} target="_blank" rel="noreferrer">
+                <GithubLogo size={20} weight="fill" />
+                {copy.hero.secondary}
+              </a>
+            </div>
+            <p className="compatibility">{copy.hero.compatibility}</p>
           </div>
-          <p className="compatibility">{copy.hero.compatibility}</p>
 
           <div className="app-stage" aria-label={copy.productPreviewLabel}>
-            <div className="app-window">
-              <div className="window-bar" aria-hidden="true">
-                <span className="traffic red" />
-                <span className="traffic yellow" />
-                <span className="traffic green" />
-                <span className="window-title">Sift</span>
-              </div>
-              <picture>
-                <source media="(prefers-reduced-motion: reduce)" srcSet={theme === "dark" ? "./assets/sift-overview-dark-crop.png" : "./assets/sift-overview-light-crop.png"} />
-                <img
-                  src={theme === "dark" ? "./assets/sift-overview-dark-crop.png" : "./assets/sift-overview-light-crop.png"}
-                  alt={copy.productPreviewAlt}
+            {HERO_IMAGES[theme].map((src, index) => (
+              <img
+                key={src}
+                src={src}
+                alt={index === slide ? copy.productPreviewAlt : ""}
+                aria-hidden={index !== slide}
+                className={index === slide ? "is-active" : ""}
+                fetchPriority={index === 0 ? "high" : undefined}
+              />
+            ))}
+            <div className="stage-dots" aria-hidden="true">
+              {HERO_IMAGES[theme].map((src, index) => (
+                <button
+                  key={src}
+                  type="button"
+                  tabIndex={-1}
+                  className={index === slide ? "is-active" : ""}
+                  onClick={() => setSlide(index)}
                 />
-              </picture>
+              ))}
             </div>
           </div>
         </section>
 
-        <section className="trust-band" id="safety">
-          <div className="trust-strip" aria-label={copy.trust.label}>
-          <div>
-            <ShieldCheck size={20} weight="duotone" />
-            <span><strong>{copy.trust.localTitle}</strong>{copy.trust.localBody}</span>
-          </div>
-          <div>
-            <LockKey size={20} weight="duotone" />
-            <span><strong>{copy.trust.controlTitle}</strong>{copy.trust.controlBody}</span>
-          </div>
-          <div>
-            <CheckCircle size={20} weight="duotone" />
-            <span><strong>{copy.trust.previewTitle}</strong>{copy.trust.previewBody}</span>
-          </div>
+        <section className="trust-band" id="safety" aria-label={copy.trust.label}>
+          <div className="trust-strip">
+            <div>
+              <ShieldCheck size={21} weight="duotone" />
+              <span><strong>{copy.trust.localTitle}</strong>{copy.trust.localBody}</span>
+            </div>
+            <div>
+              <LockKey size={21} weight="duotone" />
+              <span><strong>{copy.trust.controlTitle}</strong>{copy.trust.controlBody}</span>
+            </div>
+            <div>
+              <CheckCircle size={21} weight="duotone" />
+              <span><strong>{copy.trust.previewTitle}</strong>{copy.trust.previewBody}</span>
+            </div>
           </div>
         </section>
 
         <section className="features section-shell" id="features">
           <div className="section-intro">
+            <span className="section-kicker">{copy.features.kicker}</span>
             <h2>{copy.features.title}</h2>
             <p>{copy.features.description}</p>
           </div>
-          <div className="feature-list">
-            <Feature icon={Eye} title={copy.features.storage.title}>{copy.features.storage.body}</Feature>
-            <Feature icon={Trash} title={copy.features.cleanup.title}>{copy.features.cleanup.body}</Feature>
-            <Feature icon={ShieldCheck} title={copy.features.control.title}>{copy.features.control.body}</Feature>
-            <Feature icon={HardDrive} title={copy.features.native.title}>{copy.features.native.body}</Feature>
-          </div>
-        </section>
-
-        <section className="appearance section-shell" aria-labelledby="appearance-title">
-          <div className="appearance-copy">
-            <Monitor size={28} weight="duotone" aria-hidden="true" />
-            <h2 id="appearance-title">{copy.appearance.title}</h2>
-            <p>{copy.appearance.description}</p>
-          </div>
-          <div className="appearance-window">
-            <img src="./assets/sift-overview-light-crop.png" alt={copy.appearance.alt} />
+          <div className="feature-grid">
+            <Feature icon={Trash} tone="blue" title={copy.features.cleanup.title}>{copy.features.cleanup.body}</Feature>
+            <Feature icon={Package} tone="purple" title={copy.features.apps.title}>{copy.features.apps.body}</Feature>
+            <Feature icon={ChartDonut} tone="indigo" title={copy.features.storage.title}>{copy.features.storage.body}</Feature>
+            <Feature icon={Cpu} tone="green" title={copy.features.performance.title}>{copy.features.performance.body}</Feature>
+            <Feature icon={Plugs} tone="orange" title={copy.features.ports.title}>{copy.features.ports.body}</Feature>
+            <Feature icon={HardDrives} tone="cyan" title={copy.features.system.title}>{copy.features.system.body}</Feature>
           </div>
         </section>
 
         <section className="closing section-shell" id="download">
-          <h2>{copy.closing.title}</h2>
-          <p>{copy.closing.description}</p>
-          <a className="button" href={downloadUrl} target={hasRepository ? "_blank" : undefined} rel="noreferrer">
+          <div>
+            <span className="section-kicker">{copy.closing.kicker}</span>
+            <h2>{copy.closing.title}</h2>
+            <p>{copy.closing.description}</p>
+          </div>
+          <a className="button" href={DOWNLOAD_URL} target="_blank" rel="noreferrer">
             {copy.closing.action}<ArrowRight size={18} weight="bold" />
           </a>
         </section>
       </main>
 
       <footer className="site-footer">
-        <div className="section-shell footer-inner">
-          <Brand />
-          <p>{copy.footer}</p>
-          <a href={repoUrl} target={hasRepository ? "_blank" : undefined} rel="noreferrer" aria-label="Sift on GitHub">
-            <GithubLogo size={21} />
+        <div className="footer-main section-shell">
+          <div className="footer-brand">
+            <Brand />
+            <p>{copy.footer.description}</p>
+            <span className="platform-badge">
+              <AppleLogo size={15} weight="fill" />
+              {copy.footer.platform}
+            </span>
+          </div>
+          <div className="footer-links">
+            <div>
+              <strong>{copy.footer.product}</strong>
+              <a href="#features">{copy.nav.features}</a>
+              <a href="#safety">{copy.nav.safety}</a>
+              <a href={DOWNLOAD_URL} target="_blank" rel="noreferrer">{copy.nav.download}</a>
+            </div>
+            <div>
+              <strong>{copy.footer.project}</strong>
+              <a href={REPOSITORY_URL} target="_blank" rel="noreferrer">GitHub</a>
+              <a href={`${REPOSITORY_URL}/releases`} target="_blank" rel="noreferrer">{copy.footer.releases}</a>
+              <a href={`${REPOSITORY_URL}/issues`} target="_blank" rel="noreferrer">{copy.footer.issues}</a>
+            </div>
+          </div>
+        </div>
+        <div className="footer-bottom section-shell">
+          <span>© 2026 Sift</span>
+          <span className="footer-local">
+            <ShieldCheck size={15} weight="duotone" />
+            {copy.footer.local}
+          </span>
+          <a href={REPOSITORY_URL} target="_blank" rel="noreferrer" aria-label="Sift on GitHub">
+            <GithubLogo size={19} />
           </a>
         </div>
       </footer>
