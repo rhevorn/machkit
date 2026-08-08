@@ -31,7 +31,14 @@
 
 ## 安装
 
-从 [GitHub Releases](https://github.com/rhevorn/sift/releases/latest) 下载最新版本。
+当前发布包是**未签名**的 ad-hoc 构建，首次用双击打开会被 macOS Gatekeeper 拦截。
+
+1. 从 [GitHub Releases](https://github.com/rhevorn/sift/releases/latest) 下载 `Sift-*-macOS.zip`。
+2. 解压后，将 `Sift.app` 移到「应用程序」文件夹（`/Applications`）。
+3. 用下面任一方式打开：
+   - 右键点击 `Sift.app` → **打开** → 再点 **打开**
+   - 或打开 **系统设置 → 隐私与安全性**，在被拦截提示处选择 **仍要打开**
+4. 首次成功启动后，之后就可以像普通 App 一样从「应用程序」或 Spotlight 打开。
 
 ## 构建
 
@@ -78,3 +85,7 @@ Website/             产品官网
 ## 参与贡献
 
 欢迎提交 Issue 和 Pull Request。请保持改动聚焦；涉及删除或结束进程的操作，优先采用本地、可撤销的方式。
+
+## 许可证
+
+[MIT](LICENSE)

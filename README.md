@@ -31,7 +31,14 @@ Everything runs locally on your Mac. Scans read file metadata only, risky items 
 
 ## Install
 
-Download the latest release from [GitHub Releases](https://github.com/rhevorn/sift/releases/latest).
+Sift is currently distributed as an **unsigned** ad-hoc build, so macOS Gatekeeper will block a normal double-click the first time.
+
+1. Download `Sift-*-macOS.zip` from [GitHub Releases](https://github.com/rhevorn/sift/releases/latest).
+2. Unzip it, then move `Sift.app` into `/Applications`.
+3. Open it with either method:
+   - Right-click `Sift.app` → **Open** → **Open**
+   - Or go to **System Settings → Privacy & Security**, find the blocked-app notice, and choose **Open Anyway**
+4. After the first successful launch, you can open Sift normally from Applications or Spotlight.
 
 ## Build
 
@@ -78,3 +85,7 @@ Website/             Marketing site
 ## Contributing
 
 Issues and pull requests are welcome. Keep changes focused, and prefer local, reversible operations for anything that deletes or terminates processes.
+
+## License
+
+[MIT](LICENSE)
