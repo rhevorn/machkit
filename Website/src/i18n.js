@@ -24,7 +24,7 @@ export const messages = {
       compatibility: "macOS 14 or later · Free and open source",
     },
     productPreviewLabel: "Sift product preview",
-    productPreviewAlt: "Sift showing a clear overview of Mac storage, memory and running ports",
+    productPreviewAlt: "Sift showing a clear overview of Mac storage, memory, and network activity",
     trust: {
       label: "Privacy and safety principles",
       localTitle: "Local by default",
@@ -37,7 +37,7 @@ export const messages = {
     features: {
       kicker: "Everything in one place",
       title: "The tools your Mac should already have.",
-      description: "From disk space to forgotten ports, Sift turns scattered system details into clear, useful actions.",
+      description: "From disk space to network routes, Sift turns scattered system details into clear, useful actions.",
       cleanup: {
         title: "Safe cleanup",
         body: "Review caches, logs, installers, and developer files before moving anything to Trash.",
@@ -54,9 +54,9 @@ export const messages = {
         title: "Live performance",
         body: "Track CPU, memory pressure, and resource-heavy apps without noisy background work.",
       },
-      ports: {
-        title: "Port management",
-        body: "Find listening services, inspect their commands, and stop processes you own.",
+      network: {
+        title: "Network diagnostics",
+        body: "Inspect traffic, connections, listening ports, routes, VPN/TUN interfaces, and system proxies.",
       },
       system: {
         title: "System inventory",
@@ -110,7 +110,7 @@ export const messages = {
       compatibility: "需要 macOS 14 或更高版本 · 免费且开源",
     },
     productPreviewLabel: "Sift 产品预览",
-    productPreviewAlt: "Sift 总览界面，显示存储、内存和监听端口",
+    productPreviewAlt: "Sift 总览界面，显示存储、内存和网络活动",
     trust: {
       label: "隐私与安全原则",
       localTitle: "默认本地处理",
@@ -123,7 +123,7 @@ export const messages = {
     features: {
       kicker: "集中于一处",
       title: "这些工具，本该是 Mac 自带的。",
-      description: "从磁盘空间到遗忘的端口，Sift 将分散的系统信息整理成清晰、可执行的操作。",
+      description: "从磁盘空间到网络路由，Sift 将分散的系统信息整理成清晰、可执行的操作。",
       cleanup: {
         title: "安全清理",
         body: "先检查缓存、日志、安装包和开发文件，再将内容移入废纸篓。",
@@ -140,9 +140,9 @@ export const messages = {
         title: "实时性能",
         body: "查看 CPU、内存压力和高占用 App，不在后台制造额外负担。",
       },
-      ports: {
-        title: "端口管理",
-        body: "查找监听服务、检查启动命令，并结束当前用户拥有的进程。",
+      network: {
+        title: "网络诊断",
+        body: "查看流量、活跃连接、监听端口、路由、VPN/TUN 网卡和系统代理。",
       },
       system: {
         title: "系统盘点",

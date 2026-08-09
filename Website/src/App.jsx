@@ -12,7 +12,6 @@ import {
   LockKey,
   Moon,
   Package,
-  Plugs,
   ShieldCheck,
   Sparkle,
   Sun,
@@ -224,7 +223,7 @@ export function App() {
             <Feature icon={Package} tone="purple" title={copy.features.apps.title}>{copy.features.apps.body}</Feature>
             <Feature icon={ChartDonut} tone="indigo" title={copy.features.storage.title}>{copy.features.storage.body}</Feature>
             <Feature icon={Cpu} tone="green" title={copy.features.performance.title}>{copy.features.performance.body}</Feature>
-            <Feature icon={Plugs} tone="orange" title={copy.features.ports.title}>{copy.features.ports.body}</Feature>
+            <Feature icon={Globe} tone="orange" title={copy.features.network.title}>{copy.features.network.body}</Feature>
             <Feature icon={HardDrives} tone="cyan" title={copy.features.system.title}>{copy.features.system.body}</Feature>
           </div>
         </section>

@@ -2,7 +2,7 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md)
 
-A privacy-first macOS utility for storage analysis, cleanup, app uninstall, port management, and login items & extensions.
+A privacy-first macOS utility for storage analysis, cleanup, app uninstall, network diagnostics, and login items & extensions.
 
 Everything runs locally on your Mac. Scans read file metadata only, risky items stay unchecked by default, and deletions go to the Trash.
 
@@ -20,7 +20,7 @@ Everything runs locally on your Mac. Scans read file metadata only, risky items 
 - **Uninstall** — Remove apps together with related support files
 - **Storage** — See disk usage by category and drill into large folders
 - **Performance** — Monitor CPU, memory pressure, and top processes
-- **Ports** — Inspect listening ports and stop processes you own
+- **Network** — Monitor interface and process traffic, inspect active connections and listening ports, identify routes, VPN/TUN interfaces, and system proxies
 - **Login Items & Extensions** — Review login items, background tasks, and system extensions in one place
 
 ## Requirements
