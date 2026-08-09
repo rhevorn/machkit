@@ -2,7 +2,7 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md)
 
-A privacy-first macOS utility for storage analysis, cleanup, app uninstall, port management, and login items & extensions.
+A privacy-first macOS utility for storage analysis, cleanup, app uninstall, network tools, and login items & extensions.
 
 Everything runs locally on your Mac. Scans read file metadata only, risky items stay unchecked by default, and deletions go to the Trash.
 
@@ -20,7 +20,7 @@ Everything runs locally on your Mac. Scans read file metadata only, risky items 
 - **Uninstall** — Remove apps together with related support files
 - **Storage** — See disk usage by category and drill into large folders
 - **Performance** — Monitor CPU, memory pressure, and top processes
-- **Ports** — Inspect listening ports and stop processes you own
+- **Network** — Use dedicated views for Overview, App Traffic, Active Connections, Listening Ports, and Routing; rates stay consistent in B/s, KB/s, MB/s, or GB/s, while route lookup shows the resolved IP and outbound interface
 - **Login Items & Extensions** — Review login items, background tasks, and system extensions in one place
 
 ## Requirements
@@ -65,6 +65,15 @@ Core library tests:
 
 ```bash
 swift test
+```
+
+## Releases
+
+Local builds use `dev`. Release tags are the source of truth for shipped versions: pushing a tag such as `v0.9.0` overrides the app version with `CFBundleShortVersionString=0.9.0`, while the GitHub Actions run number becomes `CFBundleVersion`. The workflow verifies both values before packaging and publishing the ZIP.
+
+```bash
+git tag v0.9.0
+git push origin v0.9.0
 ```
 
 ## Localization

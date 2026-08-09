@@ -241,6 +241,122 @@ private func formatPlaceholders(in value: String) -> [String] {
     ) == "PostgreSQL Database")
 }
 
+@Test func networkScannerParsesProcessTrafficAndDottedNames() throws {
+    let output = """
+    ,bytes_in,bytes_out,
+    Code Helper.32739,18946,8727,
+    com.apple.WebKi.8447,5610,3122,
+    """
+
+    let records = NetworkScanner.parseProcessTrafficOutput(output)
+    #expect(records.count == 2)
+    #expect(records[0].processIdentifier == 32739)
+    #expect(records[0].name == "Code Helper")
+    #expect(records[0].received == 18_946)
+    #expect(records[1].processIdentifier == 8447)
+    #expect(records[1].name == "com.apple.WebKi")
+}
+
+@Test func networkScannerSeparatesActiveConnectionsFromListeners() {
+    let output = """
+    p4100
+    cnode
+    f12
+    PTCP
+    n127.0.0.1:5173
+    TST=LISTEN
+    f13
+    PTCP
+    n192.168.1.20:62000->1.1.1.1:443
+    TST=ESTABLISHED
+    p4200
+    cdns-client
+    f8
+    PUDP
+    n[fe80::1]:5353->[2606:4700:4700::1111]:53
+    """
+
+    let records = NetworkScanner.parseConnections(
+        output,
+        addressToInterface: ["192.168.1.20": "en0", "fe80::1": "en0"]
+    )
+    #expect(records.count == 3)
+    #expect(records.contains { $0.localPort == 5173 && $0.isListener })
+    #expect(records.contains {
+        $0.remoteAddress == "1.1.1.1" && $0.remotePort == 443 && $0.interfaceName == "en0" && !$0.isListener
+    })
+    #expect(records.contains {
+        $0.remoteAddress == "2606:4700:4700::1111" && $0.remotePort == 53 && $0.interfaceName == "en0"
+    })
+}
+
+@Test func networkScannerParsesRoutesProxyAndRouteLookup() {
+    let routeTable = """
+    Routing tables
+
+    Internet:
+    Destination        Gateway            Flags               Netif Expire
+    default            192.168.1.1        UGScg                 en0
+    10/8               10.0.0.1           UGSc                 utun4
+    """
+    let routes = NetworkScanner.parseRoutes(routeTable, family: "IPv4")
+    #expect(routes.count == 2)
+    #expect(routes[0].isDefault)
+    #expect(routes[1].interfaceName == "utun4")
+
+    let proxy = NetworkScanner.parseProxyConfiguration("""
+    <dictionary> {
+      HTTPEnable : 1
+      HTTPProxy : 127.0.0.1
+      HTTPPort : 7890
+      SOCKSEnable : 0
+      ProxyAutoConfigEnable : 1
+      ProxyAutoConfigURLString : http://127.0.0.1/proxy.pac
+    }
+    """)
+    #expect(proxy.isEnabled)
+    #expect(proxy.services == ["HTTP 127.0.0.1:7890", "PAC http://127.0.0.1/proxy.pac"])
+
+    let detectedProxy = NetworkScanner.augmentProxyConfiguration(
+        NetworkProxyConfiguration(services: []),
+        connections: [NetworkConnection(
+            processIdentifier: 4331,
+            processName: "verge-mihomo",
+            transport: .tcp,
+            localAddress: "192.168.1.20",
+            localPort: 62000,
+            remoteAddress: "1.1.1.1",
+            remotePort: 443,
+            state: "ESTABLISHED",
+            interfaceName: "en0",
+            isListener: false
+        )],
+        interfaces: [NetworkInterfaceUsage(
+            name: "utun4",
+            displayName: "VPN / TUN",
+            kind: .tunnel,
+            isUp: true,
+            addresses: ["10.0.0.2"],
+            receivedBytes: 0,
+            sentBytes: 0,
+            downloadBytesPerSecond: 0,
+            uploadBytesPerSecond: 0
+        )]
+    )
+    #expect(detectedProxy.services == ["Detected verge-mihomo", "TUN utun4"])
+
+    let lookup = NetworkScanner.parseRouteLookup("""
+       route to: 1.1.1.1
+    destination: default
+           mask: default
+        gateway: 192.168.1.1
+      interface: en0
+    """, query: "1.1.1.1", status: 0)
+    #expect(lookup.destination == "1.1.1.1")
+    #expect(lookup.gateway == "192.168.1.1")
+    #expect(lookup.interfaceName == "en0")
+}
+
 @Test func portTerminationProtectsSystemAndUnverifiedProcesses() {
     let developerProcess = PortScanner.protectionReason(
         processIdentifier: 4100,
@@ -538,21 +654,26 @@ private func formatPlaceholders(in value: String) -> [String] {
     }
 }
 
-@Test func appSourcesNeverUseAnEmptyLocalizationFormatKey() throws {
+@Test func appSourcesNeverCreateEmptyLocalizationKeys() throws {
     let sources = repositoryRoot.appending(path: "App/Sources")
     let files = try FileManager.default.contentsOfDirectory(
         at: sources,
         includingPropertiesForKeys: nil
     ).filter { $0.pathExtension == "swift" }
-    let expression = try NSRegularExpression(pattern: #"L10n\s*\.\s*format\s*\(\s*\"\""#)
+    let expressions = try [
+        #"L10n\s*\.\s*(?:format|string)\s*\(\s*\"\""#,
+        #"Toggle\s*\(\s*\"\""#
+    ].map { try NSRegularExpression(pattern: $0) }
 
     for file in files {
         let source = try String(contentsOf: file, encoding: .utf8)
         let range = NSRange(source.startIndex..., in: source)
-        #expect(
-            expression.firstMatch(in: source, range: range) == nil,
-            "Empty localization format key in \(file.lastPathComponent)"
-        )
+        for expression in expressions {
+            #expect(
+                expression.firstMatch(in: source, range: range) == nil,
+                "Empty localization key in \(file.lastPathComponent)"
+            )
+        }
     }
 }
 

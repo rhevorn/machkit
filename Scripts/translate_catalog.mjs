@@ -6,6 +6,7 @@ const catalogPath = path.join(root, "Resources/Localizable.xcstrings");
 const catalog = JSON.parse(fs.readFileSync(catalogPath, "utf8"));
 const placeholderPattern = /%(?:\d+\$)?(?:lld|llu|ld|lu|zd|zu|d|u|f|g|s|c|@|%)/g;
 const targets = [
+  { locale: "zh-Hans", code: "zh-CN", source: "en" },
   { locale: "zh-Hant", code: "zh-TW", source: "zh-CN" },
   { locale: "ja", code: "ja", source: "en" },
   { locale: "ko", code: "ko", source: "en" },
