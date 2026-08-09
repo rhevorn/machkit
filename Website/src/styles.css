@@ -878,7 +878,7 @@ h1 {
 .button {
   min-height: 46px;
   padding-inline: 20px;
-  border-radius: 12px;
+  border-radius: 16px;
   border-color: color-mix(in srgb, var(--accent) 82%, white 12%);
   box-shadow: 0 10px 28px color-mix(in srgb, var(--accent) 22%, transparent);
 }
@@ -951,7 +951,7 @@ h1 {
   background: transparent;
   box-shadow: none;
   transform: rotate(0.8deg);
-  aspect-ratio: 1880 / 1728;
+  aspect-ratio: 900 / 768;
 }
 
 .app-stage::before {
@@ -966,7 +966,8 @@ h1 {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  border-radius: 12px;
+  object-fit: contain;
   object-position: top center;
   opacity: 0;
   filter: drop-shadow(0 30px 55px rgba(0, 0, 0, 0.35));

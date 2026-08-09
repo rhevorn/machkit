@@ -7,21 +7,27 @@ A privacy-first macOS utility for storage analysis, cleanup, app uninstall, netw
 Everything runs locally on your Mac. Scans read file metadata only, risky items stay unchecked by default, and deletions go to the Trash.
 
 <p align="center">
-  <img src="Website/public/assets/img10.png" alt="Sift overview in light appearance" width="900" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="Website/public/assets/img20.png" />
+    <img src="Website/public/assets/img10.png" alt="Sift overview" width="900" />
+  </picture>
 </p>
 
 <p align="center">
-  <img src="Website/public/assets/img11.png" alt="Sift cleanup results in light appearance" width="900" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="Website/public/assets/img21.png" />
+    <img src="Website/public/assets/img11.png" alt="Sift cleanup results" width="900" />
+  </picture>
 </p>
 
 ## Features
 
-- **Cleanup** — Find caches, logs, leftover app data, and regenerable developer files, with clear safe / needs-review labels
-- **Uninstall** — Remove apps together with related support files
-- **Storage** — See disk usage by category and drill into large folders
-- **Performance** — Monitor CPU, memory pressure, and top processes
-- **Network** — Use dedicated views for Overview, App Traffic, Active Connections, Listening Ports, and Routing; rates stay consistent in B/s, KB/s, MB/s, or GB/s, while route lookup shows the resolved IP and outbound interface
-- **Login Items & Extensions** — Review login items, background tasks, and system extensions in one place
+- **Cleanup** — Find caches, logs, leftovers, and developer files; risky items stay unchecked
+- **Apps** — Browse apps and command-line tools, then uninstall with related support files
+- **Storage** — Understand disk usage and large folders
+- **Performance** — Monitor CPU, memory pressure, and busy apps
+- **Network** — Inspect traffic, connections, listening ports, routes, VPN/TUN, and proxies
+- **System** — Review login items, background activity, and extensions
 
 ## Requirements
 

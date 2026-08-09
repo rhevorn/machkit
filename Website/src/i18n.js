@@ -40,27 +40,27 @@ export const messages = {
       description: "From disk space to network routes, Sift turns scattered system details into clear, useful actions.",
       cleanup: {
         title: "Safe cleanup",
-        body: "Review caches, logs, installers, and developer files before moving anything to Trash.",
+        body: "Review caches, logs, app leftovers, and developer files before moving them to Trash.",
       },
       apps: {
         title: "Complete uninstall",
-        body: "Find installed apps and their related support files, including command-line tools.",
+        body: "Find apps, command-line tools, and related support files for cleaner removal.",
       },
       storage: {
         title: "Storage insights",
-        body: "See where space is going, browse large folders, and reveal files directly in Finder.",
+        body: "See what uses disk space and drill into large folders.",
       },
       performance: {
         title: "Live performance",
-        body: "Track CPU, memory pressure, and resource-heavy apps without noisy background work.",
+        body: "Monitor CPU, memory pressure, and resource-heavy apps.",
       },
       network: {
         title: "Network",
-        body: "Inspect app traffic with consistent B/s to GB/s units, active connections, listening ports, and host-to-interface routes, with VPN/TUN and proxy context.",
+        body: "View traffic, connections, listening ports, routes, VPN/TUN, and proxy status.",
       },
       system: {
         title: "System inventory",
-        body: "Review login items, background activity, and extensions from one focused view.",
+        body: "Review login items, background activity, and extensions.",
       },
     },
     showcase: {
@@ -126,27 +126,27 @@ export const messages = {
       description: "从磁盘空间到网络路由，Sift 将分散的系统信息整理成清晰、可执行的操作。",
       cleanup: {
         title: "安全清理",
-        body: "先检查缓存、日志、安装包和开发文件，再将内容移入废纸篓。",
+        body: "检查缓存、日志、应用残留和开发文件，再移入废纸篓。",
       },
       apps: {
         title: "完整卸载",
-        body: "查找已安装 App 及其相关支持文件，也包括命令行工具。",
+        body: "查找 App、命令行工具及其支持文件，卸载更干净。",
       },
       storage: {
         title: "存储分析",
-        body: "了解空间去向，浏览大目录，并可直接在 Finder 中定位文件。",
+        body: "看清磁盘空间去向，并进入大目录继续查看。",
       },
       performance: {
         title: "实时性能",
-        body: "查看 CPU、内存压力和高占用 App，不在后台制造额外负担。",
+        body: "监控 CPU、内存压力和高占用 App。",
       },
       network: {
         title: "网络",
-        body: "以统一的 B/s 至 GB/s 单位查看应用流量、活动连接、监听端口和域名出口路由，并识别 VPN/TUN 与系统代理。",
+        body: "查看流量、连接、监听端口、路由、VPN/TUN 和代理。",
       },
       system: {
         title: "系统盘点",
-        body: "在一个专注的界面中查看登录项、后台活动和扩展。",
+        body: "查看登录项、后台活动和扩展。",
       },
     },
     showcase: {

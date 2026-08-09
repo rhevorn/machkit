@@ -25,8 +25,18 @@ const REPOSITORY_URL = "https://github.com/rhevorn/sift";
 const DOWNLOAD_URL = `${REPOSITORY_URL}/releases/latest`;
 
 const HERO_IMAGES = {
-  light: ["./assets/img10.png", "./assets/img11.png"],
-  dark: ["./assets/img20.png", "./assets/img21.png"],
+  light: [
+    "./assets/img10.png",
+    "./assets/img11.png",
+    "./assets/img13.png",
+    "./assets/img15.png",
+  ],
+  dark: [
+    "./assets/img20.png",
+    "./assets/img21.png",
+    "./assets/img23.png",
+    "./assets/img25.png",
+  ],
 };
 
 function preferredTheme() {
@@ -92,9 +102,12 @@ export function App() {
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
-    const timer = window.setInterval(() => setSlide((current) => (current + 1) % 2), 6000);
+    const timer = window.setInterval(
+      () => setSlide((current) => (current + 1) % HERO_IMAGES[theme].length),
+      6000,
+    );
     return () => window.clearInterval(timer);
-  }, []);
+  }, [theme]);
 
   const toggleTheme = () =>
     setTheme((current) => {

@@ -7,21 +7,27 @@
 所有处理都在本机完成。扫描只读取文件元数据，风险项默认不勾选，删除统一移入废纸篓。
 
 <p align="center">
-  <img src="Website/public/assets/img10.png" alt="Sift 浅色模式总览界面" width="900" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="Website/public/assets/img20.png" />
+    <img src="Website/public/assets/img10.png" alt="Sift 总览界面" width="900" />
+  </picture>
 </p>
 
 <p align="center">
-  <img src="Website/public/assets/img11.png" alt="Sift 浅色模式清理结果" width="900" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="Website/public/assets/img21.png" />
+    <img src="Website/public/assets/img11.png" alt="Sift 清理结果界面" width="900" />
+  </picture>
 </p>
 
 ## 功能
 
-- **垃圾清理** — 扫描缓存、日志、应用残留和可重新生成的开发文件，并区分可安全清理与需确认项
-- **软件卸载** — 卸载应用时一并处理关联支持文件
-- **存储分析** — 按类别查看磁盘占用，并可继续进入大目录
-- **性能监控** — 查看 CPU、内存压力和高占用进程
-- **网络** — 分为概览、应用流量、活动连接、监听端口和路由五个视图；速率统一使用 B/s、KB/s、MB/s 或 GB/s，路由查询会显示域名解析 IP 与出口网卡
-- **登录项与扩展** — 在同一入口查看登录项、后台活动和系统扩展
+- **垃圾清理** — 查找缓存、日志、应用残留和开发文件，风险项默认不勾选
+- **应用** — 查看 App 和命令行工具，并连同支持文件一起卸载
+- **存储分析** — 看清磁盘占用和大目录
+- **性能监控** — 查看 CPU、内存压力和高占用 App
+- **网络** — 查看流量、连接、监听端口、路由、VPN/TUN 和代理
+- **系统** — 查看登录项、后台活动和扩展
 
 ## 系统要求
 
