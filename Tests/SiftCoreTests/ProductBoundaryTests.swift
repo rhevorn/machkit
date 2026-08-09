@@ -20,6 +20,63 @@ private func formatPlaceholders(in value: String) -> [String] {
     }.sorted()
 }
 
+@Test func systemCommandsHaveADeadlineInsteadOfHangingForever() throws {
+    let startedAt = Date()
+    do {
+        _ = try SystemCommandRunner.run(
+            executable: "/bin/sleep",
+            arguments: ["5"],
+            timeout: 0.1
+        )
+        Issue.record("The command should have timed out")
+    } catch let error as SystemCommandRunnerError {
+        guard case .timedOut = error else {
+            Issue.record("Expected a timeout, received \(error)")
+            return
+        }
+    }
+    #expect(Date().timeIntervalSince(startedAt) < 2)
+}
+
+@Test func releaseWorkflowTestsAndBuildsBothMacArchitectures() throws {
+    let workflow = try String(
+        contentsOf: repositoryRoot.appending(path: ".github/workflows/release.yml"),
+        encoding: .utf8
+    )
+    #expect(workflow.contains("swift test -c release"))
+    #expect(workflow.contains("generic/platform=macOS"))
+    #expect(workflow.contains("ARCHS=\"arm64 x86_64\""))
+    #expect(workflow.contains("lipo -archs"))
+}
+
+@Test func closingTheLastWindowOnlyKeepsAnEnabledMenuBarAppAlive() throws {
+    let source = try String(
+        contentsOf: repositoryRoot.appending(path: "App/Sources/SiftApp.swift"),
+        encoding: .utf8
+    )
+    #expect(source.contains("applicationShouldTerminateAfterLastWindowClosed"))
+    #expect(source.contains("!UserDefaults.standard.bool(forKey: AppPreferenceKey.showMenuBar)"))
+}
+
+@Test func privacyPromptUsesEnglishFallbackAndAllSupportedTranslations() throws {
+    let plistData = try Data(contentsOf: repositoryRoot.appending(path: "App/Info.plist"))
+    let plist = try #require(
+        PropertyListSerialization.propertyList(from: plistData, format: nil) as? [String: Any]
+    )
+    let fallback = try #require(plist["NSAppleEventsUsageDescription"] as? String)
+    #expect(fallback == "Sift needs access to System Events to read and remove login items configured in macOS.")
+
+    let catalogData = try Data(contentsOf: repositoryRoot.appending(path: "Resources/InfoPlist.xcstrings"))
+    let catalog = try #require(JSONSerialization.jsonObject(with: catalogData) as? [String: Any])
+    let strings = try #require(catalog["strings"] as? [String: Any])
+    let entry = try #require(strings["NSAppleEventsUsageDescription"] as? [String: Any])
+    let localizations = try #require(entry["localizations"] as? [String: Any])
+    let expectedLocales: Set<String> = [
+        "de", "en", "es", "fr", "ja", "ko", "pt-BR", "ru", "zh-Hans", "zh-Hant"
+    ]
+    #expect(expectedLocales.isSubset(of: Set(localizations.keys)))
+}
+
 @Test func developerRulesDoNotTargetInstalledDependencies() {
     let paths = DefaultRules.conservative.map(\.relativePath)
     #expect(paths.allSatisfy { !$0.contains("node_modules") })

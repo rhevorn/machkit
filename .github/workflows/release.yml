@@ -30,6 +30,10 @@ jobs:
           version="$(Scripts/validate_release_version.sh "$GITHUB_REF_NAME")"
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
+      - name: Run release tests
+        shell: bash
+        run: swift test -c release
+
       - name: Build Release app
         shell: bash
         env:
@@ -41,8 +45,11 @@ jobs:
             -project Sift.xcodeproj \
             -scheme "Sift App" \
             -configuration Release \
+            -destination "generic/platform=macOS" \
             -derivedDataPath build/XcodeDerivedData \
             CODE_SIGNING_ALLOWED=NO \
+            ARCHS="arm64 x86_64" \
+            ONLY_ACTIVE_ARCH=NO \
             MARKETING_VERSION="$VERSION" \
             CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
             build
@@ -59,8 +66,11 @@ jobs:
             -project Sift.xcodeproj \
             -scheme "Sift App" \
             -configuration Release \
+            -destination "generic/platform=macOS" \
             -derivedDataPath build/XcodeDerivedData \
             CODE_SIGNING_ALLOWED=NO \
+            ARCHS="arm64 x86_64" \
+            ONLY_ACTIVE_ARCH=NO \
             MARKETING_VERSION="$VERSION" \
             CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
             -showBuildSettings)"
@@ -90,6 +100,11 @@ jobs:
           fi
           if [[ "$bundled_build" != "$BUILD_NUMBER" ]]; then
             echo "Bundled build $bundled_build does not match GitHub run number $BUILD_NUMBER" >&2
+            exit 1
+          fi
+          architectures="$(lipo -archs "$APP_PATH/Contents/MacOS/Sift")"
+          if [[ " $architectures " != *" arm64 "* || " $architectures " != *" x86_64 "* ]]; then
+            echo "Release executable is not universal: $architectures" >&2
             exit 1
           fi
 
