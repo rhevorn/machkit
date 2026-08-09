@@ -50,7 +50,7 @@ private struct ExtensionGroup: Identifiable {
 
 struct ContentView: View {
     @AppStorage(AppPreferenceKey.language) private var languageRawValue = AppLanguage.system.rawValue
-    @StateObject private var model = CleanerViewModel()
+    @ObservedObject var model: CleanerViewModel
     @StateObject private var permissions = PermissionManager()
     @State private var expandedGroups: Set<String> = []
     @State private var applicationSearch = ""

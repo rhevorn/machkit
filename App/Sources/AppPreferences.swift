@@ -4,6 +4,7 @@ import SwiftUI
 enum AppPreferenceKey {
     static let language = "appLanguage"
     static let appearance = "appAppearance"
+    static let showMenuBar = "showMenuBar"
 }
 
 enum AppLanguage: String, CaseIterable, Identifiable {

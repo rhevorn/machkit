@@ -40,6 +40,12 @@ struct PerformanceSnapshot: Sendable {
     let applications: [ApplicationResourceUsage]
 }
 
+struct SystemPerformanceSummary: Sendable {
+    let cpuPercent: Double
+    let physicalMemory: Int64
+    let usedMemory: Int64
+}
+
 struct PerformanceHistoryPoint: Identifiable, Sendable {
     let id = UUID()
     let sampledAt: Date
@@ -59,6 +65,16 @@ final class PerformanceMonitor {
         guard let device = MTLCreateSystemDefaultDevice() else { return ("Metal GPU not detected", false, 0) }
         return (device.name, device.hasUnifiedMemory, Int64(device.recommendedMaxWorkingSetSize))
     }()
+
+    func sampleSystemSummary() -> SystemPerformanceSummary {
+        let memory = sampleMemory()
+        return SystemPerformanceSummary(
+            cpuPercent: sampleCPUPercent(),
+            physicalMemory: memory.total,
+            usedMemory: memory.used
+        )
+    }
+
     func sample() -> PerformanceSnapshot {
         let now = Date()
         let cpuPercent = sampleCPUPercent()

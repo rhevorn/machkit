@@ -120,6 +120,25 @@ public struct NetworkInterfaceUsage: Identifiable, Sendable, Hashable {
     }
 }
 
+public struct NetworkTransferRate: Sendable, Hashable {
+    public let sampledAt: Date
+    public let interfaceName: String?
+    public let downloadBytesPerSecond: Double
+    public let uploadBytesPerSecond: Double
+
+    public init(
+        sampledAt: Date,
+        interfaceName: String?,
+        downloadBytesPerSecond: Double,
+        uploadBytesPerSecond: Double
+    ) {
+        self.sampledAt = sampledAt
+        self.interfaceName = interfaceName
+        self.downloadBytesPerSecond = downloadBytesPerSecond
+        self.uploadBytesPerSecond = uploadBytesPerSecond
+    }
+}
+
 public struct NetworkProcessUsage: Identifiable, Sendable, Hashable {
     public let processIdentifier: Int32
     public let name: String

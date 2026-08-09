@@ -5,6 +5,7 @@ import SwiftUI
 struct AppSettingsView: View {
     @AppStorage(AppPreferenceKey.language) private var languageRawValue = AppLanguage.system.rawValue
     @AppStorage(AppPreferenceKey.appearance) private var appearanceRawValue = AppAppearance.system.rawValue
+    @AppStorage(AppPreferenceKey.showMenuBar) private var showMenuBar = true
 
     private var language: AppLanguage {
         AppLanguage(rawValue: languageRawValue) ?? .system
@@ -74,6 +75,19 @@ struct AppSettingsView: View {
                         .labelsHidden()
                         .pickerStyle(.segmented)
                         .frame(minWidth: 180, idealWidth: 270, maxWidth: 340)
+                    }
+
+                    Divider().padding(.leading, 64)
+
+                    settingRow(
+                        icon: "menubar.rectangle",
+                        color: .cyan,
+                        title: "Keep in Menu Bar",
+                        detail: "Show CPU, memory, network speed, and quick actions in the menu bar"
+                    ) {
+                        Toggle(isOn: $showMenuBar) { EmptyView() }
+                            .labelsHidden()
+                            .toggleStyle(.switch)
                     }
                 }
                 .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 12))

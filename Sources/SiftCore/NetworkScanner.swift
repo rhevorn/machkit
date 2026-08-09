@@ -24,8 +24,25 @@ public actor NetworkScanner {
 
     private var previousInterfaces: [String: ByteSample] = [:]
     private var previousProcesses: [Int32: ByteSample] = [:]
+    private var cachedDefaultInterfaceName: String?
+    private var defaultInterfaceSampledAt: Date?
 
     public init() {}
+
+    public func sampleTransferRate() -> NetworkTransferRate {
+        let now = Date()
+        let interfaces = sampleInterfaces(at: now, hardwareNames: [:])
+        let interfaceName = defaultInterfaceName(at: now)
+        let primary = interfaces.first { $0.name == interfaceName }
+            ?? interfaces.first { $0.kind == .wifi || $0.kind == .ethernet }
+            ?? interfaces.first { $0.kind == .tunnel }
+        return NetworkTransferRate(
+            sampledAt: now,
+            interfaceName: primary?.name,
+            downloadBytesPerSecond: primary?.downloadBytesPerSecond ?? 0,
+            uploadBytesPerSecond: primary?.uploadBytesPerSecond ?? 0
+        )
+    }
 
     public func scan() -> NetworkSnapshot {
         let now = Date()
@@ -72,6 +89,8 @@ public actor NetworkScanner {
 
         let routes = Array(loadRoutes().prefix(Self.maximumPublishedRoutes))
         let defaultRoute = lookupRoute(query: "default")
+        cachedDefaultInterfaceName = defaultRoute.interfaceName
+        defaultInterfaceSampledAt = now
         let proxy = loadProxyConfiguration(connections: sampledConnections, interfaces: interfaces)
         let connections = sampledConnections
         return NetworkSnapshot(
@@ -409,6 +428,18 @@ public actor NetworkScanner {
         } catch {
             return NetworkRouteLookup(query: query, destination: query, gateway: nil, interfaceName: nil, errorMessage: error.localizedDescription)
         }
+    }
+
+    private func defaultInterfaceName(at now: Date) -> String? {
+        if let sampledAt = defaultInterfaceSampledAt,
+           now.timeIntervalSince(sampledAt) < 30,
+           let cachedDefaultInterfaceName {
+            return cachedDefaultInterfaceName
+        }
+        let route = lookupRoute(query: "default")
+        cachedDefaultInterfaceName = route.interfaceName
+        defaultInterfaceSampledAt = now
+        return route.interfaceName
     }
 
     private static func numericAddress(_ address: UnsafePointer<sockaddr>) -> String? {

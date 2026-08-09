@@ -25,6 +25,7 @@
 		A10000000000000000000010 /* OperationResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000012 /* OperationResultView.swift */; };
 		A10000000000000000000013 /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000015 /* AppPreferences.swift */; };
 		A10000000000000000000014 /* FeatureModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000016 /* FeatureModels.swift */; };
+		A10000000000000000000015 /* StatusBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000017 /* StatusBar.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +49,7 @@
 		A20000000000000000000012 /* OperationResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationResultView.swift; sourceTree = "<group>"; };
 		A20000000000000000000015 /* AppPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferences.swift; sourceTree = "<group>"; };
 		A20000000000000000000016 /* FeatureModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureModels.swift; sourceTree = "<group>"; };
+		A20000000000000000000017 /* StatusBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBar.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,6 +106,7 @@
 				A20000000000000000000012 /* OperationResultView.swift */,
 				A20000000000000000000015 /* AppPreferences.swift */,
 				A20000000000000000000016 /* FeatureModels.swift */,
+				A20000000000000000000017 /* StatusBar.swift */,
 			);
 			path = App/Sources;
 			sourceTree = "<group>";
@@ -258,6 +261,7 @@
 				A10000000000000000000010 /* OperationResultView.swift in Sources */,
 				A10000000000000000000013 /* AppPreferences.swift in Sources */,
 				A10000000000000000000014 /* FeatureModels.swift in Sources */,
+				A10000000000000000000015 /* StatusBar.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
