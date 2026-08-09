@@ -13,13 +13,6 @@ Everything runs locally on your Mac. Scans read file metadata only, risky items 
   </picture>
 </p>
 
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="Website/public/assets/img21.png" />
-    <img src="Website/public/assets/img11.png" alt="Sift cleanup results" width="900" />
-  </picture>
-</p>
-
 ## Features
 
 - **Cleanup** — Find caches, logs, leftovers, and developer files; risky items stay unchecked

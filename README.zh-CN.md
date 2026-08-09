@@ -13,13 +13,6 @@
   </picture>
 </p>
 
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="Website/public/assets/img21.png" />
-    <img src="Website/public/assets/img11.png" alt="Sift 清理结果界面" width="900" />
-  </picture>
-</p>
-
 ## 功能
 
 - **垃圾清理** — 查找缓存、日志、应用残留和开发文件，风险项默认不勾选
