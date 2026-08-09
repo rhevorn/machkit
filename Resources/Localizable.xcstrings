@@ -1,9 +1,6 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "" : {
-
-    },
     "—" : {
       "localizations" : {
         "de" : {
@@ -1943,6 +1940,16 @@
         }
       }
     },
+    "%lld / %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld / %2$lld"
+          }
+        }
+      }
+    },
     "%lld app background records and %lld background configurations cached; refresh to scan again." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3826,6 +3833,9 @@
         }
       }
     },
+    "A VPN or TUN interface is active. Some destinations may bypass the default interface through more specific routes." : {
+
+    },
     "About Background Activity" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3940,6 +3950,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "使用中"
+          }
+        }
+      }
+    },
+    "Active Connections" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktive Verbindungen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conexiones activas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connexions actives"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アクティブな接続"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "활성 연결"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conexões ativas"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Активные соединения"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "活动连接"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用中的連線"
           }
         }
       }
@@ -5589,6 +5658,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "App Store"
+          }
+        }
+      }
+    },
+    "App Traffic" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App-Datenverkehr"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tráfico de aplicaciones"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trafic des applications"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アプリ通信量"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "앱 트래픽"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tráfego de apps"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Трафик приложений"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "应用流量"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App 流量"
           }
         }
       }
@@ -8119,6 +8247,9 @@
         }
       }
     },
+    "Check Route" : {
+
+    },
     "Check storage and quickly access common tools." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9822,6 +9953,65 @@
         }
       }
     },
+    "Connections" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verbindungen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conexiones"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connexions"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "接続"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연결"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conexões"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Соединения"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "連線"
+          }
+        }
+      }
+    },
     "Content accessible to other users of the same Mac" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10999,7 +11189,13 @@
         }
       }
     },
+    "Default" : {
+
+    },
     "Deselect All" : {
+
+    },
+    "Destination" : {
 
     },
     "Developer Caches" : {
@@ -12122,6 +12318,9 @@
         }
       }
     },
+    "example.com or 1.1.1.1" : {
+
+    },
     "Executable" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -12474,6 +12673,9 @@
           }
         }
       }
+    },
+    "Family" : {
+
     },
     "Feedback" : {
       "extractionState" : "manual",
@@ -13358,6 +13560,9 @@
           }
         }
       }
+    },
+    "Flags" : {
+
     },
     "Flask Development Server" : {
       "extractionState" : "manual",
@@ -14415,6 +14620,12 @@
           }
         }
       }
+    },
+    "Gateway" : {
+
+    },
+    "Gateway %@" : {
+
     },
     "General" : {
       "extractionState" : "manual",
@@ -15829,6 +16040,9 @@
         }
       }
     },
+    "Inspecting interfaces, processes, routes, and proxy settings locally" : {
+
+    },
     "Installed apps and command-line tools" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -16124,6 +16338,9 @@
         }
       }
     },
+    "Interface" : {
+
+    },
     "Interface and display" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -16179,6 +16396,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "介面與顯示"
+          }
+        }
+      }
+    },
+    "Interfaces" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schnittstellen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interfaces"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interfaces"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "インターフェイス"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "인터페이스"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interfaces"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Интерфейсы"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "网络接口"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "網路介面"
           }
         }
       }
@@ -17005,6 +17281,65 @@
         }
       }
     },
+    "Listening Ports" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Listening-Ports"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puertos en escucha"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ports en écoute"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "待受ポート"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "수신 대기 포트"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Portas em escuta"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прослушиваемые порты"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "监听端口"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "監聽連接埠"
+          }
+        }
+      }
+    },
     "Listening Scope" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -17297,6 +17632,9 @@
           }
         }
       }
+    },
+    "Local" : {
+
     },
     "Local Analysis" : {
       "extractionState" : "manual",
@@ -19827,6 +20165,68 @@
         }
       }
     },
+    "Network" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Netzwerk"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Red"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réseau"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ネットワーク"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "네트워크"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rede"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сеть"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "网络"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "網路"
+          }
+        }
+      }
+    },
+    "Network Data Unavailable" : {
+
+    },
     "network extension" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -20062,6 +20462,9 @@
           }
         }
       }
+    },
+    "No Active Connections" : {
+
     },
     "No Apps to Optimize" : {
       "extractionState" : "manual",
@@ -20940,6 +21343,9 @@
           }
         }
       }
+    },
+    "No Process Traffic" : {
+
     },
     "No related leftover files found." : {
       "localizations" : {
@@ -26876,7 +27282,11 @@
         }
       }
     },
+    "Reading network activity…" : {
+
+    },
     "Reading ports and processes…" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -28283,6 +28693,9 @@
         }
       }
     },
+    "Remote" : {
+
+    },
     "Remove" : {
       "localizations" : {
         "de" : {
@@ -28982,6 +29395,124 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "請確認要移入廢紙簍的內容。"
+          }
+        }
+      }
+    },
+    "Route Lookup" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Routenprüfung"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consulta de ruta"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recherche d’itinéraire"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ルート検索"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "경로 조회"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consulta de rota"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Проверка маршрута"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "路由查询"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "路由查詢"
+          }
+        }
+      }
+    },
+    "Routing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Routing"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enrutamiento"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Routage"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ルーティング"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "라우팅"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Roteamento"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Маршрутизация"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "路由"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "路由"
           }
         }
       }
@@ -30342,6 +30873,7 @@
       }
     },
     "Scans locally using macOS lsof" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -32687,6 +33219,9 @@
           }
         }
       }
+    },
+    "State" : {
+
     },
     "Storage" : {
       "extractionState" : "manual",
@@ -35864,6 +36399,9 @@
         }
       }
     },
+    "Total" : {
+
+    },
     "Total System Usage" : {
       "localizations" : {
         "de" : {
@@ -35980,6 +36518,9 @@
           }
         }
       }
+    },
+    "Traffic appears after an app sends or receives network data" : {
+
     },
     "Trash Record" : {
       "extractionState" : "manual",
@@ -38033,6 +38574,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "正在背景更新；目前顯示上次讀取的 %lld 個擴充。"
+          }
+        }
+      }
+    },
+    "Upload" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upload"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subida"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Envoi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アップロード"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "업로드"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Envio"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отправка"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上传"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上傳"
           }
         }
       }

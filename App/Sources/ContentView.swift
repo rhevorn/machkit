@@ -27,6 +27,15 @@ private enum PortFilter: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
+private enum NetworkTab: String, CaseIterable, Identifiable {
+    case overview = "Overview"
+    case traffic = "App Traffic"
+    case activeConnections = "Active Connections"
+    case listeningPorts = "Listening Ports"
+    case routing = "Routing"
+    var id: String { rawValue }
+}
+
 private struct LoginItemGroup: Identifiable {
     let domain: LoginItemDomain
     let items: [LoginItem]
@@ -54,6 +63,9 @@ struct ContentView: View {
     @State private var portSearch = ""
     @State private var portFilter: PortFilter = .all
     @State private var selectedPort: ListeningPort?
+    @State private var networkTab: NetworkTab = .overview
+    @State private var networkSearch = ""
+    @State private var routeQuery = ""
 
     var body: some View {
         HStack(spacing: 0) {
@@ -66,7 +78,7 @@ struct ContentView: View {
                 case .uninstall: uninstallView
                 case .files: filesView
                 case .performance: performanceView
-                case .ports: portsView
+                case .network: networkView
                 case .loginItems: loginItemsView
                 case .backgroundActivity: backgroundActivityView
                 case .extensions: extensionsView
@@ -159,7 +171,7 @@ struct ContentView: View {
             sideButton(.uninstall, icon: "app.badge.checkmark")
             sideButton(.files, icon: "chart.pie.fill")
             sideButton(.performance, icon: "gauge.with.dots.needle.67percent")
-            sideButton(.ports, icon: "network")
+            sideButton(.network, icon: "network")
             systemInventorySideButton
             Spacer()
             if model.isStorageAnalyzing {
@@ -312,8 +324,8 @@ struct ContentView: View {
                         icon: "gauge.with.dots.needle.67percent", color: .mint, mode: .performance
                     )
                     homeToolTile(
-                        title: "Ports", subtitle: "Find and stop forgotten development services",
-                        icon: "network", color: .orange, mode: .ports
+                        title: "Network", subtitle: "Traffic, connections, routes, and proxies",
+                        icon: "network", color: .orange, mode: .network
                     )
                     homeToolTile(
                         title: "System", subtitle: "Startup items, background activity, and app extensions",
@@ -834,7 +846,7 @@ struct ContentView: View {
                         groupDetails(group)
                     } label: {
                         HStack(spacing: 11) {
-                            Toggle("", isOn: groupSelectionBinding(group)).labelsHidden()
+                            Toggle(isOn: groupSelectionBinding(group)) { EmptyView() }.labelsHidden()
                             Image(systemName: group.risk == .safe ? "checkmark.shield.fill" : "exclamationmark.triangle.fill")
                                 .foregroundStyle(group.risk == .safe ? .green : .orange)
                                 .frame(width: 22)
@@ -929,7 +941,7 @@ struct ContentView: View {
 
     private func junkFileRow(_ item: ScanItem) -> some View {
         HStack(spacing: 10) {
-            Toggle("", isOn: selectionBinding(item)).labelsHidden()
+            Toggle(isOn: selectionBinding(item)) { EmptyView() }.labelsHidden()
             Image(systemName: "doc").foregroundStyle(.secondary).frame(width: 20)
             VStack(alignment: .leading, spacing: 2) {
                 Text(item.url.lastPathComponent).lineLimit(1)
@@ -1299,7 +1311,7 @@ struct ContentView: View {
 
     private func uninstallItem(title: String, detail: String, bytes: Int64, selected: Binding<Bool>) -> some View {
         HStack(spacing: 10) {
-            Toggle("", isOn: selected).labelsHidden()
+            Toggle(isOn: selected) { EmptyView() }.labelsHidden()
             VStack(alignment: .leading, spacing: 2) {
                 Text(title).font(.system(size: 12, weight: .medium))
                 Text(detail).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
@@ -1876,32 +1888,480 @@ struct ContentView: View {
         NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/System Settings.app"))
     }
 
-    private var portsView: some View {
+    private var networkView: some View {
         VStack(spacing: 0) {
             header(
-                title: "Ports",
-                subtitle: "Inspect TCP listeners, UDP bindings, and their processes",
+                title: "Network",
+                subtitle: "Understand traffic, connections, routes, VPNs, and proxies",
                 trailing: AnyView(autoUpdateIndicator(
                     active: true,
-                    detail: model.lastUpdatedText(for: .ports)
+                    detail: model.lastUpdatedText(for: .network)
                 ))
             )
-            .padding(18)
+            .padding(.horizontal, 18).padding(.top, 18).padding(.bottom, 12)
 
-            if model.isLoading(.ports), model.listeningPorts.isEmpty {
+            HStack(alignment: .bottom, spacing: 20) {
+                ForEach(NetworkTab.allCases) { tab in
+                    Button {
+                        networkSearch = ""
+                        networkTab = tab
+                    } label: {
+                        Text(tab.rawValue.localized)
+                            .font(.system(size: 12, weight: networkTab == tab ? .semibold : .medium))
+                            .foregroundStyle(networkTab == tab ? Color.primary : Color.secondary)
+                            .padding(.bottom, 9)
+                            .overlay(alignment: .bottom) {
+                                Capsule()
+                                    .fill(networkTab == tab ? Color.accentColor : Color.clear)
+                                    .frame(height: 2)
+                            }
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                }
+                Spacer()
+                Button {
+                    model.scanNetwork()
+                } label: {
+                    Label("Refresh", systemImage: "arrow.clockwise")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .disabled(model.isLoading(.network))
+            }
+            .padding(.horizontal, 18).padding(.bottom, 14)
+
+            if model.isLoading(.network), model.networkSnapshot == nil {
                 VStack(spacing: 13) {
                     Spacer()
                     ProgressView().controlSize(.large)
-                    Text("Reading ports and processes…")
+                    Text("Reading network activity…")
                         .font(.system(size: 14, weight: .semibold))
-                    Text("Scans locally using macOS lsof")
+                    Text("Inspecting interfaces, processes, routes, and proxy settings locally")
                         .font(.caption).foregroundStyle(.secondary)
                     Spacer()
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                portListContent
+                networkTabContent
             }
+        }
+    }
+
+    @ViewBuilder
+    private var networkTabContent: some View {
+        switch networkTab {
+        case .overview: networkOverview
+        case .traffic: networkTraffic
+        case .activeConnections: activeConnectionsContent
+        case .listeningPorts: portListContent
+        case .routing: networkRouting
+        }
+    }
+
+    private var networkOverview: some View {
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 14) {
+                if let snapshot = model.networkSnapshot {
+                    let primary = snapshot.interfaces.first { $0.name == snapshot.defaultRoute?.interfaceName }
+                        ?? snapshot.interfaces.first { $0.kind != .loopback && $0.kind != .bridge }
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: 10) {
+                        networkMetricCard(
+                            title: "Download",
+                            value: formatNetworkRate(primary?.downloadBytesPerSecond ?? 0),
+                            detail: primary?.name ?? "No active interface",
+                            icon: "arrow.down",
+                            color: .blue
+                        )
+                        networkMetricCard(
+                            title: "Upload",
+                            value: formatNetworkRate(primary?.uploadBytesPerSecond ?? 0),
+                            detail: primary?.name ?? "No active interface",
+                            icon: "arrow.up",
+                            color: .mint
+                        )
+                        networkMetricCard(
+                            title: "Default Interface",
+                            value: snapshot.defaultRoute?.interfaceName ?? "—",
+                            detail: snapshot.defaultRoute?.gateway ?? "No default route",
+                            icon: "point.3.connected.trianglepath.dotted",
+                            color: .orange
+                        )
+                        networkMetricCard(
+                            title: "Proxy",
+                            value: snapshot.proxy.isEnabled ? "Enabled" : "Direct",
+                            detail: snapshot.proxy.summary,
+                            icon: snapshot.proxy.isEnabled ? "shield.lefthalf.filled" : "arrow.triangle.branch",
+                            color: snapshot.proxy.isEnabled ? .purple : .green
+                        )
+                    }
+
+                    if !snapshot.errors.isEmpty {
+                        VStack(alignment: .leading, spacing: 6) {
+                            ForEach(snapshot.errors, id: \.self) { error in
+                                Label(error.localized, systemImage: "exclamationmark.triangle.fill")
+                                    .font(.caption).foregroundStyle(.orange)
+                            }
+                        }
+                        .padding(11)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 9))
+                    }
+
+                    sectionTitle("Interfaces", detail: "Live speed and addresses for each active network interface")
+                    VStack(spacing: 0) {
+                        ForEach(Array(snapshot.interfaces.enumerated()), id: \.element.id) { index, interface in
+                            networkInterfaceRow(interface, isPrimary: interface.name == snapshot.defaultRoute?.interfaceName)
+                            if index < snapshot.interfaces.count - 1 { Divider().padding(.leading, 50) }
+                        }
+                    }
+                    .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+
+                    if snapshot.interfaces.contains(where: { $0.kind == .tunnel }) {
+                        Label(
+                            "A VPN or TUN interface is active. Some destinations may bypass the default interface through more specific routes.",
+                            systemImage: "network.badge.shield.half.filled"
+                        )
+                        .font(.caption).foregroundStyle(.secondary)
+                    }
+                } else {
+                    ContentUnavailableView("Network Data Unavailable", systemImage: "network.slash")
+                        .frame(minHeight: 280)
+                }
+            }
+            .padding(.horizontal, 18).padding(.bottom, 18)
+        }
+    }
+
+    private func networkMetricCard(
+        title: String,
+        value: String,
+        detail: String,
+        icon: String,
+        color: Color
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: icon).foregroundStyle(color)
+                Spacer()
+                Text(title.localized).font(.caption).foregroundStyle(.secondary)
+            }
+            Text(value).font(.system(size: 18, weight: .semibold, design: .rounded)).lineLimit(1).minimumScaleFactor(0.75)
+            Text(detail).font(.caption2).foregroundStyle(.tertiary).lineLimit(1).truncationMode(.middle)
+        }
+        .padding(12).frame(maxWidth: .infinity, minHeight: 88, alignment: .leading)
+        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 11))
+        .overlay { RoundedRectangle(cornerRadius: 11).stroke(Color.primary.opacity(0.05)) }
+    }
+
+    private func networkInterfaceRow(_ interface: NetworkInterfaceUsage, isPrimary: Bool) -> some View {
+        HStack(spacing: 11) {
+            Image(systemName: networkInterfaceIcon(interface.kind))
+                .font(.system(size: 15, weight: .medium)).foregroundStyle(networkInterfaceColor(interface.kind))
+                .frame(width: 30, height: 30)
+                .background(networkInterfaceColor(interface.kind).opacity(0.10), in: Circle())
+            VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: 6) {
+                    Text(interface.displayName.localized).font(.system(size: 12, weight: .semibold))
+                    Text(interface.name).font(.caption2.monospaced()).foregroundStyle(.secondary)
+                    if isPrimary {
+                        Text("Default").font(.system(size: 9, weight: .semibold)).foregroundStyle(Color.accentColor)
+                            .padding(.horizontal, 6).padding(.vertical, 2)
+                            .background(Color.accentColor.opacity(0.10), in: Capsule())
+                    }
+                }
+                Text(interface.addresses.joined(separator: " · "))
+                    .font(.caption2.monospaced()).foregroundStyle(.tertiary).lineLimit(1).truncationMode(.middle)
+            }
+            Spacer()
+            VStack(alignment: .trailing, spacing: 3) {
+                Label(formatNetworkRate(interface.downloadBytesPerSecond), systemImage: "arrow.down")
+                    .foregroundStyle(Color.blue)
+                Label(formatNetworkRate(interface.uploadBytesPerSecond), systemImage: "arrow.up")
+                    .foregroundStyle(Color.mint)
+            }
+            .font(.caption.monospacedDigit()).labelStyle(.titleAndIcon)
+            .frame(width: 108, alignment: .trailing)
+        }
+        .padding(.horizontal, 13).frame(minHeight: 58)
+    }
+
+    private var networkTraffic: some View {
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 12) {
+                networkSearchField("Search processes or PIDs")
+                if filteredNetworkProcesses.isEmpty {
+                    ContentUnavailableView(
+                        "No Process Traffic",
+                        systemImage: "waveform.path.ecg",
+                        description: Text("Traffic appears after an app sends or receives network data")
+                    )
+                    .frame(minHeight: 260)
+                } else {
+                    LazyVStack(spacing: 0) {
+                        HStack {
+                            Text("Process").frame(maxWidth: .infinity, alignment: .leading)
+                            Text("Download").frame(width: 105, alignment: .trailing)
+                            Text("Upload").frame(width: 105, alignment: .trailing)
+                            Text("Total").frame(width: 105, alignment: .trailing)
+                            Text("Connections").frame(width: 82, alignment: .trailing)
+                        }
+                        .font(.caption).foregroundStyle(.secondary)
+                        .padding(.horizontal, 13).frame(height: 34)
+                        Divider()
+                        ForEach(filteredNetworkProcesses) { process in
+                            HStack(spacing: 10) {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(process.name).font(.system(size: 12, weight: .medium)).lineLimit(1)
+                                    Text("PID \(process.processIdentifier)")
+                                        .font(.caption2).foregroundStyle(.tertiary).monospacedDigit()
+                                }
+                                Spacer()
+                                Text(formatNetworkRate(process.downloadBytesPerSecond)).foregroundStyle(Color.blue)
+                                    .frame(width: 105, alignment: .trailing)
+                                Text(formatNetworkRate(process.uploadBytesPerSecond)).foregroundStyle(Color.mint)
+                                    .frame(width: 105, alignment: .trailing)
+                                Text(formatNetworkBytes(process.receivedBytes + process.sentBytes))
+                                    .frame(width: 105, alignment: .trailing)
+                                Text(String(process.connectionCount)).frame(width: 82, alignment: .trailing)
+                            }
+                            .font(.system(size: 11, design: .monospaced))
+                            .padding(.horizontal, 13).frame(minHeight: 52)
+                            Divider().padding(.leading, 13)
+                        }
+                    }
+                    .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+                }
+            }
+            .padding(.horizontal, 18).padding(.bottom, 18)
+        }
+    }
+
+    private var filteredNetworkProcesses: [NetworkProcessUsage] {
+        let processes = model.networkSnapshot?.processes ?? []
+        let query = networkSearch.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !query.isEmpty else { return processes }
+        return processes.filter { $0.name.lowercased().contains(query) || String($0.processIdentifier).contains(query) }
+    }
+
+    private var activeConnectionsContent: some View {
+        let filteredConnections = filteredActiveConnections
+        let visibleConnections = Array(filteredConnections.prefix(250))
+        return ScrollView {
+            LazyVStack(alignment: .leading, spacing: 12) {
+                networkSearchField("Search processes, addresses, ports, or interfaces")
+                if filteredConnections.isEmpty {
+                    ContentUnavailableView("No Active Connections", systemImage: "network.slash")
+                        .frame(minHeight: 260)
+                } else {
+                    LazyVStack(spacing: 0) {
+                        HStack {
+                            Text("Process").frame(width: 170, alignment: .leading)
+                            Text("Local").frame(maxWidth: .infinity, alignment: .leading)
+                            Text("Remote").frame(maxWidth: .infinity, alignment: .leading)
+                            Text("Interface").frame(width: 72, alignment: .leading)
+                            Text("State").frame(width: 86, alignment: .leading)
+                        }
+                        .font(.caption).foregroundStyle(.secondary)
+                        .padding(.horizontal, 13).frame(height: 34)
+                        Divider()
+                        ForEach(visibleConnections) { connection in
+                            HStack(spacing: 10) {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(connection.processName).font(.system(size: 12, weight: .medium)).lineLimit(1)
+                                    Text("PID \(connection.processIdentifier) · \(connection.transport.rawValue)")
+                                        .font(.caption2).foregroundStyle(.tertiary)
+                                }
+                                .frame(width: 170, alignment: .leading)
+                                Text(networkEndpoint(connection.localAddress, connection.localPort))
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                Text(networkEndpoint(connection.remoteAddress ?? "—", connection.remotePort))
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                Text(connection.interfaceName ?? "—").frame(width: 72, alignment: .leading)
+                                Text(connection.state ?? "UDP").frame(width: 86, alignment: .leading)
+                            }
+                            .font(.system(size: 10.5, design: .monospaced)).padding(.horizontal, 13).frame(minHeight: 50)
+                            Divider().padding(.leading, 13)
+                        }
+                    }
+                    .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+
+                    if filteredConnections.count > visibleConnections.count {
+                        Text("\(visibleConnections.count) / \(filteredConnections.count)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+            }
+            .padding(.horizontal, 18).padding(.bottom, 18)
+        }
+    }
+
+    private var filteredActiveConnections: [NetworkConnection] {
+        let connections = (model.networkSnapshot?.connections ?? []).filter { !$0.isListener }
+        let query = networkSearch.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !query.isEmpty else { return connections }
+        return connections.filter { connection in
+            [
+                connection.processName, String(connection.processIdentifier), connection.transport.rawValue,
+                connection.localAddress, connection.localPort.map(String.init) ?? "",
+                connection.remoteAddress ?? "", connection.remotePort.map(String.init) ?? "",
+                connection.interfaceName ?? "", connection.state ?? ""
+            ].joined(separator: " ").lowercased().contains(query)
+        }
+    }
+
+    private var networkRouting: some View {
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 14) {
+                sectionTitle("Route Lookup", detail: "Check which interface macOS will use for a host or IP address")
+                HStack(spacing: 9) {
+                    Image(systemName: "scope").foregroundStyle(.secondary)
+                    TextField("example.com or 1.1.1.1", text: $routeQuery)
+                        .textFieldStyle(.plain).onSubmit { model.lookupNetworkRoute(routeQuery) }
+                    Button("Check Route") { model.lookupNetworkRoute(routeQuery) }
+                        .buttonStyle(.borderedProminent).controlSize(.small)
+                        .disabled(routeQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.isLookingUpRoute)
+                }
+                .padding(.horizontal, 12).frame(height: 40)
+                .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 9))
+
+                if let route = model.routeLookup {
+                    HStack(spacing: 12) {
+                        Image(systemName: route.errorMessage == nil ? "arrow.triangle.turn.up.right.diamond.fill" : "exclamationmark.triangle.fill")
+                            .font(.system(size: 18)).foregroundStyle(route.errorMessage == nil ? Color.accentColor : Color.orange)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(route.errorMessage ?? "Traffic to \(route.destination) uses \(route.interfaceName ?? "an unknown interface")")
+                                .font(.system(size: 12, weight: .semibold)).textSelection(.enabled)
+                            if let gateway = route.gateway {
+                                Text("Gateway \(gateway)").font(.caption.monospaced()).foregroundStyle(.secondary)
+                            }
+                        }
+                        Spacer()
+                        if let interfaceName = route.interfaceName {
+                            Text(interfaceName).font(.system(size: 12, weight: .bold, design: .monospaced))
+                                .padding(.horizontal, 9).padding(.vertical, 5)
+                                .background(Color.accentColor.opacity(0.10), in: Capsule())
+                        }
+                    }
+                    .padding(12).background(Color.accentColor.opacity(0.05), in: RoundedRectangle(cornerRadius: 10))
+                }
+
+                if let snapshot = model.networkSnapshot {
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                        networkInfoCard(
+                            title: "Default Route",
+                            value: snapshot.defaultRoute?.interfaceName ?? "Unavailable",
+                            detail: snapshot.defaultRoute?.gateway.map { "Gateway \($0)" } ?? "No gateway reported",
+                            icon: "point.3.connected.trianglepath.dotted"
+                        )
+                        networkInfoCard(
+                            title: "System Proxy",
+                            value: snapshot.proxy.isEnabled ? "Enabled" : "Not Configured",
+                            detail: snapshot.proxy.summary,
+                            icon: "shield.lefthalf.filled"
+                        )
+                    }
+
+                    sectionTitle("Route Table", detail: "IPv4 and IPv6 routes currently installed by macOS, VPNs, and TUN tools")
+                    VStack(spacing: 0) {
+                        HStack {
+                            Text("Destination").frame(maxWidth: .infinity, alignment: .leading)
+                            Text("Gateway").frame(maxWidth: .infinity, alignment: .leading)
+                            Text("Interface").frame(width: 80, alignment: .leading)
+                            Text("Family").frame(width: 54, alignment: .leading)
+                            Text("Flags").frame(width: 90, alignment: .leading)
+                        }
+                        .font(.caption).foregroundStyle(.secondary)
+                        .padding(.horizontal, 13).frame(height: 34)
+                        Divider()
+                        ForEach(Array(snapshot.routes.prefix(300).enumerated()), id: \.element.id) { index, route in
+                            HStack {
+                                Text(route.destination).frame(maxWidth: .infinity, alignment: .leading)
+                                Text(route.gateway).frame(maxWidth: .infinity, alignment: .leading)
+                                Text(route.interfaceName).frame(width: 80, alignment: .leading)
+                                Text(route.family).frame(width: 54, alignment: .leading)
+                                Text(route.flags).frame(width: 90, alignment: .leading)
+                            }
+                            .font(.system(size: 10.5, design: .monospaced))
+                            .padding(.horizontal, 13).frame(minHeight: 34)
+                            if index < min(snapshot.routes.count, 300) - 1 { Divider().padding(.leading, 13) }
+                        }
+                    }
+                    .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+                }
+            }
+            .padding(.horizontal, 18).padding(.bottom, 18)
+        }
+    }
+
+    private func networkInfoCard(title: String, value: String, detail: String, icon: String) -> some View {
+        HStack(spacing: 11) {
+            Image(systemName: icon).font(.system(size: 17)).foregroundStyle(Color.accentColor).frame(width: 26)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title.localized).font(.caption).foregroundStyle(.secondary)
+                Text(value.localized).font(.system(size: 13, weight: .semibold)).lineLimit(1)
+                Text(detail).font(.caption2).foregroundStyle(.tertiary).lineLimit(2).textSelection(.enabled)
+            }
+            Spacer()
+        }
+        .padding(12).frame(maxWidth: .infinity, minHeight: 78, alignment: .leading)
+        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func networkSearchField(_ placeholder: String) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+            TextField(placeholder.localized, text: $networkSearch).textFieldStyle(.plain)
+            if !networkSearch.isEmpty {
+                Button { networkSearch = "" } label: { Image(systemName: "xmark.circle.fill") }
+                    .buttonStyle(.plain).foregroundStyle(.tertiary)
+            }
+        }
+        .padding(.horizontal, 11).frame(height: 34)
+        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 8))
+    }
+
+    private func sectionTitle(_ title: String, detail: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title.localized).font(.system(size: 13, weight: .semibold))
+            Text(detail.localized).font(.caption2).foregroundStyle(.secondary)
+        }
+    }
+
+    private func networkEndpoint(_ address: String, _ port: UInt16?) -> String {
+        guard let port else { return address }
+        return address.contains(":") ? "[\(address)]:\(port)" : "\(address):\(port)"
+    }
+
+    private func formatNetworkRate(_ bytes: Double) -> String {
+        "\(ByteCountFormatter.string(fromByteCount: Int64(max(0, bytes)), countStyle: .file))/s"
+    }
+
+    private func formatNetworkBytes(_ bytes: UInt64) -> String {
+        ByteCountFormatter.string(fromByteCount: Int64(clamping: bytes), countStyle: .file)
+    }
+
+    private func networkInterfaceIcon(_ kind: NetworkInterfaceKind) -> String {
+        switch kind {
+        case .wifi: "wifi"
+        case .ethernet: "cable.connector"
+        case .tunnel: "network.badge.shield.half.filled"
+        case .loopback: "arrow.triangle.2.circlepath"
+        case .bridge: "point.3.connected.trianglepath.dotted"
+        case .other: "network"
+        }
+    }
+
+    private func networkInterfaceColor(_ kind: NetworkInterfaceKind) -> Color {
+        switch kind {
+        case .wifi: .blue
+        case .ethernet: .green
+        case .tunnel: .purple
+        case .loopback: .secondary
+        case .bridge: .orange
+        case .other: .cyan
         }
     }
 

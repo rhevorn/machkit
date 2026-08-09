@@ -19,6 +19,9 @@ final class CleanerViewModel: ObservableObject {
     @Published private(set) var isOptimizingMemory = false
     @Published private(set) var listeningPorts: [ListeningPort] = []
     @Published private(set) var portScanError: String?
+    @Published private(set) var networkSnapshot: NetworkSnapshot?
+    @Published private(set) var routeLookup: NetworkRouteLookup?
+    @Published private(set) var isLookingUpRoute = false
     @Published var portTerminationCandidate: ListeningPort?
     @Published var showPortTerminationConfirmation = false
     @Published var applications: [InstalledApplication] = []
@@ -76,11 +79,12 @@ final class CleanerViewModel: ObservableObject {
     private let fileAnalyzer = FileAnalyzer()
     private let performanceMonitor = PerformanceMonitor()
     private let portScanner = PortScanner()
+    private let networkScanner = NetworkScanner()
     private var scanTask: Task<Void, Never>?
     private var storageAnalysisTask: Task<Void, Never>?
     private var featureTasks: [FeatureMode: Task<Void, Never>] = [:]
     private var performanceTask: Task<Void, Never>?
-    private var portMonitoringTask: Task<Void, Never>?
+    private var networkMonitoringTask: Task<Void, Never>?
     private var homeMonitoringTask: Task<Void, Never>?
     private var hasScannedApplications = false
     private var hasAnalyzedStorage = false
@@ -230,7 +234,7 @@ final class CleanerViewModel: ObservableObject {
                 break
             case .files:
                 break
-            case .performance, .ports, .loginItems, .backgroundActivity, .extensions, .settings:
+            case .performance, .network, .loginItems, .backgroundActivity, .extensions, .settings:
                 break
             }
             lastScanAt = Date()
@@ -548,41 +552,76 @@ final class CleanerViewModel: ObservableObject {
     }
 
     func scanPorts() {
-        featureTasks[.ports]?.cancel()
+        featureTasks[.network]?.cancel()
         isScanning = true
-        loadingModes.insert(.ports)
+        loadingModes.insert(.network)
         portScanError = nil
         status = L10n.string("Reading listening ports and process information…")
-        featureTasks[.ports] = Task {
+        featureTasks[.network] = Task {
             let result = await portScanner.scan()
             guard !Task.isCancelled else { return }
             listeningPorts = result.ports
             hasLoadedPortSnapshot = true
             portScanError = result.errorMessage
             lastScanAt = Date()
-            lastUpdatedAt[.ports] = lastScanAt
-            loadingModes.remove(.ports)
-            featureTasks[.ports] = nil
+            lastUpdatedAt[.network] = lastScanAt
+            loadingModes.remove(.network)
+            featureTasks[.network] = nil
             isScanning = !loadingModes.isEmpty
-            if mode == .ports {
+            if mode == .network {
                 status = result.errorMessage ?? L10n.format("%lld listening ports found.", Int64(result.ports.count))
             }
         }
     }
 
-    private func startPortMonitoring() {
-        portMonitoringTask?.cancel()
-        scanPorts()
-        portMonitoringTask = Task { [weak self] in
+    func scanNetwork() {
+        featureTasks[.network]?.cancel()
+        isScanning = true
+        loadingModes.insert(.network)
+        portScanError = nil
+        status = L10n.string("Reading network activity, routes, and proxy settings…")
+        featureTasks[.network] = Task {
+            async let snapshotTask = networkScanner.scan()
+            async let portsTask = portScanner.scan()
+            let (snapshot, ports) = await (snapshotTask, portsTask)
+            guard !Task.isCancelled else { return }
+            networkSnapshot = snapshot
+            listeningPorts = ports.ports
+            hasLoadedPortSnapshot = true
+            portScanError = ports.errorMessage
+            lastScanAt = snapshot.sampledAt
+            lastUpdatedAt[.network] = snapshot.sampledAt
+            loadingModes.remove(.network)
+            featureTasks[.network] = nil
+            isScanning = !loadingModes.isEmpty
+            if mode == .network {
+                status = snapshot.errors.first ?? L10n.format("%lld active connections found.", Int64(snapshot.connections.filter { !$0.isListener }.count))
+            }
+        }
+    }
+
+    func lookupNetworkRoute(_ query: String) {
+        guard !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        isLookingUpRoute = true
+        Task {
+            routeLookup = await networkScanner.route(to: query)
+            isLookingUpRoute = false
+        }
+    }
+
+    private func startNetworkMonitoring() {
+        networkMonitoringTask?.cancel()
+        scanNetwork()
+        networkMonitoringTask = Task { [weak self] in
             while !Task.isCancelled {
                 do {
-                    try await Task.sleep(for: .seconds(3))
+                    try await Task.sleep(for: .seconds(5))
                 } catch {
                     return
                 }
-                guard let self, self.mode == .ports else { return }
-                if NSApp.isActive, !self.isLoading(.ports), !self.showPortTerminationConfirmation {
-                    self.scanPorts()
+                guard let self, self.mode == .network else { return }
+                if NSApp.isActive, !self.isLoading(.network), !self.showPortTerminationConfirmation {
+                    self.scanNetwork()
                 }
             }
         }
@@ -616,7 +655,7 @@ final class CleanerViewModel: ObservableObject {
                     ? L10n.format("%@ was force quit.", port.processName)
                     : L10n.format("A quit request was sent to %@.", port.processName)
                 try? await Task.sleep(for: .milliseconds(500))
-                if mode == .ports { scanPorts() }
+                if mode == .network { scanNetwork() }
             }
         }
     }
@@ -826,8 +865,8 @@ final class CleanerViewModel: ObservableObject {
         guard newMode != mode else { return }
         performanceTask?.cancel()
         performanceTask = nil
-        portMonitoringTask?.cancel()
-        portMonitoringTask = nil
+        networkMonitoringTask?.cancel()
+        networkMonitoringTask = nil
         homeMonitoringTask?.cancel()
         homeMonitoringTask = nil
         isPerformanceMonitoring = false
@@ -866,8 +905,8 @@ final class CleanerViewModel: ObservableObject {
         case .performance:
             status = L10n.string("Monitoring CPU and memory…")
             startPerformanceMonitoring()
-        case .ports:
-            startPortMonitoring()
+        case .network:
+            startNetworkMonitoring()
         case .loginItems:
             if hasScannedLoginApplications {
                 status = L10n.format("Updating in the background; currently displaying the last %lld login items read.", Int64(loginApplications.count))
@@ -916,8 +955,8 @@ final class CleanerViewModel: ObservableObject {
                 status = L10n.string("Measuring file usage…")
             case .performance:
                 status = L10n.string("Monitoring CPU and memory…")
-            case .ports:
-                status = L10n.string("Reading listening ports and process information…")
+            case .network:
+                status = L10n.string("Reading network activity, routes, and proxy settings…")
             case .loginItems:
                 status = L10n.string("Reading login items…")
             case .backgroundActivity:
@@ -956,8 +995,8 @@ final class CleanerViewModel: ObservableObject {
             status = isPerformanceMonitoring
                 ? L10n.string("Monitoring CPU and memory…")
                 : L10n.string("Performance monitoring paused.")
-        case .ports:
-            status = L10n.format("%lld ports cached; refresh to scan again.", Int64(listeningPorts.count))
+        case .network:
+            status = L10n.format("%lld connections cached; refresh to scan again.", Int64(networkSnapshot?.connections.count ?? 0))
         case .loginItems:
             status = L10n.format("%lld login items cached; refresh to scan again.", Int64(loginApplications.count))
         case .backgroundActivity:

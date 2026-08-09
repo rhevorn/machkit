@@ -4,7 +4,7 @@ enum FeatureMode: String, CaseIterable, Sendable {
     case uninstall = "Apps"
     case files = "Storage"
     case performance = "Performance"
-    case ports = "Ports"
+    case network = "Network"
     case loginItems = "Login Items"
     case backgroundActivity = "Background Activity"
     case extensions = "Extensions"
