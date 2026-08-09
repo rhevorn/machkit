@@ -224,25 +224,13 @@ public actor FileAnalyzer {
 
     private func directorySizes(using urls: [URL]) -> [String: Int64] {
         guard !urls.isEmpty else { return [:] }
-        let process = Process()
-        let output = Pipe()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/du")
-        process.arguments = ["-sk", "-x", "--"] + urls.map(\.path)
-        process.standardOutput = output
-        process.standardError = FileHandle.nullDevice
         do {
-            try process.run()
-            while process.isRunning {
-                if Task.isCancelled {
-                    process.terminate()
-                    process.waitUntilExit()
-                    return [:]
-                }
-                Thread.sleep(forTimeInterval: 0.05)
-            }
-            let data = output.fileHandleForReading.readDataToEndOfFile()
-            let text = String(decoding: data, as: UTF8.self)
-            return Self.parseDirectorySizes(text)
+            let output = try SystemCommandRunner.run(
+                executable: "/usr/bin/du",
+                arguments: ["-sk", "-x", "--"] + urls.map(\.path),
+                timeout: 60
+            )
+            return Self.parseDirectorySizes(output.text)
         } catch {
             return [:]
         }

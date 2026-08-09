@@ -349,26 +349,21 @@ public actor ApplicationScanner {
     /// One system-level size query per top-level residue path.
     private nonisolated static func directoryAllocatedBytes(at url: URL) async -> Int64 {
         await Task.detached(priority: .utility) {
-            let process = Process()
-            process.executableURL = URL(fileURLWithPath: "/usr/bin/du")
-            process.arguments = ["-sk", url.path]
-            let stdout = Pipe()
-            process.standardOutput = stdout
-            process.standardError = Pipe()
             do {
-                try process.run()
-                process.waitUntilExit()
+                let output = try SystemCommandRunner.run(
+                    executable: "/usr/bin/du",
+                    arguments: ["-sk", url.path],
+                    timeout: 30
+                )
+                guard output.status == 0,
+                      let token = output.text.split(whereSeparator: \.isWhitespace).first,
+                      let kilobytes = Int64(token) else {
+                    return 0
+                }
+                return kilobytes * 1_024
             } catch {
                 return 0
             }
-            guard process.terminationStatus == 0 else { return 0 }
-            let data = stdout.fileHandleForReading.readDataToEndOfFile()
-            guard let output = String(data: data, encoding: .utf8),
-                  let token = output.split(whereSeparator: \.isWhitespace).first,
-                  let kilobytes = Int64(token) else {
-                return 0
-            }
-            return kilobytes * 1_024
         }.value
     }
 

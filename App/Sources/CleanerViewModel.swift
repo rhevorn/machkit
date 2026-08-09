@@ -85,6 +85,7 @@ final class CleanerViewModel: ObservableObject {
     private var featureTasks: [FeatureMode: Task<Void, Never>] = [:]
     private var performanceTask: Task<Void, Never>?
     private var networkMonitoringTask: Task<Void, Never>?
+    private var routeLookupTask: Task<Void, Never>?
     private var homeMonitoringTask: Task<Void, Never>?
     private var hasScannedApplications = false
     private var hasAnalyzedStorage = false
@@ -603,11 +604,17 @@ final class CleanerViewModel: ObservableObject {
     }
 
     func lookupNetworkRoute(_ query: String) {
-        guard !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        let query = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return }
+        routeLookupTask?.cancel()
         isLookingUpRoute = true
-        Task {
-            routeLookup = await networkScanner.route(to: query)
+        routeLookupTask = Task { [weak self] in
+            guard let self else { return }
+            let result = await networkScanner.route(to: query)
+            guard !Task.isCancelled else { return }
+            routeLookup = result
             isLookingUpRoute = false
+            routeLookupTask = nil
         }
     }
 
@@ -869,6 +876,9 @@ final class CleanerViewModel: ObservableObject {
         performanceTask = nil
         networkMonitoringTask?.cancel()
         networkMonitoringTask = nil
+        routeLookupTask?.cancel()
+        routeLookupTask = nil
+        isLookingUpRoute = false
         homeMonitoringTask?.cancel()
         homeMonitoringTask = nil
         isPerformanceMonitoring = false

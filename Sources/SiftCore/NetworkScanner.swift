@@ -4,11 +4,6 @@ import Foundation
 public actor NetworkScanner {
     private static let maximumPublishedRoutes = 1_000
 
-    private struct CommandOutput {
-        let status: Int32
-        let text: String
-    }
-
     private struct ByteSample {
         let received: UInt64
         let sent: UInt64
@@ -505,20 +500,15 @@ public actor NetworkScanner {
         address == "::1" || address == "localhost" || address.hasPrefix("127.")
     }
 
-    private func run(executable: String, arguments: [String]) throws -> CommandOutput {
-        let process = Process()
-        let outputPipe = Pipe()
-        process.executableURL = URL(fileURLWithPath: executable)
-        process.arguments = arguments
-        process.environment = ProcessInfo.processInfo.environment.merging([
+    private func run(executable: String, arguments: [String]) throws -> SystemCommandOutput {
+        try SystemCommandRunner.run(
+            executable: executable,
+            arguments: arguments,
+            timeout: 10,
+            environment: [
             "LANG": "en_US.UTF-8",
             "LC_ALL": "en_US.UTF-8"
-        ]) { _, preferred in preferred }
-        process.standardOutput = outputPipe
-        process.standardError = outputPipe
-        try process.run()
-        let data = outputPipe.fileHandleForReading.readDataToEndOfFile()
-        process.waitUntilExit()
-        return CommandOutput(status: process.terminationStatus, text: String(decoding: data, as: UTF8.self))
+            ]
+        )
     }
 }

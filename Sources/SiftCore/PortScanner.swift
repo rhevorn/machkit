@@ -11,15 +11,10 @@ struct LSOFPortRecord: Sendable, Equatable {
 }
 
 public actor PortScanner {
-    private struct CommandOutput {
-        let status: Int32
-        let text: String
-    }
-
     public init() {}
 
     public func scan() -> PortScanResult {
-        let output: CommandOutput
+        let output: SystemCommandOutput
         do {
             output = try run(
                 executable: "/usr/sbin/lsof",
@@ -404,23 +399,15 @@ public actor PortScanner {
         return nil
     }
 
-    private func run(executable: String, arguments: [String]) throws -> CommandOutput {
-        let process = Process()
-        let outputPipe = Pipe()
-        process.executableURL = URL(fileURLWithPath: executable)
-        process.arguments = arguments
-        process.environment = ProcessInfo.processInfo.environment.merging([
+    private func run(executable: String, arguments: [String]) throws -> SystemCommandOutput {
+        try SystemCommandRunner.run(
+            executable: executable,
+            arguments: arguments,
+            timeout: 10,
+            environment: [
             "LANG": "en_US.UTF-8",
             "LC_ALL": "en_US.UTF-8"
-        ]) { _, preferred in preferred }
-        process.standardOutput = outputPipe
-        process.standardError = outputPipe
-        try process.run()
-        let data = outputPipe.fileHandleForReading.readDataToEndOfFile()
-        process.waitUntilExit()
-        return CommandOutput(
-            status: process.terminationStatus,
-            text: String(decoding: data, as: UTF8.self)
+            ]
         )
     }
 }

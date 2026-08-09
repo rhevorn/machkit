@@ -424,20 +424,13 @@ public actor SystemInventoryScanner {
     }
 
     private func runAppleScript(_ script: String, arguments: [String] = []) -> (status: Int32, output: String) {
-        let process = Process()
-        let standardOutput = Pipe()
-        let standardError = Pipe()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-        process.arguments = ["-e", script, "--"] + arguments
-        process.standardOutput = standardOutput
-        process.standardError = standardError
         do {
-            try process.run()
-            process.waitUntilExit()
-            let outputData = standardOutput.fileHandleForReading.readDataToEndOfFile()
-            let errorData = standardError.fileHandleForReading.readDataToEndOfFile()
-            let data = process.terminationStatus == 0 ? outputData : errorData
-            return (process.terminationStatus, String(decoding: data, as: UTF8.self))
+            let result = try SystemCommandRunner.run(
+                executable: "/usr/bin/osascript",
+                arguments: ["-e", script, "--"] + arguments,
+                timeout: 120
+            )
+            return (result.status, result.text)
         } catch {
             return (-1, error.localizedDescription)
         }
