@@ -22,7 +22,7 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Validate tag and app version
+      - name: Read version from tag
         id: version
         shell: bash
         run: |
@@ -32,6 +32,9 @@ jobs:
 
       - name: Build Release app
         shell: bash
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          BUILD_NUMBER: ${{ github.run_number }}
         run: |
           set -euo pipefail
           xcodebuild \
@@ -40,11 +43,16 @@ jobs:
             -configuration Release \
             -derivedDataPath build/XcodeDerivedData \
             CODE_SIGNING_ALLOWED=NO \
+            MARKETING_VERSION="$VERSION" \
+            CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
             build
 
       - name: Locate built app
         id: app
         shell: bash
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          BUILD_NUMBER: ${{ github.run_number }}
         run: |
           set -euo pipefail
           build_settings="$(xcodebuild \
@@ -53,6 +61,8 @@ jobs:
             -configuration Release \
             -derivedDataPath build/XcodeDerivedData \
             CODE_SIGNING_ALLOWED=NO \
+            MARKETING_VERSION="$VERSION" \
+            CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
             -showBuildSettings)"
           target_build_dir="$(printf '%s\n' "$build_settings" | awk -F ' = ' '/^[[:space:]]*TARGET_BUILD_DIR = / { print $2; exit }')"
           wrapper_name="$(printf '%s\n' "$build_settings" | awk -F ' = ' '/^[[:space:]]*WRAPPER_NAME = / { print $2; exit }')"
@@ -62,6 +72,26 @@ jobs:
             exit 1
           fi
           echo "path=$app_path" >> "$GITHUB_OUTPUT"
+
+      - name: Verify bundled version
+        shell: bash
+        env:
+          APP_PATH: ${{ steps.app.outputs.path }}
+          VERSION: ${{ steps.version.outputs.version }}
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: |
+          set -euo pipefail
+          info_plist="$APP_PATH/Contents/Info.plist"
+          bundled_version="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$info_plist")"
+          bundled_build="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$info_plist")"
+          if [[ "$bundled_version" != "$VERSION" ]]; then
+            echo "Bundled version $bundled_version does not match tag version $VERSION" >&2
+            exit 1
+          fi
+          if [[ "$bundled_build" != "$BUILD_NUMBER" ]]; then
+            echo "Bundled build $bundled_build does not match GitHub run number $BUILD_NUMBER" >&2
+            exit 1
+          fi
 
       - name: Apply and verify ad-hoc signature
         shell: bash

@@ -67,6 +67,15 @@ open build/XcodeDerivedData/Build/Products/Debug/Sift.app
 swift test
 ```
 
+## 发布
+
+本地构建统一使用 `dev`。正式发布以 Git tag 作为版本唯一来源：推送 `v0.9.0` 后，工作流会将 App 版本覆盖为 `CFBundleShortVersionString=0.9.0`，GitHub Actions 运行编号作为 `CFBundleVersion`。工作流会在打包和发布 ZIP 前校验这两个值。
+
+```bash
+git tag v0.9.0
+git push origin v0.9.0
+```
+
 ## 本地化
 
 英文为源语言。界面另支持简体中文、繁体中文、日语、韩语、西班牙语、法语、德语、巴西葡萄牙语和俄语。

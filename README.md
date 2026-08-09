@@ -67,6 +67,15 @@ Core library tests:
 swift test
 ```
 
+## Releases
+
+Local builds use `dev`. Release tags are the source of truth for shipped versions: pushing a tag such as `v0.9.0` overrides the app version with `CFBundleShortVersionString=0.9.0`, while the GitHub Actions run number becomes `CFBundleVersion`. The workflow verifies both values before packaging and publishing the ZIP.
+
+```bash
+git tag v0.9.0
+git push origin v0.9.0
+```
+
 ## Localization
 
 English is the source language. The app also includes Simplified Chinese, Traditional Chinese, Japanese, Korean, Spanish, French, German, Brazilian Portuguese, and Russian.
