@@ -3,7 +3,7 @@ import SwiftUI
 
 final class SiftAppDelegate: NSObject, NSApplicationDelegate {
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
-        false
+        !UserDefaults.standard.bool(forKey: AppPreferenceKey.showMenuBar)
     }
 }
 
