@@ -2232,7 +2232,7 @@ struct ContentView: View {
                         Image(systemName: route.errorMessage == nil ? "arrow.triangle.turn.up.right.diamond.fill" : "exclamationmark.triangle.fill")
                             .font(.system(size: 18)).foregroundStyle(route.errorMessage == nil ? Color.accentColor : Color.orange)
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(route.errorMessage ?? "Traffic to \(route.destination) uses \(route.interfaceName ?? "an unknown interface")")
+                            Text(route.errorMessage ?? "\(route.query) → \(route.destination)")
                                 .font(.system(size: 12, weight: .semibold)).textSelection(.enabled)
                             if let gateway = route.gateway {
                                 Text("Gateway \(gateway)").font(.caption.monospaced()).foregroundStyle(.secondary)
@@ -2246,6 +2246,15 @@ struct ContentView: View {
                         }
                     }
                     .padding(12).background(Color.accentColor.opacity(0.05), in: RoundedRectangle(cornerRadius: 10))
+
+                    if model.networkSnapshot?.proxy.isEnabled == true {
+                        Label(
+                            "A system proxy is enabled. Route lookup shows the Mac's outbound route; proxied apps connect to the local proxy first.",
+                            systemImage: "info.circle"
+                        )
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    }
                 }
 
                 if let snapshot = model.networkSnapshot {
@@ -2336,7 +2345,23 @@ struct ContentView: View {
     }
 
     private func formatNetworkRate(_ bytes: Double) -> String {
-        "\(ByteCountFormatter.string(fromByteCount: Int64(max(0, bytes)), countStyle: .file))/s"
+        let bytesPerSecond = max(0, bytes)
+        if bytesPerSecond < 1_000 {
+            return "\(Int(bytesPerSecond.rounded())) B/s"
+        }
+        if bytesPerSecond < 1_000_000 {
+            return "\(formatNetworkNumber(bytesPerSecond / 1_000)) KB/s"
+        }
+        if bytesPerSecond < 1_000_000_000 {
+            return "\(formatNetworkNumber(bytesPerSecond / 1_000_000)) MB/s"
+        }
+        return "\(formatNetworkNumber(bytesPerSecond / 1_000_000_000)) GB/s"
+    }
+
+    private func formatNetworkNumber(_ value: Double) -> String {
+        if value >= 100 { return String(format: "%.0f", value) }
+        if value >= 10 { return String(format: "%.1f", value) }
+        return String(format: "%.2f", value)
     }
 
     private func formatNetworkBytes(_ bytes: UInt64) -> String {

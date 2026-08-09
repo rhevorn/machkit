@@ -3833,6 +3833,64 @@
         }
       }
     },
+    "A system proxy is enabled. Route lookup shows the Mac's outbound route; proxied apps connect to the local proxy first." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Systemproxy ist aktiv. Die Routensuche zeigt den Ausgangspfad des Macs; Apps mit Proxy verbinden sich zuerst mit dem lokalen Proxy."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hay un proxy del sistema activo. La consulta de ruta muestra la salida del Mac; las apps con proxy se conectan primero al proxy local."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un proxy système est activé. La recherche d’itinéraire affiche la sortie du Mac ; les apps utilisant le proxy se connectent d’abord au proxy local."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "システムプロキシが有効です。経路検索には Mac の外向き経路が表示され、プロキシを使うアプリは先にローカルプロキシへ接続します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시스템 프록시가 활성화되어 있습니다. 경로 조회는 Mac의 외부 경로를 표시하며, 프록시 앱은 먼저 로컬 프록시에 연결합니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um proxy do sistema está ativo. A consulta de rota mostra a saída do Mac; apps com proxy se conectam primeiro ao proxy local."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Включён системный прокси. Поиск маршрута показывает выходной маршрут Mac; приложения с прокси сначала подключаются к локальному прокси."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已启用系统代理。路由查询显示 Mac 的出口路由；使用代理的 App 会先连接本地代理。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已啟用系統代理。路由查詢顯示 Mac 的出口路由；使用代理的 App 會先連接本機代理。"
+          }
+        }
+      }
+    },
     "A VPN or TUN interface is active. Some destinations may bypass the default interface through more specific routes." : {
 
     },

@@ -352,7 +352,7 @@ private func formatPlaceholders(in value: String) -> [String] {
         gateway: 192.168.1.1
       interface: en0
     """, query: "1.1.1.1", status: 0)
-    #expect(lookup.destination == "default")
+    #expect(lookup.destination == "1.1.1.1")
     #expect(lookup.gateway == "192.168.1.1")
     #expect(lookup.interfaceName == "en0")
 }

@@ -332,7 +332,7 @@ public actor NetworkScanner {
         }
         return NetworkRouteLookup(
             query: query,
-            destination: values["destination"] ?? values["route to"] ?? query,
+            destination: values["route to"] ?? values["destination"] ?? query,
             gateway: values["gateway"],
             interfaceName: values["interface"]
         )
