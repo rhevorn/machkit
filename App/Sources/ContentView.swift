@@ -324,7 +324,7 @@ struct ContentView: View {
                         icon: "gauge.with.dots.needle.67percent", color: .mint, mode: .performance
                     )
                     homeToolTile(
-                        title: "Network", subtitle: "Traffic, connections, routes, and proxies",
+                        title: "Network", subtitle: L10n.string("Traffic, connections, routes, and proxies"),
                         icon: "network", color: .orange, mode: .network
                     )
                     homeToolTile(
@@ -1901,7 +1901,7 @@ struct ContentView: View {
         VStack(spacing: 0) {
             header(
                 title: "Network",
-                subtitle: "Understand traffic, connections, routes, VPNs, and proxies",
+                subtitle: L10n.string("Understand traffic, connections, routes, VPNs, and proxies"),
                 trailing: AnyView(autoUpdateIndicator(
                     active: true,
                     detail: model.lastUpdatedText(for: .network)

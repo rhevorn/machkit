@@ -43251,6 +43251,34 @@
           }
         }
       }
+    },
+    "Traffic, connections, routes, and proxies" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Datenverkehr, Verbindungen, Routen und Proxys" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Tráfico, conexiones, rutas y proxies" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Trafic, connexions, routes et proxys" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "トラフィック、接続、ルート、プロキシ" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "트래픽, 연결, 경로 및 프록시" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Tráfego, conexões, rotas e proxies" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Трафик, подключения, маршруты и прокси" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "流量、连接、路由与代理" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "流量、連線、路由與代理" } }
+      }
+    },
+    "Understand traffic, connections, routes, VPNs, and proxies" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Datenverkehr, Verbindungen, Routen, VPNs und Proxys verstehen" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Comprende el tráfico, las conexiones, las rutas, las VPN y los proxies" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Comprendre le trafic, les connexions, les routes, les VPN et les proxys" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "トラフィック、接続、ルート、VPN、プロキシを把握" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "트래픽, 연결, 경로, VPN 및 프록시 파악" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Entenda o tráfego, as conexões, as rotas, as VPNs e os proxies" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Анализ трафика, подключений, маршрутов, VPN и прокси" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "了解流量、连接、路由、VPN 和代理" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "瞭解流量、連線、路由、VPN 與代理" } }
+      }
     }
   },
   "version" : "1.0"
