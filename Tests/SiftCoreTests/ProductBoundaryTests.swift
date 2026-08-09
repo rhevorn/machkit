@@ -56,6 +56,10 @@ private func formatPlaceholders(in value: String) -> [String] {
     )
     #expect(source.contains("applicationShouldTerminateAfterLastWindowClosed"))
     #expect(source.contains("!UserDefaults.standard.bool(forKey: AppPreferenceKey.showMenuBar)"))
+    #expect(source.contains("isInserted: $showMenuBar"))
+    #expect(!source.contains("menuBarInserted"))
+    #expect(source.contains("AppPreferenceKey.menuBarCloseBehaviorRepair"))
+    #expect(source.contains("defaults.set(true, forKey: AppPreferenceKey.showMenuBar)"))
 }
 
 @Test func privacyPromptUsesEnglishFallbackAndAllSupportedTranslations() throws {

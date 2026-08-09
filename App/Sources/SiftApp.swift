@@ -2,6 +2,16 @@ import AppKit
 import SwiftUI
 
 final class SiftAppDelegate: NSObject, NSApplicationDelegate {
+    override init() {
+        let defaults = UserDefaults.standard
+        defaults.register(defaults: [AppPreferenceKey.showMenuBar: true])
+        if !defaults.bool(forKey: AppPreferenceKey.menuBarCloseBehaviorRepair) {
+            defaults.set(true, forKey: AppPreferenceKey.showMenuBar)
+            defaults.set(true, forKey: AppPreferenceKey.menuBarCloseBehaviorRepair)
+        }
+        super.init()
+    }
+
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         !UserDefaults.standard.bool(forKey: AppPreferenceKey.showMenuBar)
     }
@@ -13,14 +23,8 @@ struct SiftApp: App {
     @AppStorage(AppPreferenceKey.language) private var languageRawValue = AppLanguage.system.rawValue
     @AppStorage(AppPreferenceKey.appearance) private var appearanceRawValue = AppAppearance.system.rawValue
     @AppStorage(AppPreferenceKey.showMenuBar) private var showMenuBar = true
-    @State private var menuBarInserted: Bool
     @StateObject private var model = CleanerViewModel()
     @StateObject private var statusBarMonitor = StatusBarMonitor()
-
-    init() {
-        UserDefaults.standard.register(defaults: [AppPreferenceKey.showMenuBar: true])
-        _menuBarInserted = State(initialValue: UserDefaults.standard.bool(forKey: AppPreferenceKey.showMenuBar))
-    }
 
     private var language: AppLanguage {
         AppLanguage(rawValue: languageRawValue) ?? .system
@@ -38,12 +42,7 @@ struct SiftApp: App {
                 .preferredColorScheme(appearance.colorScheme)
                 .task { statusBarMonitor.setEnabled(showMenuBar) }
                 .onChange(of: showMenuBar) { _, enabled in
-                    menuBarInserted = enabled
                     statusBarMonitor.setEnabled(enabled)
-                }
-                .onChange(of: menuBarInserted) { _, inserted in
-                    showMenuBar = inserted
-                    statusBarMonitor.setEnabled(inserted)
                 }
         }
         .windowStyle(.hiddenTitleBar)
@@ -55,7 +54,7 @@ struct SiftApp: App {
         MenuBarExtra(
             "Sift",
             image: "MenuBarMark",
-            isInserted: $menuBarInserted
+            isInserted: $showMenuBar
         ) {
             StatusBarMenuView(monitor: statusBarMonitor)
                 .environment(\.locale, language.locale)

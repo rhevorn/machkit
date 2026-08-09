@@ -5,6 +5,7 @@ enum AppPreferenceKey {
     static let language = "appLanguage"
     static let appearance = "appAppearance"
     static let showMenuBar = "showMenuBar"
+    static let menuBarCloseBehaviorRepair = "menuBarCloseBehaviorRepairV1"
 }
 
 enum AppLanguage: String, CaseIterable, Identifiable {
