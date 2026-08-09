@@ -636,20 +636,60 @@ private func formatPlaceholders(in value: String) -> [String] {
     let data = try Data(contentsOf: catalogURL)
     let object = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
     let strings = try #require(object["strings"] as? [String: Any])
+    let supportedLocales: Set<String> = [
+        "de", "es", "fr", "ja", "ko", "pt-BR", "ru", "zh-Hans", "zh-Hant"
+    ]
 
     #expect(strings[""] == nil)
     for (key, rawEntry) in strings {
         guard let entry = rawEntry as? [String: Any],
-              let localizations = entry["localizations"] as? [String: Any] else { continue }
+              let localizations = entry["localizations"] as? [String: Any] else {
+            Issue.record("Missing localizations for \(key)")
+            continue
+        }
+        #expect(
+            supportedLocales.isSubset(of: Set(localizations.keys)),
+            "Incomplete locale coverage for \(key)"
+        )
         let expected = formatPlaceholders(in: key)
-        for (locale, rawLocalization) in localizations {
-            guard let localization = rawLocalization as? [String: Any],
+        for locale in supportedLocales {
+            guard let localization = localizations[locale] as? [String: Any],
                   let unit = localization["stringUnit"] as? [String: Any],
-                  let value = unit["value"] as? String else { continue }
+                  let value = unit["value"] as? String else {
+                Issue.record("Missing \(locale) string unit for \(key)")
+                continue
+            }
+            #expect(!value.isEmpty, "Empty \(locale) translation for \(key)")
             #expect(
                 formatPlaceholders(in: value) == expected,
                 "Placeholder mismatch for \(locale) translation of \(key)"
             )
+        }
+    }
+}
+
+@Test func explicitRuntimeLocalizationKeysExistInCatalog() throws {
+    let catalogURL = repositoryRoot.appending(path: "Resources/Localizable.xcstrings")
+    let data = try Data(contentsOf: catalogURL)
+    let object = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
+    let strings = try #require(object["strings"] as? [String: Any])
+    let catalogKeys = Set(strings.keys)
+    let sources = repositoryRoot.appending(path: "App/Sources")
+    let files = try FileManager.default.contentsOfDirectory(
+        at: sources,
+        includingPropertiesForKeys: nil
+    ).filter { $0.pathExtension == "swift" }
+    let expression = try NSRegularExpression(
+        pattern: #"L10n\s*\.\s*(?:format|string)\s*\(\s*\"((?:\\.|[^\"\\])*)\""#
+    )
+
+    for file in files where file.lastPathComponent != "Localization.swift" {
+        let source = try String(contentsOf: file, encoding: .utf8)
+        let range = NSRange(source.startIndex..., in: source)
+        for match in expression.matches(in: source, range: range) {
+            guard let keyRange = Range(match.range(at: 1), in: source) else { continue }
+            let key = String(source[keyRange])
+            #expect(catalogKeys.contains(key), "Missing localization key \(key) used by \(file.lastPathComponent)")
         }
     }
 }

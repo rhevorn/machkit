@@ -562,14 +562,15 @@ final class CleanerViewModel: ObservableObject {
             guard !Task.isCancelled else { return }
             listeningPorts = result.ports
             hasLoadedPortSnapshot = true
-            portScanError = result.errorMessage
+            let localizedError = result.errorMessage.map(L10n.diagnostic)
+            portScanError = localizedError
             lastScanAt = Date()
             lastUpdatedAt[.network] = lastScanAt
             loadingModes.remove(.network)
             featureTasks[.network] = nil
             isScanning = !loadingModes.isEmpty
             if mode == .network {
-                status = result.errorMessage ?? L10n.format("%lld listening ports found.", Int64(result.ports.count))
+                status = localizedError ?? L10n.format("%lld listening ports found.", Int64(result.ports.count))
             }
         }
     }
@@ -588,14 +589,15 @@ final class CleanerViewModel: ObservableObject {
             networkSnapshot = snapshot
             listeningPorts = ports.ports
             hasLoadedPortSnapshot = true
-            portScanError = ports.errorMessage
+            portScanError = ports.errorMessage.map(L10n.diagnostic)
             lastScanAt = snapshot.sampledAt
             lastUpdatedAt[.network] = snapshot.sampledAt
             loadingModes.remove(.network)
             featureTasks[.network] = nil
             isScanning = !loadingModes.isEmpty
             if mode == .network {
-                status = snapshot.errors.first ?? L10n.format("%lld active connections found.", Int64(snapshot.connections.filter { !$0.isListener }.count))
+                status = snapshot.errors.first.map(L10n.diagnostic)
+                    ?? L10n.format("%lld active connections found.", Int64(snapshot.connections.filter { !$0.isListener }.count))
             }
         }
     }
@@ -1021,7 +1023,8 @@ final class CleanerViewModel: ObservableObject {
             let result = await systemInventoryScanner.loginApplications()
             guard !Task.isCancelled else { return }
             loginApplications = result.items
-            loginApplicationsError = result.errorMessage
+            let localizedError = result.errorMessage.map(L10n.diagnostic)
+            loginApplicationsError = localizedError
             lastScanAt = Date()
             lastUpdatedAt[.loginItems] = lastScanAt
             hasScannedLoginApplications = true
@@ -1030,7 +1033,7 @@ final class CleanerViewModel: ObservableObject {
             featureTasks[.loginItems] = nil
             isScanning = !loadingModes.isEmpty
             if mode == .loginItems {
-                status = result.errorMessage ?? L10n.format("%lld login items found.", Int64(result.items.count))
+                status = localizedError ?? L10n.format("%lld login items found.", Int64(result.items.count))
             }
         }
     }
@@ -1050,7 +1053,8 @@ final class CleanerViewModel: ObservableObject {
             guard !Task.isCancelled else { return }
             backgroundItems = found
             registeredBackgroundTasks = registered.items
-            backgroundTaskScanError = registered.errorMessage
+            let localizedError = registered.errorMessage.map(L10n.diagnostic)
+            backgroundTaskScanError = localizedError
             lastScanAt = Date()
             lastUpdatedAt[.backgroundActivity] = lastScanAt
             hasScannedBackgroundItems = true
@@ -1059,7 +1063,7 @@ final class CleanerViewModel: ObservableObject {
             featureTasks[.backgroundActivity] = nil
             isScanning = !loadingModes.isEmpty
             if mode == .backgroundActivity {
-                status = registered.errorMessage
+                status = localizedError
                     ?? L10n.format(
                         "%lld app background records and %lld background configurations found.",
                         Int64(registered.items.count),
@@ -1082,8 +1086,9 @@ final class CleanerViewModel: ObservableObject {
             featureTasks[.backgroundActivity] = nil
             isScanning = !loadingModes.isEmpty
             if let error {
-                removalFailureMessage = error
-                if mode == .backgroundActivity { status = error }
+                let localizedError = L10n.diagnostic(error)
+                removalFailureMessage = localizedError
+                if mode == .backgroundActivity { status = localizedError }
                 showRemovalFailure = true
             } else {
                 registeredBackgroundTasks = []
@@ -1139,8 +1144,9 @@ final class CleanerViewModel: ObservableObject {
         status = L10n.format("Removing login item %@…", item.name)
         Task {
             if let error = await systemInventoryScanner.removeLoginApplication(item) {
-                removalFailureMessage = error
-                status = error
+                let localizedError = L10n.diagnostic(error)
+                removalFailureMessage = localizedError
+                status = localizedError
                 showRemovalFailure = true
             } else {
                 loginApplications.removeAll { $0.id == item.id }
@@ -1169,8 +1175,9 @@ final class CleanerViewModel: ObservableObject {
                 item,
                 home: FileManager.default.homeDirectoryForCurrentUser
             ) {
-                removalFailureMessage = error
-                status = error
+                let localizedError = L10n.diagnostic(error)
+                removalFailureMessage = localizedError
+                status = localizedError
                 showRemovalFailure = true
             } else {
                 registeredBackgroundTasks.removeAll { $0.id == item.id }

@@ -343,11 +343,11 @@ struct ContentView: View {
                 .font(.system(size: 20))
                 .foregroundStyle(permissions.hasFullDiskAccess ? .green : Color.orange)
             VStack(alignment: .leading, spacing: 3) {
-                Text(permissions.hasFullDiskAccess ? "Full Disk Access granted" : "Full Disk Access Required")
+                Text((permissions.hasFullDiskAccess ? "Full Disk Access granted" : "Full Disk Access Required").localized)
                     .font(.system(size: 13, weight: .semibold))
-                Text(permissions.hasFullDiskAccess
+                Text((permissions.hasFullDiskAccess
                      ? "Allows protected user folders to be scanned. File contents are never uploaded."
-                     : "Used to find app caches and leftovers. Enable it manually in System Settings.")
+                     : "Used to find app caches and leftovers. Enable it manually in System Settings.").localized)
                     .font(.system(size: 11)).foregroundStyle(.secondary)
             }
             Spacer()
@@ -391,8 +391,8 @@ struct ContentView: View {
                 Text(homeStorageDescription(storage))
                     .font(.system(size: 12)).foregroundStyle(.secondary)
                 HStack(spacing: 14) {
-                    Label("\(formatted(storage.usedCapacity)) Used", systemImage: "internaldrive.fill")
-                    Label("\(formatted(storage.availableCapacity)) Available", systemImage: "checkmark.circle")
+                    Label(L10n.format("%@ Used", formatted(storage.usedCapacity)), systemImage: "internaldrive.fill")
+                    Label(L10n.format("%@ Available", formatted(storage.availableCapacity)), systemImage: "checkmark.circle")
                 }
                 .font(.caption).foregroundStyle(.secondary)
             }
@@ -1457,9 +1457,14 @@ struct ContentView: View {
                 inventoryLoadingView(title: "Reading background activity…")
             } else if filteredBackgroundItemGroups.isEmpty && filteredRegisteredBackgroundTasks.isEmpty {
                 ContentUnavailableView(
-                    inventorySearch.isEmpty ? "No Background Items" : "No matching background items",
+                    (inventorySearch.isEmpty ? "No Background Items" : "No matching background items").localized,
                     systemImage: "waveform.path.ecg",
-                    description: Text(model.backgroundTaskScanError ?? (inventorySearch.isEmpty ? "No background tasks or launchd configuration found" : "Try another search term"))
+                    description: Text(
+                        model.backgroundTaskScanError
+                            ?? (inventorySearch.isEmpty
+                                ? "No background tasks or launchd configuration found".localized
+                                : "Try another search term".localized)
+                    )
                 )
             } else {
                 ScrollView {
@@ -1636,9 +1641,13 @@ struct ContentView: View {
                 inventoryLoadingView(title: "Inspecting installed apps…")
             } else if filteredExtensionGroups.isEmpty {
                 ContentUnavailableView(
-                    inventorySearch.isEmpty ? "No Extensions Found" : "No matching extensions",
+                    (inventorySearch.isEmpty ? "No Extensions Found" : "No matching extensions").localized,
                     systemImage: "puzzlepiece.extension",
-                    description: Text(inventorySearch.isEmpty ? "No components found in installed apps or common extension folders" : "Try another search term")
+                    description: Text(
+                        (inventorySearch.isEmpty
+                            ? "No components found in installed apps or common extension folders"
+                            : "Try another search term").localized
+                    )
                 )
             } else {
                 ScrollView {
@@ -1999,7 +2008,7 @@ struct ContentView: View {
                     if !snapshot.errors.isEmpty {
                         VStack(alignment: .leading, spacing: 6) {
                             ForEach(snapshot.errors, id: \.self) { error in
-                                Label(error.localized, systemImage: "exclamationmark.triangle.fill")
+                                Label(L10n.diagnostic(error), systemImage: "exclamationmark.triangle.fill")
                                     .font(.caption).foregroundStyle(.orange)
                             }
                         }
@@ -2465,9 +2474,13 @@ struct ContentView: View {
 
                 if filteredPorts.isEmpty {
                     ContentUnavailableView(
-                        portSearch.isEmpty ? "No Ports Found" : "No Results",
+                        (portSearch.isEmpty ? "No Ports Found" : "No Results").localized,
                         systemImage: "network.slash",
-                        description: Text(portSearch.isEmpty ? "No TCP listeners or UDP bindings to display" : "Try another port, process name, or path")
+                        description: Text(
+                            (portSearch.isEmpty
+                                ? "No TCP listeners or UDP bindings to display"
+                                : "Try another port, process name, or path").localized
+                        )
                     )
                     .frame(minHeight: 260)
                 } else {
@@ -2738,7 +2751,10 @@ struct ContentView: View {
                                 model.startPerformanceMonitoring()
                             }
                         } label: {
-                            Label(model.isPerformanceMonitoring ? "Pause" : "Continue", systemImage: model.isPerformanceMonitoring ? "pause.fill" : "play.fill")
+                            Label(
+                                (model.isPerformanceMonitoring ? "Pause" : "Continue").localized,
+                                systemImage: model.isPerformanceMonitoring ? "pause.fill" : "play.fill"
+                            )
                         }
                         .buttonStyle(.borderless)
                     }
@@ -2792,7 +2808,7 @@ struct ContentView: View {
                 Spacer()
                 Circle().fill(model.isPerformanceMonitoring ? Color.green : Color.secondary)
                     .frame(width: 7, height: 7)
-                Text(model.isPerformanceMonitoring ? "Live" : "Paused")
+                Text((model.isPerformanceMonitoring ? "Live" : "Paused").localized)
                     .font(.caption).foregroundStyle(.secondary)
             }
             HStack(alignment: .firstTextBaseline, spacing: 4) {
@@ -3153,7 +3169,7 @@ struct ContentView: View {
                                 Image(systemName: "chevron.right")
                                     .font(.caption2).foregroundStyle(.tertiary)
                             }
-                            Button(index == 0 ? "Home Folder" : url.lastPathComponent) {
+                            Button(index == 0 ? L10n.string("Home Folder") : url.lastPathComponent) {
                                 model.navigateStorage(to: url)
                             }
                             .buttonStyle(.borderless)
@@ -3200,7 +3216,9 @@ struct ContentView: View {
                 }
                 .frame(width: 34, height: 34)
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(usage.url == analysisRootURL ? "files in user directory" : usage.url.lastPathComponent)
+                    Text(usage.url == analysisRootURL
+                         ? L10n.string("files in user directory")
+                         : usage.url.lastPathComponent)
                         .font(.system(size: 12, weight: .medium)).lineLimit(1)
                     Text(usage.explanation.localized)
                         .font(.caption2).foregroundStyle(.secondary).lineLimit(1)
@@ -3347,7 +3365,7 @@ struct ContentView: View {
             .frame(width: 24, height: 24)
             .contentShape(Rectangle())
             .help("Update Now")
-            .accessibilityLabel(isRefreshing ? "Updating" : "Update Now")
+            .accessibilityLabel(Text((isRefreshing ? "Updating" : "Update Now").localized))
             .disabled(isRefreshing)
         }
     }
@@ -3357,7 +3375,7 @@ struct ContentView: View {
             Circle()
                 .fill(active ? Color.green : Color.secondary)
                 .frame(width: 6, height: 6)
-            Text(active ? "Auto Updating" : "Automatic updates paused")
+            Text((active ? "Auto Updating" : "Automatic updates paused").localized)
                 .font(.caption.weight(.medium))
             Text("· \(detail)")
                 .font(.caption2)

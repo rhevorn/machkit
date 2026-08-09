@@ -62,7 +62,7 @@ struct OperationResultView: View {
                 .foregroundStyle(succeeded ? Color.green : Color.orange)
             VStack(alignment: .leading, spacing: 2) {
                 Text(url.lastPathComponent).font(.system(size: 12, weight: .medium)).lineLimit(1)
-                Text(detail).font(.caption).foregroundStyle(.secondary).lineLimit(2)
+                Text(L10n.diagnostic(detail)).font(.caption).foregroundStyle(.secondary).lineLimit(2)
                 Text(url.path).font(.caption2).foregroundStyle(.tertiary).lineLimit(1)
             }
             Spacer()
