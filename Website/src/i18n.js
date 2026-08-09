@@ -55,8 +55,8 @@ export const messages = {
         body: "Track CPU, memory pressure, and resource-heavy apps without noisy background work.",
       },
       network: {
-        title: "Network diagnostics",
-        body: "Inspect traffic, connections, listening ports, routes, VPN/TUN interfaces, and system proxies.",
+        title: "Network",
+        body: "Inspect app traffic with consistent B/s to GB/s units, active connections, listening ports, and host-to-interface routes, with VPN/TUN and proxy context.",
       },
       system: {
         title: "System inventory",
@@ -141,8 +141,8 @@ export const messages = {
         body: "查看 CPU、内存压力和高占用 App，不在后台制造额外负担。",
       },
       network: {
-        title: "网络诊断",
-        body: "查看流量、活跃连接、监听端口、路由、VPN/TUN 网卡和系统代理。",
+        title: "网络",
+        body: "以统一的 B/s 至 GB/s 单位查看应用流量、活动连接、监听端口和域名出口路由，并识别 VPN/TUN 与系统代理。",
       },
       system: {
         title: "系统盘点",
