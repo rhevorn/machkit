@@ -10,4 +10,10 @@ OSStatus SiftExecuteSFLTool(
     FILE **communicationsPipe
 );
 
+OSStatus SiftReplaceHostsFile(
+    AuthorizationRef authorization,
+    const char *sourcePath,
+    FILE **communicationsPipe
+);
+
 #endif

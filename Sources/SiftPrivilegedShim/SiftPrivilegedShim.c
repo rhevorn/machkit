@@ -27,3 +27,28 @@ OSStatus SiftExecuteSFLTool(
 
     return status;
 }
+
+OSStatus SiftReplaceHostsFile(
+    AuthorizationRef authorization,
+    const char *sourcePath,
+    FILE **communicationsPipe
+) {
+    if (sourcePath == NULL || sourcePath[0] != '/') {
+        return errAuthorizationDenied;
+    }
+
+    char *arguments[] = {(char *)sourcePath, "/etc/hosts", NULL};
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    OSStatus status = AuthorizationExecuteWithPrivileges(
+        authorization,
+        "/bin/cp",
+        kAuthorizationFlagDefaults,
+        arguments,
+        communicationsPipe
+    );
+#pragma clang diagnostic pop
+
+    return status;
+}
