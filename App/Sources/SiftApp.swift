@@ -24,6 +24,7 @@ struct SiftApp: App {
     @AppStorage(AppPreferenceKey.appearance) private var appearanceRawValue = AppAppearance.system.rawValue
     @AppStorage(AppPreferenceKey.showMenuBar) private var showMenuBar = true
     @StateObject private var model = CleanerViewModel()
+    @StateObject private var hostsManager = HostsManagerViewModel()
     @StateObject private var statusBarMonitor = StatusBarMonitor()
 
     private var language: AppLanguage {
@@ -50,6 +51,15 @@ struct SiftApp: App {
         .commands {
             SiftCommands(model: model)
         }
+
+        Window("Hosts Manager", id: "hosts-manager") {
+            HostsManagerView(model: hostsManager)
+                .frame(minWidth: 760, minHeight: 620)
+                .environment(\.locale, language.locale)
+                .preferredColorScheme(appearance.colorScheme)
+        }
+        .windowStyle(.hiddenTitleBar)
+        .defaultSize(width: 900, height: 720)
 
         MenuBarExtra(
             "Sift",

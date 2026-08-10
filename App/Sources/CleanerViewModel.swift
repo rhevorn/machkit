@@ -235,7 +235,7 @@ final class CleanerViewModel: ObservableObject {
                 break
             case .files:
                 break
-            case .performance, .network, .loginItems, .backgroundActivity, .extensions, .settings:
+            case .performance, .network, .tools, .loginItems, .backgroundActivity, .extensions, .settings:
                 break
             }
             lastScanAt = Date()
@@ -919,6 +919,8 @@ final class CleanerViewModel: ObservableObject {
             startPerformanceMonitoring()
         case .network:
             startNetworkMonitoring()
+        case .tools:
+            status = L10n.string("Manage developer tools and local environments.")
         case .loginItems:
             if hasScannedLoginApplications {
                 status = L10n.format("Updating in the background; currently displaying the last %lld login items read.", Int64(loginApplications.count))
@@ -969,6 +971,8 @@ final class CleanerViewModel: ObservableObject {
                 status = L10n.string("Monitoring CPU and memory…")
             case .network:
                 status = L10n.string("Reading network activity, routes, and proxy settings…")
+            case .tools:
+                status = L10n.string("Manage developer tools and local environments.")
             case .loginItems:
                 status = L10n.string("Reading login items…")
             case .backgroundActivity:
@@ -1009,6 +1013,8 @@ final class CleanerViewModel: ObservableObject {
                 : L10n.string("Performance monitoring paused.")
         case .network:
             status = L10n.format("%lld connections cached; refresh to scan again.", Int64(networkSnapshot?.connections.count ?? 0))
+        case .tools:
+            status = L10n.string("Manage developer tools and local environments.")
         case .loginItems:
             status = L10n.format("%lld login items cached; refresh to scan again.", Int64(loginApplications.count))
         case .backgroundActivity:

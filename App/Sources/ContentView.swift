@@ -79,6 +79,7 @@ struct ContentView: View {
                 case .files: filesView
                 case .performance: performanceView
                 case .network: networkView
+                case .tools: ToolsView()
                 case .loginItems: loginItemsView
                 case .backgroundActivity: backgroundActivityView
                 case .extensions: extensionsView
@@ -172,6 +173,7 @@ struct ContentView: View {
             sideButton(.files, icon: "chart.pie.fill")
             sideButton(.performance, icon: "gauge.with.dots.needle.67percent")
             sideButton(.network, icon: "network")
+            sideButton(.tools, icon: "wrench.and.screwdriver.fill")
             systemInventorySideButton
             Spacer()
             if model.isStorageAnalyzing {
