@@ -34,6 +34,20 @@ jobs:
         shell: bash
         run: swift test -c release
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: Tool/package-lock.json
+
+      - name: Build embedded H5 tools
+        working-directory: Tool
+        run: |
+          npm ci
+          npm test
+          npm run build:app
+
       - name: Build Release app
         shell: bash
         env:

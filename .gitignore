@@ -28,6 +28,12 @@ xcuserdata/
 /Website/.vite/
 /Website/qa-*.png
 
+# Embedded H5 tools
+/Tool/node_modules/
+/Tool/dist/
+/Tool/.vite/
+/Resources/WebTools/
+
 # macOS
 .DS_Store
 .AppleDouble
@@ -44,3 +50,4 @@ Icon\r
 *.log
 
 design-qa.md
+.design-qa/

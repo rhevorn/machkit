@@ -50,6 +50,7 @@ struct SiftApp: App {
         .defaultSize(width: 960, height: 820)
         .commands {
             SiftCommands(model: model)
+            DeveloperToolCommands(shortcutStore: .shared)
         }
 
         Window("Hosts Manager", id: "hosts-manager") {
@@ -57,6 +58,22 @@ struct SiftApp: App {
                 .frame(minWidth: 760, minHeight: 620)
                 .environment(\.locale, language.locale)
                 .preferredColorScheme(appearance.colorScheme)
+        }
+        .windowStyle(.hiddenTitleBar)
+        .defaultSize(width: 900, height: 720)
+
+        WindowGroup("Web Tool", id: "web-tool", for: String.self) { $toolID in
+            if let toolID, let tool = DeveloperToolRegistry.tool(id: toolID) {
+                WebToolView(tool: tool)
+                    .frame(minWidth: 680, minHeight: 680)
+                    .environment(\.locale, language.locale)
+                    .preferredColorScheme(appearance.colorScheme)
+            } else {
+                ContentUnavailableView(
+                    "Web tool not found".localized,
+                    systemImage: "exclamationmark.triangle"
+                )
+            }
         }
         .windowStyle(.hiddenTitleBar)
         .defaultSize(width: 900, height: 720)

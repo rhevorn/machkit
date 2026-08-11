@@ -1,0 +1,131 @@
+:root {
+  color-scheme: light dark;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  color: #1d1d1f;
+  background: #f7f7f8;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-width: 320px;
+  min-height: 100%;
+  margin: 0;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.workspace {
+  width: min(820px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 64px 0;
+}
+
+.hero {
+  max-width: 620px;
+}
+
+.eyebrow {
+  color: #087fff;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 10px 0 12px;
+  font-size: clamp(32px, 6vw, 52px);
+  letter-spacing: -0.045em;
+  line-height: 1.02;
+}
+
+h2,
+p {
+  margin: 0;
+}
+
+.hero p,
+.empty-state p {
+  color: #6e6e73;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 48px;
+  padding: 20px;
+  border: 1px solid rgb(0 0 0 / 8%);
+  border-radius: 14px;
+  background: rgb(255 255 255 / 78%);
+  box-shadow: 0 10px 32px rgb(0 0 0 / 5%);
+}
+
+.empty-state h2 {
+  margin-bottom: 4px;
+  font-size: 15px;
+}
+
+.tool-icon {
+  display: grid;
+  flex: 0 0 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: 11px;
+  color: #087fff;
+  background: rgb(8 127 255 / 11%);
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+code {
+  padding: 2px 5px;
+  border-radius: 5px;
+  background: rgb(0 0 0 / 6%);
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 0.9em;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color: #f5f5f7;
+    background: #1c1c1e;
+  }
+
+  .hero p,
+  .empty-state p {
+    color: #a1a1a6;
+  }
+
+  .empty-state {
+    border-color: rgb(255 255 255 / 9%);
+    background: rgb(44 44 46 / 82%);
+    box-shadow: 0 12px 36px rgb(0 0 0 / 24%);
+  }
+
+  code {
+    background: rgb(255 255 255 / 8%);
+  }
+}
+
+@media (max-width: 560px) {
+  .workspace {
+    width: min(100% - 32px, 820px);
+    padding: 40px 0;
+  }
+}
