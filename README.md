@@ -2,15 +2,25 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md)
 
-A privacy-first macOS utility for storage analysis, cleanup, app uninstall, network tools, and login items & extensions.
+A privacy-first macOS utility for storage analysis, cleanup, app uninstall, network tools, system inventory, and local developer utilities.
 
 Everything runs locally on your Mac. Scans read file metadata only, risky items stay unchecked by default, and deletions go to the Trash.
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="Website/public/assets/img20.png" />
-    <img src="Website/public/assets/img10.png" alt="Sift overview" width="900" />
-  </picture>
+  <table cellpadding="12" cellspacing="0">
+    <tr>
+      <td align="center" bgcolor="#e8e8ed">
+        <img src="Website/public/assets/img10.png#gh-light-mode-only" alt="Sift overview" width="900" />
+      </td>
+    </tr>
+  </table>
+  <table cellpadding="12" cellspacing="0">
+    <tr>
+      <td align="center" bgcolor="#3a3a3c">
+        <img src="Website/public/assets/img20.png#gh-dark-mode-only" alt="Sift overview" width="900" />
+      </td>
+    </tr>
+  </table>
 </p>
 
 ## Features
@@ -21,12 +31,19 @@ Everything runs locally on your Mac. Scans read file metadata only, risky items 
 - **Performance** — Monitor CPU, memory pressure, and busy apps
 - **Network** — Inspect traffic, connections, listening ports, routes, VPN/TUN, and proxies
 - **System** — Review login items, background activity, and extensions
+- **Menu bar** — Keep a lightweight monitor for CPU, memory, network speed, and quick actions
+- **Developer tools** — Open local utilities from the Tools workspace, menu, or global shortcuts:
+  - **Hosts Manager** — View `/etc/hosts` and switch shared / environment mappings safely
+  - **Timestamp Converter** — Convert dates and Unix timestamps across units and time zones
+  - **JSON Formatter** — Format, minify, sort keys, and query values with path expressions
+  - **Codec** — Encode and decode Base64, Base32, Base62, Hex, URL, HTML, Unicode, Escape, and Hash
 
 ## Requirements
 
 - macOS 14 or later
 - Xcode 16 / Swift 6 (for building from source)
 - Full Disk Access may be required for some user directories
+- Editing hosts files requires administrator authentication when writing
 
 ## Install
 
@@ -66,6 +83,16 @@ Core library tests:
 swift test
 ```
 
+H5 developer tools (optional during UI work):
+
+```bash
+cd Tool
+npm install
+npm run dev
+```
+
+Debug builds can load tools from the local Vite server with HMR; Release builds always use the bundled `Resources/WebTools` output. See [Tool/README.md](Tool/README.md) for adding a tool.
+
 ## Releases
 
 Local builds use `dev`. Release tags are the source of truth for shipped versions: pushing a tag such as `v0.9.0` overrides the app version with `CFBundleShortVersionString=0.9.0`, while the GitHub Actions run number becomes `CFBundleVersion`. The workflow verifies both values before packaging and publishing the ZIP.
@@ -77,13 +104,14 @@ git push origin v0.9.0
 
 ## Localization
 
-English is the source language. The app also includes Simplified Chinese, Traditional Chinese, Japanese, Korean, Spanish, French, German, Brazilian Portuguese, and Russian.
+English is the source language. The app also includes Simplified Chinese, Traditional Chinese, Japanese, Korean, Spanish, French, German, Brazilian Portuguese, and Russian. Embedded web tools follow the same locale and appearance preferences as the native UI.
 
 ## Project layout
 
 ```text
-App/                 SwiftUI app, preferences, and app state
-Sources/SiftCore/    Scanning, risk rules, cleanup, and system inventory
+App/                 SwiftUI app, preferences, tools shell, and bridges
+Sources/SiftCore/    Scanning, risk rules, cleanup, hosts, and system inventory
+Tool/                H5 developer tools (Vite + React), bundled into Resources/WebTools
 Resources/           App icon and Localizable.xcstrings
 Tests/SiftCoreTests/ Core behavior and safety tests
 Sift.xcodeproj/      macOS app project
