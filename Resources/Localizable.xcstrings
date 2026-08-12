@@ -8535,61 +8535,61 @@
         }
       }
     },
-    "Caches, logs, and developer tool junk" : {
+    "Caches, logs, uninstall leftovers, and developer junk" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Caches, Protokolle und Entwicklertool-Müll"
+            "value" : "Caches, Protokolle, Deinstallationsreste und Entwicklermüll"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cachés, registros y basura de herramientas de desarrollador"
+            "value" : "Cachés, registros, restos de desinstalación y basura de desarrollo"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Caches, journaux et fichiers indésirables des outils de développement"
+            "value" : "Caches, journaux, résidus de désinstallation et fichiers de développement"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "キャッシュ、ログ、開発者ツールのジャンク"
+            "value" : "キャッシュ、ログ、アンインストール残留物、開発ツールのジャンク"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "캐시, 로그 및 개발자 도구 정크"
+            "value" : "캐시, 로그, 제거 잔여물 및 개발 도구 정크"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Caches, logs e lixo de ferramentas de desenvolvedor"
+            "value" : "Caches, logs, resíduos de desinstalação e lixo de desenvolvimento"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Кэши, журналы и мусор из инструментов разработчика"
+            "value" : "Кэши, журналы, остатки удалённых приложений и мусор разработчика"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "缓存、日志与开发工具垃圾"
+            "value" : "缓存、日志、卸载残留与开发工具垃圾"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "快取、日誌與開發工具垃圾"
+            "value" : "快取、日誌、解除安裝殘留與開發工具垃圾"
           }
         }
       }
@@ -19418,61 +19418,61 @@
         }
       }
     },
-    "Installed apps and command-line tools" : {
+    "Uninstall apps and manage command-line tools" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Installierte Apps und Befehlszeilentools"
+            "value" : "Apps deinstallieren und Befehlszeilentools verwalten"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apps instaladas y herramientas de línea de comandos"
+            "value" : "Desinstala apps y gestiona herramientas de línea de comandos"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apps installées et outils en ligne de commande"
+            "value" : "Désinstaller des apps et gérer les outils en ligne de commande"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "インストール済みアプリとコマンドラインツール"
+            "value" : "アプリのアンインストールとコマンドラインツールの管理"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "설치된 앱과 명령줄 도구"
+            "value" : "앱 제거 및 명령줄 도구 관리"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apps instalados e ferramentas de linha de comando"
+            "value" : "Desinstale apps e gerencie ferramentas de linha de comando"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Установленные приложения и консольные инструменты"
+            "value" : "Удаление приложений и управление консольными инструментами"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "已安装的应用和命令行工具"
+            "value" : "卸载应用并管理命令行工具"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "已安裝的 App 和命令列工具"
+            "value" : "解除安裝 App 並管理命令列工具"
           }
         }
       }

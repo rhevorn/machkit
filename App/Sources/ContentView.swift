@@ -310,7 +310,7 @@ struct ContentView: View {
 
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                     homeToolTile(
-                        title: "Cleanup", subtitle: "Caches, logs, and developer tool junk",
+                        title: "Cleanup", subtitle: "Caches, logs, uninstall leftovers, and developer junk",
                         icon: "paintbrush.fill", color: .blue, mode: .junk
                     )
                     homeToolTile(
@@ -318,7 +318,7 @@ struct ContentView: View {
                         icon: "chart.pie.fill", color: .indigo, mode: .files
                     )
                     homeToolTile(
-                        title: "Apps", subtitle: "Installed apps and command-line tools",
+                        title: "Apps", subtitle: "Uninstall apps and manage command-line tools",
                         icon: "app.badge.checkmark", color: .purple, mode: .uninstall
                     )
                     homeToolTile(
@@ -330,7 +330,7 @@ struct ContentView: View {
                         icon: "network", color: .orange, mode: .network
                     )
                     homeToolTile(
-                        title: "System", subtitle: "Startup items, background activity, and app extensions",
+                        title: "Tools", subtitle: "Startup items, background activity, and app extensions",
                         icon: "switch.2", color: .cyan, mode: .loginItems
                     )
                 }
