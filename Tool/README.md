@@ -6,10 +6,15 @@ here.
 
 ## Development
 
+Run the local development server before opening a web tool from a Debug build:
+
 ```bash
-npm install
 npm run dev
 ```
+
+Debug builds load tools from `http://127.0.0.1:4174` and update through Vite HMR
+without rebuilding Sift. If the server is not running, Sift automatically falls
+back to the bundled tool. Release builds always use bundled resources.
 
 The development server runs at `http://127.0.0.1:4174`.
 
@@ -21,7 +26,9 @@ The development server runs at `http://127.0.0.1:4174`.
    automatically; directories beginning with `_` are templates and are skipped.
 3. Add the tool to `DeveloperToolRegistry` in
    `App/Sources/DeveloperTools.swift` with
-   `.bundledWeb(entryFile: "WebTools/tools/<tool-id>/index.html")`.
+   `.bundledWeb(entryFile: "WebTools/tools/<tool-id>/index.html")` and grant only
+   the native capabilities the tool needs (`clipboard`, `hosts`, or
+   `contentFit`).
 4. Run `npm run build:app` to build all H5 tools into the app's
    `Resources/WebTools` directory. This directory is generated and ignored by
    Git. Xcode runs the same build automatically before compiling app resources.
@@ -29,12 +36,42 @@ The development server runs at `http://127.0.0.1:4174`.
 Run `npm install` once after cloning the repository so Xcode can use the local,
 locked frontend dependencies without downloading packages during every build.
 
+## Shared UI
+
+All tools use the shared component layer in `src/ui`. It follows the shadcn/ui
+model: component source stays in this repository, Radix Primitives provide
+accessible interaction behavior, Tailwind CSS provides layout and visual
+states, and `class-variance-authority` defines reusable component variants.
+
+- Import components from `@/ui/index.js`.
+- Reuse `ToolPage`, `ToolContent`, `Section`, `Field`, `Input`, `Textarea`,
+  `CheckboxField`, `Button`, `SelectControl`, `SegmentedControl`, `ValueField`,
+  and `InlineMessage` before adding new UI.
+- Keep Sift theme tokens and light/dark colors in `src/ui/ui.css`.
+- Use Phosphor icons so native and web tools keep one icon language.
+- Add tool-specific CSS only for a layout or visualization that cannot be
+  expressed cleanly with the shared components and Tailwind utilities.
+
+The generated `_template` already imports this UI layer, so a new tool starts
+with the Sift shell and theme rather than a blank page.
+
+Tool titles belong to the native compact macOS title bar. Do not repeat a title
+or subtitle inside an H5 page. Put optional explanations behind the `info`
+popover on `ToolPage`, and let the primary tool content start immediately.
+
 ## Runtime rules
 
 - Use relative asset paths. The Vite base path is `./` because tools load from
   local files rather than an HTTP server.
-- Shared macOS-like colors and dark mode behavior live in `src/styles.css`.
+- Shared macOS-like colors, controls, and dark mode behavior live in `src/ui`.
 - `src/runtime/sift.js` is the single boundary for optional native messages.
-  A message only works after its handler has been explicitly added to the native
-  `WKWebView` configuration.
+  Native calls use the versioned request/reply bridge and time out rather than
+  leaving a tool pending forever. A method only works when its capability is
+  explicitly granted in `DeveloperToolRegistry`.
+- Mount tools with `mountTool()` so root validation and the shared error boundary
+  are applied consistently.
+- Keep each tool's translations in its own `messages.js`; use
+  `catalogIssues()` in tests to keep locale keys complete.
+- Move CPU-heavy transformations to a module worker and cap input or result size
+  before adding a tool that accepts arbitrary text.
 - Do not load remote scripts or place secrets in a web tool.

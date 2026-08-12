@@ -205,7 +205,7 @@ public actor HostsSystemService {
 
     public func apply(document: HostsDocument) -> HostsFileError? {
         do {
-            try performApply(document: document)
+            try performReplacement(HostsFileComposer.rendering(document))
             return nil
         } catch let error as HostsFileError {
             return error
@@ -214,8 +214,18 @@ public actor HostsSystemService {
         }
     }
 
-    private func performApply(document: HostsDocument) throws {
-        let replacement = try HostsFileComposer.rendering(document)
+    public func restore(contents: String) -> HostsFileError? {
+        do {
+            try performReplacement(contents)
+            return nil
+        } catch let error as HostsFileError {
+            return error
+        } catch {
+            return .writeFailed(error.localizedDescription)
+        }
+    }
+
+    private func performReplacement(_ replacement: String) throws {
         let temporaryURL = fileManager.temporaryDirectory
             .appending(path: "sift-hosts-\(UUID().uuidString)")
         defer { try? fileManager.removeItem(at: temporaryURL) }
