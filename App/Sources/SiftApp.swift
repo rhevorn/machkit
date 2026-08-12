@@ -180,7 +180,7 @@ struct SiftApp: App {
             DeveloperToolCommands(model: model)
         }
 
-        WindowGroup("Web Tool", id: "web-tool", for: String.self) { $toolID in
+        WindowGroup(Text(verbatim: "Web Tool"), id: "web-tool", for: String.self) { $toolID in
             if let toolID, let tool = DeveloperToolRegistry.tool(id: toolID) {
                 WebToolView(tool: tool)
                     .frame(minWidth: 680, minHeight: 380)

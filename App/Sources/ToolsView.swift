@@ -205,7 +205,9 @@ struct ToolShortcutEditor: View {
             HStack(spacing: 12) {
                 Text("Key".localized)
                     .frame(width: 64, alignment: .leading)
-                TextField("K", text: $shortcut.key)
+                TextField(text: $shortcut.key, prompt: Text(verbatim: "K")) {
+                    Text(verbatim: "K")
+                }
                     .textFieldStyle(.roundedBorder)
                     .frame(width: 72)
                     .onChange(of: shortcut.key) { _, value in
@@ -222,10 +224,10 @@ struct ToolShortcutEditor: View {
             }
 
             HStack(spacing: 18) {
-                Toggle("⌘", isOn: $shortcut.command)
-                Toggle("⇧", isOn: $shortcut.shift)
-                Toggle("⌥", isOn: $shortcut.option)
-                Toggle("⌃", isOn: $shortcut.control)
+                Toggle(isOn: $shortcut.command) { Text(verbatim: "⌘") }
+                Toggle(isOn: $shortcut.shift) { Text(verbatim: "⇧") }
+                Toggle(isOn: $shortcut.option) { Text(verbatim: "⌥") }
+                Toggle(isOn: $shortcut.control) { Text(verbatim: "⌃") }
             }
             .toggleStyle(.checkbox)
 

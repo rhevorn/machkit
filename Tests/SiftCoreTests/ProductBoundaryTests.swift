@@ -740,17 +740,27 @@ private func formatPlaceholders(in value: String) -> [String] {
         at: sources,
         includingPropertiesForKeys: nil
     ).filter { $0.pathExtension == "swift" }
-    let expression = try NSRegularExpression(
-        pattern: #"L10n\s*\.\s*(?:format|string)\s*\(\s*\"((?:\\.|[^\"\\])*)\""#
+    let runtimeExpressions = try [
+        #"L10n\s*\.\s*(?:format|string)\s*\(\s*\"((?:\\.|[^\"\\])*)\""#,
+        #"\"((?:\\.|[^\"\\])*)\"\s*\.localized"#
+    ].map { try NSRegularExpression(pattern: $0) }
+    let settingsRowExpression = try NSRegularExpression(
+        pattern: #"(?:title|detail)\s*:\s*\"((?:\\.|[^\"\\])*)\""#
     )
 
     for file in files where file.lastPathComponent != "Localization.swift" {
         let source = try String(contentsOf: file, encoding: .utf8)
         let range = NSRange(source.startIndex..., in: source)
-        for match in expression.matches(in: source, range: range) {
-            guard let keyRange = Range(match.range(at: 1), in: source) else { continue }
-            let key = String(source[keyRange])
-            #expect(catalogKeys.contains(key), "Missing localization key \(key) used by \(file.lastPathComponent)")
+        var expressions = runtimeExpressions
+        if file.lastPathComponent == "AppSettings.swift" {
+            expressions.append(settingsRowExpression)
+        }
+        for expression in expressions {
+            for match in expression.matches(in: source, range: range) {
+                guard let keyRange = Range(match.range(at: 1), in: source) else { continue }
+                let key = String(source[keyRange])
+                #expect(catalogKeys.contains(key), "Missing localization key \(key) used by \(file.lastPathComponent)")
+            }
         }
     }
 }
