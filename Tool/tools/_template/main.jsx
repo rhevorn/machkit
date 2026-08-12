@@ -1,9 +1,13 @@
 import React from "react";
-import { createRoot } from "react-dom/client";
-import "../../src/styles.css";
+import { EmptyToolState, ToolPage } from "@/ui/index.js";
+import { mountTool } from "@/runtime/mount-tool.jsx";
 
 function Tool() {
-  return <main className="workspace">Replace this template with the tool UI.</main>;
+  return (
+    <ToolPage title="Sift Tool">
+      <EmptyToolState>Replace this template with the tool UI.</EmptyToolState>
+    </ToolPage>
+  );
 }
 
-createRoot(document.getElementById("root")).render(<Tool />);
+mountTool(<Tool />, { name: "Sift Tool" });

@@ -1,17 +1,27 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { createRoot } from "react-dom/client";
+import { CopySimple, Pause, Play } from "@phosphor-icons/react";
+import { I18nProvider } from "react-aria-components";
+import { useLocale, useToolMessages } from "../../src/i18n.js";
 import {
-  CaretDown,
-  CopySimple,
-  Info,
-  Pause,
-  Play,
-} from "@phosphor-icons/react";
-import { currentLocale, useMessages } from "../../src/i18n.js";
-import { IconButton, SegmentedControl } from "../../src/ui/components.jsx";
+  Button,
+  DateTimePicker,
+  Field,
+  Input,
+  SegmentedControl,
+  SelectControl,
+  ToolContent,
+  ToolInfoButton,
+  ToolPage,
+  ValueField,
+} from "@/ui/index.js";
 import { sift } from "../../src/runtime/sift.js";
+import { mountTool } from "@/runtime/mount-tool.jsx";
+import { messages } from "./messages.js";
 import {
   formatDate,
+  formatISO8601,
+  formatRFC2822,
+  formatRFC3339,
   localDateTimeValue,
   millisecondsFromLocalDateTime,
   millisecondsFromTimestamp,
@@ -19,7 +29,7 @@ import {
   timeZoneLabel,
 } from "./timestamp.js";
 
-const timeZones = [
+const fallbackTimeZones = [
   "UTC",
   "Asia/Shanghai",
   "Asia/Tokyo",
@@ -31,40 +41,54 @@ const timeZones = [
   "Australia/Sydney",
 ];
 
-function CopyField({ value, placeholder, copyLabel, invalid = false }) {
-  const hasValue = Boolean(value);
+function supportedTimeZones() {
+  try {
+    return Intl.supportedValuesOf("timeZone");
+  } catch {
+    return fallbackTimeZones;
+  }
+}
+
+function StandardFormats({ milliseconds, timeZone, text }) {
+  const formats = milliseconds === null ? [] : [
+    ["ISO 8601 · UTC", formatISO8601(milliseconds)],
+    ["RFC 3339", formatRFC3339(milliseconds, timeZone)],
+    ["RFC 2822", formatRFC2822(milliseconds, timeZone)],
+  ];
 
   return (
-    <div className={`value-field${hasValue ? "" : " is-placeholder"}${invalid ? " is-invalid" : ""}`}>
-      <output aria-live="polite">{value || placeholder || "—"}</output>
-      {hasValue ? (
-        <button
-          className="copy-action"
-          type="button"
-          onClick={() => sift.copy(value)}
-          aria-label={copyLabel}
-          title={copyLabel}
-        >
-          <CopySimple size={17} aria-hidden="true" />
-          <span>{copyLabel}</span>
-        </button>
-      ) : null}
+    <div className="mt-3 grid gap-3">
+      {(formats.length ? formats : [["ISO 8601 · UTC", ""], ["RFC 3339", ""], ["RFC 2822", ""]]).map(([label, value]) => (
+        <Field key={label} label={label}>
+          <ValueField
+            value={value}
+            placeholder={text.invalid}
+            copyLabel={text.copy}
+            onCopy={(nextValue) => sift.copy(nextValue)}
+            showCopyLabel={false}
+          />
+        </Field>
+      ))}
     </div>
   );
 }
 
 function TimestampTool() {
-  const text = useMessages();
-  const locale = currentLocale();
+  const text = useToolMessages(messages);
+  const locale = useLocale();
   const systemZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
-  const zones = useMemo(() => [...new Set([systemZone, ...timeZones])], [systemZone]);
+  const zones = useMemo(() => [...new Set([systemZone, "UTC", ...supportedTimeZones()])], [systemZone]);
+  const zoneOptions = useMemo(
+    () => zones.map((zone) => ({ value: zone, label: timeZoneLabel(zone, locale) })),
+    [locale, zones],
+  );
   const [unit, setUnit] = useState("milliseconds");
+  const [conversionMode, setConversionMode] = useState("dateToTimestamp");
   const [timeZone, setTimeZone] = useState(systemZone);
   const [selectedDate, setSelectedDate] = useState(() => localDateTimeValue(Date.now(), systemZone));
   const [timestampInput, setTimestampInput] = useState(() => timestampFromMilliseconds(Date.now(), "milliseconds"));
   const [currentMilliseconds, setCurrentMilliseconds] = useState(Date.now());
   const [paused, setPaused] = useState(false);
-  const [showInfo, setShowInfo] = useState(false);
 
   useEffect(() => {
     if (paused) return undefined;
@@ -88,111 +112,137 @@ function TimestampTool() {
   const parsedMilliseconds = millisecondsFromTimestamp(timestampInput, unit);
   const currentTimestamp = timestampFromMilliseconds(currentMilliseconds, unit);
   const unitLabel = unit === "nanoseconds" ? text.ns : unit === "seconds" ? text.s : text.ms;
+  const invalidTimestamp = Boolean(timestampInput && parsedMilliseconds === null);
 
   return (
-    <main className="tool-shell">
-      <header className="tool-header">
-        <div className="tool-title">
-          <h1>{text.title}</h1>
-          <p>{text.subtitle}</p>
+    <ToolPage title={text.title} adaptiveHeight>
+      <ToolContent className="flex flex-col pt-4 pb-6">
+        <div className="sift-toolbar gap-2">
+          <SegmentedControl
+            value={conversionMode}
+            onChange={setConversionMode}
+            label={text.title}
+            className="max-w-[420px]"
+            options={[
+              { value: "dateToTimestamp", label: text.dateTo },
+              { value: "timestampToDate", label: text.timestampTo },
+            ]}
+          />
+          <ToolInfoButton info={text.info} className="ml-auto size-8.5 shrink-0" />
         </div>
-        <div className="tool-header-actions">
-          <IconButton label={text.info} onClick={() => setShowInfo((value) => !value)} aria-expanded={showInfo}>
-            <Info size={18} />
-          </IconButton>
-        </div>
-        {showInfo ? <div className="popover" role="status">{text.info}</div> : null}
-      </header>
 
-      <div className="tool-content">
-        <section className="live-inspector" aria-labelledby="current-timestamp-label">
-          <div className="live-heading">
-            <span id="current-timestamp-label">{text.current}</span>
-          </div>
-          <div className="live-value-row">
-            <output className="live-value" aria-live="off">{currentTimestamp}</output>
-            <div className="live-actions">
-              <button className="quiet-button" type="button" onClick={() => setPaused((value) => !value)}>
+        <section className="mt-4 rounded-panel border border-border bg-surface p-5 shadow-[0_1px_2px_rgb(0_0_0/0.04)]">
+          <header className="mb-3 flex items-center gap-3">
+            <span className="sift-control-label">{text.current}</span>
+            <div className="ml-auto flex shrink-0 gap-1">
+              <Button variant="accentGhost" size="sm" onClick={() => setPaused((value) => !value)}>
                 {paused ? <Play size={15} weight="fill" /> : <Pause size={15} weight="fill" />}
-                <span>{paused ? text.resume : text.pause}</span>
-              </button>
-              <button className="quiet-button" type="button" onClick={() => sift.copy(currentTimestamp)}>
+                <span className="max-[500px]:hidden">{paused ? text.resume : text.pause}</span>
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => sift.copy(currentTimestamp)}>
                 <CopySimple size={17} />
-                <span>{text.copy}</span>
-              </button>
+                <span className="max-[500px]:hidden">{text.copy}</span>
+              </Button>
             </div>
+          </header>
+          <output className="block min-w-0 overflow-hidden font-mono text-[clamp(26px,4vw,36px)] leading-none font-medium tracking-[0.035em] text-ellipsis whitespace-nowrap tabular-nums select-text">
+            {currentTimestamp}
+          </output>
+        </section>
+
+        <div className="grid gap-4 py-4 min-[620px]:grid-cols-[minmax(250px,0.9fr)_minmax(300px,1.1fr)]">
+          <Field label={text.unit}>
+            <SegmentedControl
+              value={unit}
+              onChange={changeUnit}
+              label={text.unit}
+              options={[
+                { value: "nanoseconds", label: text.ns },
+                { value: "milliseconds", label: text.ms },
+                { value: "seconds", label: text.s },
+              ]}
+            />
+          </Field>
+          <Field label={text.zone}>
+            <SelectControl
+              value={timeZone}
+              options={zoneOptions}
+              onChange={changeZone}
+              label={text.zone}
+            />
+          </Field>
+        </div>
+
+        <section className="sift-panel">
+          <div className="grid gap-4 p-5 min-[620px]:grid-cols-2">
+            {conversionMode === "dateToTimestamp" ? (
+              <>
+                <Field label={text.dateTime} htmlFor="date-input">
+                  <DateTimePicker
+                    value={selectedDate}
+                    onChange={setSelectedDate}
+                    label={text.dateTime}
+                  />
+                </Field>
+                <Field label={`${text.timestamp} · ${unitLabel}`}>
+                  <ValueField
+                    value={selectedMilliseconds === null ? "" : timestampFromMilliseconds(selectedMilliseconds, unit)}
+                    placeholder={text.selectDate}
+                    copyLabel={text.copy}
+                    onCopy={(value) => sift.copy(value)}
+                    showCopyLabel={false}
+                  />
+                </Field>
+              </>
+            ) : (
+              <>
+                <Field label={`${text.timestamp} · ${unitLabel}`} htmlFor="timestamp-input">
+                  <Input
+                    id="timestamp-input"
+                    inputMode="numeric"
+                    placeholder={text.enter}
+                    value={timestampInput}
+                    onChange={(event) => setTimestampInput(event.target.value)}
+                    invalid={invalidTimestamp}
+                  />
+                </Field>
+                <Field label={text.dateTime}>
+                  <ValueField
+                    value={parsedMilliseconds === null ? "" : formatDate(parsedMilliseconds, timeZone, locale)}
+                    placeholder={timestampInput ? text.invalid : text.enter}
+                    copyLabel={text.copy}
+                    onCopy={(value) => sift.copy(value)}
+                    invalid={invalidTimestamp}
+                    showCopyLabel={false}
+                  />
+                </Field>
+              </>
+            )}
           </div>
 
-          <div className="inspector-controls">
-            <div className="control-group unit-control">
-              <span className="control-label">{text.unit}</span>
-              <SegmentedControl
-                value={unit}
-                onChange={changeUnit}
-                label={text.unit}
-                options={[
-                  { value: "nanoseconds", label: text.ns },
-                  { value: "milliseconds", label: text.ms },
-                  { value: "seconds", label: text.s },
-                ]}
-              />
+          <div className="border-t border-border p-5">
+            <div className="text-xs font-semibold text-secondary">
+              {text.standardFormats || "Standard Formats"}
             </div>
-            <div className="control-divider" aria-hidden="true" />
-            <label className="control-group zone-control">
-              <span className="control-label">{text.zone}</span>
-              <span className="select-wrap">
-                <select value={timeZone} onChange={(event) => changeZone(event.target.value)}>
-                  {zones.map((zone) => <option value={zone} key={zone}>{timeZoneLabel(zone, locale)}</option>)}
-                </select>
-                <CaretDown size={14} aria-hidden="true" />
-              </span>
-            </label>
+            <StandardFormats
+              milliseconds={conversionMode === "dateToTimestamp" ? selectedMilliseconds : parsedMilliseconds}
+              timeZone={timeZone}
+              text={text}
+            />
           </div>
         </section>
-
-        <section className="conversion-section" aria-labelledby="date-to-heading">
-          <h2 id="date-to-heading">{text.dateTo}</h2>
-          <label className="field-label" htmlFor="date-input">{text.dateTime}</label>
-          <input
-            id="date-input"
-            className="source-input date-input"
-            type="datetime-local"
-            value={selectedDate}
-            onChange={(event) => setSelectedDate(event.target.value)}
-          />
-          <span className="result-label">{`${text.timestamp} · ${unitLabel}`}</span>
-          <CopyField
-            value={selectedMilliseconds === null ? "" : timestampFromMilliseconds(selectedMilliseconds, unit)}
-            placeholder={text.selectDate}
-            copyLabel={text.copy}
-          />
-        </section>
-
-        <section className="conversion-section" aria-labelledby="timestamp-to-heading">
-          <h2 id="timestamp-to-heading">{text.timestampTo}</h2>
-          <label className="field-label" htmlFor="timestamp-input">{`${text.timestamp} · ${unitLabel}`}</label>
-          <input
-            id="timestamp-input"
-            className={`source-input timestamp-input${timestampInput && parsedMilliseconds === null ? " is-invalid" : ""}`}
-            inputMode="numeric"
-            placeholder={text.enter}
-            value={timestampInput}
-            onChange={(event) => setTimestampInput(event.target.value)}
-            aria-invalid={Boolean(timestampInput && parsedMilliseconds === null)}
-          />
-          <span className="result-label">{text.dateTime}</span>
-          <CopyField
-            value={parsedMilliseconds === null ? "" : formatDate(parsedMilliseconds, timeZone, locale)}
-            placeholder={timestampInput ? text.invalid : text.enter}
-            copyLabel={text.copy}
-            invalid={Boolean(timestampInput && parsedMilliseconds === null)}
-          />
-        </section>
-      </div>
-    </main>
+      </ToolContent>
+    </ToolPage>
   );
 }
 
-createRoot(document.getElementById("root")).render(
-  <React.StrictMode><TimestampTool /></React.StrictMode>,
-);
+mountTool(<TimestampApp />, { name: "Timestamp Converter" });
+
+function TimestampApp() {
+  const locale = useLocale().replaceAll("_", "-");
+  return (
+    <I18nProvider locale={locale}>
+      <TimestampTool />
+    </I18nProvider>
+  );
+}

@@ -1,10 +1,12 @@
 :root {
   color-scheme: light dark;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  font-family: system-ui, -apple-system, sans-serif;
   color: #1d1d1f;
   background: #f7f7f8;
   font-synthesis: none;
-  text-rendering: optimizeLegibility;
+  text-rendering: auto;
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
 }
 
 * {
@@ -88,7 +90,7 @@ p {
   border-radius: 11px;
   color: #087fff;
   background: rgb(8 127 255 / 11%);
-  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-family: ui-monospace, Menlo, monospace;
   font-size: 15px;
   font-weight: 700;
 }
@@ -97,7 +99,7 @@ code {
   padding: 2px 5px;
   border-radius: 5px;
   background: rgb(0 0 0 / 6%);
-  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-family: ui-monospace, Menlo, monospace;
   font-size: 0.9em;
 }
 

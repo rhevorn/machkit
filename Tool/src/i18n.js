@@ -1,23 +1,39 @@
-const messages = {
-  en: { title: "Timestamp Converter", subtitle: "Convert dates and Unix timestamps across units and time zones", ns: "Nanoseconds", ms: "Milliseconds", s: "Seconds", unit: "Timestamp Unit", zone: "Time Zone", dateTo: "Date to Timestamp", timestampTo: "Timestamp to Date", dateTime: "Date and Time", timestamp: "Timestamp", selectDate: "Select a date and time", enter: "Enter a timestamp", invalid: "Invalid timestamp", current: "Current Timestamp", pause: "Pause", resume: "Continue", copy: "Copy", info: "Unix timestamps measure elapsed time since January 1, 1970 UTC." },
-  "zh-Hans": { title: "时间戳转换", subtitle: "在不同单位和时区之间转换日期与 Unix 时间戳", ns: "纳秒", ms: "毫秒", s: "秒", unit: "时间戳单位", zone: "时区", dateTo: "日期转时间戳", timestampTo: "时间戳转日期", dateTime: "日期和时间", timestamp: "时间戳", selectDate: "选择日期和时间", enter: "输入时间戳", invalid: "无效的时间戳", current: "当前时间戳", pause: "暂停", resume: "继续", copy: "复制", info: "Unix 时间戳表示自 UTC 1970 年 1 月 1 日以来经过的时间。" },
-  "zh-Hant": { title: "時間戳轉換", subtitle: "在不同單位和時區之間轉換日期與 Unix 時間戳", ns: "奈秒", ms: "毫秒", s: "秒", unit: "時間戳單位", zone: "時區", dateTo: "日期轉時間戳", timestampTo: "時間戳轉日期", dateTime: "日期和時間", timestamp: "時間戳", selectDate: "選擇日期和時間", enter: "輸入時間戳", invalid: "無效的時間戳", current: "目前時間戳", pause: "暫停", resume: "繼續", copy: "複製", info: "Unix 時間戳表示自 UTC 1970 年 1 月 1 日以來經過的時間。" },
-  ja: { title: "タイムスタンプ変換", subtitle: "日付と Unix タイムスタンプを単位やタイムゾーン間で変換", ns: "ナノ秒", ms: "ミリ秒", s: "秒", unit: "タイムスタンプ単位", zone: "タイムゾーン", dateTo: "日付からタイムスタンプ", timestampTo: "タイムスタンプから日付", dateTime: "日付と時刻", timestamp: "タイムスタンプ", selectDate: "日付と時刻を選択", enter: "タイムスタンプを入力", invalid: "無効なタイムスタンプ", current: "現在のタイムスタンプ", pause: "一時停止", resume: "続ける", copy: "コピー", info: "Unix タイムスタンプは 1970 年 1 月 1 日 UTC からの経過時間です。" },
-  ko: { title: "타임스탬프 변환", subtitle: "날짜와 Unix 타임스탬프를 단위 및 시간대별로 변환", ns: "나노초", ms: "밀리초", s: "초", unit: "타임스탬프 단위", zone: "시간대", dateTo: "날짜를 타임스탬프로", timestampTo: "타임스탬프를 날짜로", dateTime: "날짜 및 시간", timestamp: "타임스탬프", selectDate: "날짜와 시간 선택", enter: "타임스탬프 입력", invalid: "잘못된 타임스탬프", current: "현재 타임스탬프", pause: "일시 정지", resume: "계속", copy: "복사", info: "Unix 타임스탬프는 1970년 1월 1일 UTC 이후 경과 시간을 나타냅니다." },
-  es: { title: "Conversor de marcas de tiempo", subtitle: "Convierte fechas y marcas Unix entre unidades y zonas horarias", ns: "Nanosegundos", ms: "Milisegundos", s: "Segundos", unit: "Unidad", zone: "Zona horaria", dateTo: "Fecha a marca de tiempo", timestampTo: "Marca de tiempo a fecha", dateTime: "Fecha y hora", timestamp: "Marca de tiempo", selectDate: "Selecciona fecha y hora", enter: "Introduce una marca de tiempo", invalid: "Marca de tiempo no válida", current: "Marca de tiempo actual", pause: "Pausar", resume: "Continuar", copy: "Copiar", info: "Las marcas Unix miden el tiempo transcurrido desde el 1 de enero de 1970 UTC." },
-  fr: { title: "Convertisseur d’horodatage", subtitle: "Convertissez les dates et horodatages Unix entre unités et fuseaux", ns: "Nanosecondes", ms: "Millisecondes", s: "Secondes", unit: "Unité", zone: "Fuseau horaire", dateTo: "Date vers horodatage", timestampTo: "Horodatage vers date", dateTime: "Date et heure", timestamp: "Horodatage", selectDate: "Sélectionner une date et une heure", enter: "Saisir un horodatage", invalid: "Horodatage invalide", current: "Horodatage actuel", pause: "Pause", resume: "Continuer", copy: "Copier", info: "Les horodatages Unix mesurent le temps écoulé depuis le 1er janvier 1970 UTC." },
-  de: { title: "Zeitstempel-Konverter", subtitle: "Datum und Unix-Zeitstempel zwischen Einheiten und Zeitzonen umrechnen", ns: "Nanosekunden", ms: "Millisekunden", s: "Sekunden", unit: "Zeitstempeleinheit", zone: "Zeitzone", dateTo: "Datum zu Zeitstempel", timestampTo: "Zeitstempel zu Datum", dateTime: "Datum und Uhrzeit", timestamp: "Zeitstempel", selectDate: "Datum und Uhrzeit auswählen", enter: "Zeitstempel eingeben", invalid: "Ungültiger Zeitstempel", current: "Aktueller Zeitstempel", pause: "Pause", resume: "Fortsetzen", copy: "Kopieren", info: "Unix-Zeitstempel messen die seit dem 1. Januar 1970 UTC vergangene Zeit." },
-  "pt-BR": { title: "Conversor de timestamp", subtitle: "Converta datas e timestamps Unix entre unidades e fusos horários", ns: "Nanossegundos", ms: "Milissegundos", s: "Segundos", unit: "Unidade", zone: "Fuso horário", dateTo: "Data para timestamp", timestampTo: "Timestamp para data", dateTime: "Data e hora", timestamp: "Timestamp", selectDate: "Selecione data e hora", enter: "Digite um timestamp", invalid: "Timestamp inválido", current: "Timestamp atual", pause: "Pausar", resume: "Continuar", copy: "Copiar", info: "Timestamps Unix medem o tempo decorrido desde 1º de janeiro de 1970 UTC." },
-  ru: { title: "Конвертер временных меток", subtitle: "Преобразование дат и меток Unix между единицами и часовыми поясами", ns: "Наносекунды", ms: "Миллисекунды", s: "Секунды", unit: "Единица", zone: "Часовой пояс", dateTo: "Дата в метку", timestampTo: "Метка в дату", dateTime: "Дата и время", timestamp: "Временная метка", selectDate: "Выберите дату и время", enter: "Введите временную метку", invalid: "Недопустимая временная метка", current: "Текущая временная метка", pause: "Пауза", resume: "Продолжить", copy: "Копировать", info: "Временные метки Unix измеряют время с 1 января 1970 года по UTC." },
-};
+import { useSyncExternalStore } from "react";
+import { sift } from "./runtime/sift.js";
+import { supportedLocales } from "./i18n-catalog.js";
+export { catalogIssues, supportedLocales } from "./i18n-catalog.js";
 
-export function currentLocale() {
-  const requested = window.__SIFT__?.locale || navigator.language || "en";
-  if (messages[requested]) return requested;
-  const base = requested.split("-")[0];
-  return messages[base] ? base : "en";
+const supportedLocaleCatalog = Object.fromEntries(supportedLocales.map((locale) => [locale, {}]));
+
+export function resolveLocale(requested, catalog = supportedLocaleCatalog) {
+  const normalized = String(requested || "en").replaceAll("_", "-");
+  if (catalog[normalized]) return normalized;
+
+  const lowered = normalized.toLowerCase();
+  if (lowered.startsWith("zh-hant") || lowered === "zh-tw" || lowered === "zh-hk" || lowered === "zh-mo") {
+    return catalog["zh-Hant"] ? "zh-Hant" : "en";
+  }
+  if (lowered.startsWith("zh")) return catalog["zh-Hans"] ? "zh-Hans" : "en";
+  if (lowered === "pt-br" || lowered.startsWith("pt-br")) return catalog["pt-BR"] ? "pt-BR" : "en";
+
+  const base = normalized.split("-")[0];
+  return catalog[base] ? base : "en";
 }
 
-export function useMessages() {
-  return messages[currentLocale()];
+export function currentLocale() {
+  return resolveLocale(sift.getPreferences().locale || window.__SIFT__?.locale || navigator.language || "en");
+}
+
+export function useLocale() {
+  useSyncExternalStore(sift.subscribePreferences, sift.getPreferences, sift.getPreferences);
+  return currentLocale();
+}
+
+export function useToolMessages(catalog) {
+  useSyncExternalStore(sift.subscribePreferences, sift.getPreferences, sift.getPreferences);
+  const locale = resolveLocale(
+    sift.getPreferences().locale || window.__SIFT__?.locale || navigator.language || "en",
+    catalog,
+  );
+  return catalog[locale] || catalog.en;
 }
