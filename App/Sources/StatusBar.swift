@@ -236,8 +236,9 @@ struct StatusBarMenuView: View {
     }
 
     private func openSift() {
+        SiftAppLifecycle.showInForeground()
         openWindow(id: "main")
-        NSApp.activate(ignoringOtherApps: true)
+        SiftAppLifecycle.bringWindowToFront(titled: "Sift")
     }
 }
 
@@ -294,8 +295,9 @@ struct SiftCommands: Commands {
         CommandGroup(replacing: .appSettings) {
             Button("Settings") {
                 model.changeMode(.settings)
+                SiftAppLifecycle.showInForeground()
                 openWindow(id: "main")
-                NSApp.activate(ignoringOtherApps: true)
+                SiftAppLifecycle.bringWindowToFront(titled: "Sift")
             }
             .keyboardShortcut(",", modifiers: .command)
         }

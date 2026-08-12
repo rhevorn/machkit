@@ -6,6 +6,10 @@ struct AppSettingsView: View {
     @AppStorage(AppPreferenceKey.language) private var languageRawValue = AppLanguage.system.rawValue
     @AppStorage(AppPreferenceKey.appearance) private var appearanceRawValue = AppAppearance.system.rawValue
     @AppStorage(AppPreferenceKey.showMenuBar) private var showMenuBar = true
+    @ObservedObject private var shortcutStore = ToolShortcutStore.shared
+    @State private var showingToolsShortcut = false
+    @State private var showingClearDataConfirmation = false
+    @State private var clearDataError: String?
 
     private var language: AppLanguage {
         AppLanguage(rawValue: languageRawValue) ?? .system
@@ -26,8 +30,6 @@ struct AppSettingsView: View {
                 Spacer()
             }
             .padding(18)
-
-            Divider()
 
             settingsContent
         }
@@ -89,6 +91,31 @@ struct AppSettingsView: View {
                             .labelsHidden()
                             .toggleStyle(.switch)
                     }
+
+
+                    Divider().padding(.leading, 64)
+
+                    settingRow(
+                        icon: "keyboard",
+                        color: .orange,
+                        title: "Tool List Shortcut",
+                        detail: "Open the tool list with a keyboard shortcut"
+                    ) {
+                        Button {
+                            showingToolsShortcut = true
+                        } label: {
+                            if let shortcut = shortcutStore.shortcut(for: ToolShortcutStore.toolListID) {
+                                Text(shortcut.displayText)
+                                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                                    .padding(.horizontal, 9)
+                                    .frame(minWidth: 34, minHeight: 27)
+                                    .background(.quaternary.opacity(0.7), in: RoundedRectangle(cornerRadius: 6))
+                            } else {
+                                Text("Set Shortcut".localized)
+                            }
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
                 .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 12))
                 .overlay {
@@ -101,6 +128,28 @@ struct AppSettingsView: View {
                     .foregroundStyle(.secondary)
                     .padding(.leading, 4)
                     .padding(.top, 2)
+
+                Text("Data".localized)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(.secondary)
+                    .padding(.leading, 4)
+                    .padding(.top, 18)
+
+                settingRow(
+                    icon: "trash",
+                    color: .red,
+                    title: "Clear App Data",
+                    detail: "Remove Sift's saved settings, shortcuts, tool data, and window state"
+                ) {
+                    Button("Clear Data…".localized, role: .destructive) {
+                        showingClearDataConfirmation = true
+                    }
+                }
+                .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 12))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color(nsColor: .separatorColor).opacity(0.45), lineWidth: 0.5)
+                }
             }
             .padding(.horizontal, 28)
             .padding(.top, 28)
@@ -108,6 +157,36 @@ struct AppSettingsView: View {
             .frame(maxWidth: .infinity, alignment: .top)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .sheet(isPresented: $showingToolsShortcut) {
+            ToolShortcutEditor(
+                targetID: ToolShortcutStore.toolListID,
+                title: "Tools".localized,
+                store: shortcutStore
+            )
+        }
+        .alert("Clear All App Data?".localized, isPresented: $showingClearDataConfirmation) {
+            Button("Cancel".localized, role: .cancel) {}
+            Button("Clear and Quit".localized, role: .destructive) { clearAppData() }
+        } message: {
+            Text("This removes all data saved by Sift on this Mac and then quits the app. System files and scan targets are not deleted.".localized)
+        }
+        .alert("Could Not Clear App Data".localized, isPresented: Binding(
+            get: { clearDataError != nil },
+            set: { if !$0 { clearDataError = nil } }
+        )) {
+            Button("OK".localized, role: .cancel) {}
+        } message: {
+            Text(clearDataError ?? "")
+        }
+    }
+
+    private func clearAppData() {
+        do {
+            try AppDataResetter.scheduleReset()
+            NSApp.terminate(nil)
+        } catch {
+            clearDataError = error.localizedDescription
+        }
     }
 
     private func settingRow<Control: View>(

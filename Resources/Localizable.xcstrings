@@ -11018,6 +11018,65 @@
         }
       }
     },
+    "Codec" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Codec"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Códec"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Codec"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "コーデック"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "코덱"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Codec"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кодек"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "编解码"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "編解碼"
+          }
+        }
+      }
+    },
     "Collecting performance data…" : {
       "localizations" : {
         "de" : {
@@ -14606,6 +14665,65 @@
         }
       }
     },
+    "Encode and decode Base64, Base32, Base62, Hex, URL, HTML, Unicode, Escape, and Hash" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Base64, Base32, Base62, Hex, URL, HTML, Unicode, Escape und Hash kodieren und dekodieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Codifica y decodifica Base64, Base32, Base62, Hex, URL, HTML, Unicode, Escape y Hash"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Encodez et décodez Base64, Base32, Base62, Hex, URL, HTML, Unicode, échappement et Hash"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Base64、Base32、Base62、Hex、URL、HTML、Unicode、エスケープ、Hash をエンコード／デコード"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Base64, Base32, Base62, Hex, URL, HTML, Unicode, 이스케이프, Hash 인코딩/디코딩"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Codifique e decodifique Base64, Base32, Base62, Hex, URL, HTML, Unicode, Escape e Hash"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кодирование и декодирование Base64, Base32, Base62, Hex, URL, HTML, Unicode, экранирования и Hash"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "编解码 Base64、Base32、Base62、Hex、URL、HTML、Unicode、转义 与 Hash"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "編解碼 Base64、Base32、Base62、Hex、URL、HTML、Unicode、跳脫 與 Hash"
+          }
+        }
+      }
+    },
     "English" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -17190,6 +17308,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "强制退出可能造成未保存内容丢失，只应用于无响应的 App。"
+          }
+        }
+      }
+    },
+    "Format, minify, and query JSON with path expressions" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "JSON formatieren, komprimieren und per Pfad abfragen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Formatea, minimiza y consulta JSON con expresiones de ruta"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Formatez, minifiez et interrogez du JSON avec des chemins"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "JSON の整形・圧縮とパス式による値の検索"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "JSON 포맷/압축 및 경로 식으로 값 조회"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Formate, compacte e consulte JSON com expressões de caminho"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Форматируйте, сжимайте и запрашивайте JSON по путям"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "格式化、压缩 JSON，并用路径表达式查询"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "格式化、壓縮 JSON，並用路徑表達式查詢"
           }
         }
       }
@@ -19896,6 +20073,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "日本語"
+          }
+        }
+      }
+    },
+    "JSON Formatter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "JSON-Formatierer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Formateador JSON"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Formateur JSON"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "JSON フォーマッタ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "JSON 포맷터"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Formatador JSON"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Форматирование JSON"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "JSON 格式化"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "JSON 格式化"
           }
         }
       }

@@ -26,9 +26,14 @@
     <string>$(MACOSX_DEPLOYMENT_TARGET)</string>
     <key>NSAppleEventsUsageDescription</key>
     <string>Sift needs access to System Events to read and remove login items configured in macOS.</string>
-    <key>NSHighResolutionCapable</key>
-    <true/>
-    <key>NSHumanReadableCopyright</key>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+	<key>NSHumanReadableCopyright</key>
     <string>Copyright © 2026. All rights reserved.</string>
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>

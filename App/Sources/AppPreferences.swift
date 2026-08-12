@@ -8,6 +8,56 @@ enum AppPreferenceKey {
     static let menuBarCloseBehaviorRepair = "menuBarCloseBehaviorRepairV1"
 }
 
+enum AppDataResetter {
+    private static let resetMarkerName = ".dev.sift.app-reset-on-launch"
+
+    static func scheduleReset(fileManager: FileManager = .default) throws {
+        let markerURL = resetMarkerURL(fileManager: fileManager)
+        try fileManager.createDirectory(
+            at: markerURL.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        try Data().write(to: markerURL, options: .atomic)
+    }
+
+    static func performScheduledResetIfNeeded(fileManager: FileManager = .default) {
+        let markerURL = resetMarkerURL(fileManager: fileManager)
+        guard fileManager.fileExists(atPath: markerURL.path) else { return }
+        do {
+            try clear(fileManager: fileManager)
+            try fileManager.removeItem(at: markerURL)
+        } catch {
+            // Keep the marker so the reset is retried on the next launch.
+        }
+    }
+
+    static func clear(fileManager: FileManager = .default, defaults: UserDefaults = .standard) throws {
+        let bundleIdentifier = Bundle.main.bundleIdentifier ?? "dev.sift.app"
+        let home = fileManager.homeDirectoryForCurrentUser
+        let paths = [
+            home.appending(path: "Library/Application Support/Sift"),
+            home.appending(path: "Library/Caches/\(bundleIdentifier)"),
+            home.appending(path: "Library/WebKit/\(bundleIdentifier)"),
+            home.appending(path: "Library/HTTPStorages/\(bundleIdentifier)"),
+            home.appending(path: "Library/Saved Application State/\(bundleIdentifier).savedState"),
+            home.appending(path: "Library/Cookies/\(bundleIdentifier).binarycookies"),
+            home.appending(path: "Library/Logs/Sift")
+        ]
+
+        for url in paths where fileManager.fileExists(atPath: url.path) {
+            try fileManager.removeItem(at: url)
+        }
+        defaults.removePersistentDomain(forName: bundleIdentifier)
+        defaults.synchronize()
+    }
+
+    private static func resetMarkerURL(fileManager: FileManager) -> URL {
+        let base = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? fileManager.homeDirectoryForCurrentUser.appending(path: "Library/Application Support")
+        return base.appending(path: resetMarkerName)
+    }
+}
+
 enum AppLanguage: String, CaseIterable, Identifiable {
     case system
     case simplifiedChinese = "zh-Hans"
