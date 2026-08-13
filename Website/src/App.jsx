@@ -1,43 +1,35 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
-  AppleLogo,
   ArrowRight,
   ChartDonut,
-  CheckCircle,
-  Cpu,
+  Code,
   DownloadSimple,
   GithubLogo,
   Globe,
-  HardDrives,
-  LockKey,
+  House,
   Moon,
-  Package,
+  Pulse,
   ShieldCheck,
-  Sparkle,
   Sun,
-  Trash,
+  Wrench,
 } from "@phosphor-icons/react";
 import { messages } from "./i18n.js";
 
 const THEME_KEY = "sift-website-theme";
-const LOCALE_KEY = "sift-website-locale";
 const REPOSITORY_URL = "https://github.com/rhevorn/sift";
 const DOWNLOAD_URL = `${REPOSITORY_URL}/releases/latest`;
+const SCREEN_KEYS = [
+  "overview",
+  "cleanup",
+  "apps",
+  "storage",
+  "performance",
+  "network",
+  "tools",
+  "system",
+];
 
-const HERO_IMAGES = {
-  light: [
-    "./assets/img10.png",
-    "./assets/img11.png",
-    "./assets/img13.png",
-    "./assets/img15.png",
-  ],
-  dark: [
-    "./assets/img20.png",
-    "./assets/img21.png",
-    "./assets/img23.png",
-    "./assets/img25.png",
-  ],
-};
+const GROUP_ICONS = [ChartDonut, Wrench, Pulse, Code];
 
 function preferredTheme() {
   const savedTheme = window.localStorage.getItem(THEME_KEY);
@@ -45,107 +37,96 @@ function preferredTheme() {
   return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
 }
 
-function preferredLocale() {
-  const savedLocale = window.localStorage.getItem(LOCALE_KEY);
-  if (savedLocale === "en" || savedLocale === "zh-CN") return savedLocale;
-  return navigator.language?.toLowerCase().startsWith("zh") ? "zh-CN" : "en";
-}
-
-function Brand() {
+function Brand({ assetBase }) {
   return (
     <a className="brand" href="#top" aria-label="Sift home">
-      <img src="./assets/logo.png" alt="" />
+      <img src={`${assetBase}/assets/logo.png`} alt="" />
       <span>Sift</span>
     </a>
   );
 }
 
-function Feature({ icon: Icon, title, children, tone }) {
+function CapabilityGroup({ group, index }) {
+  const Icon = GROUP_ICONS[index];
   return (
-    <article className={`feature-card feature-card-${tone}`}>
-      <div className="feature-icon" aria-hidden="true"><Icon size={22} weight="duotone" /></div>
-      <h3>{title}</h3>
-      <p>{children}</p>
+    <article className="capability-group" data-tone={group.tone}>
+      <header>
+        <Icon size={23} weight="duotone" aria-hidden="true" />
+        <div>
+          <h3>{group.title}</h3>
+          <p>{group.body}</p>
+        </div>
+      </header>
+      <dl>
+        {group.items.map(([title, detail]) => (
+          <div key={title}>
+            <dt>{title}</dt>
+            <dd>{detail}</dd>
+          </div>
+        ))}
+      </dl>
     </article>
   );
 }
 
 export function App() {
+  const locale = document.documentElement.dataset.locale === "zh-CN" ? "zh-CN" : "en";
+  const assetBase = document.documentElement.dataset.assetBase || ".";
+  const copy = messages[locale];
   const [theme, setTheme] = useState(preferredTheme);
-  const [locale, setLocale] = useState(preferredLocale);
-  const [slide, setSlide] = useState(0);
-  const copy = messages[locale] ?? messages.en;
+  const [selectedScreen, setSelectedScreen] = useState("overview");
+
+  const languageURL = locale === "en" ? "./zh-CN/" : "../";
+  const languageLabel = locale === "en" ? "中文" : "English";
+
+  const screenImages = useMemo(() => ({
+    overview: `${assetBase}/assets/overview.webp`,
+    cleanup: `${assetBase}/assets/cleanup.webp`,
+    apps: `${assetBase}/assets/apps.webp`,
+    storage: `${assetBase}/assets/storage.webp`,
+    performance: `${assetBase}/assets/performance.webp`,
+    network: `${assetBase}/assets/network.webp`,
+    tools: `${assetBase}/assets/tools.webp`,
+    system: `${assetBase}/assets/system.webp`,
+  }), [assetBase]);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     document.documentElement.style.colorScheme = theme;
     document.querySelector('meta[name="theme-color"]')?.setAttribute(
       "content",
-      theme === "dark" ? "#080b12" : "#f7f9fc",
+      theme === "dark" ? "#101214" : "#f4f5f7",
     );
   }, [theme]);
 
-  useEffect(() => {
-    const media = window.matchMedia("(prefers-color-scheme: light)");
-    const followSystem = () => {
-      if (window.localStorage.getItem(THEME_KEY) == null) {
-        setTheme(media.matches ? "light" : "dark");
-      }
-    };
-    media.addEventListener("change", followSystem);
-    return () => media.removeEventListener("change", followSystem);
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.lang = locale;
-  }, [locale]);
-
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
-    const timer = window.setInterval(
-      () => setSlide((current) => (current + 1) % HERO_IMAGES[theme].length),
-      6000,
-    );
-    return () => window.clearInterval(timer);
-  }, [theme]);
-
-  const toggleTheme = () =>
+  const toggleTheme = () => {
     setTheme((current) => {
       const next = current === "dark" ? "light" : "dark";
       window.localStorage.setItem(THEME_KEY, next);
       return next;
     });
+  };
 
-  const toggleLocale = () =>
-    setLocale((current) => {
-      const next = current === "en" ? "zh-CN" : "en";
-      window.localStorage.setItem(LOCALE_KEY, next);
-      return next;
-    });
+  const activeScreen = copy.screens.tabs[selectedScreen];
 
   return (
     <div className="site-shell" id="top">
       <header className="site-header">
         <nav className="nav-shell" aria-label="Primary navigation">
-          <Brand />
+          <Brand assetBase={assetBase} />
           <div className="nav-links">
-            <a href="#features">{copy.nav.features}</a>
+            <a href="#capabilities">{copy.nav.capabilities}</a>
+            <a href="#product">{copy.nav.screens}</a>
             <a href="#safety">{copy.nav.safety}</a>
-            <a href={REPOSITORY_URL} target="_blank" rel="noreferrer">{copy.nav.github}</a>
+            <a href="#tools">{copy.nav.tools}</a>
           </div>
           <div className="nav-actions">
+            <a className="language-link" href={languageURL} aria-label={copy.controls.language}>
+              <Globe size={15} aria-hidden="true" />
+              <span>{languageLabel}</span>
+            </a>
             <button
-              className="nav-control language-button"
-              type="button"
-              onClick={toggleLocale}
-              aria-label={copy.controls.language}
-              title={copy.controls.language}
-            >
-              <Globe size={16} aria-hidden="true" />
-              <span>{locale === "en" ? "EN" : "中"}</span>
-            </button>
-            <button
-              className="nav-control theme-button"
+              className="theme-button"
               type="button"
               onClick={toggleTheme}
               aria-label={copy.controls.theme}
@@ -154,7 +135,7 @@ export function App() {
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
             <a className="nav-download" href={DOWNLOAD_URL} target="_blank" rel="noreferrer">
-              <DownloadSimple size={17} weight="bold" />
+              <DownloadSimple size={16} weight="bold" />
               <span>{copy.nav.download}</span>
             </a>
           </div>
@@ -162,131 +143,166 @@ export function App() {
       </header>
 
       <main>
-        <section className="hero" aria-labelledby="hero-title">
+        <section className="hero section-shell" aria-labelledby="hero-title">
           <div className="hero-copy-block">
-            <div className="eyebrow">
-              <Sparkle size={15} weight="fill" />
-              {copy.hero.eyebrow}
-            </div>
+            <p className="kicker">{copy.hero.eyebrow}</p>
             <h1 id="hero-title">{copy.hero.title}</h1>
-            <p className="hero-copy">{copy.hero.description}</p>
+            <p className="hero-description">{copy.hero.description}</p>
             <div className="hero-actions">
-              <a className="button" href={DOWNLOAD_URL} target="_blank" rel="noreferrer">
-                <DownloadSimple size={19} weight="bold" />
+              <a className="button button-primary" href={DOWNLOAD_URL} target="_blank" rel="noreferrer">
+                <DownloadSimple size={18} weight="bold" />
                 {copy.hero.primary}
               </a>
-              <a className="button button-quiet" href={REPOSITORY_URL} target="_blank" rel="noreferrer">
-                <GithubLogo size={20} weight="fill" />
+              <a className="text-link" href={REPOSITORY_URL} target="_blank" rel="noreferrer">
+                <GithubLogo size={19} weight="fill" />
                 {copy.hero.secondary}
+                <ArrowRight size={15} />
               </a>
             </div>
             <p className="compatibility">{copy.hero.compatibility}</p>
           </div>
 
-          <div className="app-stage" aria-label={copy.productPreviewLabel}>
-            {HERO_IMAGES[theme].map((src, index) => (
-              <img
-                key={src}
-                src={src}
-                alt={index === slide ? copy.productPreviewAlt : ""}
-                aria-hidden={index !== slide}
-                className={index === slide ? "is-active" : ""}
-                fetchPriority={index === 0 ? "high" : undefined}
-              />
+          <div className="hero-product" aria-label={copy.hero.previewAlt}>
+            <div className="product-window">
+              <img src={screenImages.overview} alt={copy.hero.previewAlt} fetchPriority="high" />
+            </div>
+          </div>
+        </section>
+
+        <section className="introduction section-shell" aria-labelledby="introduction-title">
+          <div>
+            <p className="kicker">{copy.introduction.kicker}</p>
+            <h2 id="introduction-title">{copy.introduction.title}</h2>
+          </div>
+          <div className="introduction-copy">
+            {copy.introduction.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+          </div>
+        </section>
+
+        <section className="capabilities section-shell" id="capabilities" aria-labelledby="capabilities-title">
+          <header className="section-heading">
+            <p className="kicker">{copy.capabilities.kicker}</p>
+            <h2 id="capabilities-title">{copy.capabilities.title}</h2>
+            <p>{copy.capabilities.description}</p>
+          </header>
+          <div className="capability-grid">
+            {copy.capabilities.groups.map((group, index) => (
+              <CapabilityGroup key={group.title} group={group} index={index} />
             ))}
-            <div className="stage-dots" aria-hidden="true">
-              {HERO_IMAGES[theme].map((src, index) => (
+          </div>
+        </section>
+
+        <section className="product-section" id="product" aria-labelledby="product-title">
+          <div className="section-shell">
+            <header className="section-heading product-heading">
+              <p className="kicker">{copy.screens.kicker}</p>
+              <h2 id="product-title">{copy.screens.title}</h2>
+              <p>{copy.screens.description}</p>
+            </header>
+
+            <div className="screen-tabs" role="tablist" aria-label={copy.screens.title}>
+              {SCREEN_KEYS.map((key) => (
                 <button
-                  key={src}
+                  key={key}
                   type="button"
-                  tabIndex={-1}
-                  className={index === slide ? "is-active" : ""}
-                  onClick={() => setSlide(index)}
-                />
+                  role="tab"
+                  aria-selected={selectedScreen === key}
+                  className={selectedScreen === key ? "is-active" : ""}
+                  onClick={() => setSelectedScreen(key)}
+                >
+                  {copy.screens.tabs[key].label}
+                </button>
+              ))}
+            </div>
+
+            <div className="screen-layout">
+              <div className="screen-copy" aria-live="polite">
+                <span className="screen-index">0{SCREEN_KEYS.indexOf(selectedScreen) + 1}</span>
+                <h3>{activeScreen.title}</h3>
+                <ul className="screen-feature-list">
+                  {activeScreen.features.map((feature) => <li key={feature}>{feature}</li>)}
+                </ul>
+              </div>
+              <div className="screen-frame">
+                <img src={screenImages[selectedScreen]} alt={activeScreen.alt} />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="safety section-shell" id="safety" aria-labelledby="safety-title">
+          <header className="section-heading safety-heading">
+            <p className="kicker">{copy.safety.kicker}</p>
+            <h2 id="safety-title">{copy.safety.title}</h2>
+            <p>{copy.safety.description}</p>
+          </header>
+          <div className="principle-list">
+            {copy.safety.principles.map(([title, detail], index) => (
+              <article key={title}>
+                <span>0{index + 1}</span>
+                <h3>{title}</h3>
+                <p>{detail}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="tools-section" id="tools" aria-labelledby="tools-title">
+          <div className="section-shell tools-layout">
+            <header className="section-heading">
+              <p className="kicker">{copy.tools.kicker}</p>
+              <h2 id="tools-title">{copy.tools.title}</h2>
+              <p>{copy.tools.description}</p>
+            </header>
+            <div className="tool-list">
+              {copy.tools.items.map(([title, detail], index) => (
+                <article key={title}>
+                  <span>0{index + 1}</span>
+                  <div>
+                    <h3>{title}</h3>
+                    <p>{detail}</p>
+                  </div>
+                </article>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="trust-band" id="safety" aria-label={copy.trust.label}>
-          <div className="trust-strip">
-            <div>
-              <ShieldCheck size={21} weight="duotone" />
-              <span><strong>{copy.trust.localTitle}</strong>{copy.trust.localBody}</span>
-            </div>
-            <div>
-              <LockKey size={21} weight="duotone" />
-              <span><strong>{copy.trust.controlTitle}</strong>{copy.trust.controlBody}</span>
-            </div>
-            <div>
-              <CheckCircle size={21} weight="duotone" />
-              <span><strong>{copy.trust.previewTitle}</strong>{copy.trust.previewBody}</span>
-            </div>
-          </div>
-        </section>
-
-        <section className="features section-shell" id="features">
-          <div className="section-intro">
-            <span className="section-kicker">{copy.features.kicker}</span>
-            <h2>{copy.features.title}</h2>
-            <p>{copy.features.description}</p>
-          </div>
-          <div className="feature-grid">
-            <Feature icon={Trash} tone="blue" title={copy.features.cleanup.title}>{copy.features.cleanup.body}</Feature>
-            <Feature icon={Package} tone="purple" title={copy.features.apps.title}>{copy.features.apps.body}</Feature>
-            <Feature icon={ChartDonut} tone="indigo" title={copy.features.storage.title}>{copy.features.storage.body}</Feature>
-            <Feature icon={Cpu} tone="green" title={copy.features.performance.title}>{copy.features.performance.body}</Feature>
-            <Feature icon={Globe} tone="orange" title={copy.features.network.title}>{copy.features.network.body}</Feature>
-            <Feature icon={HardDrives} tone="cyan" title={copy.features.system.title}>{copy.features.system.body}</Feature>
-          </div>
-        </section>
-
-        <section className="closing section-shell" id="download">
+        <section className="open-source section-shell" aria-labelledby="open-source-title">
+          <ShieldCheck size={30} weight="duotone" aria-hidden="true" />
           <div>
-            <span className="section-kicker">{copy.closing.kicker}</span>
-            <h2>{copy.closing.title}</h2>
-            <p>{copy.closing.description}</p>
+            <p className="kicker">{copy.openSource.kicker}</p>
+            <h2 id="open-source-title">{copy.openSource.title}</h2>
+            <p>{copy.openSource.description}</p>
           </div>
-          <a className="button" href={DOWNLOAD_URL} target="_blank" rel="noreferrer">
-            {copy.closing.action}<ArrowRight size={18} weight="bold" />
-          </a>
+          <div className="open-source-actions">
+            <a className="button button-primary" href={REPOSITORY_URL} target="_blank" rel="noreferrer">
+              <GithubLogo size={18} weight="fill" />
+              {copy.openSource.primary}
+            </a>
+            <a className="text-link" href={DOWNLOAD_URL} target="_blank" rel="noreferrer">
+              {copy.openSource.secondary}<ArrowRight size={15} />
+            </a>
+          </div>
         </section>
       </main>
 
       <footer className="site-footer">
         <div className="footer-main section-shell">
           <div className="footer-brand">
-            <Brand />
+            <Brand assetBase={assetBase} />
             <p>{copy.footer.description}</p>
-            <span className="platform-badge">
-              <AppleLogo size={15} weight="fill" />
-              {copy.footer.platform}
-            </span>
           </div>
           <div className="footer-links">
-            <div>
-              <strong>{copy.footer.product}</strong>
-              <a href="#features">{copy.nav.features}</a>
-              <a href="#safety">{copy.nav.safety}</a>
-              <a href={DOWNLOAD_URL} target="_blank" rel="noreferrer">{copy.nav.download}</a>
-            </div>
-            <div>
-              <strong>{copy.footer.project}</strong>
-              <a href={REPOSITORY_URL} target="_blank" rel="noreferrer">GitHub</a>
-              <a href={`${REPOSITORY_URL}/releases`} target="_blank" rel="noreferrer">{copy.footer.releases}</a>
-              <a href={`${REPOSITORY_URL}/issues`} target="_blank" rel="noreferrer">{copy.footer.issues}</a>
-            </div>
+            <a href={`${REPOSITORY_URL}/releases`} target="_blank" rel="noreferrer">{copy.footer.releases}</a>
+            <a href={`${REPOSITORY_URL}/issues`} target="_blank" rel="noreferrer">{copy.footer.issues}</a>
+            <a href={`${REPOSITORY_URL}/blob/main/LICENSE`} target="_blank" rel="noreferrer">{copy.footer.license}</a>
           </div>
         </div>
         <div className="footer-bottom section-shell">
           <span>© 2026 Sift</span>
-          <span className="footer-local">
-            <ShieldCheck size={15} weight="duotone" />
-            {copy.footer.local}
-          </span>
-          <a href={REPOSITORY_URL} target="_blank" rel="noreferrer" aria-label="Sift on GitHub">
-            <GithubLogo size={19} />
-          </a>
+          <span><House size={14} weight="duotone" />{copy.footer.local}</span>
+          <span>{copy.footer.platform}</span>
         </div>
       </footer>
     </div>
