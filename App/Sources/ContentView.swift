@@ -165,8 +165,8 @@ struct ContentView: View {
     }
 
     private var sidebar: some View {
-        VStack(spacing: 8) {
-            brandMark.padding(.top, 52).padding(.bottom, 18)
+        VStack(spacing: 6) {
+            brandMark.padding(.top, 52).padding(.bottom, 6)
             sideButton(.home, icon: "house.fill")
             sideButton(.junk, icon: "paintbrush.fill")
             sideButton(.uninstall, icon: "app.badge.checkmark")
@@ -178,7 +178,7 @@ struct ContentView: View {
             Spacer()
             if model.isStorageAnalyzing {
                 Button { model.changeMode(.files) } label: {
-                    VStack(spacing: 4) {
+                    VStack(spacing: 2) {
                         ProgressView().controlSize(.mini)
                         sidebarLabel("Analyzing", size: 9, weight: .medium)
                     }
@@ -191,7 +191,7 @@ struct ContentView: View {
             }
             sideButton(.settings, icon: "gearshape.fill")
             Button(action: openFeedback) {
-                VStack(spacing: 5) {
+                VStack(spacing: 2) {
                     Image(systemName: "bubble.left.and.bubble.right").font(.system(size: 16))
                     sidebarLabel("Feedback")
                 }
@@ -222,12 +222,12 @@ struct ContentView: View {
             inventorySearch = ""
             model.changeMode(mode)
         } label: {
-            VStack(spacing: 5) {
+            VStack(spacing: 2) {
                 Image(systemName: icon).font(.system(size: 17, weight: .medium))
                 sidebarLabel(mode.rawValue.localized)
             }
             .foregroundStyle(model.mode == mode ? Color.accentColor : Color.secondary)
-            .frame(width: 60, height: 52)
+            .frame(width: 60, height: 48)
             .background {
                 if model.mode == mode {
                     RoundedRectangle(cornerRadius: 8).fill(Color.accentColor.opacity(0.10))
@@ -248,12 +248,12 @@ struct ContentView: View {
             inventorySearch = ""
             if !isSelected { model.changeMode(.loginItems) }
         } label: {
-            VStack(spacing: 5) {
+            VStack(spacing: 2) {
                 Image(systemName: "switch.2").font(.system(size: 17, weight: .medium))
                 sidebarLabel("System", size: 10.5)
             }
             .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
-            .frame(width: 60, height: 52)
+            .frame(width: 60, height: 48)
             .background {
                 if isSelected {
                     RoundedRectangle(cornerRadius: 8).fill(Color.accentColor.opacity(0.10))
@@ -290,48 +290,37 @@ struct ContentView: View {
                     permissionCard
                 }
 
-                HStack {
-                    Text("Live Status").font(.system(size: 14, weight: .semibold))
-                    Spacer()
-                    HStack(spacing: 5) {
-                        Circle().fill(Color.green).frame(width: 6, height: 6)
-                        Text("Auto Updating").font(.caption).foregroundStyle(.secondary)
-                    }
-                }
+                Text("Live Status").font(.system(size: 14, weight: .semibold))
 
                 homeMetrics
                 homeQuickAction
 
-                HStack(alignment: .firstTextBaseline) {
-                    Text("Common Tools").font(.system(size: 14, weight: .semibold))
-                    Spacer()
-                    Text("Processed locally, never uploaded").font(.caption).foregroundStyle(.secondary)
-                }
+                Text("Common Tools").font(.system(size: 14, weight: .semibold))
 
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                     homeToolTile(
-                        title: "Cleanup", subtitle: "Caches, logs, uninstall leftovers, and developer junk",
+                        title: "Cleanup", subtitle: "Scan caches, logs, uninstall leftovers, and developer junk",
                         icon: "paintbrush.fill", color: .blue, mode: .junk
                     )
                     homeToolTile(
-                        title: "Storage", subtitle: "Disk categories, folder usage, and large files",
+                        title: "Storage", subtitle: "Analyze disk categories, folder usage, large files, and free space",
                         icon: "chart.pie.fill", color: .indigo, mode: .files
                     )
                     homeToolTile(
-                        title: "Apps", subtitle: "Uninstall apps and manage command-line tools",
+                        title: "Apps", subtitle: "Uninstall apps, remove related files, and manage command-line tools",
                         icon: "app.badge.checkmark", color: .purple, mode: .uninstall
                     )
                     homeToolTile(
-                        title: "Performance", subtitle: "CPU, memory pressure, and resource-heavy apps",
+                        title: "Performance", subtitle: "Monitor CPU, memory pressure, thermal state, and resource-heavy apps",
                         icon: "gauge.with.dots.needle.67percent", color: .mint, mode: .performance
                     )
                     homeToolTile(
-                        title: "Network", subtitle: L10n.string("Traffic, connections, routes, and proxies"),
+                        title: "Network", subtitle: L10n.string("Inspect live traffic, connections, ports, routes, and proxies"),
                         icon: "network", color: .orange, mode: .network
                     )
                     homeToolTile(
-                        title: "Tools", subtitle: "Startup items, background activity, and app extensions",
-                        icon: "switch.2", color: .cyan, mode: .loginItems
+                        title: "Tools", subtitle: "Hosts, timestamps, JSON, codecs, and other developer utilities",
+                        icon: "wrench.and.screwdriver.fill", color: .cyan, mode: .tools
                     )
                 }
             }
@@ -423,8 +412,9 @@ struct ContentView: View {
 
     private var homeMetrics: some View {
         let snapshot = model.performanceSnapshot
-        let exposedPorts = model.listeningPorts.filter { $0.exposure != .loopback }.count
+        let transferRate = model.networkTransferRate
         let memoryColor = snapshot.map { memoryPressureColor($0.memoryPressureLevel) } ?? .secondary
+        let thermalColor = snapshot.map { thermalStateColor($0.thermalState) } ?? .secondary
         return HStack(spacing: 10) {
             homeMetricCard(
                 title: "CPU",
@@ -434,51 +424,109 @@ struct ContentView: View {
                 color: .blue
             )
             homeMetricCard(
-                title: "Memory Usage",
+                title: "Memory",
                 value: snapshot.map { "\(Int(($0.memoryPressure * 100).rounded()))%" } ?? "—",
-                detail: snapshot.map { L10n.format("Memory Pressure %@", $0.memoryPressureLevel.rawValue.localized) } ?? "Loading",
+                detail: snapshot.map { $0.memoryPressureLevel.rawValue } ?? "Loading",
                 icon: "memorychip",
                 color: memoryColor
             )
+            homeNetworkMetricCard(transferRate)
             homeMetricCard(
-                title: "Exposed Ports",
-                value: model.hasLoadedPortSnapshot ? String(exposedPorts) : "—",
-                detail: model.hasLoadedPortSnapshot ? "Currently Listening" : "Checking",
-                icon: "network",
-                color: exposedPorts > 0 ? .orange : .green
-            )
-            homeMetricCard(
-                title: "Cleanable Space",
-                value: model.cleanableBytes.map(formatted) ?? "—",
-                detail: model.cleanableBytes == nil ? "Waiting to Scan" : "Latest Result",
-                icon: "sparkles",
-                color: .purple
+                title: "Thermal",
+                value: snapshot.map { thermalStateShortText($0.thermalState) } ?? "—",
+                detail: snapshot == nil ? "Loading" : "Live",
+                icon: "thermometer.medium",
+                color: thermalColor
             )
         }
     }
 
     private func homeMetricCard(title: String, value: String, detail: String, icon: String, color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 9) {
-            HStack {
-                Image(systemName: icon)
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(color)
-                    .frame(width: 26, height: 26)
-                    .background(color.opacity(0.11), in: Circle())
-                Spacer(minLength: 4)
-                Text(title.localized).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+        HStack(spacing: 9) {
+            Image(systemName: icon)
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(color)
+                .frame(width: 26, height: 26)
+                .background(color.opacity(0.11), in: Circle())
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title.localized)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                Text(detail.localized)
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                    .lineLimit(1)
             }
+            .frame(minWidth: 38, alignment: .leading)
+            .layoutPriority(1)
+            Spacer(minLength: 5)
             Text(verbatim: value)
-                .font(.system(size: 18, weight: .semibold, design: .rounded))
-                .monospacedDigit().lineLimit(1).minimumScaleFactor(0.75)
-            Text(detail.localized).font(.caption2).foregroundStyle(.tertiary).lineLimit(1)
+                .font(.system(size: 17, weight: .semibold, design: .rounded))
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.62)
         }
-        .padding(12)
-        .frame(maxWidth: .infinity, minHeight: 104, alignment: .leading)
-        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 11))
+        .padding(.horizontal, 11)
+        .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)
+        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
         .overlay {
-            RoundedRectangle(cornerRadius: 11)
+            RoundedRectangle(cornerRadius: 10)
                 .stroke(Color.primary.opacity(0.05), lineWidth: 1)
+        }
+    }
+
+    private func homeNetworkMetricCard(_ transferRate: NetworkTransferRate?) -> some View {
+        HStack(spacing: 9) {
+            Image(systemName: "arrow.up.arrow.down")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(Color.cyan)
+                .frame(width: 26, height: 26)
+                .background(Color.cyan.opacity(0.11), in: Circle())
+            VStack(alignment: .leading, spacing: 3) {
+                Text("Network".localized)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                Text((transferRate == nil ? "Checking" : "Live").localized)
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                    .lineLimit(1)
+            }
+            .frame(minWidth: 38, alignment: .leading)
+            .layoutPriority(1)
+            Spacer(minLength: 4)
+            VStack(alignment: .trailing, spacing: 3) {
+                homeNetworkRate(
+                    icon: "arrow.down",
+                    value: transferRate.map { formatNetworkRate($0.downloadBytesPerSecond) } ?? "—",
+                    color: .blue
+                )
+                homeNetworkRate(
+                    icon: "arrow.up",
+                    value: transferRate.map { formatNetworkRate($0.uploadBytesPerSecond) } ?? "—",
+                    color: .mint
+                )
+            }
+        }
+        .padding(.horizontal, 11)
+        .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)
+        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+        .overlay {
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.primary.opacity(0.05), lineWidth: 1)
+        }
+    }
+
+    private func homeNetworkRate(icon: String, value: String, color: Color) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+                .font(.system(size: 9, weight: .bold))
+                .foregroundStyle(color)
+            Text(verbatim: value)
+                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .monospacedDigit()
+                .lineLimit(1)
         }
     }
 
@@ -3046,6 +3094,25 @@ struct ContentView: View {
         case .serious: L10n.string("Thermal State High")
         case .critical: L10n.string("Thermal State Critical")
         @unknown default: L10n.string("Thermal State Unknown")
+        }
+    }
+
+    private func thermalStateShortText(_ state: ProcessInfo.ThermalState) -> String {
+        switch state {
+        case .nominal: L10n.string("Normal")
+        case .fair: L10n.string("Elevated")
+        case .serious: L10n.string("High")
+        case .critical: L10n.string("Critical")
+        @unknown default: L10n.string("Unknown")
+        }
+    }
+
+    private func thermalStateColor(_ state: ProcessInfo.ThermalState) -> Color {
+        switch state {
+        case .nominal: .green
+        case .fair, .serious: .orange
+        case .critical: .red
+        @unknown default: .secondary
         }
     }
 

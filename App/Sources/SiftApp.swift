@@ -83,7 +83,7 @@ private struct MainWindowConfigurator: NSViewRepresentable {
         context.coordinator.configuredWindow = window
         window.contentMinSize = minimumSize
 
-        let autosaveName = "Sift.MainWindow.v2"
+        let autosaveName = "Sift.MainWindow.v4"
         let restoredPreviousFrame = window.setFrameUsingName(autosaveName)
         window.setFrameAutosaveName(autosaveName)
         if !restoredPreviousFrame {
@@ -157,12 +157,12 @@ struct SiftApp: App {
     var body: some Scene {
         Window("Sift", id: "main") {
             ContentView(model: model)
-                .frame(minWidth: 760, minHeight: 752)
+                .frame(minWidth: 740, minHeight: 680)
                 .background(GlobalShortcutBridge(model: model))
                 .background(
                     MainWindowConfigurator(
-                        defaultSize: CGSize(width: 760, height: 752),
-                        minimumSize: CGSize(width: 760, height: 752)
+                        defaultSize: CGSize(width: 880, height: 680),
+                        minimumSize: CGSize(width: 740, height: 680)
                     )
                 )
                 .environment(\.locale, language.locale)
@@ -174,7 +174,7 @@ struct SiftApp: App {
                 }
         }
         .windowStyle(.hiddenTitleBar)
-        .defaultSize(width: 760, height: 752)
+        .defaultSize(width: 880, height: 680)
         .commands {
             SiftCommands(model: model)
             DeveloperToolCommands(model: model)

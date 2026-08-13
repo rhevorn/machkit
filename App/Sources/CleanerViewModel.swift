@@ -14,6 +14,7 @@ final class CleanerViewModel: ObservableObject {
     @Published private(set) var performanceHistory: [PerformanceHistoryPoint] = []
     @Published private(set) var systemStorage = SystemStorageSnapshot.empty
     @Published private(set) var cleanableBytes: Int64?
+    @Published private(set) var networkTransferRate: NetworkTransferRate?
     @Published private(set) var hasLoadedPortSnapshot = false
     @Published private(set) var isPerformanceMonitoring = false
     @Published private(set) var isOptimizingMemory = false
@@ -527,20 +528,14 @@ final class CleanerViewModel: ObservableObject {
                 return
             }
 
-            var refreshCount = 0
             while !Task.isCancelled {
                 guard let self, self.mode == .home else { return }
                 if NSApp.isActive {
                     self.refreshSystemStorage()
                     self.refreshPerformanceSnapshot()
-
-                    if refreshCount.isMultiple(of: 4), !self.isScanning, !self.isCleanupScanning {
-                        let result = await self.portScanner.scan()
-                        guard !Task.isCancelled, self.mode == .home else { return }
-                        self.listeningPorts = result.ports
-                        self.hasLoadedPortSnapshot = true
-                    }
-                    refreshCount += 1
+                    let transferRate = await self.networkScanner.sampleTransferRate()
+                    guard !Task.isCancelled, self.mode == .home else { return }
+                    self.networkTransferRate = transferRate
                 }
 
                 do {
