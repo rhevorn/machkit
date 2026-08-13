@@ -10,7 +10,7 @@
   <table cellpadding="12" cellspacing="0">
     <tr>
       <td align="center" bgcolor="#e8e8ed">
-        <img src="Website/public/assets/img10.png" alt="Sift 总览界面" width="900" />
+        <img src="Website/public/assets/overview.webp" alt="Sift 总览界面" width="900" />
       </td>
     </tr>
   </table>

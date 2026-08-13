@@ -10,7 +10,7 @@ Everything runs locally on your Mac. Scans read file metadata only, risky items 
   <table cellpadding="12" cellspacing="0">
     <tr>
       <td align="center" bgcolor="#e8e8ed">
-        <img src="Website/public/assets/img10.png" alt="Sift overview" width="900" />
+        <img src="Website/public/assets/overview.webp" alt="Sift overview" width="900" />
       </td>
     </tr>
   </table>
