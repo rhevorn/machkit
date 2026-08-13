@@ -5,6 +5,7 @@ struct ToolsView: View {
     @ObservedObject private var shortcutStore = ToolShortcutStore.shared
     @State private var searchText = ""
     @State private var shortcutTool: DeveloperTool?
+    @State private var hoveredToolID: String?
     @FocusState private var searchIsFocused: Bool
 
     private var filteredTools: [DeveloperTool] {
@@ -30,9 +31,9 @@ struct ToolsView: View {
                         .frame(maxWidth: .infinity, minHeight: 280)
                     } else {
                         LazyVGrid(
-                            columns: [GridItem(.adaptive(minimum: 270, maximum: 380), spacing: 14)],
+                            columns: [GridItem(.adaptive(minimum: 280, maximum: 420), spacing: 12)],
                             alignment: .leading,
-                            spacing: 14
+                            spacing: 12
                         ) {
                             ForEach(filteredTools) { tool in
                                 toolCard(tool)
@@ -65,7 +66,7 @@ struct ToolsView: View {
         VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 3) {
                 Text("Tools".localized).font(.system(size: 18, weight: .semibold))
-                Text("A growing collection of focused utilities for developers".localized)
+                Text("Hosts, timestamps, JSON, codecs, and other developer utilities".localized)
                     .font(.system(size: 12))
                     .foregroundStyle(.secondary)
             }
@@ -101,60 +102,79 @@ struct ToolsView: View {
     }
 
     private func toolCard(_ tool: DeveloperTool) -> some View {
-        HStack(spacing: 10) {
+        let isHovered = hoveredToolID == tool.id
+        return ZStack(alignment: .topTrailing) {
             Button { open(tool) } label: {
-                HStack(spacing: 15) {
+                HStack(alignment: .top, spacing: 12) {
                     ZStack {
-                        RoundedRectangle(cornerRadius: 10)
+                        RoundedRectangle(cornerRadius: 9)
                             .fill(tool.color.opacity(0.12))
                         Image(systemName: tool.icon)
-                            .font(.system(size: 22, weight: .medium))
+                            .font(.system(size: 20, weight: .medium))
                             .foregroundStyle(tool.color)
                     }
-                    .frame(width: 48, height: 48)
+                    .frame(width: 42, height: 42)
 
-                    VStack(alignment: .leading, spacing: 5) {
+                    VStack(alignment: .leading, spacing: 4) {
                         Text(tool.localizedTitle)
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundStyle(.primary)
+                            .padding(.trailing, 24)
                         Text(tool.localizedDescription)
                             .font(.system(size: 12))
                             .foregroundStyle(.secondary)
-                            .lineLimit(2)
                             .fixedSize(horizontal: false, vertical: true)
                     }
-                    Spacer(minLength: 2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
 
             Button { shortcutTool = tool } label: {
-                if let shortcut = shortcutStore.shortcut(for: tool.id) {
-                    Text(shortcut.displayText)
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
-                        .foregroundStyle(.secondary)
-                        .padding(.horizontal, 7)
-                        .frame(minWidth: 30, minHeight: 25)
-                        .background(.quaternary.opacity(0.7), in: RoundedRectangle(cornerRadius: 6))
-                } else {
-                    Image(systemName: "keyboard")
-                        .font(.system(size: 13))
-                        .foregroundStyle(.tertiary)
-                        .frame(width: 28, height: 28)
-                }
+                Image(systemName: "keyboard")
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundStyle(isHovered ? tool.color : Color.secondary)
+                    .frame(width: 20, height: 20)
+                    .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 5))
             }
             .buttonStyle(.plain)
-            .help("Set Shortcut".localized)
-
+            .opacity(isHovered ? 1 : 0)
+            .allowsHitTesting(isHovered)
+            .help(shortcutHelp(for: tool))
         }
-        .padding(16)
-        .frame(maxWidth: .infinity, minHeight: 88, alignment: .leading)
-        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+        .padding(14)
+        .frame(maxWidth: .infinity, minHeight: 76, alignment: .topLeading)
+        .background {
+            RoundedRectangle(cornerRadius: 11)
+                .fill(
+                    isHovered
+                        ? tool.color.opacity(0.045)
+                        : Color(nsColor: .textBackgroundColor).opacity(0.72)
+                )
+        }
         .overlay {
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(Color(nsColor: .separatorColor).opacity(0.45), lineWidth: 0.5)
+            RoundedRectangle(cornerRadius: 11)
+                .stroke(
+                    isHovered
+                        ? tool.color.opacity(0.28)
+                        : Color(nsColor: .separatorColor).opacity(0.32),
+                    lineWidth: isHovered ? 1 : 0.5
+                )
         }
+        .contentShape(RoundedRectangle(cornerRadius: 11))
+        .onHover { hovering in
+            hoveredToolID = hovering ? tool.id : (hoveredToolID == tool.id ? nil : hoveredToolID)
+        }
+        .animation(.easeOut(duration: 0.12), value: isHovered)
+    }
+
+    private func shortcutHelp(for tool: DeveloperTool) -> String {
+        guard let shortcut = shortcutStore.shortcut(for: tool.id) else {
+            return "Set Shortcut".localized
+        }
+        return "\("Set Shortcut".localized) · \(shortcut.displayText)"
     }
 
     private func open(_ tool: DeveloperTool) {
