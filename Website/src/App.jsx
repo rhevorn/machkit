@@ -14,10 +14,13 @@ import {
   Wrench,
 } from "@phosphor-icons/react";
 import { messages } from "./i18n.js";
+import {
+  fallbackRelease,
+  fetchLatestRelease,
+  REPOSITORY_URL,
+} from "./release.js";
 
 const THEME_KEY = "machkit-website-theme";
-const REPOSITORY_URL = "https://github.com/rhevorn/machkit";
-const DOWNLOAD_URL = `${REPOSITORY_URL}/releases/latest`;
 const SCREEN_KEYS = [
   "overview",
   "cleanup",
@@ -75,6 +78,7 @@ export function App() {
   const copy = messages[locale];
   const [theme, setTheme] = useState(preferredTheme);
   const [selectedScreen, setSelectedScreen] = useState("overview");
+  const [release, setRelease] = useState(fallbackRelease);
 
   const languageURL = locale === "en" ? "./zh-CN/" : "../";
   const languageLabel = locale === "en" ? "中文" : "English";
@@ -98,6 +102,16 @@ export function App() {
       theme === "dark" ? "#101214" : "#f4f5f7",
     );
   }, [theme]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchLatestRelease({ signal: controller.signal })
+      .then(setRelease)
+      .catch((error) => {
+        if (error?.name !== "AbortError") console.warn("Unable to load the latest GitHub release.", error);
+      });
+    return () => controller.abort();
+  }, []);
 
   const toggleTheme = () => {
     setTheme((current) => {
@@ -134,7 +148,7 @@ export function App() {
             >
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
-            <a className="nav-download" href={DOWNLOAD_URL} target="_blank" rel="noreferrer">
+            <a className="nav-download" href={release.downloadURL}>
               <DownloadSimple size={16} weight="bold" />
               <span>{copy.nav.download}</span>
             </a>
@@ -149,9 +163,9 @@ export function App() {
             <h1 id="hero-title">{copy.hero.title}</h1>
             <p className="hero-description">{copy.hero.description}</p>
             <div className="hero-actions">
-              <a className="button button-primary" href={DOWNLOAD_URL} target="_blank" rel="noreferrer">
+              <a className="button button-primary" href={release.downloadURL}>
                 <DownloadSimple size={18} weight="bold" />
-                {copy.hero.primary}
+                {copy.hero.primary} · {release.tag}
               </a>
               <a className="text-link" href={REPOSITORY_URL} target="_blank" rel="noreferrer">
                 <GithubLogo size={19} weight="fill" />
