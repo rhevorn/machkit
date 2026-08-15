@@ -50826,6 +50826,70 @@
           }
         }
       }
+    },
+    "Port Scanner" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : { "state" : "translated", "value" : "端口扫描" }
+        },
+        "zh-Hant" : {
+          "stringUnit" : { "state" : "translated", "value" : "連接埠掃描" }
+        },
+        "ja" : {
+          "stringUnit" : { "state" : "translated", "value" : "ポートスキャナー" }
+        },
+        "ko" : {
+          "stringUnit" : { "state" : "translated", "value" : "포트 스캐너" }
+        },
+        "es" : {
+          "stringUnit" : { "state" : "translated", "value" : "Escáner de puertos" }
+        },
+        "fr" : {
+          "stringUnit" : { "state" : "translated", "value" : "Scanner de ports" }
+        },
+        "de" : {
+          "stringUnit" : { "state" : "translated", "value" : "Portscanner" }
+        },
+        "pt-BR" : {
+          "stringUnit" : { "state" : "translated", "value" : "Scanner de portas" }
+        },
+        "ru" : {
+          "stringUnit" : { "state" : "translated", "value" : "Сканер портов" }
+        }
+      }
+    },
+    "Scan any TCP port or range with progress and open-port results" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : { "state" : "translated", "value" : "扫描任意 TCP 端口或范围，显示进度与开放端口结果" }
+        },
+        "zh-Hant" : {
+          "stringUnit" : { "state" : "translated", "value" : "掃描任意 TCP 連接埠或範圍，顯示進度與開放連接埠結果" }
+        },
+        "ja" : {
+          "stringUnit" : { "state" : "translated", "value" : "任意の TCP ポート/範囲を進捗付きでスキャンし開放ポートを表示" }
+        },
+        "ko" : {
+          "stringUnit" : { "state" : "translated", "value" : "모든 TCP 포트나 범위를 진행률과 열린 포트 결과로 스캔" }
+        },
+        "es" : {
+          "stringUnit" : { "state" : "translated", "value" : "Escanea cualquier puerto o rango TCP con progreso y resultados abiertos" }
+        },
+        "fr" : {
+          "stringUnit" : { "state" : "translated", "value" : "Scannez tout port ou plage TCP avec progression et ports ouverts" }
+        },
+        "de" : {
+          "stringUnit" : { "state" : "translated", "value" : "Beliebige TCP-Ports oder Bereiche mit Fortschritt und offenen Ports scannen" }
+        },
+        "pt-BR" : {
+          "stringUnit" : { "state" : "translated", "value" : "Escaneie qualquer porta ou intervalo TCP com progresso e portas abertas" }
+        },
+        "ru" : {
+          "stringUnit" : { "state" : "translated", "value" : "Сканируйте любые TCP-порты или диапазоны с прогрессом и открытыми портами" }
+        }
+      }
     }
   },
   "version" : "1.0"

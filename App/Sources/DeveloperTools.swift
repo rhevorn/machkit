@@ -11,6 +11,7 @@ enum DeveloperToolCapability: String, Hashable {
     case hosts
     case storage
     case connectionTrace
+    case portScan
 }
 
 /// Shared web-tool window widths. Height always starts compact and grows with content.
@@ -366,6 +367,19 @@ enum DeveloperToolRegistry {
             widthClass: .regular,
             capabilities: [.clipboard, .connectionTrace],
             presentation: .bundledWeb(entryFile: "WebTools/tools/connection-trace/index.html")
+        ),
+        DeveloperTool(
+            id: "port-scan",
+            title: "Port Scanner",
+            description: "Scan any TCP port or range with progress and open-port results",
+            keywords: [
+                "port", "scan", "tcp", "open", "service", "range", "network",
+                "端口", "扫描", "开放", "服务"
+            ],
+            icon: "dot.radiowaves.left.and.right",
+            widthClass: .regular,
+            capabilities: [.clipboard, .portScan],
+            presentation: .bundledWeb(entryFile: "WebTools/tools/port-scan/index.html")
         )
 
     ]

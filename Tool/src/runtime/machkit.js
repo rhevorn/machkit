@@ -181,6 +181,15 @@ export const machkit = Object.freeze({
     });
   },
 
+  portScan(action, payload = {}, options = {}) {
+    if (!/^(start|status|cancel)$/.test(action)) {
+      return Promise.reject(new Error(`Unsupported Port Scan operation: ${action}`));
+    }
+    return this.request(`portScan.${action}`, payload, {
+      timeout: options.timeout ?? 10_000,
+    });
+  },
+
   async getItem(key) {
     const storageKey = String(key ?? "");
     if (this.isEmbedded) {

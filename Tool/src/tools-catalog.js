@@ -27,6 +27,7 @@ const preferredOrder = [
   "text-lab",
   "curl-lab",
   "connection-trace",
+  "port-scan",
 ];
 
 /** Localized title/description for known tools; unknown folders still appear by id. */
@@ -627,6 +628,32 @@ export const toolMeta = {
       de: "DNS- und HTTP/TLS-Verbindungszeiten eines Hosts verfolgen",
       "pt-BR": "Rastreie DNS e tempos de conexão HTTP/TLS de um host",
       ru: "Трассировка DNS и времени HTTP/TLS-подключения хоста",
+    },
+  },
+  "port-scan": {
+    title: {
+      en: "Port Scanner",
+      "zh-Hans": "端口扫描",
+      "zh-Hant": "連接埠掃描",
+      ja: "ポートスキャナー",
+      ko: "포트 스캐너",
+      es: "Escáner de puertos",
+      fr: "Scanner de ports",
+      de: "Portscanner",
+      "pt-BR": "Scanner de portas",
+      ru: "Сканер портов",
+    },
+    description: {
+      en: "Scan any TCP port or range with progress and open-port results",
+      "zh-Hans": "扫描任意 TCP 端口或范围，显示进度与开放端口结果",
+      "zh-Hant": "掃描任意 TCP 連接埠或範圍，顯示進度與開放連接埠結果",
+      ja: "任意の TCP ポート/範囲を進捗付きでスキャンし開放ポートを表示",
+      ko: "모든 TCP 포트나 범위를 진행률과 열린 포트 결과로 스캔",
+      es: "Escanea cualquier puerto o rango TCP con progreso y resultados abiertos",
+      fr: "Scannez tout port ou plage TCP avec progression et ports ouverts",
+      de: "Beliebige TCP-Ports oder Bereiche mit Fortschritt und offenen Ports scannen",
+      "pt-BR": "Escaneie qualquer porta ou intervalo TCP com progresso e portas abertas",
+      ru: "Сканируйте любые TCP-порты или диапазоны с прогрессом и открытыми портами",
     },
   },
 };

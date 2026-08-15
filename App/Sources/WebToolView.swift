@@ -160,6 +160,7 @@ private struct BundledWebView: NSViewRepresentable {
         private var isUsingDevelopmentServer = false
         private let hostsBridge = HostsWebBridge.shared
         private let connectionTraceBridge = ConnectionTraceWebBridge.shared
+        private let portScanBridge = PortScanWebBridge.shared
         var localeIdentifier = "en"
         var appearance = AppAppearance.system.rawValue
 
@@ -336,6 +337,26 @@ private struct BundledWebView: NSViewRepresentable {
                         replyHandler(response["result"], nil)
                     } else {
                         replyHandler(nil, response["error"] as? String ?? "Connection trace failed.")
+                    }
+                }
+            case let method where method.hasPrefix("portScan."):
+                guard capabilities.contains(.portScan) else {
+                    replyHandler(nil, "Port scanning is not available to this tool.")
+                    return
+                }
+                var payload = parameters
+                payload["action"] = String(method.dropFirst("portScan.".count))
+                payload["requestID"] = "bridge-reply"
+                Task { @MainActor [weak self] in
+                    guard let self else {
+                        replyHandler(nil, "The tool bridge is no longer available.")
+                        return
+                    }
+                    let response = await portScanBridge.handle(payload)
+                    if response["ok"] as? Bool == true {
+                        replyHandler(response["result"], nil)
+                    } else {
+                        replyHandler(nil, response["error"] as? String ?? "Port scan failed.")
                     }
                 }
             default:
