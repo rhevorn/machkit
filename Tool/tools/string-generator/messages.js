@@ -8,6 +8,7 @@ export const messages = {
     "count": "Count",
     "length": "Length",
     "bytes": "Bytes",
+    "custom": "Custom",
     "uppercase": "Uppercase",
     "hyphens": "Hyphens",
     "results": "Results",
@@ -55,7 +56,8 @@ export const messages = {
     "nsDns": "DNS",
     "nsUrl": "URL",
     "nsOid": "OID",
-    "nsX500": "X.500"
+    "nsX500": "X.500",
+    "clickToCopy": "Click a line to copy"
   },
   "zh-Hans": {
     "title": "字符串生成",
@@ -66,6 +68,7 @@ export const messages = {
     "count": "数量",
     "length": "长度",
     "bytes": "字节",
+    "custom": "自定义",
     "uppercase": "大写",
     "hyphens": "连字符",
     "results": "结果",
@@ -113,7 +116,8 @@ export const messages = {
     "nsDns": "DNS",
     "nsUrl": "URL",
     "nsOid": "OID",
-    "nsX500": "X.500"
+    "nsX500": "X.500",
+    "clickToCopy": "点击一行即可复制"
   },
   "zh-Hant": {
     "title": "字串產生",
@@ -124,6 +128,7 @@ export const messages = {
     "count": "數量",
     "length": "長度",
     "bytes": "位元組",
+    "custom": "自訂",
     "uppercase": "大寫",
     "hyphens": "連字號",
     "results": "結果",
@@ -171,7 +176,8 @@ export const messages = {
     "nsDns": "DNS",
     "nsUrl": "URL",
     "nsOid": "OID",
-    "nsX500": "X.500"
+    "nsX500": "X.500",
+    "clickToCopy": "點一下一行即可複製"
   },
   "ja": {
     "title": "文字列ジェネレーター",
@@ -182,6 +188,7 @@ export const messages = {
     "count": "件数",
     "length": "長さ",
     "bytes": "バイト",
+    "custom": "カスタム",
     "uppercase": "大文字",
     "hyphens": "ハイフン",
     "results": "結果",
@@ -229,7 +236,8 @@ export const messages = {
     "nsDns": "DNS",
     "nsUrl": "URL",
     "nsOid": "OID",
-    "nsX500": "X.500"
+    "nsX500": "X.500",
+    "clickToCopy": "行をクリックしてコピー"
   },
   "ko": {
     "title": "문자열 생성기",
@@ -240,6 +248,7 @@ export const messages = {
     "count": "개수",
     "length": "길이",
     "bytes": "바이트",
+    "custom": "사용자 지정",
     "uppercase": "대문자",
     "hyphens": "하이픈",
     "results": "결과",
@@ -287,7 +296,8 @@ export const messages = {
     "nsDns": "DNS",
     "nsUrl": "URL",
     "nsOid": "OID",
-    "nsX500": "X.500"
+    "nsX500": "X.500",
+    "clickToCopy": "줄을 클릭하면 복사됩니다"
   },
   "es": {
     "title": "Generador de cadenas",
@@ -298,6 +308,7 @@ export const messages = {
     "count": "Cantidad",
     "length": "Longitud",
     "bytes": "Bytes",
+    "custom": "Personalizado",
     "uppercase": "Mayúsculas",
     "hyphens": "Guiones",
     "results": "Resultados",
@@ -345,7 +356,8 @@ export const messages = {
     "nsDns": "DNS",
     "nsUrl": "URL",
     "nsOid": "OID",
-    "nsX500": "X.500"
+    "nsX500": "X.500",
+    "clickToCopy": "Haz clic en una línea para copiar"
   },
   "fr": {
     "title": "Générateur de chaînes",
@@ -356,6 +368,7 @@ export const messages = {
     "count": "Nombre",
     "length": "Longueur",
     "bytes": "Octets",
+    "custom": "Personnalisé",
     "uppercase": "Majuscules",
     "hyphens": "Tirets",
     "results": "Résultats",
@@ -403,7 +416,8 @@ export const messages = {
     "nsDns": "DNS",
     "nsUrl": "URL",
     "nsOid": "OID",
-    "nsX500": "X.500"
+    "nsX500": "X.500",
+    "clickToCopy": "Cliquez sur une ligne pour copier"
   },
   "de": {
     "title": "String-Generator",
@@ -414,6 +428,7 @@ export const messages = {
     "count": "Anzahl",
     "length": "Länge",
     "bytes": "Bytes",
+    "custom": "Benutzerdefiniert",
     "uppercase": "Großbuchstaben",
     "hyphens": "Bindestriche",
     "results": "Ergebnisse",
@@ -461,7 +476,8 @@ export const messages = {
     "nsDns": "DNS",
     "nsUrl": "URL",
     "nsOid": "OID",
-    "nsX500": "X.500"
+    "nsX500": "X.500",
+    "clickToCopy": "Zeile anklicken zum Kopieren"
   },
   "pt-BR": {
     "title": "Gerador de strings",
@@ -472,6 +488,7 @@ export const messages = {
     "count": "Quantidade",
     "length": "Comprimento",
     "bytes": "Bytes",
+    "custom": "Personalizado",
     "uppercase": "Maiúsculas",
     "hyphens": "Hífens",
     "results": "Resultados",
@@ -519,7 +536,8 @@ export const messages = {
     "nsDns": "DNS",
     "nsUrl": "URL",
     "nsOid": "OID",
-    "nsX500": "X.500"
+    "nsX500": "X.500",
+    "clickToCopy": "Clique em uma linha para copiar"
   },
   "ru": {
     "title": "Генератор строк",
@@ -530,6 +548,7 @@ export const messages = {
     "count": "Количество",
     "length": "Длина",
     "bytes": "Байты",
+    "custom": "Свой",
     "uppercase": "Верхний регистр",
     "hyphens": "Дефисы",
     "results": "Результаты",
@@ -577,6 +596,7 @@ export const messages = {
     "nsDns": "DNS",
     "nsUrl": "URL",
     "nsOid": "OID",
-    "nsX500": "X.500"
+    "nsX500": "X.500",
+    "clickToCopy": "Нажмите строку, чтобы скопировать"
   }
 };

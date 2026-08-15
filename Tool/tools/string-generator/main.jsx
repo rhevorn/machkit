@@ -7,7 +7,6 @@ import {
   Input,
   SegmentedControl,
   SelectControl,
-  Textarea,
   ToolContent,
   ToolInfoButton,
   ToolPage,
@@ -27,7 +26,7 @@ import {
 import { messages } from "./messages.js";
 
 const PREFS_KEY = "string-generator.prefs";
-const DEFAULT_COUNT = 10;
+const DEFAULT_COUNT = 3;
 const formats = new Set(["uuid", "ulid", "nanoid", "hex", "password"]);
 const uuidVersions = new Set(["v1", "v3", "v4", "v5", "v6", "v7"]);
 const namespaceKeys = new Set(["dns", "url", "oid", "x500"]);
@@ -107,6 +106,83 @@ function OptionNumber({ label, id, value, onChange, onBlur, minWidth = "w-16" })
   );
 }
 
+const COUNT_OPTIONS = [1, 3, 5, 10, 20, 50, 100, 200, 500];
+
+function CountSelect({ label, value, onChange }) {
+  const current = String(clampInt(value, 1, maxBatchCount, DEFAULT_COUNT));
+  const options = useMemo(() => {
+    const values = new Set(COUNT_OPTIONS.map(String));
+    values.add(current);
+    return [...values]
+      .sort((left, right) => Number(left) - Number(right))
+      .map((item) => ({ value: item, label: item }));
+  }, [current]);
+
+  return (
+    <div className="flex items-center gap-2">
+      <span className="machkit-control-label whitespace-nowrap">{label}</span>
+      <SelectControl
+        value={current}
+        onChange={onChange}
+        label={label}
+        className="w-[80px]"
+        options={options}
+      />
+    </div>
+  );
+}
+
+const HEX_BYTE_PRESETS = ["8", "16", "32"];
+
+function ByteLengthControl({ label, id, value, onChange, customLabel }) {
+  const clamped = String(clampInt(value, 1, 64, defaultHexBytes));
+  const isPreset = HEX_BYTE_PRESETS.includes(clamped);
+  const [customOpen, setCustomOpen] = useState(!isPreset);
+  const segmentValue = customOpen || !isPreset ? "custom" : clamped;
+
+  useEffect(() => {
+    if (!HEX_BYTE_PRESETS.includes(String(clampInt(value, 1, 64, defaultHexBytes)))) {
+      setCustomOpen(true);
+    }
+  }, [value]);
+
+  return (
+    <div className="flex min-w-0 items-center gap-2">
+      <label htmlFor={id} className="machkit-control-label whitespace-nowrap">{label}</label>
+      <SegmentedControl
+        value={segmentValue}
+        onChange={(next) => {
+          if (next === "custom") {
+            setCustomOpen(true);
+            return;
+          }
+          setCustomOpen(false);
+          onChange(next);
+        }}
+        label={label}
+        size="compact"
+        className="w-[220px] flex-none"
+        options={[
+          { value: "8", label: "8" },
+          { value: "16", label: "16" },
+          { value: "32", label: "32" },
+          { value: "custom", label: customLabel },
+        ]}
+      />
+      {segmentValue === "custom" ? (
+        <Input
+          id={id}
+          inputMode="numeric"
+          className="w-14"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          onBlur={() => onChange(String(clampInt(value, 1, 64, defaultHexBytes)))}
+        />
+      ) : null}
+    </div>
+  );
+}
+
 function resolveFormat(format, uuidVersion) {
   return format === "uuid" ? `uuid-${uuidVersion}` : format;
 }
@@ -132,6 +208,7 @@ function StringGenerator() {
   const [results, setResults] = useState([]);
   const [error, setError] = useState(null);
   const generationIDRef = useRef(0);
+  const regenerationTimerRef = useRef(0);
 
   const formatOptions = useMemo(
     () => [
@@ -194,10 +271,6 @@ function StringGenerator() {
     excludeAmbiguous,
   });
 
-  const persistPrefs = (prefs = currentPrefs()) => {
-    machkit.setItem(PREFS_KEY, JSON.stringify(prefs)).catch(() => {});
-  };
-
   const applyPrefs = (prefs) => {
     setFormat(prefs.format);
     setUuidVersion(prefs.uuidVersion);
@@ -257,7 +330,6 @@ function StringGenerator() {
       if (cancelled) return;
       applyPrefs(prefs);
       setReady(true);
-      await regenerate(prefs);
     })();
     return () => {
       cancelled = true;
@@ -266,8 +338,19 @@ function StringGenerator() {
   }, []);
 
   useEffect(() => {
-    if (!ready) return;
-    persistPrefs(currentPrefs());
+    if (!ready) return undefined;
+    const prefs = currentPrefs();
+    machkit.setItem(PREFS_KEY, JSON.stringify(prefs)).catch(() => {});
+    window.clearTimeout(regenerationTimerRef.current);
+    const timer = window.setTimeout(() => {
+      regenerationTimerRef.current = 0;
+      regenerate(prefs);
+    }, 120);
+    regenerationTimerRef.current = timer;
+    return () => {
+      window.clearTimeout(timer);
+      if (regenerationTimerRef.current === timer) regenerationTimerRef.current = 0;
+    };
   }, [
     ready,
     format,
@@ -287,25 +370,19 @@ function StringGenerator() {
     excludeAmbiguous,
   ]);
 
-  const changeFormat = (nextFormat) => {
-    const next = { ...currentPrefs(), format: nextFormat };
-    setFormat(nextFormat);
-    regenerate(next);
-  };
-
-  const changeUuidVersion = (nextVersion) => {
-    const next = { ...currentPrefs(), uuidVersion: nextVersion };
-    setUuidVersion(nextVersion);
-    regenerate(next);
+  const regenerateNow = () => {
+    window.clearTimeout(regenerationTimerRef.current);
+    regenerationTimerRef.current = 0;
+    regenerate(currentPrefs());
   };
 
   return (
-    <ToolPage title={text.title} adaptiveHeight>
-      <ToolContent className="flex flex-col pt-4 pb-5">
+    <ToolPage title={text.title}>
+      <ToolContent className="flex flex-col gap-3 pt-4 pb-5">
         <div className="machkit-toolbar gap-2">
           <SegmentedControl
             value={format}
-            onChange={changeFormat}
+            onChange={setFormat}
             label={text.format}
             size="compact"
             className="min-w-0 w-full"
@@ -318,7 +395,7 @@ function StringGenerator() {
           {format === "uuid" ? (
             <SegmentedControl
               value={uuidVersion}
-              onChange={changeUuidVersion}
+              onChange={setUuidVersion}
               label={text.version}
               size="compact"
               className="w-[288px] flex-none"
@@ -326,40 +403,11 @@ function StringGenerator() {
             />
           ) : null}
 
-          <OptionNumber
+          <CountSelect
             label={text.count}
-            id="string-count"
             value={count}
-            onChange={(event) => setCount(event.target.value)}
-            onBlur={() => setCount(String(clampInt(count, 1, maxBatchCount, DEFAULT_COUNT)))}
+            onChange={setCount}
           />
-
-          {isNameBased ? (
-            <>
-              <div className="flex min-w-0 items-center gap-2">
-                <span className="machkit-control-label whitespace-nowrap">{text.namespace}</span>
-                <SelectControl
-                  value={namespaceKey}
-                  onChange={setNamespaceKey}
-                  label={text.namespace}
-                  className="w-[120px]"
-                  options={namespaceOptions}
-                />
-              </div>
-              <div className="flex min-w-0 flex-1 items-center gap-2">
-                <label htmlFor="string-name" className="machkit-control-label whitespace-nowrap">
-                  {text.name}
-                </label>
-                <Input
-                  id="string-name"
-                  className="min-w-[160px] flex-1"
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  placeholder={text.namePlaceholder}
-                />
-              </div>
-            </>
-          ) : null}
 
           {format === "nanoid" ? (
             <OptionNumber
@@ -382,68 +430,21 @@ function StringGenerator() {
           ) : null}
 
           {format === "hex" ? (
-            <OptionNumber
+            <ByteLengthControl
               label={text.bytes}
               id="string-bytes"
               value={byteLength}
-              onChange={(event) => setByteLength(event.target.value)}
-              onBlur={() => setByteLength(String(clampInt(byteLength, 1, 64, defaultHexBytes)))}
+              onChange={setByteLength}
+              customLabel={text.custom}
             />
           ) : null}
-
-          {format === "password" ? (
-            <>
-              <CheckboxField
-                checked={charsetUpper}
-                onCheckedChange={(checked) => setCharsetUpper(checked === true)}
-                label={text.charsetUpper}
-              />
-              <CheckboxField
-                checked={charsetLower}
-                onCheckedChange={(checked) => setCharsetLower(checked === true)}
-                label={text.charsetLower}
-              />
-              <CheckboxField
-                checked={charsetDigits}
-                onCheckedChange={(checked) => setCharsetDigits(checked === true)}
-                label={text.charsetDigits}
-              />
-              <CheckboxField
-                checked={charsetSymbols}
-                onCheckedChange={(checked) => setCharsetSymbols(checked === true)}
-                label={text.charsetSymbols}
-              />
-              <CheckboxField
-                checked={excludeAmbiguous}
-                onCheckedChange={(checked) => setExcludeAmbiguous(checked === true)}
-                label={text.excludeAmbiguous}
-              />
-            </>
-          ) : (
-            <>
-              {format !== "nanoid" ? (
-                <CheckboxField
-                  checked={uppercase}
-                  onCheckedChange={(checked) => setUppercase(checked === true)}
-                  label={text.uppercase}
-                />
-              ) : null}
-              {format === "uuid" ? (
-                <CheckboxField
-                  checked={hyphens}
-                  onCheckedChange={(checked) => setHyphens(checked === true)}
-                  label={text.hyphens}
-                />
-              ) : null}
-            </>
-          )}
 
           <div className="ml-auto">
             <Button
               variant="secondary"
               size="sm"
               disabled={format === "password" && !hasPasswordAlphabet}
-              onClick={() => regenerate(currentPrefs())}
+              onClick={regenerateNow}
             >
               <ArrowsClockwise size={15} />
               {text.regenerate}
@@ -451,14 +452,93 @@ function StringGenerator() {
           </div>
         </div>
 
+        {isNameBased || format === "password" || (format !== "nanoid" && format !== "password") ? (
+          <div className="machkit-toolbar flex-wrap gap-x-4 gap-y-2">
+            {isNameBased ? (
+              <>
+                <div className="flex min-w-0 items-center gap-2">
+                  <span className="machkit-control-label whitespace-nowrap">{text.namespace}</span>
+                  <SelectControl
+                    value={namespaceKey}
+                    onChange={setNamespaceKey}
+                    label={text.namespace}
+                    className="w-[120px]"
+                    options={namespaceOptions}
+                  />
+                </div>
+                <div className="flex min-w-0 flex-1 items-center gap-2">
+                  <label htmlFor="string-name" className="machkit-control-label whitespace-nowrap">
+                    {text.name}
+                  </label>
+                  <Input
+                    id="string-name"
+                    className="min-w-[160px] flex-1"
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    placeholder={text.namePlaceholder}
+                  />
+                </div>
+              </>
+            ) : null}
+
+            {format === "password" ? (
+              <>
+                <CheckboxField
+                  checked={charsetUpper}
+                  onCheckedChange={(checked) => setCharsetUpper(checked === true)}
+                  label={text.charsetUpper}
+                />
+                <CheckboxField
+                  checked={charsetLower}
+                  onCheckedChange={(checked) => setCharsetLower(checked === true)}
+                  label={text.charsetLower}
+                />
+                <CheckboxField
+                  checked={charsetDigits}
+                  onCheckedChange={(checked) => setCharsetDigits(checked === true)}
+                  label={text.charsetDigits}
+                />
+                <CheckboxField
+                  checked={charsetSymbols}
+                  onCheckedChange={(checked) => setCharsetSymbols(checked === true)}
+                  label={text.charsetSymbols}
+                />
+                <CheckboxField
+                  checked={excludeAmbiguous}
+                  onCheckedChange={(checked) => setExcludeAmbiguous(checked === true)}
+                  label={text.excludeAmbiguous}
+                />
+              </>
+            ) : null}
+
+            {format !== "nanoid" && format !== "password" ? (
+              <>
+                <CheckboxField
+                  checked={uppercase}
+                  onCheckedChange={(checked) => setUppercase(checked === true)}
+                  label={text.uppercase}
+                />
+                {format === "uuid" ? (
+                  <CheckboxField
+                    checked={hyphens}
+                    onCheckedChange={(checked) => setHyphens(checked === true)}
+                    label={text.hyphens}
+                  />
+                ) : null}
+              </>
+            ) : null}
+          </div>
+        ) : null}
+
         {error === "alphabet-empty" ? (
           <InlineMessage tone="danger">{text.alphabetEmpty}</InlineMessage>
         ) : null}
 
-        <div className="flex w-full flex-col gap-2 pt-1">
+        <div className="flex w-full flex-col gap-2">
           <div className="flex items-center gap-2">
             <span className="machkit-control-label">{text.results}</span>
             {results.length ? <span className="text-xs text-tertiary">{results.length}</span> : null}
+            <span className="text-xs text-tertiary">{text.clickToCopy}</span>
             <div className="ml-auto flex gap-1">
               <Button
                 variant="ghost"
@@ -480,14 +560,27 @@ function StringGenerator() {
               </Button>
             </div>
           </div>
+
           {results.length ? (
-            <Textarea
-              className="min-h-[260px] font-mono text-[13px] leading-6"
-              value={resultText}
+            <ol
+              className="max-h-[360px] overflow-auto rounded-control border border-border bg-field"
               aria-label={text.results}
-              readOnly
-              spellCheck={false}
-            />
+            >
+              {results.map((value, index) => (
+                <li key={`${index}-${value}`} className="border-b border-border last:border-b-0">
+                  <button
+                    type="button"
+                    className="flex w-full cursor-pointer items-center gap-3 px-3.5 py-2.5 text-left hover:bg-muted focus-visible:bg-muted focus-visible:outline-none"
+                    title={text.clickToCopy}
+                    onClick={() => machkit.copy(value)}
+                  >
+                    <span className="w-7 shrink-0 text-xs tabular-nums text-tertiary">{index + 1}</span>
+                    <span className="min-w-0 flex-1 truncate font-mono text-[13px] text-foreground">{value}</span>
+                    <CopySimple size={14} className="shrink-0 text-tertiary" />
+                  </button>
+                </li>
+              ))}
+            </ol>
           ) : (
             <InlineMessage tone="neutral">
               {error === "alphabet-empty" ? text.alphabetEmpty : text.empty}
