@@ -21,6 +21,7 @@ const preferredOrder = [
   "image-process",
   "xml-plist",
   "qr-code",
+  "jwt-lab",
 ];
 
 /** Localized title/description for known tools; unknown folders still appear by id. */
@@ -465,6 +466,32 @@ export const toolMeta = {
       de: "Formate konvertieren und Ausgabe per Qualität, Zielgröße oder Abmessungen steuern",
       "pt-BR": "Converta formatos e controle a saída por qualidade, tamanho ou dimensões",
       ru: "Конвертация форматов и управление выводом по качеству, размеру или габаритам",
+    },
+  },
+  "jwt-lab": {
+    title: {
+      en: "JWT Lab",
+      "zh-Hans": "JWT 查看",
+      "zh-Hant": "JWT 檢視",
+      ja: "JWT ラボ",
+      ko: "JWT 랩",
+      es: "JWT Lab",
+      fr: "JWT Lab",
+      de: "JWT Lab",
+      "pt-BR": "JWT Lab",
+      ru: "JWT Lab",
+    },
+    description: {
+      en: "Decode JWT headers and payloads locally without uploading tokens",
+      "zh-Hans": "本地解码 JWT，不上传 Token",
+      "zh-Hant": "本機解碼 JWT，不上傳 Token",
+      ja: "JWT をローカルでデコード（送信なし）",
+      ko: "JWT를 로컬에서 디코딩 (업로드 없음)",
+      es: "Decodifica JWT en local sin subir tokens",
+      fr: "Décodez les JWT en local sans les envoyer",
+      de: "JWT lokal dekodieren ohne Upload",
+      "pt-BR": "Decodifique JWT localmente sem enviar tokens",
+      ru: "Локально декодируйте JWT без отправки",
     },
   },
 };

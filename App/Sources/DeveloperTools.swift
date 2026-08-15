@@ -287,6 +287,19 @@ enum DeveloperToolRegistry {
             widthClass: .compact,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/qr-code/index.html")
+        ),
+        DeveloperTool(
+            id: "jwt-lab",
+            title: "JWT Lab",
+            description: "Decode JWT headers and payloads locally without uploading tokens",
+            keywords: [
+                "jwt", "token", "auth", "bearer", "claims", "exp",
+                "令牌", "鉴权", "解码"
+            ],
+            icon: "key.horizontal",
+            widthClass: .regular,
+            capabilities: [.clipboard],
+            presentation: .bundledWeb(entryFile: "WebTools/tools/jwt-lab/index.html")
         )
 
     ]
