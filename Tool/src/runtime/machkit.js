@@ -172,6 +172,15 @@ export const machkit = Object.freeze({
     return this.request(`hosts.${action}`, payload);
   },
 
+  connectionTrace(action, payload = {}, options = {}) {
+    if (!/^(probe)$/.test(action)) {
+      return Promise.reject(new Error(`Unsupported Connection Trace operation: ${action}`));
+    }
+    return this.request(`connectionTrace.${action}`, payload, {
+      timeout: options.timeout ?? 20_000,
+    });
+  },
+
   async getItem(key) {
     const storageKey = String(key ?? "");
     if (this.isEmbedded) {

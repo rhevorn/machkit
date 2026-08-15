@@ -27,6 +27,7 @@
 		A10000000000000000000014 /* FeatureModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000016 /* FeatureModels.swift */; };
 		A10000000000000000000015 /* StatusBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000017 /* StatusBar.swift */; };
 		A1000000000000000000001C /* HostsWebBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000024 /* HostsWebBridge.swift */; };
+		A1000000000000000000001D /* ConnectionTraceWebBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000025 /* ConnectionTraceWebBridge.swift */; };
 		A10000000000000000000017 /* ToolsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000019 /* ToolsView.swift */; };
 		A10000000000000000000019 /* DeveloperTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000021 /* DeveloperTools.swift */; };
 		A1000000000000000000001A /* WebToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000022 /* WebToolView.swift */; };
@@ -56,6 +57,7 @@
 		A20000000000000000000016 /* FeatureModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureModels.swift; sourceTree = "<group>"; };
 		A20000000000000000000017 /* StatusBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBar.swift; sourceTree = "<group>"; };
 		A20000000000000000000024 /* HostsWebBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostsWebBridge.swift; sourceTree = "<group>"; };
+		A20000000000000000000025 /* ConnectionTraceWebBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionTraceWebBridge.swift; sourceTree = "<group>"; };
 		A20000000000000000000019 /* ToolsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsView.swift; sourceTree = "<group>"; };
 		A20000000000000000000021 /* DeveloperTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperTools.swift; sourceTree = "<group>"; };
 		A20000000000000000000022 /* WebToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebToolView.swift; sourceTree = "<group>"; };
@@ -118,6 +120,7 @@
 				A20000000000000000000016 /* FeatureModels.swift */,
 				A20000000000000000000017 /* StatusBar.swift */,
 				A20000000000000000000024 /* HostsWebBridge.swift */,
+				A20000000000000000000025 /* ConnectionTraceWebBridge.swift */,
 				A20000000000000000000019 /* ToolsView.swift */,
 				A20000000000000000000021 /* DeveloperTools.swift */,
 				A20000000000000000000022 /* WebToolView.swift */,
@@ -302,6 +305,7 @@
 				A10000000000000000000014 /* FeatureModels.swift in Sources */,
 				A10000000000000000000015 /* StatusBar.swift in Sources */,
 				A1000000000000000000001C /* HostsWebBridge.swift in Sources */,
+				A1000000000000000000001D /* ConnectionTraceWebBridge.swift in Sources */,
 				A10000000000000000000017 /* ToolsView.swift in Sources */,
 				A10000000000000000000019 /* DeveloperTools.swift in Sources */,
 				A1000000000000000000001A /* WebToolView.swift in Sources */,
