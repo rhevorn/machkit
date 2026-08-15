@@ -10,4 +10,8 @@ enum FeatureMode: String, CaseIterable, Sendable {
     case backgroundActivity = "Background Activity"
     case extensions = "Extensions"
     case settings = "Settings"
+
+    var sidebarTitle: String {
+        self == .performance ? "Monitor" : rawValue
+    }
 }
