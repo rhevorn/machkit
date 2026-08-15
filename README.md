@@ -33,6 +33,7 @@ Everything runs locally on your Mac. Scans read file metadata only, risky items 
   - **String Generator** — Generate UUID v1–v7, ULIDs, Nano IDs, hex strings, and passwords locally
   - **Regex Lab** — Highlight matches, inspect capture groups, and try common replacements
   - **Text Diff** — Compare two texts side by side with line-level highlighting
+  - **IP / CIDR Calculator** — Calculate IPv4 network details, ranges, and membership checks
 
 ## Requirements
 

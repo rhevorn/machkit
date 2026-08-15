@@ -11,6 +11,7 @@ const preferredOrder = [
   "string-generator",
   "regex-lab",
   "text-diff",
+  "ip-cidr",
 ];
 
 /** Localized title/description for known tools; unknown folders still appear by id. */
@@ -195,6 +196,32 @@ export const toolMeta = {
       de: "Texte nebeneinander mit zeilenweiser Hervorhebung vergleichen",
       "pt-BR": "Compare textos lado a lado com destaque por linha",
       ru: "Сравнение двух текстов с подсветкой по строкам",
+    },
+  },
+  "ip-cidr": {
+    title: {
+      en: "IP / CIDR Calculator",
+      "zh-Hans": "IP / CIDR 计算器",
+      "zh-Hant": "IP / CIDR 計算器",
+      ja: "IP / CIDR 計算機",
+      ko: "IP / CIDR 계산기",
+      es: "Calculadora IP / CIDR",
+      fr: "Calculateur IP / CIDR",
+      de: "IP-/CIDR-Rechner",
+      "pt-BR": "Calculadora IP / CIDR",
+      ru: "Калькулятор IP / CIDR",
+    },
+    description: {
+      en: "Calculate IPv4 network details, ranges, and membership checks",
+      "zh-Hans": "计算 IPv4 网段、范围与归属判断",
+      "zh-Hant": "計算 IPv4 網段、範圍與歸屬判斷",
+      ja: "IPv4 の網情報・範囲・所属判定",
+      ko: "IPv4 네트워크 정보·범위·포함 여부 계산",
+      es: "Calcula detalles, rangos y pertenencia IPv4",
+      fr: "Calculez détails, plages et appartenance IPv4",
+      de: "IPv4-Netzdetails, Bereiche und Zugehörigkeit",
+      "pt-BR": "Calcule detalhes, intervalos e pertencimento IPv4",
+      ru: "Расчёт IPv4: детали сети, диапазон и вхождение",
     },
   },
 };

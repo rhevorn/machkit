@@ -155,6 +155,19 @@ enum DeveloperToolRegistry {
             widthClass: .wide,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/text-diff/index.html")
+        ),
+        DeveloperTool(
+            id: "ip-cidr",
+            title: "IP / CIDR Calculator",
+            description: "Calculate IPv4 network details, ranges, and membership checks",
+            keywords: [
+                "ip", "cidr", "subnet", "netmask", "network", "broadcast",
+                "网段", "掩码", "子网", "地址"
+            ],
+            icon: "point.3.connected.trianglepath.dotted",
+            widthClass: .regular,
+            capabilities: [.clipboard],
+            presentation: .bundledWeb(entryFile: "WebTools/tools/ip-cidr/index.html")
         )
     ]
 
