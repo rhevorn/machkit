@@ -2,17 +2,41 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { renderFeatureDocument } from "./scripts/site-renderer.mjs";
+import { findFeaturePage } from "./src/seo-pages.js";
 
 const root = path.dirname(fileURLToPath(import.meta.url));
+
+function featurePageDevPlugin() {
+  return {
+    name: "machkit-feature-pages",
+    configureServer(server) {
+      server.middlewares.use((request, response, next) => {
+        const pathname = new URL(request.url || "/", "http://localhost").pathname;
+        const match = findFeaturePage(pathname);
+        if (!match) return next();
+        response.statusCode = 200;
+        response.setHeader("Content-Type", "text/html; charset=utf-8");
+        response.end(renderFeatureDocument({
+          ...match,
+          stylesheetHref: "/src/styles.css",
+          scriptHref: "/src/static-page.js",
+        }));
+      });
+    },
+  };
+}
 
 export default defineConfig({
   base: "/",
   build: {
+    manifest: true,
     outDir: "dist/client",
     rollupOptions: {
       input: {
         main: path.resolve(root, "index.html"),
         chinese: path.resolve(root, "zh-CN/index.html"),
+        staticPage: path.resolve(root, "src/static-page.js"),
       },
     },
   },
@@ -26,5 +50,5 @@ export default defineConfig({
       clientFiles: ["./src/main.jsx"],
     },
   },
-  plugins: [react()],
+  plugins: [featurePageDevPlugin(), react()],
 });

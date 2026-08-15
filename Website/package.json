@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "test": "node --test src/*.test.js",
-    "build": "vite build",
+    "build": "npm run build:client && npm run build:ssr && node scripts/prerender.mjs && node scripts/verify-built-site.mjs",
+    "build:client": "vite build",
+    "build:ssr": "vite build --ssr src/entry-server.jsx --outDir dist/server",
     "preview": "vite preview"
   },
   "dependencies": {
