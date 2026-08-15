@@ -300,6 +300,19 @@ enum DeveloperToolRegistry {
             widthClass: .regular,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/jwt-lab/index.html")
+        ),
+        DeveloperTool(
+            id: "chmod-lab",
+            title: "chmod Lab",
+            description: "Convert Unix file modes between octal, symbolic, and permission bits",
+            keywords: [
+                "chmod", "permission", "unix", "octal", "rwx",
+                "权限", "文件权限"
+            ],
+            icon: "lock.shield",
+            widthClass: .compact,
+            capabilities: [.clipboard],
+            presentation: .bundledWeb(entryFile: "WebTools/tools/chmod-lab/index.html")
         )
 
     ]

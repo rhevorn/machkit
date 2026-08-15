@@ -22,6 +22,7 @@ const preferredOrder = [
   "xml-plist",
   "qr-code",
   "jwt-lab",
+  "chmod-lab",
 ];
 
 /** Localized title/description for known tools; unknown folders still appear by id. */
@@ -492,6 +493,32 @@ export const toolMeta = {
       de: "JWT lokal dekodieren ohne Upload",
       "pt-BR": "Decodifique JWT localmente sem enviar tokens",
       ru: "Локально декодируйте JWT без отправки",
+    },
+  },
+  "chmod-lab": {
+    title: {
+      en: "chmod Lab",
+      "zh-Hans": "权限换算",
+      "zh-Hant": "權限換算",
+      ja: "chmod ラボ",
+      ko: "chmod 랩",
+      es: "chmod Lab",
+      fr: "chmod Lab",
+      de: "chmod Lab",
+      "pt-BR": "chmod Lab",
+      ru: "chmod Lab",
+    },
+    description: {
+      en: "Convert Unix file modes between octal, symbolic, and permission bits",
+      "zh-Hans": "本地换算 Unix 文件权限（八进制 / 符号 / 权限位）",
+      "zh-Hant": "本機換算 Unix 檔案權限（八進位／符號／權限位）",
+      ja: "Unix 権限を 8 進・記号・ビットで変換",
+      ko: "Unix 권한을 8진수·기호·비트로 변환",
+      es: "Convierte modos Unix entre octal, simbólico y bits",
+      fr: "Convertissez les modes Unix (octal, symbolique, bits)",
+      de: "Unix-Modi zwischen oktal, symbolisch und Bits umwandeln",
+      "pt-BR": "Converta modos Unix entre octal, simbólico e bits",
+      ru: "Перевод Unix-прав между восьмеричным, символьным видом и битами",
     },
   },
 };
