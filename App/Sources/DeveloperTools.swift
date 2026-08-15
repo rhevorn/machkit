@@ -220,6 +220,19 @@ enum DeveloperToolRegistry {
             widthClass: .regular,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/qr-code/index.html")
+        ),
+        DeveloperTool(
+            id: "url-lab",
+            title: "URL Lab",
+            description: "Parse and rebuild URLs with query and hash editing",
+            keywords: [
+                "url", "uri", "query", "querystring", "hash", "encode",
+                "链接", "网址", "参数"
+            ],
+            icon: "link",
+            widthClass: .wide,
+            capabilities: [.clipboard],
+            presentation: .bundledWeb(entryFile: "WebTools/tools/url-lab/index.html")
         )
     ]
 

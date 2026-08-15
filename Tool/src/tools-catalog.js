@@ -16,6 +16,7 @@ const preferredOrder = [
   "data-format",
   "color-lab",
   "qr-code",
+  "url-lab",
 ];
 
 /** Localized title/description for known tools; unknown folders still appear by id. */
@@ -330,6 +331,32 @@ export const toolMeta = {
       de: "QR-Codes lokal aus Text oder URLs erzeugen",
       "pt-BR": "Gere códigos QR a partir de texto ou URL localmente",
       ru: "Локально создавайте QR из текста или URL",
+    },
+  },
+  "url-lab": {
+    title: {
+      en: "URL Lab",
+      "zh-Hans": "URL 实验室",
+      "zh-Hant": "URL 實驗室",
+      ja: "URL ラボ",
+      ko: "URL 랩",
+      es: "Lab URL",
+      fr: "Labo URL",
+      de: "URL-Labor",
+      "pt-BR": "Lab URL",
+      ru: "URL-лаборатория",
+    },
+    description: {
+      en: "Parse and rebuild URLs with query and hash editing",
+      "zh-Hans": "解析与拼装 URL，编辑查询参数与哈希",
+      "zh-Hant": "解析與組裝 URL，編輯查詢參數與雜湊",
+      ja: "URL の解析・再構成とクエリ編集",
+      ko: "URL 파싱·조립과 쿼리 편집",
+      es: "Analiza y reconstruye URLs con query y hash",
+      fr: "Analysez et reconstruisez des URL avec requête et hash",
+      de: "URLs zerlegen und mit Query/Hash neu bauen",
+      "pt-BR": "Analise e remonte URLs com query e hash",
+      ru: "Разбор и сборка URL с query и hash",
     },
   },
 };

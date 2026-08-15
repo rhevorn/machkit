@@ -38,6 +38,7 @@ Everything runs locally on your Mac. Scans read file metadata only, risky items 
   - **Data Format** — Convert between JSON, YAML, and TOML locally
   - **Color Lab** — Convert HEX, RGB, HSL, and HSV with local contrast checks
   - **QR Code** — Generate QR codes from text or URLs locally
+  - **URL Lab** — Parse and rebuild URLs with query and hash editing
 
 ## Requirements
 
