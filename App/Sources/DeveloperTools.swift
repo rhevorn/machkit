@@ -207,6 +207,19 @@ enum DeveloperToolRegistry {
             widthClass: .regular,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/color-lab/index.html")
+        ),
+        DeveloperTool(
+            id: "qr-code",
+            title: "QR Code",
+            description: "Generate QR codes from text or URLs locally",
+            keywords: [
+                "qr", "qrcode", "barcode", "scan", "encode",
+                "二维码", "QR", "条码"
+            ],
+            icon: "qrcode",
+            widthClass: .regular,
+            capabilities: [.clipboard],
+            presentation: .bundledWeb(entryFile: "WebTools/tools/qr-code/index.html")
         )
     ]
 

@@ -15,6 +15,7 @@ const preferredOrder = [
   "cron-expression",
   "data-format",
   "color-lab",
+  "qr-code",
 ];
 
 /** Localized title/description for known tools; unknown folders still appear by id. */
@@ -303,6 +304,32 @@ export const toolMeta = {
       de: "HEX, RGB, HSL und HSV lokal mit Kontrastprüfung",
       "pt-BR": "Converta HEX, RGB, HSL e HSV com contraste local",
       ru: "Конвертация HEX, RGB, HSL, HSV и проверка контраста",
+    },
+  },
+  "qr-code": {
+    title: {
+      en: "QR Code",
+      "zh-Hans": "二维码",
+      "zh-Hant": "QR 碼",
+      ja: "QR コード",
+      ko: "QR 코드",
+      es: "Código QR",
+      fr: "Code QR",
+      de: "QR-Code",
+      "pt-BR": "Código QR",
+      ru: "QR-код",
+    },
+    description: {
+      en: "Generate QR codes from text or URLs locally",
+      "zh-Hans": "本地从文本或 URL 生成二维码",
+      "zh-Hant": "本機從文字或 URL 產生 QR 碼",
+      ja: "テキストや URL から QR をローカル生成",
+      ko: "텍스트나 URL로 QR을 로컬 생성",
+      es: "Genera códigos QR desde texto o URL en local",
+      fr: "Générez des QR à partir de texte ou d’URL en local",
+      de: "QR-Codes lokal aus Text oder URLs erzeugen",
+      "pt-BR": "Gere códigos QR a partir de texto ou URL localmente",
+      ru: "Локально создавайте QR из текста или URL",
     },
   },
 };
