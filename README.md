@@ -42,6 +42,7 @@ Everything runs locally on your Mac. Scans read file metadata only, risky items 
   - **Number Base** — Convert integers across bases and byte units locally
   - **XML / Plist** — Format XML and convert Apple XML plists to JSON locally
   - **IP Inspector** — Inspect IPv4 and IPv6 addresses, kinds, and reverse DNS labels
+  - **Image Tools** — Convert formats and control output by quality, target size, or dimensions
 
 ## Requirements
 

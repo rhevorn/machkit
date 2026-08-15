@@ -75,14 +75,14 @@ struct DeveloperTool: Identifiable, Equatable {
 enum DeveloperToolRegistry {
     static let all: [DeveloperTool] = [
         DeveloperTool(
-            id: "hosts-manager",
-            title: "Hosts Manager",
-            description: "View the system hosts file and switch mappings between development environments",
-            keywords: ["hosts", "dns", "environment", "domain", "network", "域名", "环境"],
-            icon: "network.badge.shield.half.filled",
-            widthClass: .regular,
-            capabilities: [.clipboard, .hosts],
-            presentation: .bundledWeb(entryFile: "WebTools/tools/hosts-manager/index.html")
+            id: "json-formatter",
+            title: "JSON Formatter",
+            description: "Format, minify, and query JSON with path expressions",
+            keywords: ["json", "format", "minify", "path", "jsonpath", "格式化", "压缩", "路径"],
+            icon: "curlybraces",
+            widthClass: .wide,
+            capabilities: [.clipboard],
+            presentation: .bundledWeb(entryFile: "WebTools/tools/json-formatter/index.html")
         ),
         DeveloperTool(
             id: "timestamp-converter",
@@ -93,16 +93,6 @@ enum DeveloperToolRegistry {
             widthClass: .compact,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/timestamp-converter/index.html")
-        ),
-        DeveloperTool(
-            id: "json-formatter",
-            title: "JSON Formatter",
-            description: "Format, minify, and query JSON with path expressions",
-            keywords: ["json", "format", "minify", "path", "jsonpath", "格式化", "压缩", "路径"],
-            icon: "curlybraces",
-            widthClass: .wide,
-            capabilities: [.clipboard],
-            presentation: .bundledWeb(entryFile: "WebTools/tools/json-formatter/index.html")
         ),
         DeveloperTool(
             id: "codec",
@@ -131,6 +121,29 @@ enum DeveloperToolRegistry {
             presentation: .bundledWeb(entryFile: "WebTools/tools/string-generator/index.html")
         ),
         DeveloperTool(
+            id: "hosts-manager",
+            title: "Hosts Manager",
+            description: "View the system hosts file and switch mappings between development environments",
+            keywords: ["hosts", "dns", "environment", "domain", "network", "域名", "环境"],
+            icon: "network.badge.shield.half.filled",
+            widthClass: .regular,
+            capabilities: [.clipboard, .hosts],
+            presentation: .bundledWeb(entryFile: "WebTools/tools/hosts-manager/index.html")
+        ),
+        DeveloperTool(
+            id: "url-lab",
+            title: "URL Lab",
+            description: "Parse and rebuild URLs with query and hash editing",
+            keywords: [
+                "url", "uri", "query", "querystring", "hash", "encode",
+                "链接", "网址", "参数"
+            ],
+            icon: "link",
+            widthClass: .wide,
+            capabilities: [.clipboard],
+            presentation: .bundledWeb(entryFile: "WebTools/tools/url-lab/index.html")
+        ),
+        DeveloperTool(
             id: "regex-lab",
             title: "Regex Lab",
             description: "Highlight matches, inspect capture groups, and try common replacements",
@@ -157,32 +170,6 @@ enum DeveloperToolRegistry {
             presentation: .bundledWeb(entryFile: "WebTools/tools/text-diff/index.html")
         ),
         DeveloperTool(
-            id: "ip-cidr",
-            title: "IP / CIDR Calculator",
-            description: "Calculate IPv4 network details, ranges, and membership checks",
-            keywords: [
-                "ip", "cidr", "subnet", "netmask", "network", "broadcast",
-                "网段", "掩码", "子网", "地址"
-            ],
-            icon: "point.3.connected.trianglepath.dotted",
-            widthClass: .regular,
-            capabilities: [.clipboard],
-            presentation: .bundledWeb(entryFile: "WebTools/tools/ip-cidr/index.html")
-        ),
-        DeveloperTool(
-            id: "cron-expression",
-            title: "Cron Expression",
-            description: "Build five-field cron schedules and preview upcoming runs",
-            keywords: [
-                "cron", "schedule", "crontab", "timer", "job",
-                "定时", "计划任务", "表达式"
-            ],
-            icon: "calendar.badge.clock",
-            widthClass: .regular,
-            capabilities: [.clipboard],
-            presentation: .bundledWeb(entryFile: "WebTools/tools/cron-expression/index.html")
-        ),
-        DeveloperTool(
             id: "data-format",
             title: "Data Format",
             description: "Convert between JSON, YAML, and TOML locally",
@@ -194,45 +181,6 @@ enum DeveloperToolRegistry {
             widthClass: .wide,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/data-format/index.html")
-        ),
-        DeveloperTool(
-            id: "color-lab",
-            title: "Color Lab",
-            description: "Convert HEX, RGB, HSL, and HSV with local contrast checks",
-            keywords: [
-                "color", "hex", "rgb", "hsl", "hsv", "contrast", "picker",
-                "颜色", "色彩", "色值", "对比度"
-            ],
-            icon: "paintpalette",
-            widthClass: .regular,
-            capabilities: [.clipboard],
-            presentation: .bundledWeb(entryFile: "WebTools/tools/color-lab/index.html")
-        ),
-        DeveloperTool(
-            id: "qr-code",
-            title: "QR Code",
-            description: "Generate QR codes from text or URLs locally",
-            keywords: [
-                "qr", "qrcode", "barcode", "scan", "encode",
-                "二维码", "QR", "条码"
-            ],
-            icon: "qrcode",
-            widthClass: .regular,
-            capabilities: [.clipboard],
-            presentation: .bundledWeb(entryFile: "WebTools/tools/qr-code/index.html")
-        ),
-        DeveloperTool(
-            id: "url-lab",
-            title: "URL Lab",
-            description: "Parse and rebuild URLs with query and hash editing",
-            keywords: [
-                "url", "uri", "query", "querystring", "hash", "encode",
-                "链接", "网址", "参数"
-            ],
-            icon: "link",
-            widthClass: .wide,
-            capabilities: [.clipboard],
-            presentation: .bundledWeb(entryFile: "WebTools/tools/url-lab/index.html")
         ),
         DeveloperTool(
             id: "number-base",
@@ -248,17 +196,30 @@ enum DeveloperToolRegistry {
             presentation: .bundledWeb(entryFile: "WebTools/tools/number-base/index.html")
         ),
         DeveloperTool(
-            id: "xml-plist",
-            title: "XML / Plist",
-            description: "Format XML and convert Apple XML plists to JSON locally",
+            id: "cron-expression",
+            title: "Cron Expression",
+            description: "Build five-field cron schedules and preview upcoming runs",
             keywords: [
-                "xml", "plist", "property list", "pretty", "minify",
-                "格式化", "属性列表"
+                "cron", "schedule", "crontab", "timer", "job",
+                "定时", "计划任务", "表达式"
             ],
-            icon: "doc.text",
-            widthClass: .wide,
+            icon: "calendar.badge.clock",
+            widthClass: .regular,
             capabilities: [.clipboard],
-            presentation: .bundledWeb(entryFile: "WebTools/tools/xml-plist/index.html")
+            presentation: .bundledWeb(entryFile: "WebTools/tools/cron-expression/index.html")
+        ),
+        DeveloperTool(
+            id: "ip-cidr",
+            title: "IP / CIDR Calculator",
+            description: "Calculate IPv4 network details, ranges, and membership checks",
+            keywords: [
+                "ip", "cidr", "subnet", "netmask", "network", "broadcast",
+                "网段", "掩码", "子网", "地址"
+            ],
+            icon: "point.3.connected.trianglepath.dotted",
+            widthClass: .regular,
+            capabilities: [.clipboard],
+            presentation: .bundledWeb(entryFile: "WebTools/tools/ip-cidr/index.html")
         ),
         DeveloperTool(
             id: "ip-inspector",
@@ -272,7 +233,61 @@ enum DeveloperToolRegistry {
             widthClass: .regular,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/ip-inspector/index.html")
+        ),
+        DeveloperTool(
+            id: "color-lab",
+            title: "Color Lab",
+            description: "Convert HEX, RGB, HSL, and HSV with local contrast checks",
+            keywords: [
+                "color", "hex", "rgb", "hsl", "hsv", "contrast", "picker",
+                "颜色", "色彩", "色值", "对比度"
+            ],
+            icon: "paintpalette",
+            widthClass: .regular,
+            capabilities: [.clipboard],
+            presentation: .bundledWeb(entryFile: "WebTools/tools/color-lab/index.html")
+        ),
+        DeveloperTool(
+            id: "image-process",
+            title: "Image Tools",
+            description: "Convert formats and control output by quality, target size, or dimensions",
+            keywords: [
+                "image", "convert", "compress", "jpeg", "png", "webp", "resize", "batch",
+                "quality", "target size", "dimensions",
+                "图片", "处理", "转换", "压缩", "批量", "质量", "尺寸"
+            ],
+            icon: "photo.on.rectangle.angled",
+            widthClass: .wide,
+            capabilities: [.clipboard],
+            presentation: .bundledWeb(entryFile: "WebTools/tools/image-process/index.html")
+        ),
+        DeveloperTool(
+            id: "xml-plist",
+            title: "XML / Plist",
+            description: "Format XML and convert Apple XML plists to JSON locally",
+            keywords: [
+                "xml", "plist", "property list", "pretty", "minify",
+                "格式化", "属性列表"
+            ],
+            icon: "doc.text",
+            widthClass: .wide,
+            capabilities: [.clipboard],
+            presentation: .bundledWeb(entryFile: "WebTools/tools/xml-plist/index.html")
+        ),
+        DeveloperTool(
+            id: "qr-code",
+            title: "QR Code",
+            description: "Generate QR codes from text or URLs locally",
+            keywords: [
+                "qr", "qrcode", "barcode", "scan", "encode",
+                "二维码", "QR", "条码"
+            ],
+            icon: "qrcode",
+            widthClass: .regular,
+            capabilities: [.clipboard],
+            presentation: .bundledWeb(entryFile: "WebTools/tools/qr-code/index.html")
         )
+
     ]
 
     static func tool(id: String) -> DeveloperTool? {
