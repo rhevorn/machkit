@@ -35,6 +35,7 @@ Everything runs locally on your Mac. Scans read file metadata only, risky items 
   - **Text Diff** — Compare two texts side by side with line-level highlighting
   - **IP / CIDR Calculator** — Calculate IPv4 network details, ranges, and membership checks
   - **Cron Expression** — Build five-field cron schedules and preview upcoming runs
+  - **Data Format** — Convert between JSON, YAML, and TOML locally
 
 ## Requirements
 

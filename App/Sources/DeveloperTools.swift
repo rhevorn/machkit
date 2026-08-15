@@ -181,6 +181,19 @@ enum DeveloperToolRegistry {
             widthClass: .regular,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/cron-expression/index.html")
+        ),
+        DeveloperTool(
+            id: "data-format",
+            title: "Data Format",
+            description: "Convert between JSON, YAML, and TOML locally",
+            keywords: [
+                "json", "yaml", "yml", "toml", "convert", "format",
+                "转换", "格式", "数据"
+            ],
+            icon: "arrow.left.arrow.right",
+            widthClass: .wide,
+            capabilities: [.clipboard],
+            presentation: .bundledWeb(entryFile: "WebTools/tools/data-format/index.html")
         )
     ]
 

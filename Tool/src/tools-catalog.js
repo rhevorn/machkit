@@ -13,6 +13,7 @@ const preferredOrder = [
   "text-diff",
   "ip-cidr",
   "cron-expression",
+  "data-format",
 ];
 
 /** Localized title/description for known tools; unknown folders still appear by id. */
@@ -249,6 +250,32 @@ export const toolMeta = {
       de: "Fünf-Feld-Cron erstellen und nächste Läufe prüfen",
       "pt-BR": "Crie cron de cinco campos e veja próximas execuções",
       ru: "Пятиполевой cron и ближайшие запуски",
+    },
+  },
+  "data-format": {
+    title: {
+      en: "Data Format",
+      "zh-Hans": "数据格式",
+      "zh-Hant": "資料格式",
+      ja: "データ形式",
+      ko: "데이터 형식",
+      es: "Formato de datos",
+      fr: "Format de données",
+      de: "Datenformat",
+      "pt-BR": "Formato de dados",
+      ru: "Формат данных",
+    },
+    description: {
+      en: "Convert between JSON, YAML, and TOML locally",
+      "zh-Hans": "本地转换 JSON、YAML 与 TOML",
+      "zh-Hant": "本機轉換 JSON、YAML 與 TOML",
+      ja: "JSON・YAML・TOML をローカル変換",
+      ko: "JSON, YAML, TOML을 로컬에서 변환",
+      es: "Convierte JSON, YAML y TOML en local",
+      fr: "Convertissez JSON, YAML et TOML en local",
+      de: "JSON, YAML und TOML lokal umwandeln",
+      "pt-BR": "Converta JSON, YAML e TOML localmente",
+      ru: "Локальная конвертация JSON, YAML и TOML",
     },
   },
 };
