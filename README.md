@@ -1,4 +1,4 @@
-# Sift
+# MachKit
 
 [English](README.md) · [简体中文](README.zh-CN.md)
 
@@ -10,7 +10,7 @@ Everything runs locally on your Mac. Scans read file metadata only, risky items 
   <table cellpadding="12" cellspacing="0">
     <tr>
       <td align="center" bgcolor="#e8e8ed">
-        <img src="Website/public/assets/overview.webp" alt="Sift overview" width="900" />
+        <img src="Website/public/assets/overview.webp" alt="MachKit overview" width="900" />
       </td>
     </tr>
   </table>
@@ -40,34 +40,34 @@ Everything runs locally on your Mac. Scans read file metadata only, risky items 
 
 ## Install
 
-Sift is currently distributed as an **unsigned** ad-hoc build, so macOS Gatekeeper will block a normal double-click the first time.
+MachKit is currently distributed as an **unsigned** ad-hoc build, so macOS Gatekeeper will block a normal double-click the first time.
 
-1. Download `Sift-*-macOS.zip` from [GitHub Releases](https://github.com/rhevorn/sift/releases/latest).
-2. Unzip it, then move `Sift.app` into `/Applications`.
+1. Download `MachKit-*-macOS.zip` from [GitHub Releases](https://github.com/rhevorn/machkit/releases/latest).
+2. Unzip it, then move `MachKit.app` into `/Applications`.
 3. Open it with either method:
-   - Right-click `Sift.app` → **Open** → **Open**
+   - Right-click `MachKit.app` → **Open** → **Open**
    - Or go to **System Settings → Privacy & Security**, find the blocked-app notice, and choose **Open Anyway**
-4. After the first successful launch, you can open Sift normally from Applications or Spotlight.
+4. After the first successful launch, you can open MachKit normally from Applications or Spotlight.
 
 ## Build
 
-Open the Xcode project and run the `Sift App` scheme:
+Open the Xcode project and run the `MachKit App` scheme:
 
 ```bash
-open Sift.xcodeproj
+open MachKit.xcodeproj
 ```
 
 Or build from the terminal:
 
 ```bash
 xcodebuild \
-  -project Sift.xcodeproj \
-  -scheme "Sift App" \
+  -project MachKit.xcodeproj \
+  -scheme "MachKit App" \
   -configuration Debug \
   -derivedDataPath build/XcodeDerivedData \
   build
 
-open build/XcodeDerivedData/Build/Products/Debug/Sift.app
+open build/XcodeDerivedData/Build/Products/Debug/MachKit.app
 ```
 
 Core library tests:
@@ -103,11 +103,11 @@ English is the source language. The app also includes Simplified Chinese, Tradit
 
 ```text
 App/                 SwiftUI app, preferences, tools shell, and bridges
-Sources/SiftCore/    Scanning, risk rules, cleanup, hosts, and system inventory
+Sources/MachKitCore/    Scanning, risk rules, cleanup, hosts, and system inventory
 Tool/                H5 developer tools (Vite + React), bundled into Resources/WebTools
 Resources/           App icon and Localizable.xcstrings
-Tests/SiftCoreTests/ Core behavior and safety tests
-Sift.xcodeproj/      macOS app project
+Tests/MachKitCoreTests/ Core behavior and safety tests
+MachKit.xcodeproj/      macOS app project
 Website/             Marketing site
 ```
 

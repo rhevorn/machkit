@@ -1,4 +1,4 @@
-# Sift
+# MachKit
 
 [English](README.md) · [简体中文](README.zh-CN.md)
 
@@ -10,7 +10,7 @@
   <table cellpadding="12" cellspacing="0">
     <tr>
       <td align="center" bgcolor="#e8e8ed">
-        <img src="Website/public/assets/overview.webp" alt="Sift 总览界面" width="900" />
+        <img src="Website/public/assets/overview.webp" alt="MachKit 总览界面" width="900" />
       </td>
     </tr>
   </table>
@@ -42,32 +42,32 @@
 
 当前发布包是**未签名**的 ad-hoc 构建，首次用双击打开会被 macOS Gatekeeper 拦截。
 
-1. 从 [GitHub Releases](https://github.com/rhevorn/sift/releases/latest) 下载 `Sift-*-macOS.zip`。
-2. 解压后，将 `Sift.app` 移到「应用程序」文件夹（`/Applications`）。
+1. 从 [GitHub Releases](https://github.com/rhevorn/machkit/releases/latest) 下载 `MachKit-*-macOS.zip`。
+2. 解压后，将 `MachKit.app` 移到「应用程序」文件夹（`/Applications`）。
 3. 用下面任一方式打开：
-   - 右键点击 `Sift.app` → **打开** → 再点 **打开**
+   - 右键点击 `MachKit.app` → **打开** → 再点 **打开**
    - 或打开 **系统设置 → 隐私与安全性**，在被拦截提示处选择 **仍要打开**
 4. 首次成功启动后，之后就可以像普通 App 一样从「应用程序」或 Spotlight 打开。
 
 ## 构建
 
-打开 Xcode 工程，选择 `Sift App` Scheme 运行：
+打开 Xcode 工程，选择 `MachKit App` Scheme 运行：
 
 ```bash
-open Sift.xcodeproj
+open MachKit.xcodeproj
 ```
 
 或在终端构建：
 
 ```bash
 xcodebuild \
-  -project Sift.xcodeproj \
-  -scheme "Sift App" \
+  -project MachKit.xcodeproj \
+  -scheme "MachKit App" \
   -configuration Debug \
   -derivedDataPath build/XcodeDerivedData \
   build
 
-open build/XcodeDerivedData/Build/Products/Debug/Sift.app
+open build/XcodeDerivedData/Build/Products/Debug/MachKit.app
 ```
 
 核心库测试：
@@ -103,11 +103,11 @@ git push origin v0.9.0
 
 ```text
 App/                 SwiftUI 界面、偏好设置、工具壳层与原生桥接
-Sources/SiftCore/    扫描、风险判断、清理、hosts 与系统盘点逻辑
+Sources/MachKitCore/    扫描、风险判断、清理、hosts 与系统盘点逻辑
 Tool/                H5 开发者工具（Vite + React），打包进 Resources/WebTools
 Resources/           App Icon 与 Localizable.xcstrings
-Tests/SiftCoreTests/ 核心行为与安全边界测试
-Sift.xcodeproj/      macOS App 工程
+Tests/MachKitCoreTests/ 核心行为与安全边界测试
+MachKit.xcodeproj/      macOS App 工程
 Website/             产品官网
 ```
 

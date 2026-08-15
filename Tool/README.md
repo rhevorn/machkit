@@ -1,6 +1,6 @@
-# Sift H5 Tools
+# MachKit H5 Tools
 
-This project contains web-based tools embedded in Sift with `WKWebView`. Native
+This project contains web-based tools embedded in MachKit with `WKWebView`. Native
 Swift tools remain in `App/Sources`; only tools that benefit from web UI belong
 here.
 
@@ -13,7 +13,7 @@ npm run dev
 ```
 
 Debug builds load tools from `http://127.0.0.1:4174` and update through Vite HMR
-without rebuilding Sift. If the server is not running, Sift automatically falls
+without rebuilding MachKit. If the server is not running, MachKit automatically falls
 back to the bundled tool. Release builds always use bundled resources.
 
 The development server runs at `http://127.0.0.1:4174`.
@@ -47,13 +47,13 @@ states, and `class-variance-authority` defines reusable component variants.
 - Reuse `ToolPage`, `ToolContent`, `Section`, `Field`, `Input`, `Textarea`,
   `CheckboxField`, `Button`, `SelectControl`, `SegmentedControl`, `ValueField`,
   and `InlineMessage` before adding new UI.
-- Keep Sift theme tokens and light/dark colors in `src/ui/ui.css`.
+- Keep MachKit theme tokens and light/dark colors in `src/ui/ui.css`.
 - Use Phosphor icons so native and web tools keep one icon language.
 - Add tool-specific CSS only for a layout or visualization that cannot be
   expressed cleanly with the shared components and Tailwind utilities.
 
 The generated `_template` already imports this UI layer, so a new tool starts
-with the Sift shell and theme rather than a blank page.
+with the MachKit shell and theme rather than a blank page.
 
 Tool titles belong to the native compact macOS title bar. Do not repeat a title
 or subtitle inside an H5 page. Put optional explanations behind the `info`
@@ -64,7 +64,7 @@ popover on `ToolPage`, and let the primary tool content start immediately.
 - Use relative asset paths. The Vite base path is `./` because tools load from
   local files rather than an HTTP server.
 - Shared macOS-like colors, controls, and dark mode behavior live in `src/ui`.
-- `src/runtime/sift.js` is the single boundary for optional native messages.
+- `src/runtime/machkit.js` is the single boundary for optional native messages.
   Native calls use the versioned request/reply bridge and time out rather than
   leaving a tool pending forever. A method only works when its capability is
   explicitly granted in `DeveloperToolRegistry`.
