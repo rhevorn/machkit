@@ -313,6 +313,19 @@ enum DeveloperToolRegistry {
             widthClass: .compact,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/chmod-lab/index.html")
+        ),
+        DeveloperTool(
+            id: "cert-lab",
+            title: "Certificate Lab",
+            description: "Inspect PEM certificates, validity, fingerprints, and SANs locally",
+            keywords: [
+                "certificate", "pem", "crt", "x509", "ssl", "tls", "fingerprint",
+                "证书", "公钥"
+            ],
+            icon: "checkmark.seal",
+            widthClass: .regular,
+            capabilities: [.clipboard],
+            presentation: .bundledWeb(entryFile: "WebTools/tools/cert-lab/index.html")
         )
 
     ]

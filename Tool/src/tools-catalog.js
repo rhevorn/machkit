@@ -23,6 +23,7 @@ const preferredOrder = [
   "qr-code",
   "jwt-lab",
   "chmod-lab",
+  "cert-lab",
 ];
 
 /** Localized title/description for known tools; unknown folders still appear by id. */
@@ -519,6 +520,32 @@ export const toolMeta = {
       de: "Unix-Modi zwischen oktal, symbolisch und Bits umwandeln",
       "pt-BR": "Converta modos Unix entre octal, simbólico e bits",
       ru: "Перевод Unix-прав между восьмеричным, символьным видом и битами",
+    },
+  },
+  "cert-lab": {
+    title: {
+      en: "Certificate Lab",
+      "zh-Hans": "证书查看",
+      "zh-Hant": "憑證檢視",
+      ja: "証明書ラボ",
+      ko: "인증서 랩",
+      es: "Certificate Lab",
+      fr: "Certificate Lab",
+      de: "Certificate Lab",
+      "pt-BR": "Certificate Lab",
+      ru: "Certificate Lab",
+    },
+    description: {
+      en: "Inspect PEM certificates, validity, fingerprints, and SANs locally",
+      "zh-Hans": "本地查看 PEM 证书、有效期、指纹与 SAN",
+      "zh-Hant": "本機檢視 PEM 憑證、有效期、指紋與 SAN",
+      ja: "PEM 証明書・有効期限・指紋・SAN をローカル確認",
+      ko: "PEM 인증서·유효기간·지문·SAN을 로컬에서 확인",
+      es: "Inspecciona certificados PEM, validez, huellas y SAN en local",
+      fr: "Inspectez certificats PEM, validité, empreintes et SAN en local",
+      de: "PEM-Zertifikate, Gültigkeit, Fingerprints und SANs lokal prüfen",
+      "pt-BR": "Inspecione certificados PEM, validade, fingerprints e SAN localmente",
+      ru: "Локальный разбор PEM-сертификатов, сроков, отпечатков и SAN",
     },
   },
 };
