@@ -25,10 +25,15 @@ jobs:
       - name: Read version from tag
         id: version
         shell: bash
+        env:
+          RUN_NUMBER: ${{ github.run_number }}
         run: |
           set -euo pipefail
           version="$(Scripts/validate_release_version.sh "$GITHUB_REF_NAME")"
+          # CFBundleVersion starts at 1000+ (run 1 → 1001, run 2 → 1002, …).
+          build_number=$((1000 + RUN_NUMBER))
           echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "build_number=$build_number" >> "$GITHUB_OUTPUT"
 
       - name: Run release tests
         shell: bash
@@ -52,7 +57,7 @@ jobs:
         shell: bash
         env:
           VERSION: ${{ steps.version.outputs.version }}
-          BUILD_NUMBER: ${{ github.run_number }}
+          BUILD_NUMBER: ${{ steps.version.outputs.build_number }}
         run: |
           set -euo pipefail
           xcodebuild \
@@ -73,7 +78,7 @@ jobs:
         shell: bash
         env:
           VERSION: ${{ steps.version.outputs.version }}
-          BUILD_NUMBER: ${{ github.run_number }}
+          BUILD_NUMBER: ${{ steps.version.outputs.build_number }}
         run: |
           set -euo pipefail
           build_settings="$(xcodebuild \
@@ -102,7 +107,7 @@ jobs:
         env:
           APP_PATH: ${{ steps.app.outputs.path }}
           VERSION: ${{ steps.version.outputs.version }}
-          BUILD_NUMBER: ${{ github.run_number }}
+          BUILD_NUMBER: ${{ steps.version.outputs.build_number }}
         run: |
           set -euo pipefail
           info_plist="$APP_PATH/Contents/Info.plist"
@@ -113,7 +118,7 @@ jobs:
             exit 1
           fi
           if [[ "$bundled_build" != "$BUILD_NUMBER" ]]; then
-            echo "Bundled build $bundled_build does not match GitHub run number $BUILD_NUMBER" >&2
+            echo "Bundled build $bundled_build does not match expected build number $BUILD_NUMBER" >&2
             exit 1
           fi
           architectures="$(lipo -archs "$APP_PATH/Contents/MacOS/MachKit")"
