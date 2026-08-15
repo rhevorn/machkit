@@ -9,8 +9,37 @@ enum DeveloperToolPresentation: Equatable {
 enum DeveloperToolCapability: String, Hashable {
     case clipboard
     case hosts
-    case contentFit
     case storage
+}
+
+/// Shared web-tool window widths. Height always starts compact and grows with content.
+enum WebToolWidthClass: String, Equatable {
+    case compact
+    case regular
+    case wide
+
+    /// Bump to invalidate remembered frames after sizing policy changes.
+    static let frameEpoch = 6
+
+    var width: CGFloat {
+        switch self {
+        case .compact: 720
+        case .regular: 840
+        case .wide: 1040
+        }
+    }
+
+    var minimumWidth: CGFloat {
+        switch self {
+        case .compact: 640
+        case .regular: 720
+        case .wide: 860
+        }
+    }
+
+    /// Initial content height before the page measures itself.
+    static let initialHeight: CGFloat = 520
+    static let minimumHeight: CGFloat = 420
 }
 
 struct DeveloperTool: Identifiable, Equatable {
@@ -19,15 +48,20 @@ struct DeveloperTool: Identifiable, Equatable {
     let description: String
     let keywords: [String]
     let icon: String
-    let color: Color
-    let defaultWindowSize: CGSize
-    let minimumWindowSize: CGSize
-    let windowFrameVersion: Int
+    let widthClass: WebToolWidthClass
     let capabilities: Set<DeveloperToolCapability>
     let presentation: DeveloperToolPresentation
 
     var localizedTitle: String { title.localized }
     var localizedDescription: String { description.localized }
+
+    var defaultWindowSize: CGSize {
+        CGSize(width: widthClass.width, height: WebToolWidthClass.initialHeight)
+    }
+
+    var minimumWindowSize: CGSize {
+        CGSize(width: widthClass.minimumWidth, height: WebToolWidthClass.minimumHeight)
+    }
 
     func matches(_ query: String) -> Bool {
         let query = query.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -46,10 +80,7 @@ enum DeveloperToolRegistry {
             description: "View the system hosts file and switch mappings between development environments",
             keywords: ["hosts", "dns", "environment", "domain", "network", "域名", "环境"],
             icon: "network.badge.shield.half.filled",
-            color: .blue,
-            defaultWindowSize: CGSize(width: 800, height: 540),
-            minimumWindowSize: CGSize(width: 720, height: 460),
-            windowFrameVersion: 2,
+            widthClass: .regular,
             capabilities: [.clipboard, .hosts],
             presentation: .bundledWeb(entryFile: "WebTools/tools/hosts-manager/index.html")
         ),
@@ -59,11 +90,8 @@ enum DeveloperToolRegistry {
             description: "Convert dates and Unix timestamps across units and time zones",
             keywords: ["timestamp", "unix", "date", "time zone", "时间戳", "日期", "时区"],
             icon: "clock.arrow.trianglehead.counterclockwise.rotate.90",
-            color: .purple,
-            defaultWindowSize: CGSize(width: 700, height: 620),
-            minimumWindowSize: CGSize(width: 640, height: 460),
-            windowFrameVersion: 3,
-            capabilities: [.clipboard, .contentFit],
+            widthClass: .compact,
+            capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/timestamp-converter/index.html")
         ),
         DeveloperTool(
@@ -72,10 +100,7 @@ enum DeveloperToolRegistry {
             description: "Format, minify, and query JSON with path expressions",
             keywords: ["json", "format", "minify", "path", "jsonpath", "格式化", "压缩", "路径"],
             icon: "curlybraces",
-            color: .orange,
-            defaultWindowSize: CGSize(width: 1000, height: 640),
-            minimumWindowSize: CGSize(width: 720, height: 520),
-            windowFrameVersion: 2,
+            widthClass: .wide,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/json-formatter/index.html")
         ),
@@ -88,11 +113,8 @@ enum DeveloperToolRegistry {
                 "encode", "decode", "md5", "sha", "编码", "解码", "哈希", "实体", "转义", "反转义"
             ],
             icon: "lock.rectangle.on.rectangle",
-            color: .teal,
-            defaultWindowSize: CGSize(width: 1000, height: 640),
-            minimumWindowSize: CGSize(width: 800, height: 520),
-            windowFrameVersion: 5,
-            capabilities: [.clipboard, .contentFit],
+            widthClass: .wide,
+            capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/codec/index.html")
         ),
         DeveloperTool(
@@ -104,11 +126,8 @@ enum DeveloperToolRegistry {
                 "password", "passwd", "secret", "生成", "随机", "密码", "字符串", "字串"
             ],
             icon: "textformat.abc",
-            color: .indigo,
-            defaultWindowSize: CGSize(width: 720, height: 640),
-            minimumWindowSize: CGSize(width: 640, height: 520),
-            windowFrameVersion: 1,
-            capabilities: [.clipboard, .contentFit, .storage],
+            widthClass: .compact,
+            capabilities: [.clipboard, .storage],
             presentation: .bundledWeb(entryFile: "WebTools/tools/string-generator/index.html")
         )
     ]

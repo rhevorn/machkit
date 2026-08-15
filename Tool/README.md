@@ -41,9 +41,11 @@ Browser choices are remembered in `localStorage` and synced into the URL.
    automatically; directories beginning with `_` are templates and are skipped.
 3. Add the tool to `DeveloperToolRegistry` in
    `App/Sources/DeveloperTools.swift` with
-   `.bundledWeb(entryFile: "WebTools/tools/<tool-id>/index.html")` and grant only
-   the native capabilities the tool needs (`clipboard`, `hosts`,
-   `contentFit`, or `storage`).
+   `.bundledWeb(entryFile: "WebTools/tools/<tool-id>/index.html")`, pick a
+   `WebToolWidthClass` (`.compact` / `.regular` / `.wide`), and grant only the
+   native capabilities the tool needs (`clipboard`, `hosts`, or `storage`).
+   Window height always starts compact and grows with page content up to a
+   screen cap; the width class defines the initial and minimum widths.
 4. Run `npm run build:app` to build all H5 tools into the app's
    `Resources/WebTools` directory. This directory is generated and ignored by
    Git. Xcode runs the same build automatically before compiling app resources.

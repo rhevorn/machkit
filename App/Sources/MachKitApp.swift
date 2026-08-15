@@ -183,7 +183,10 @@ struct MachKitApp: App {
         WindowGroup(Text(verbatim: "Web Tool"), id: "web-tool", for: String.self) { $toolID in
             if let toolID, let tool = DeveloperToolRegistry.tool(id: toolID) {
                 WebToolView(tool: tool)
-                    .frame(minWidth: 680, minHeight: 380)
+                    .frame(
+                        minWidth: tool.minimumWindowSize.width,
+                        minHeight: tool.minimumWindowSize.height
+                    )
                     .background(GlobalShortcutBridge(model: model))
                     .environment(\.locale, language.locale)
                     .preferredColorScheme(appearance.colorScheme)
@@ -196,7 +199,10 @@ struct MachKitApp: App {
         }
         .windowStyle(.titleBar)
         .windowToolbarStyle(.unifiedCompact)
-        .defaultSize(width: 820, height: 560)
+        .defaultSize(
+            width: WebToolWidthClass.compact.width,
+            height: WebToolWidthClass.initialHeight
+        )
 
         MenuBarExtra(
             "MachKit",

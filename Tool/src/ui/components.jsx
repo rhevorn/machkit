@@ -83,7 +83,7 @@ export function ToolInfoButton({ info, className }) {
   );
 }
 
-export function ToolPage({ title, info, adaptiveHeight = false, children }) {
+export function ToolPage({ title, info, adaptiveHeight = true, children }) {
   const pageRef = React.useRef(null);
 
   React.useEffect(() => {
@@ -93,7 +93,8 @@ export function ToolPage({ title, info, adaptiveHeight = false, children }) {
   React.useEffect(() => {
     if (!adaptiveHeight || !machkit.isEmbedded || typeof ResizeObserver === "undefined") return undefined;
 
-    const content = pageRef.current?.querySelector(":scope > [data-machkit-tool-content]");
+    const content = pageRef.current?.querySelector(":scope > [data-machkit-tool-content]")
+      ?? pageRef.current;
     if (!content) return undefined;
 
     let animationFrame = 0;
@@ -224,7 +225,8 @@ export function SegmentedControl({ value, options, onChange, label, className, s
           value={option.value}
           key={option.value}
           className={cn(
-            "min-w-0 overflow-hidden rounded-[6px] text-ellipsis whitespace-nowrap text-xs font-medium text-secondary outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-accent/35 data-[state=on]:bg-surface data-[state=on]:text-accent data-[state=on]:shadow-segment",
+            "relative min-w-0 overflow-hidden rounded-[6px] text-ellipsis whitespace-nowrap text-xs font-medium text-secondary outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-accent/35 data-[state=on]:bg-surface data-[state=on]:text-accent data-[state=on]:shadow-segment",
+            "before:absolute before:inset-y-1.5 before:left-0 before:w-px before:bg-border first:before:hidden data-[state=on]:before:hidden [[data-state=on]+&]:before:hidden",
             compact ? "px-1" : "px-2",
           )}
         >

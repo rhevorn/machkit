@@ -30,7 +30,7 @@ struct WebToolView: View {
                 toolID: tool.id,
                 defaultSize: tool.defaultWindowSize,
                 minimumSize: tool.minimumWindowSize,
-                frameVersion: tool.windowFrameVersion
+                frameVersion: WebToolWidthClass.frameEpoch
             )
         )
     }
@@ -267,10 +267,9 @@ private struct BundledWebView: NSViewRepresentable {
                 }
                 replyHandler(["ok": true], nil)
             case "window.fitContentHeight":
-                guard capabilities.contains(.contentFit),
-                      let height = parameters["height"] as? NSNumber,
+                guard let height = parameters["height"] as? NSNumber,
                       let webView = message.webView else {
-                    replyHandler(nil, "Content fitting is not available to this tool.")
+                    replyHandler(nil, "Content fitting is not available.")
                     return
                 }
                 resizeWindowToFit(webView: webView, requestedContentHeight: height.doubleValue)
@@ -362,9 +361,11 @@ private struct BundledWebView: NSViewRepresentable {
                   let window = webView.window,
                   let screen = window.screen ?? NSScreen.main else { return }
 
-            let minimumHeight = window.contentMinSize.height
+            let minimumHeight = max(window.contentMinSize.height, WebToolWidthClass.minimumHeight)
             let titlebarHeight = max(0, window.frame.height - window.contentLayoutRect.height)
-            let maximumHeight = max(minimumHeight, screen.visibleFrame.height - titlebarHeight)
+            // Cap growth to most of the visible screen; user can still drag taller manually.
+            let screenCap = screen.visibleFrame.height - titlebarHeight
+            let maximumHeight = max(minimumHeight, floor(screenCap * 0.92))
             let targetContentHeight = min(max(requestedContentHeight, minimumHeight), maximumHeight)
             let currentContentHeight = window.contentLayoutRect.height
             guard abs(targetContentHeight - currentContentHeight) >= 2 else { return }
