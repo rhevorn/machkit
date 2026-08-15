@@ -1,10 +1,10 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { CopySimple, DownloadSimple, Eraser } from "@phosphor-icons/react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { CopySimple, DownloadSimple, Eraser, Image as ImageIcon } from "@phosphor-icons/react";
 import {
   Button,
   InlineMessage,
+  Input,
   SegmentedControl,
-  SelectControl,
   Textarea,
   ToolContent,
   ToolInfoButton,
@@ -13,21 +13,31 @@ import {
 import { useToolMessages } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
 import { mountTool } from "@/runtime/mount-tool.jsx";
-import { errorLevels, generateQRDataURL, sizes } from "./qr.js";
+import {
+  defaultSize,
+  errorLevels,
+  generateQRDataURL,
+  maxSize,
+  minSize,
+  resolveSize,
+} from "./qr.js";
 import { messages } from "./messages.js";
+
+/** Compact window ≈ 720px; content pad ~56 → ~664. Right 280 fits 256px QR + panel pad. */
+const PREVIEW_COLUMN = "280px";
+const PREVIEW_MAX = 248;
 
 function QrCodeTool() {
   const text = useToolMessages(messages);
+  const logoInputRef = useRef(null);
   const [content, setContent] = useState("https://machkit.app");
-  const [size, setSize] = useState(256);
+  const [sizeText, setSizeText] = useState(String(defaultSize));
   const [errorLevel, setErrorLevel] = useState("M");
+  const [logoDataURL, setLogoDataURL] = useState("");
   const [result, setResult] = useState({ ok: false, error: "empty" });
   const [busy, setBusy] = useState(false);
 
-  const sizeOptions = useMemo(
-    () => sizes.map((value) => ({ value: String(value), label: `${value}px` })),
-    [],
-  );
+  const size = useMemo(() => resolveSize(sizeText), [sizeText]);
   const levelOptions = useMemo(
     () => errorLevels.map((value) => ({ value, label: value })),
     [],
@@ -36,7 +46,11 @@ function QrCodeTool() {
   useEffect(() => {
     let cancelled = false;
     setBusy(true);
-    generateQRDataURL(content, { size, errorLevel }).then((next) => {
+    generateQRDataURL(content, {
+      size,
+      errorLevel: logoDataURL ? "H" : errorLevel,
+      logoDataURL: logoDataURL || undefined,
+    }).then((next) => {
       if (!cancelled) {
         setResult(next);
         setBusy(false);
@@ -45,20 +59,26 @@ function QrCodeTool() {
     return () => {
       cancelled = true;
     };
-  }, [content, size, errorLevel]);
+  }, [content, size, errorLevel, logoDataURL]);
 
   const status = !content.trim()
     ? { tone: "neutral", label: text.empty }
     : result.error === "too-large"
       ? { tone: "danger", label: text.tooLarge }
-      : !result.ok
+      : result.error === "logo-failed"
         ? { tone: "danger", label: text.failed }
-        : {
-            tone: "info",
-            label: busy
-              ? text.generate
-              : `${result.bytes} ${text.bytes} · ${result.width}px · ${result.errorCorrectionLevel}`,
-          };
+        : !result.ok
+          ? { tone: "danger", label: text.failed }
+          : {
+              tone: "info",
+              label: busy
+                ? text.generate
+                : `${result.bytes} ${text.bytes} · ${result.width}px · ${result.errorCorrectionLevel}${
+                    result.logoApplied ? ` · ${text.logo}` : ""
+                  }`,
+            };
+
+  const previewSide = result.ok ? Math.min(result.width, PREVIEW_MAX) : PREVIEW_MAX;
 
   function downloadPng() {
     if (!result.ok || !result.dataURL) return;
@@ -68,64 +88,105 @@ function QrCodeTool() {
     link.click();
   }
 
+  function onLogoFile(file) {
+    if (!file || !String(file.type || "").startsWith("image/")) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setLogoDataURL(String(reader.result || ""));
+      setErrorLevel("H");
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function clearLogo() {
+    setLogoDataURL("");
+  }
+
+  function commitSize() {
+    setSizeText(String(resolveSize(sizeText)));
+  }
+
   return (
     <ToolPage title={text.title}>
       <ToolContent className="flex flex-col gap-3 pt-3 pb-4">
-        <div className="machkit-toolbar flex-wrap gap-x-3 gap-y-2">
+        <div className="flex w-full flex-wrap items-center gap-y-2 border-b border-border pb-3">
           <div className="flex items-center gap-2">
-            <span className="machkit-control-label">{text.size}</span>
-            <SelectControl
-              value={String(size)}
-              onChange={(value) => setSize(Number(value))}
-              label={text.size}
-              className="w-[110px] flex-none"
-              options={sizeOptions}
+            <span className="machkit-control-label shrink-0">{text.size}</span>
+            <Input
+              className="w-[88px] shrink-0 text-center font-mono"
+              inputMode="numeric"
+              value={sizeText}
+              onChange={(event) => setSizeText(event.target.value.replace(/[^\d]/g, ""))}
+              onBlur={commitSize}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.currentTarget.blur();
+                }
+              }}
+              aria-label={text.size}
+              title={`${minSize}–${maxSize}px`}
             />
+            <span className="text-xs text-tertiary">px</span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="machkit-control-label">{text.errorLevel}</span>
+
+          <div className="mx-3 h-5 w-px shrink-0 bg-border" aria-hidden="true" />
+
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="machkit-control-label shrink-0">{text.errorLevel}</span>
             <SegmentedControl
-              value={errorLevel}
-              onChange={setErrorLevel}
+              value={logoDataURL ? "H" : errorLevel}
+              onChange={(value) => {
+                if (!logoDataURL) setErrorLevel(value);
+              }}
               label={text.errorLevel}
               size="compact"
-              className="w-[180px] flex-none"
+              className={`w-[168px] shrink-0${logoDataURL ? " pointer-events-none opacity-60" : ""}`}
               options={levelOptions}
             />
           </div>
-          <div className="ml-auto flex items-center gap-1">
-            <Button variant="ghost" size="sm" disabled={!content.trim()} onClick={() => machkit.copy(content)}>
-              <CopySimple size={15} />
-              {text.copy}
+
+          <div className="mx-3 h-5 w-px shrink-0 bg-border" aria-hidden="true" />
+
+          <div className="flex items-center gap-1">
+            <span className="machkit-control-label shrink-0">{text.logo}</span>
+            <Button variant="ghost" size="sm" onClick={() => logoInputRef.current?.click()}>
+              <ImageIcon size={15} />
+              {logoDataURL ? text.changeLogo : text.addLogo}
             </Button>
-            <Button variant="ghost" size="sm" disabled={!result.ok} onClick={downloadPng}>
-              <DownloadSimple size={15} />
-              {text.download}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setContent("");
+            {logoDataURL ? (
+              <Button variant="ghost" size="sm" onClick={clearLogo}>
+                {text.clearLogo}
+              </Button>
+            ) : null}
+            <input
+              ref={logoInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/svg+xml,.png,.jpg,.jpeg,.webp,.svg"
+              className="hidden"
+              onChange={(event) => {
+                onLogoFile(event.target.files?.[0]);
+                event.target.value = "";
               }}
-            >
-              <Eraser size={15} />
-              {text.clear}
-            </Button>
-            <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
+            />
           </div>
         </div>
 
         <InlineMessage tone={status.tone}>{status.label}</InlineMessage>
+        {logoDataURL ? (
+          <p className="text-[11px] text-tertiary">{text.logoHint}</p>
+        ) : null}
 
-        <div className="grid gap-3 lg:grid-cols-2">
-          <div className="flex flex-col gap-1.5">
+        <div
+          className="grid w-full items-stretch gap-3"
+          style={{ gridTemplateColumns: `minmax(0, 1fr) ${PREVIEW_COLUMN}` }}
+        >
+          <div className="flex min-h-0 min-w-0 flex-col gap-1.5">
             <label htmlFor="qr-content" className="machkit-control-label">
               {text.content}
             </label>
             <Textarea
               id="qr-content"
-              className="min-h-[180px] font-mono text-[12px]"
+              className="min-h-[240px] flex-1 font-mono text-[12px]"
               value={content}
               onChange={(event) => setContent(event.target.value)}
               placeholder={text.placeholder}
@@ -133,19 +194,46 @@ function QrCodeTool() {
             />
           </div>
 
-          <div className="machkit-panel flex min-h-[220px] items-center justify-center p-4">
-            {result.ok ? (
-              <img
-                src={result.dataURL}
-                alt={text.preview}
-                width={result.width}
-                height={result.width}
-                className="max-h-full max-w-full rounded-sm bg-white"
-              />
-            ) : (
-              <p className="text-xs text-tertiary">{text.empty}</p>
-            )}
+          <div className="flex min-h-0 min-w-0 flex-col gap-1.5">
+            <span className="machkit-control-label">{text.preview}</span>
+            <div className="machkit-panel flex min-h-[240px] flex-1 flex-col items-center justify-center p-4">
+              {result.ok ? (
+                <img
+                  src={result.dataURL}
+                  alt={text.preview}
+                  width={previewSide}
+                  height={previewSide}
+                  className="rounded-sm bg-white"
+                  style={{ width: previewSide, height: previewSide }}
+                />
+              ) : (
+                <p className="text-xs text-tertiary">{text.empty}</p>
+              )}
+            </div>
           </div>
+        </div>
+
+        <div className="flex w-full items-center gap-1 border-t border-border pt-3">
+          <Button variant="ghost" size="sm" disabled={!content.trim()} onClick={() => machkit.copy(content)}>
+            <CopySimple size={15} />
+            {text.copy}
+          </Button>
+          <Button variant="ghost" size="sm" disabled={!result.ok} onClick={downloadPng}>
+            <DownloadSimple size={15} />
+            {text.download}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setContent("");
+              clearLogo();
+            }}
+          >
+            <Eraser size={15} />
+            {text.clear}
+          </Button>
+          <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
         </div>
       </ToolContent>
     </ToolPage>

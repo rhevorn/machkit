@@ -283,7 +283,7 @@ enum DeveloperToolRegistry {
                 "二维码", "QR", "条码"
             ],
             icon: "qrcode",
-            widthClass: .regular,
+            widthClass: .compact,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/qr-code/index.html")
         )
