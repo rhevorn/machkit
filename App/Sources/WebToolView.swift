@@ -11,6 +11,7 @@ struct WebToolView: View {
         Group {
             if case let .bundledWeb(entryFile) = tool.presentation {
                 BundledWebView(
+                    toolID: tool.id,
                     entryFile: entryFile,
                     capabilities: tool.capabilities,
                     localeIdentifier: locale.identifier,
@@ -74,6 +75,7 @@ private struct ToolWindowConfigurator: NSViewRepresentable {
 }
 
 private struct BundledWebView: NSViewRepresentable {
+    let toolID: String
     let entryFile: String
     let capabilities: Set<DeveloperToolCapability>
     let localeIdentifier: String
@@ -118,6 +120,7 @@ private struct BundledWebView: NSViewRepresentable {
 
     func makeCoordinator() -> Coordinator {
         Coordinator(
+            toolID: toolID,
             allowedRoot: Bundle.main.resourceURL,
             entryFile: entryFile,
             capabilities: capabilities
@@ -150,6 +153,7 @@ private struct BundledWebView: NSViewRepresentable {
     }
 
     final class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandlerWithReply, WKURLSchemeHandler {
+        private let toolID: String
         private let allowedRoot: URL?
         private let entryFile: String
         private let capabilities: Set<DeveloperToolCapability>
@@ -159,10 +163,12 @@ private struct BundledWebView: NSViewRepresentable {
         var appearance = AppAppearance.system.rawValue
 
         init(
+            toolID: String,
             allowedRoot: URL?,
             entryFile: String,
             capabilities: Set<DeveloperToolCapability>
         ) {
+            self.toolID = toolID
             self.allowedRoot = allowedRoot?.standardizedFileURL
             self.entryFile = entryFile
             self.capabilities = capabilities
@@ -269,6 +275,29 @@ private struct BundledWebView: NSViewRepresentable {
                 }
                 resizeWindowToFit(webView: webView, requestedContentHeight: height.doubleValue)
                 replyHandler(["ok": true], nil)
+            case "storage.get":
+                guard capabilities.contains(.storage),
+                      let key = parameters["key"] as? String,
+                      Self.isSafeStorageKey(key) else {
+                    replyHandler(nil, "Storage access is not available to this tool.")
+                    return
+                }
+                if let value = UserDefaults.standard.string(forKey: storageDefaultsKey(key)) {
+                    replyHandler(["value": value], nil)
+                } else {
+                    replyHandler(["value": NSNull()], nil)
+                }
+            case "storage.set":
+                guard capabilities.contains(.storage),
+                      let key = parameters["key"] as? String,
+                      Self.isSafeStorageKey(key),
+                      let value = parameters["value"] as? String,
+                      value.utf8.count <= 8_192 else {
+                    replyHandler(nil, "Storage access is not available to this tool.")
+                    return
+                }
+                UserDefaults.standard.set(value, forKey: storageDefaultsKey(key))
+                replyHandler(["ok": true], nil)
             case let method where method.hasPrefix("hosts."):
                 guard capabilities.contains(.hosts) else {
                     replyHandler(nil, "Hosts access is not available to this tool.")
@@ -291,6 +320,20 @@ private struct BundledWebView: NSViewRepresentable {
                 }
             default:
                 replyHandler(nil, "Unsupported bridge method: \(method)")
+            }
+        }
+
+        private func storageDefaultsKey(_ key: String) -> String {
+            "machkit.webTool.\(toolID).\(key)"
+        }
+
+        private static func isSafeStorageKey(_ key: String) -> Bool {
+            guard (1...64).contains(key.count) else { return false }
+            return key.unicodeScalars.allSatisfy { scalar in
+                CharacterSet.alphanumerics.contains(scalar)
+                    || scalar == "."
+                    || scalar == "_"
+                    || scalar == "-"
             }
         }
 

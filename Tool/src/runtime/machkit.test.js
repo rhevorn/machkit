@@ -17,6 +17,12 @@ globalThis.window = {
   clearTimeout,
   dispatchEvent: (event) => events.push(event),
 };
+globalThis.document = {
+  documentElement: {
+    dataset: {},
+    style: {},
+  },
+};
 Object.defineProperty(globalThis, "navigator", {
   configurable: true,
   value: { language: "en" },
@@ -54,4 +60,34 @@ test("bridge requests time out instead of hanging forever", async () => {
     machkit.request("hosts.load", {}, { timeout: 5 }),
     /timed out/,
   );
+});
+
+test("storage helpers round-trip through the native bridge", async () => {
+  postMessage = async (request) => {
+    assert.equal(request.method, "storage.set");
+    assert.deepEqual(request.params, { key: "prefs", value: "{\"count\":10}" });
+    return { ok: true };
+  };
+  assert.equal(await machkit.setItem("prefs", "{\"count\":10}"), true);
+
+  postMessage = async (request) => {
+    assert.equal(request.method, "storage.get");
+    assert.deepEqual(request.params, { key: "prefs" });
+    return { value: "{\"count\":10}" };
+  };
+  assert.equal(await machkit.getItem("prefs"), "{\"count\":10}");
+});
+
+test("appearance preferences apply light, dark, and system themes", () => {
+  machkit.applyPreferences({ appearance: "dark" });
+  assert.equal(document.documentElement.dataset.appearance, "dark");
+  assert.equal(document.documentElement.style.colorScheme, "dark");
+
+  machkit.applyPreferences({ appearance: "light" });
+  assert.equal(document.documentElement.dataset.appearance, "light");
+  assert.equal(document.documentElement.style.colorScheme, "light");
+
+  machkit.applyPreferences({ appearance: "system" });
+  assert.equal(document.documentElement.dataset.appearance, undefined);
+  assert.equal(document.documentElement.style.colorScheme, "");
 });

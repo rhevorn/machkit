@@ -74,7 +74,7 @@ export const messages = {
           body: "Keep small, frequently used developer utilities one shortcut away.",
           items: [
             ["Hosts Manager", "Inspect and switch shared or environment-specific host mappings."],
-            ["Data tools", "Convert timestamps, format and query JSON, and encode or decode text."],
+            ["Data tools", "Generate IDs and passwords, convert timestamps, format and query JSON, and encode or decode text."],
             ["Global shortcuts", "Open the tool list or a specific utility from anywhere on your Mac."],
           ],
         },
@@ -151,6 +151,7 @@ export const messages = {
           features: [
             "Manage hosts mappings for shared and environment-specific setups.",
             "Convert timestamps, format and query JSON, and encode or decode text.",
+            "Generate UUIDs, random IDs, hex strings, and passwords locally.",
             "Search tools quickly and assign global keyboard shortcuts to frequent actions.",
           ],
           alt: "MachKit developer tools workspace showing four local utilities",
@@ -186,6 +187,7 @@ export const messages = {
         ["Timestamp Converter", "Convert dates and Unix timestamps across units and time zones."],
         ["JSON Formatter", "Format, minify, sort keys, and query values with path expressions."],
         ["Codec", "Base64, Base32, Base62, Hex, URL, HTML, Unicode, escape, and hash utilities."],
+        ["String Generator", "Generate UUID v1–v7, ULIDs, Nano IDs, hex strings, and passwords locally."],
       ],
     },
     openSource: {
@@ -279,7 +281,7 @@ export const messages = {
           body: "让常用的小型开发者工具随时可以打开。",
           items: [
             ["Hosts 管理", "查看并切换公共或指定环境的 hosts 映射。"],
-            ["数据工具", "转换时间戳、格式化和查询 JSON、编码或解码文本。"],
+            ["数据工具", "生成 ID 和密码、转换时间戳、格式化和查询 JSON、编码或解码文本。"],
             ["全局快捷键", "在 Mac 的任意位置打开工具列表或指定工具。"],
           ],
         },
@@ -356,6 +358,7 @@ export const messages = {
           features: [
             "管理公共环境和指定环境的 Hosts 映射。",
             "转换时间戳、格式化和查询 JSON、编码或解码文本。",
+            "在本地生成 UUID、随机 ID、十六进制字符串和密码。",
             "快速搜索工具，并为常用操作设置全局键盘快捷键。",
           ],
           alt: "MachKit 开发者工具工作区，显示四个本地工具",
@@ -391,6 +394,7 @@ export const messages = {
         ["时间戳转换", "在不同单位和时区之间转换日期与 Unix 时间戳。"],
         ["JSON 格式化", "格式化、压缩、键排序，并用路径表达式查询数据。"],
         ["编解码", "支持 Base64、Base32、Base62、Hex、URL、HTML、Unicode、转义和 Hash。"],
+        ["字符串生成", "在本地生成 UUID v1–v7、ULID、Nano ID、十六进制字符串和密码。"],
       ],
     },
     openSource: {

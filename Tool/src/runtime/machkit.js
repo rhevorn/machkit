@@ -1,11 +1,47 @@
 const handlers = () => window.webkit?.messageHandlers;
 const preferenceListeners = new Set();
 const DEFAULT_BRIDGE_TIMEOUT = 10_000;
+const BROWSER_PREFS_KEY = "machkit:dev-preferences";
+const ALLOWED_APPEARANCES = new Set(["system", "light", "dark"]);
+
+function readQueryPreferences() {
+  if (typeof window === "undefined" || !window.location?.search) return {};
+  try {
+    const params = new URLSearchParams(window.location.search);
+    return {
+      locale: params.get("locale") || undefined,
+      appearance: params.get("appearance") || undefined,
+    };
+  } catch {
+    return {};
+  }
+}
+
+function readStoredBrowserPreferences() {
+  if (typeof window === "undefined" || handlers()?.bridge) return {};
+  try {
+    const raw = window.localStorage?.getItem(BROWSER_PREFS_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function normalizeAppearance(value, fallback = "system") {
+  return ALLOWED_APPEARANCES.has(value) ? value : fallback;
+}
 
 function readBootstrapPreferences() {
+  const query = readQueryPreferences();
+  const stored = readStoredBrowserPreferences();
   return {
-    locale: window.__MACHKIT__?.locale || navigator.language || "en",
-    appearance: window.__MACHKIT__?.appearance || "system",
+    locale: query.locale || window.__MACHKIT__?.locale || stored.locale || navigator.language || "en",
+    appearance: normalizeAppearance(
+      query.appearance || window.__MACHKIT__?.appearance || stored.appearance,
+      "system",
+    ),
   };
 }
 
@@ -23,13 +59,35 @@ function applyAppearance(appearance) {
   }
 }
 
+function syncBrowserDebugState(next) {
+  if (typeof window === "undefined" || handlers()?.bridge) return;
+  try {
+    window.localStorage?.setItem(
+      BROWSER_PREFS_KEY,
+      JSON.stringify({ locale: next.locale, appearance: next.appearance }),
+    );
+  } catch {
+    // Ignore quota / private-mode failures.
+  }
+
+  try {
+    const url = new URL(window.location.href);
+    url.searchParams.set("locale", next.locale);
+    url.searchParams.set("appearance", next.appearance);
+    window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+  } catch {
+    // Ignore environments without History API.
+  }
+}
+
 function publishPreferences(next) {
   preferences = {
     locale: next.locale || preferences.locale || "en",
-    appearance: next.appearance || preferences.appearance || "system",
+    appearance: normalizeAppearance(next.appearance, preferences.appearance || "system"),
   };
   window.__MACHKIT__ = Object.freeze({ ...preferences });
   applyAppearance(preferences.appearance);
+  syncBrowserDebugState(preferences);
   preferenceListeners.forEach((listener) => listener(preferences));
 }
 
@@ -113,4 +171,37 @@ export const machkit = Object.freeze({
     }
     return this.request(`hosts.${action}`, payload);
   },
+
+  async getItem(key) {
+    const storageKey = String(key ?? "");
+    if (this.isEmbedded) {
+      const result = await this.request("storage.get", { key: storageKey });
+      return typeof result?.value === "string" ? result.value : null;
+    }
+    try {
+      return window.localStorage?.getItem(`machkit:${storageKey}`) ?? null;
+    } catch {
+      return null;
+    }
+  },
+
+  async setItem(key, value) {
+    const storageKey = String(key ?? "");
+    const storageValue = String(value ?? "");
+    if (this.isEmbedded) {
+      await this.request("storage.set", { key: storageKey, value: storageValue });
+      return true;
+    }
+    try {
+      window.localStorage?.setItem(`machkit:${storageKey}`, storageValue);
+      return true;
+    } catch {
+      return false;
+    }
+  },
 });
+
+if (typeof window !== "undefined" && !machkit.isEmbedded) {
+  window.machkit = machkit;
+  syncBrowserDebugState(preferences);
+}

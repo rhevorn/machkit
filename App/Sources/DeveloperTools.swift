@@ -10,6 +10,7 @@ enum DeveloperToolCapability: String, Hashable {
     case clipboard
     case hosts
     case contentFit
+    case storage
 }
 
 struct DeveloperTool: Identifiable, Equatable {
@@ -93,6 +94,22 @@ enum DeveloperToolRegistry {
             windowFrameVersion: 5,
             capabilities: [.clipboard, .contentFit],
             presentation: .bundledWeb(entryFile: "WebTools/tools/codec/index.html")
+        ),
+        DeveloperTool(
+            id: "string-generator",
+            title: "String Generator",
+            description: "Generate UUIDs, random IDs, and passwords locally",
+            keywords: [
+                "uuid", "ulid", "nanoid", "guid", "random", "id", "hex", "objectid", "string",
+                "password", "passwd", "secret", "生成", "随机", "密码", "字符串", "字串"
+            ],
+            icon: "textformat.abc",
+            color: .indigo,
+            defaultWindowSize: CGSize(width: 720, height: 640),
+            minimumWindowSize: CGSize(width: 640, height: 520),
+            windowFrameVersion: 1,
+            capabilities: [.clipboard, .contentFit, .storage],
+            presentation: .bundledWeb(entryFile: "WebTools/tools/string-generator/index.html")
         )
     ]
 

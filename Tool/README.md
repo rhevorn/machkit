@@ -18,6 +18,21 @@ back to the bundled tool. Release builds always use bundled resources.
 
 The development server runs at `http://127.0.0.1:4174`.
 
+In the browser (not inside MachKit), each tool page shows a floating **Dev** bar for
+locale and theme. Drag the `Dev` handle to move it, or press **Hide** to collapse it
+into a small chip (click the chip to restore). You can also set them in the URL or
+console:
+
+```text
+http://127.0.0.1:4174/tools/string-generator/?locale=zh-Hans&appearance=dark
+```
+
+```js
+machkit.applyPreferences({ locale: "zh-Hans", appearance: "dark" })
+```
+
+Browser choices are remembered in `localStorage` and synced into the URL.
+
 ## Add a tool
 
 1. Run `npm run new -- <tool-id>` (for example,
@@ -27,8 +42,8 @@ The development server runs at `http://127.0.0.1:4174`.
 3. Add the tool to `DeveloperToolRegistry` in
    `App/Sources/DeveloperTools.swift` with
    `.bundledWeb(entryFile: "WebTools/tools/<tool-id>/index.html")` and grant only
-   the native capabilities the tool needs (`clipboard`, `hosts`, or
-   `contentFit`).
+   the native capabilities the tool needs (`clipboard`, `hosts`,
+   `contentFit`, or `storage`).
 4. Run `npm run build:app` to build all H5 tools into the app's
    `Resources/WebTools` directory. This directory is generated and ignored by
    Git. Xcode runs the same build automatically before compiling app resources.

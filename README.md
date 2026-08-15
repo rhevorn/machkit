@@ -30,6 +30,7 @@ Everything runs locally on your Mac. Scans read file metadata only, risky items 
   - **Timestamp Converter** — Convert dates and Unix timestamps across units and time zones
   - **JSON Formatter** — Format, minify, sort keys, and query values with path expressions
   - **Codec** — Encode and decode Base64, Base32, Base62, Hex, URL, HTML, Unicode, Escape, and Hash
+  - **String Generator** — Generate UUID v1–v7, ULIDs, Nano IDs, hex strings, and passwords locally
 
 ## Requirements
 
