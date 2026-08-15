@@ -246,6 +246,19 @@ enum DeveloperToolRegistry {
             widthClass: .compact,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/number-base/index.html")
+        ),
+        DeveloperTool(
+            id: "xml-plist",
+            title: "XML / Plist",
+            description: "Format XML and convert Apple XML plists to JSON locally",
+            keywords: [
+                "xml", "plist", "property list", "pretty", "minify",
+                "格式化", "属性列表"
+            ],
+            icon: "doc.text",
+            widthClass: .wide,
+            capabilities: [.clipboard],
+            presentation: .bundledWeb(entryFile: "WebTools/tools/xml-plist/index.html")
         )
     ]
 

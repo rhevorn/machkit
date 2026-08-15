@@ -18,6 +18,7 @@ const preferredOrder = [
   "qr-code",
   "url-lab",
   "number-base",
+  "xml-plist",
 ];
 
 /** Localized title/description for known tools; unknown folders still appear by id. */
@@ -384,6 +385,32 @@ export const toolMeta = {
       de: "Basen und Byte-Einheiten lokal umwandeln",
       "pt-BR": "Converta bases e unidades de bytes localmente",
       ru: "Локальный перевод оснований и единиц байтов",
+    },
+  },
+  "xml-plist": {
+    title: {
+      en: "XML / Plist",
+      "zh-Hans": "XML / Plist",
+      "zh-Hant": "XML / Plist",
+      ja: "XML / Plist",
+      ko: "XML / Plist",
+      es: "XML / Plist",
+      fr: "XML / Plist",
+      de: "XML / Plist",
+      "pt-BR": "XML / Plist",
+      ru: "XML / Plist",
+    },
+    description: {
+      en: "Format XML and convert Apple XML plists to JSON locally",
+      "zh-Hans": "本地格式化 XML，并将 XML plist 转为 JSON",
+      "zh-Hant": "本機格式化 XML，並將 XML plist 轉為 JSON",
+      ja: "XML 整形と XML plist の JSON 変換",
+      ko: "XML 정렬과 XML plist→JSON 변환",
+      es: "Formatea XML y convierte plists XML a JSON en local",
+      fr: "Formatez du XML et convertissez les plists XML en JSON",
+      de: "XML formatieren und XML-plists nach JSON wandeln",
+      "pt-BR": "Formate XML e converta plists XML para JSON",
+      ru: "Форматирование XML и конвертация XML-plist в JSON",
     },
   },
 };
