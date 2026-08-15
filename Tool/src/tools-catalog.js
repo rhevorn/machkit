@@ -25,6 +25,7 @@ const preferredOrder = [
   "chmod-lab",
   "cert-lab",
   "text-lab",
+  "curl-lab",
 ];
 
 /** Localized title/description for known tools; unknown folders still appear by id. */
@@ -573,6 +574,32 @@ export const toolMeta = {
       de: "Zeilen lokal trimmen, deduplizieren, sortieren und umwandeln",
       "pt-BR": "Ajuste, remova duplicatas, ordene e transforme linhas localmente",
       ru: "Локально чистите, дедуплицируйте и сортируйте строки текста",
+    },
+  },
+  "curl-lab": {
+    title: {
+      en: "cURL Lab",
+      "zh-Hans": "cURL 实验室",
+      "zh-Hant": "cURL 實驗室",
+      ja: "cURL ラボ",
+      ko: "cURL 랩",
+      es: "cURL Lab",
+      fr: "cURL Lab",
+      de: "cURL Lab",
+      "pt-BR": "cURL Lab",
+      ru: "cURL Lab",
+    },
+    description: {
+      en: "Visually edit HTTP requests and convert to or from cURL",
+      "zh-Hans": "可视化编辑 HTTP 请求，与 cURL 互相转换",
+      "zh-Hant": "視覺化編輯 HTTP 請求，與 cURL 互相轉換",
+      ja: "HTTP リクエストを可視化編集し cURL と相互変換",
+      ko: "HTTP 요청을 시각적으로 편집하고 cURL과 상호 변환",
+      es: "Edita peticiones HTTP visualmente y convierte desde/hacia cURL",
+      fr: "Éditez des requêtes HTTP visuellement et convertissez depuis/vers cURL",
+      de: "HTTP-Requests visuell bearbeiten und von/nach cURL konvertieren",
+      "pt-BR": "Edite requisições HTTP visualmente e converta de/para cURL",
+      ru: "Визуально редактируйте HTTP-запросы и конвертируйте в/из cURL",
     },
   },
 };

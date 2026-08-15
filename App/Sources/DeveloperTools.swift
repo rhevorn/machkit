@@ -339,6 +339,19 @@ enum DeveloperToolRegistry {
             widthClass: .regular,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/text-lab/index.html")
+        ),
+        DeveloperTool(
+            id: "curl-lab",
+            title: "cURL Lab",
+            description: "Visually edit HTTP requests and convert to or from cURL",
+            keywords: [
+                "curl", "http", "request", "fetch", "header", "api",
+                "请求", "接口"
+            ],
+            icon: "network",
+            widthClass: .wide,
+            capabilities: [.clipboard],
+            presentation: .bundledWeb(entryFile: "WebTools/tools/curl-lab/index.html")
         )
 
     ]
