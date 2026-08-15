@@ -1,7 +1,7 @@
 export const messages = {
   en: {
     meta: {
-      title: "Sift — A native toolbox for your Mac",
+      title: "MachKit — A native toolbox for your Mac",
       description: "Understand storage, uninstall apps, inspect performance and networks, manage system items, and use local developer tools from one open-source macOS app.",
     },
     nav: {
@@ -19,22 +19,22 @@ export const messages = {
     hero: {
       eyebrow: "Native macOS utility",
       title: "Keep your Mac understandable.",
-      description: "Sift brings storage, app removal, performance, networking, system items, cleanup, and everyday developer utilities into one clear workspace.",
+      description: "MachKit brings storage, app removal, performance, networking, system items, cleanup, and everyday developer utilities into one clear workspace.",
       primary: "Download for macOS",
       secondary: "View source",
       compatibility: "Free and open source · macOS 14 or later",
-      previewAlt: "Sift overview showing storage health, live system status, and common tools",
+      previewAlt: "MachKit overview showing storage health, live system status, and common tools",
     },
     introduction: {
       kicker: "One practical workspace",
       title: "The useful system details macOS leaves scattered.",
       paragraphs: [
-        "A storage question should not require jumping between Finder, System Settings, Activity Monitor, and Terminal. Sift collects the information you actually need, explains it in plain language, and keeps the next action close by.",
+        "A storage question should not require jumping between Finder, System Settings, Activity Monitor, and Terminal. MachKit collects the information you actually need, explains it in plain language, and keeps the next action close by.",
         "It is not a one-click optimizer. You can inspect paths, sizes, processes, routes, related files, and the reason behind every cleanup recommendation before deciding what to do.",
       ],
     },
     capabilities: {
-      kicker: "What Sift covers",
+      kicker: "What MachKit covers",
       title: "A focused tool for each part of your Mac.",
       description: "Use one area at a time, or move between them without losing context.",
       groups: [
@@ -93,7 +93,7 @@ export const messages = {
             "Follow CPU, memory pressure, network speed, and thermal state live.",
             "Start a cleanup or open the most frequently used workspaces directly.",
           ],
-          alt: "Sift overview showing storage health, live status, and common tools",
+          alt: "MachKit overview showing storage health, live status, and common tools",
         },
         cleanup: {
           label: "Cleanup",
@@ -103,7 +103,7 @@ export const messages = {
             "Separate safe-to-clean content from findings that require review.",
             "Inspect file counts, sizes, and reasons before moving selected items to Trash.",
           ],
-          alt: "Sift cleanup results with safe and review categories",
+          alt: "MachKit cleanup results with safe and review categories",
         },
         apps: {
           label: "Apps",
@@ -113,7 +113,7 @@ export const messages = {
             "Search apps and inspect their version, location, source, and disk usage.",
             "Uninstall apps with selected related files or follow package-manager guidance.",
           ],
-          alt: "Sift apps workspace showing installed apps and software categories",
+          alt: "MachKit apps workspace showing installed apps and software categories",
         },
         storage: {
           label: "Storage",
@@ -123,7 +123,7 @@ export const messages = {
             "Browse folders by size and move through the directory hierarchy.",
             "Analyze the home folder or choose another folder when you need a narrower view.",
           ],
-          alt: "Sift storage analysis showing folder sizes",
+          alt: "MachKit storage analysis showing folder sizes",
         },
         performance: {
           label: "Performance",
@@ -133,7 +133,7 @@ export const messages = {
             "Compare CPU and memory trends across the last 60 seconds.",
             "Find the apps using the most resources and release reclaimable memory.",
           ],
-          alt: "Sift performance workspace showing CPU, memory, and resource-heavy apps",
+          alt: "MachKit performance workspace showing CPU, memory, and resource-heavy apps",
         },
         network: {
           label: "Network",
@@ -143,7 +143,7 @@ export const messages = {
             "Review app traffic, active connections, listening ports, and routes.",
             "See the default interface, VPN/TUN devices, and current proxy state.",
           ],
-          alt: "Sift network overview showing interfaces and traffic",
+          alt: "MachKit network overview showing interfaces and traffic",
         },
         tools: {
           label: "Tools",
@@ -153,7 +153,7 @@ export const messages = {
             "Convert timestamps, format and query JSON, and encode or decode text.",
             "Search tools quickly and assign global keyboard shortcuts to frequent actions.",
           ],
-          alt: "Sift developer tools workspace showing four local utilities",
+          alt: "MachKit developer tools workspace showing four local utilities",
         },
         system: {
           label: "System",
@@ -163,14 +163,14 @@ export const messages = {
             "Search entries by application name, label, or source path.",
             "Open the relevant macOS settings or remove confirmed leftovers safely.",
           ],
-          alt: "Sift system workspace showing background activity",
+          alt: "MachKit system workspace showing background activity",
         },
       },
     },
     safety: {
       kicker: "Designed for informed changes",
       title: "Useful automation, visible boundaries.",
-      description: "Sift automates the tedious discovery work, not the decision. Before a destructive action, it shows what will change and asks you to confirm it.",
+      description: "MachKit automates the tedious discovery work, not the decision. Before a destructive action, it shows what will change and asks you to confirm it.",
       principles: [
         ["Local by default", "File metadata and scan results stay on your Mac. The app does not require an account or cloud service."],
         ["Conservative selection", "Uncertain cleanup findings are left unselected, protected locations are blocked, and paths are validated before removal."],
@@ -180,7 +180,7 @@ export const messages = {
     tools: {
       kicker: "Local developer utilities",
       title: "Small tools without another website or subscription.",
-      description: "Sift includes a growing set of focused utilities. They share the app’s appearance and language, run locally, and can be opened from the Tools workspace, the menu, or global shortcuts.",
+      description: "MachKit includes a growing set of focused utilities. They share the app’s appearance and language, run locally, and can be opened from the Tools workspace, the menu, or global shortcuts.",
       items: [
         ["Hosts Manager", "Manage shared and per-environment mappings with explicit write permission."],
         ["Timestamp Converter", "Convert dates and Unix timestamps across units and time zones."],
@@ -191,7 +191,7 @@ export const messages = {
     openSource: {
       kicker: "Open source",
       title: "The safety rules are part of the product.",
-      description: "Sift’s scan rules, protected-path checks, privileged operations, and release workflow are available to inspect. Issues and focused contributions are welcome.",
+      description: "MachKit’s scan rules, protected-path checks, privileged operations, and release workflow are available to inspect. Issues and focused contributions are welcome.",
       primary: "Browse the code",
       secondary: "Download latest release",
     },
@@ -206,7 +206,7 @@ export const messages = {
   },
   "zh-CN": {
     meta: {
-      title: "Sift — 原生 Mac 系统工具箱",
+      title: "MachKit — 原生 Mac 系统工具箱",
       description: "在一个开源 macOS App 中查看存储、卸载应用、检查性能与网络、管理系统项目，并使用本地开发者工具。",
     },
     nav: {
@@ -224,22 +224,22 @@ export const messages = {
     hero: {
       eyebrow: "原生 macOS 工具",
       title: "更清楚地了解和维护你的 Mac。",
-      description: "Sift 将存储、应用卸载、性能、网络、系统项目、垃圾清理和常用开发者工具集中在一个清晰的工作区中。",
+      description: "MachKit 将存储、应用卸载、性能、网络、系统项目、垃圾清理和常用开发者工具集中在一个清晰的工作区中。",
       primary: "下载 macOS 版",
       secondary: "查看源码",
       compatibility: "免费且开源 · 需要 macOS 14 或更高版本",
-      previewAlt: "Sift 总览界面，显示存储健康、实时系统状态和常用工具",
+      previewAlt: "MachKit 总览界面，显示存储健康、实时系统状态和常用工具",
     },
     introduction: {
       kicker: "一个实用的工作区",
       title: "把 macOS 分散的系统信息集中起来。",
       paragraphs: [
-        "查看一次存储问题，不应该在访达、系统设置、活动监视器和终端之间反复切换。Sift 整理真正有用的信息，用易懂的方式说明，并把下一步操作放在合适的位置。",
+        "查看一次存储问题，不应该在访达、系统设置、活动监视器和终端之间反复切换。MachKit 整理真正有用的信息，用易懂的方式说明，并把下一步操作放在合适的位置。",
         "它不是一个含糊的一键优化器。你可以先查看路径、大小、进程、路由、关联文件以及每条清理建议的原因，再决定是否操作。",
       ],
     },
     capabilities: {
-      kicker: "Sift 可以做什么",
+      kicker: "MachKit 可以做什么",
       title: "Mac 的每个部分，都有一个专注的工具。",
       description: "一次处理一个问题，也可以在不同功能之间保持上下文。",
       groups: [
@@ -298,7 +298,7 @@ export const messages = {
             "实时了解 CPU、内存压力、网速和散热状态。",
             "直接开始清理，或打开最常用的功能工作区。",
           ],
-          alt: "Sift 总览界面，显示存储健康、实时状态和常用工具",
+          alt: "MachKit 总览界面，显示存储健康、实时状态和常用工具",
         },
         cleanup: {
           label: "清理",
@@ -308,7 +308,7 @@ export const messages = {
             "区分可安全清理的内容和需要确认的发现项。",
             "移动到废纸篓前查看文件数量、大小和发现原因。",
           ],
-          alt: "Sift 清理结果，包含安全项和需确认项",
+          alt: "MachKit 清理结果，包含安全项和需确认项",
         },
         apps: {
           label: "应用",
@@ -318,7 +318,7 @@ export const messages = {
             "搜索应用并检查版本、位置、来源和磁盘占用。",
             "卸载 App 与选中的关联文件，或查看包管理器处理建议。",
           ],
-          alt: "Sift 应用工作区，显示已安装应用和软件分类",
+          alt: "MachKit 应用工作区，显示已安装应用和软件分类",
         },
         storage: {
           label: "存储",
@@ -328,7 +328,7 @@ export const messages = {
             "按大小浏览文件夹，并沿着目录层级继续查看。",
             "分析个人文件夹，也可以选择其他目录缩小范围。",
           ],
-          alt: "Sift 存储分析，显示文件夹大小",
+          alt: "MachKit 存储分析，显示文件夹大小",
         },
         performance: {
           label: "性能",
@@ -338,7 +338,7 @@ export const messages = {
             "对比最近 60 秒的 CPU 与内存变化趋势。",
             "找到资源占用最高的应用，并释放可回收内存。",
           ],
-          alt: "Sift 性能工作区，显示 CPU、内存和高占用应用",
+          alt: "MachKit 性能工作区，显示 CPU、内存和高占用应用",
         },
         network: {
           label: "网络",
@@ -348,7 +348,7 @@ export const messages = {
             "检查应用流量、活动连接、监听端口和路由。",
             "了解默认接口、VPN/TUN 设备和当前代理状态。",
           ],
-          alt: "Sift 网络总览，显示接口和流量",
+          alt: "MachKit 网络总览，显示接口和流量",
         },
         tools: {
           label: "工具",
@@ -358,7 +358,7 @@ export const messages = {
             "转换时间戳、格式化和查询 JSON、编码或解码文本。",
             "快速搜索工具，并为常用操作设置全局键盘快捷键。",
           ],
-          alt: "Sift 开发者工具工作区，显示四个本地工具",
+          alt: "MachKit 开发者工具工作区，显示四个本地工具",
         },
         system: {
           label: "系统",
@@ -368,14 +368,14 @@ export const messages = {
             "按应用名称、标签或来源路径搜索项目。",
             "打开相关 macOS 设置，或安全移除已确认的残留。",
           ],
-          alt: "Sift 系统工作区，显示后台活动",
+          alt: "MachKit 系统工作区，显示后台活动",
         },
       },
     },
     safety: {
       kicker: "为知情操作而设计",
       title: "实用的自动化，清晰的安全边界。",
-      description: "Sift 自动完成繁琐的发现工作，但不替你做决定。进行破坏性操作前，它会清楚展示变化并请求确认。",
+      description: "MachKit 自动完成繁琐的发现工作，但不替你做决定。进行破坏性操作前，它会清楚展示变化并请求确认。",
       principles: [
         ["默认本地处理", "文件元数据和扫描结果始终留在 Mac 上，无需账户或云服务。"],
         ["保守选择", "不确定的清理项目默认不选中，受保护位置会被阻止，移除前会验证路径。"],
@@ -385,7 +385,7 @@ export const messages = {
     tools: {
       kicker: "本地开发者工具",
       title: "小工具不必再打开一个网站或订阅一项服务。",
-      description: "Sift 内置一组持续扩展的专注工具。它们与 App 共用外观和语言，在本地运行，并可从工具工作区、菜单或全局快捷键打开。",
+      description: "MachKit 内置一组持续扩展的专注工具。它们与 App 共用外观和语言，在本地运行，并可从工具工作区、菜单或全局快捷键打开。",
       items: [
         ["Hosts 管理", "通过明确的写入权限管理公共和不同环境的映射。"],
         ["时间戳转换", "在不同单位和时区之间转换日期与 Unix 时间戳。"],
@@ -396,7 +396,7 @@ export const messages = {
     openSource: {
       kicker: "开源",
       title: "安全规则本身就是产品的一部分。",
-      description: "Sift 的扫描规则、受保护路径检查、特权操作和发布流程都可以检查。欢迎提交问题和范围明确的贡献。",
+      description: "MachKit 的扫描规则、受保护路径检查、特权操作和发布流程都可以检查。欢迎提交问题和范围明确的贡献。",
       primary: "查看源码",
       secondary: "下载最新版本",
     },

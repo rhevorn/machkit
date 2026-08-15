@@ -15,8 +15,8 @@ import {
 } from "@phosphor-icons/react";
 import { messages } from "./i18n.js";
 
-const THEME_KEY = "sift-website-theme";
-const REPOSITORY_URL = "https://github.com/rhevorn/sift";
+const THEME_KEY = "machkit-website-theme";
+const REPOSITORY_URL = "https://github.com/rhevorn/machkit";
 const DOWNLOAD_URL = `${REPOSITORY_URL}/releases/latest`;
 const SCREEN_KEYS = [
   "overview",
@@ -39,9 +39,9 @@ function preferredTheme() {
 
 function Brand({ assetBase }) {
   return (
-    <a className="brand" href="#top" aria-label="Sift home">
+    <a className="brand" href="#top" aria-label="MachKit home">
       <img src={`${assetBase}/assets/logo.png`} alt="" />
-      <span>Sift</span>
+      <span>MachKit</span>
     </a>
   );
 }
@@ -300,7 +300,7 @@ export function App() {
           </div>
         </div>
         <div className="footer-bottom section-shell">
-          <span>© 2026 Sift</span>
+          <span>© 2026 MachKit</span>
           <span><House size={14} weight="duotone" />{copy.footer.local}</span>
           <span>{copy.footer.platform}</span>
         </div>
