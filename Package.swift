@@ -2,18 +2,18 @@
 import PackageDescription
 
 let package = Package(
-    name: "Sift",
+    name: "MachKit",
     platforms: [.macOS(.v14)],
     products: [
-        .library(name: "SiftCore", targets: ["SiftCore"])
+        .library(name: "MachKitCore", targets: ["MachKitCore"])
     ],
     targets: [
         .target(
-            name: "SiftPrivilegedShim",
+            name: "MachKitPrivilegedShim",
             publicHeadersPath: "include",
             linkerSettings: [.linkedFramework("Security")]
         ),
-        .target(name: "SiftCore", dependencies: ["SiftPrivilegedShim"]),
-        .testTarget(name: "SiftCoreTests", dependencies: ["SiftCore"])
+        .target(name: "MachKitCore", dependencies: ["MachKitPrivilegedShim"]),
+        .testTarget(name: "MachKitCoreTests", dependencies: ["MachKitCore"])
     ]
 )

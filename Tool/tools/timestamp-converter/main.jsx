@@ -14,7 +14,7 @@ import {
   ToolPage,
   ValueField,
 } from "@/ui/index.js";
-import { sift } from "../../src/runtime/sift.js";
+import { machkit } from "../../src/runtime/machkit.js";
 import { mountTool } from "@/runtime/mount-tool.jsx";
 import { messages } from "./messages.js";
 import {
@@ -64,7 +64,7 @@ function StandardFormats({ milliseconds, timeZone, text }) {
             value={value}
             placeholder={text.invalid}
             copyLabel={text.copy}
-            onCopy={(nextValue) => sift.copy(nextValue)}
+            onCopy={(nextValue) => machkit.copy(nextValue)}
             showCopyLabel={false}
           />
         </Field>
@@ -117,7 +117,7 @@ function TimestampTool() {
   return (
     <ToolPage title={text.title} adaptiveHeight>
       <ToolContent className="flex flex-col pt-4 pb-6">
-        <div className="sift-toolbar gap-2">
+        <div className="machkit-toolbar gap-2">
           <SegmentedControl
             value={conversionMode}
             onChange={setConversionMode}
@@ -133,13 +133,13 @@ function TimestampTool() {
 
         <section className="mt-4 rounded-panel border border-border bg-surface p-5 shadow-[0_1px_2px_rgb(0_0_0/0.04)]">
           <header className="mb-3 flex items-center gap-3">
-            <span className="sift-control-label">{text.current}</span>
+            <span className="machkit-control-label">{text.current}</span>
             <div className="ml-auto flex shrink-0 gap-1">
               <Button variant="accentGhost" size="sm" onClick={() => setPaused((value) => !value)}>
                 {paused ? <Play size={15} weight="fill" /> : <Pause size={15} weight="fill" />}
                 <span className="max-[500px]:hidden">{paused ? text.resume : text.pause}</span>
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => sift.copy(currentTimestamp)}>
+              <Button variant="ghost" size="sm" onClick={() => machkit.copy(currentTimestamp)}>
                 <CopySimple size={17} />
                 <span className="max-[500px]:hidden">{text.copy}</span>
               </Button>
@@ -173,7 +173,7 @@ function TimestampTool() {
           </Field>
         </div>
 
-        <section className="sift-panel">
+        <section className="machkit-panel">
           <div className="grid gap-4 p-5 min-[620px]:grid-cols-2">
             {conversionMode === "dateToTimestamp" ? (
               <>
@@ -189,7 +189,7 @@ function TimestampTool() {
                     value={selectedMilliseconds === null ? "" : timestampFromMilliseconds(selectedMilliseconds, unit)}
                     placeholder={text.selectDate}
                     copyLabel={text.copy}
-                    onCopy={(value) => sift.copy(value)}
+                    onCopy={(value) => machkit.copy(value)}
                     showCopyLabel={false}
                   />
                 </Field>
@@ -211,7 +211,7 @@ function TimestampTool() {
                     value={parsedMilliseconds === null ? "" : formatDate(parsedMilliseconds, timeZone, locale)}
                     placeholder={timestampInput ? text.invalid : text.enter}
                     copyLabel={text.copy}
-                    onCopy={(value) => sift.copy(value)}
+                    onCopy={(value) => machkit.copy(value)}
                     invalid={invalidTimestamp}
                     showCopyLabel={false}
                   />

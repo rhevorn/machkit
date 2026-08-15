@@ -1,5 +1,5 @@
 import AppKit
-import SiftCore
+import MachKitCore
 import SwiftUI
 
 struct RemovalOperationReport: Identifiable {

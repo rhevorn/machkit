@@ -8,7 +8,7 @@ import * as Select from "@radix-ui/react-select";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import { cn } from "@/lib/cn.js";
 import { useLocale } from "@/i18n.js";
-import { sift } from "@/runtime/sift.js";
+import { machkit } from "@/runtime/machkit.js";
 import "./ui.css";
 
 const copiedLabels = {
@@ -91,9 +91,9 @@ export function ToolPage({ title, info, adaptiveHeight = false, children }) {
   }, [title]);
 
   React.useEffect(() => {
-    if (!adaptiveHeight || !sift.isEmbedded || typeof ResizeObserver === "undefined") return undefined;
+    if (!adaptiveHeight || !machkit.isEmbedded || typeof ResizeObserver === "undefined") return undefined;
 
-    const content = pageRef.current?.querySelector(":scope > [data-sift-tool-content]");
+    const content = pageRef.current?.querySelector(":scope > [data-machkit-tool-content]");
     if (!content) return undefined;
 
     let animationFrame = 0;
@@ -104,7 +104,7 @@ export function ToolPage({ title, info, adaptiveHeight = false, children }) {
         const height = Math.ceil(Math.max(content.scrollHeight, content.getBoundingClientRect().height));
         if (Math.abs(height - lastHeight) < 2) return;
         lastHeight = height;
-        sift.fitContentHeight(height);
+        machkit.fitContentHeight(height);
       });
     };
 
@@ -143,9 +143,9 @@ function CopyFeedbackToast() {
       setToast({ id: Date.now(), ok: event.detail?.ok !== false });
       timeoutRef.current = window.setTimeout(() => setToast(null), 1800);
     };
-    window.addEventListener("sift:copy-result", showToast);
+    window.addEventListener("machkit:copy-result", showToast);
     return () => {
-      window.removeEventListener("sift:copy-result", showToast);
+      window.removeEventListener("machkit:copy-result", showToast);
       window.clearTimeout(timeoutRef.current);
     };
   }, []);
@@ -170,7 +170,7 @@ function CopyFeedbackToast() {
 }
 
 export function ToolContent({ className, ...props }) {
-  return <div data-sift-tool-content className={cn("w-full px-7 pb-6 max-[680px]:px-6", className)} {...props} />;
+  return <div data-machkit-tool-content className={cn("w-full px-7 pb-6 max-[680px]:px-6", className)} {...props} />;
 }
 
 export function Section({ title, className, children, ...props }) {

@@ -1,6 +1,6 @@
 import Foundation
 import Security
-import SiftPrivilegedShim
+import MachKitPrivilegedShim
 
 private final class PrivilegedAuthorizationSession: @unchecked Sendable {
     var reference: AuthorizationRef?
@@ -41,7 +41,7 @@ public actor SystemInventoryScanner {
         guard result.status == 0 else {
             return LoginApplicationScanResult(
                 items: [],
-                errorMessage: "Unable to read macOS login items. Please allow Sift to control System Events in system settings, or manage it directly in system settings."
+                errorMessage: "Unable to read macOS login items. Please allow MachKit to control System Events in system settings, or manage it directly in system settings."
             )
         }
         return LoginApplicationScanResult(items: Self.parseLoginApplications(result.output, fileManager: fileManager))
@@ -93,7 +93,7 @@ public actor SystemInventoryScanner {
         } catch let error as CocoaError where error.code == .fileNoSuchFile {
             return "The macOS background database still retains this old path, but the disk file no longer exists; the system does not provide an interface for removing a single database record."
         } catch let error as CocoaError where error.code == .fileReadNoPermission || error.code == .fileWriteNoPermission {
-            return "Sift does not have permission to access the Trash. Please turn on \"Full Disk Access\" on the home page, restart Sift and try again."
+            return "MachKit does not have permission to access the Trash. Please turn on \"Full Disk Access\" on the home page, restart MachKit and try again."
         } catch {
             return "Unable to delete residue from Trash: \(error.localizedDescription)"
         }
@@ -478,7 +478,7 @@ public actor SystemInventoryScanner {
 
         var communicationsPipe: UnsafeMutablePointer<FILE>?
         let executeStatus = action.withCString { actionPointer in
-            SiftExecuteSFLTool(authorization, actionPointer, &communicationsPipe)
+            MachKitExecuteSFLTool(authorization, actionPointer, &communicationsPipe)
         }
         guard executeStatus == errAuthorizationSuccess else {
             return (executeStatus, "", authorizationFailureMessage(executeStatus))

@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 
 @MainActor
-enum SiftAppLifecycle {
+enum MachKitAppLifecycle {
     static func showInForeground() {
         if NSApp.activationPolicy() != .regular {
             NSApp.setActivationPolicy(.regular)
@@ -51,13 +51,13 @@ private struct GlobalShortcutBridge: View {
                 GlobalHotKeyManager.shared.configure { targetID in
                     if targetID == ToolShortcutStore.toolListID {
                         model.changeMode(.tools)
-                        SiftAppLifecycle.showInForeground()
+                        MachKitAppLifecycle.showInForeground()
                         openWindow(id: "main")
-                        SiftAppLifecycle.bringWindowToFront(titled: "Sift")
+                        MachKitAppLifecycle.bringWindowToFront(titled: "MachKit")
                     } else if let tool = DeveloperToolRegistry.tool(id: targetID) {
-                        SiftAppLifecycle.showInForeground()
+                        MachKitAppLifecycle.showInForeground()
                         openWindow(id: "web-tool", value: tool.id)
-                        SiftAppLifecycle.bringWindowToFront(titled: tool.localizedTitle)
+                        MachKitAppLifecycle.bringWindowToFront(titled: tool.localizedTitle)
                     }
                 }
             }
@@ -83,7 +83,7 @@ private struct MainWindowConfigurator: NSViewRepresentable {
         context.coordinator.configuredWindow = window
         window.contentMinSize = minimumSize
 
-        let autosaveName = "Sift.MainWindow.v4"
+        let autosaveName = "MachKit.MainWindow.v4"
         let restoredPreviousFrame = window.setFrameUsingName(autosaveName)
         window.setFrameAutosaveName(autosaveName)
         if !restoredPreviousFrame {
@@ -99,7 +99,7 @@ private struct MainWindowConfigurator: NSViewRepresentable {
     }
 }
 
-final class SiftAppDelegate: NSObject, NSApplicationDelegate {
+final class MachKitAppDelegate: NSObject, NSApplicationDelegate {
     private var windowCloseObserver: NSObjectProtocol?
 
     override init() {
@@ -121,7 +121,7 @@ final class SiftAppDelegate: NSObject, NSApplicationDelegate {
             queue: .main
         ) { _ in
             Task { @MainActor in
-                SiftAppLifecycle.moveToBackgroundIfNeeded()
+                MachKitAppLifecycle.moveToBackgroundIfNeeded()
             }
         }
     }
@@ -138,8 +138,8 @@ final class SiftAppDelegate: NSObject, NSApplicationDelegate {
 }
 
 @main
-struct SiftApp: App {
-    @NSApplicationDelegateAdaptor(SiftAppDelegate.self) private var appDelegate
+struct MachKitApp: App {
+    @NSApplicationDelegateAdaptor(MachKitAppDelegate.self) private var appDelegate
     @AppStorage(AppPreferenceKey.language) private var languageRawValue = AppLanguage.system.rawValue
     @AppStorage(AppPreferenceKey.appearance) private var appearanceRawValue = AppAppearance.system.rawValue
     @AppStorage(AppPreferenceKey.showMenuBar) private var showMenuBar = true
@@ -155,7 +155,7 @@ struct SiftApp: App {
     }
 
     var body: some Scene {
-        Window("Sift", id: "main") {
+        Window("MachKit", id: "main") {
             ContentView(model: model)
                 .frame(minWidth: 740, minHeight: 680)
                 .background(GlobalShortcutBridge(model: model))
@@ -170,13 +170,13 @@ struct SiftApp: App {
                 .task { statusBarMonitor.setEnabled(showMenuBar) }
                 .onChange(of: showMenuBar) { _, enabled in
                     statusBarMonitor.setEnabled(enabled)
-                    if !enabled { SiftAppLifecycle.showInForeground() }
+                    if !enabled { MachKitAppLifecycle.showInForeground() }
                 }
         }
         .windowStyle(.hiddenTitleBar)
         .defaultSize(width: 880, height: 680)
         .commands {
-            SiftCommands(model: model)
+            MachKitCommands(model: model)
             DeveloperToolCommands(model: model)
         }
 
@@ -199,7 +199,7 @@ struct SiftApp: App {
         .defaultSize(width: 820, height: 560)
 
         MenuBarExtra(
-            "Sift",
+            "MachKit",
             image: "MenuBarMark",
             isInserted: $showMenuBar
         ) {

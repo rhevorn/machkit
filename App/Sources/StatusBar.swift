@@ -1,5 +1,5 @@
 import AppKit
-import SiftCore
+import MachKitCore
 import SwiftUI
 
 private struct StatusBarSnapshot {
@@ -130,13 +130,13 @@ struct StatusBarMenuView: View {
 
     private var header: some View {
         HStack(spacing: 9) {
-            Button(action: openSift) {
+            Button(action: openMachKit) {
                 HStack(spacing: 8) {
                     Image("BrandMark")
                         .resizable()
                         .scaledToFit()
                         .frame(width: 25, height: 25)
-                    Text("Sift")
+                    Text("MachKit")
                         .font(.headline)
                     Image(systemName: "chevron.right")
                         .font(.caption2.weight(.semibold))
@@ -235,10 +235,10 @@ struct StatusBarMenuView: View {
         }
     }
 
-    private func openSift() {
-        SiftAppLifecycle.showInForeground()
+    private func openMachKit() {
+        MachKitAppLifecycle.showInForeground()
         openWindow(id: "main")
-        SiftAppLifecycle.bringWindowToFront(titled: "Sift")
+        MachKitAppLifecycle.bringWindowToFront(titled: "MachKit")
     }
 }
 
@@ -287,7 +287,7 @@ private struct TransferHistoryChart: View {
     }
 }
 
-struct SiftCommands: Commands {
+struct MachKitCommands: Commands {
     let model: CleanerViewModel
     @Environment(\.openWindow) private var openWindow
 
@@ -295,9 +295,9 @@ struct SiftCommands: Commands {
         CommandGroup(replacing: .appSettings) {
             Button("Settings") {
                 model.changeMode(.settings)
-                SiftAppLifecycle.showInForeground()
+                MachKitAppLifecycle.showInForeground()
                 openWindow(id: "main")
-                SiftAppLifecycle.bringWindowToFront(titled: "Sift")
+                MachKitAppLifecycle.bringWindowToFront(titled: "MachKit")
             }
             .keyboardShortcut(",", modifiers: .command)
         }

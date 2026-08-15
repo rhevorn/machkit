@@ -9,7 +9,7 @@ enum AppPreferenceKey {
 }
 
 enum AppDataResetter {
-    private static let resetMarkerName = ".dev.sift.app-reset-on-launch"
+    private static let resetMarkerName = ".app.machkit.mac-reset-on-launch"
 
     static func scheduleReset(fileManager: FileManager = .default) throws {
         let markerURL = resetMarkerURL(fileManager: fileManager)
@@ -32,16 +32,16 @@ enum AppDataResetter {
     }
 
     static func clear(fileManager: FileManager = .default, defaults: UserDefaults = .standard) throws {
-        let bundleIdentifier = Bundle.main.bundleIdentifier ?? "dev.sift.app"
+        let bundleIdentifier = Bundle.main.bundleIdentifier ?? "app.machkit.mac"
         let home = fileManager.homeDirectoryForCurrentUser
         let paths = [
-            home.appending(path: "Library/Application Support/Sift"),
+            home.appending(path: "Library/Application Support/MachKit"),
             home.appending(path: "Library/Caches/\(bundleIdentifier)"),
             home.appending(path: "Library/WebKit/\(bundleIdentifier)"),
             home.appending(path: "Library/HTTPStorages/\(bundleIdentifier)"),
             home.appending(path: "Library/Saved Application State/\(bundleIdentifier).savedState"),
             home.appending(path: "Library/Cookies/\(bundleIdentifier).binarycookies"),
-            home.appending(path: "Library/Logs/Sift")
+            home.appending(path: "Library/Logs/MachKit")
         ]
 
         for url in paths where fileManager.fileExists(atPath: url.path) {

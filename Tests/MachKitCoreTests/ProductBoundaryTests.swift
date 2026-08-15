@@ -1,4 +1,4 @@
-@testable import SiftCore
+@testable import MachKitCore
 import Foundation
 import Testing
 
@@ -51,7 +51,7 @@ private func formatPlaceholders(in value: String) -> [String] {
 
 @Test func closingTheLastWindowOnlyKeepsAnEnabledMenuBarAppAlive() throws {
     let source = try String(
-        contentsOf: repositoryRoot.appending(path: "App/Sources/SiftApp.swift"),
+        contentsOf: repositoryRoot.appending(path: "App/Sources/MachKitApp.swift"),
         encoding: .utf8
     )
     #expect(source.contains("applicationShouldTerminateAfterLastWindowClosed"))
@@ -68,7 +68,7 @@ private func formatPlaceholders(in value: String) -> [String] {
         PropertyListSerialization.propertyList(from: plistData, format: nil) as? [String: Any]
     )
     let fallback = try #require(plist["NSAppleEventsUsageDescription"] as? String)
-    #expect(fallback == "Sift needs access to System Events to read and remove login items configured in macOS.")
+    #expect(fallback == "MachKit needs access to System Events to read and remove login items configured in macOS.")
 
     let catalogData = try Data(contentsOf: repositoryRoot.appending(path: "Resources/InfoPlist.xcstrings"))
     let catalog = try #require(JSONSerialization.jsonObject(with: catalogData) as? [String: Any])
@@ -91,7 +91,7 @@ private func formatPlaceholders(in value: String) -> [String] {
 }
 
 @Test func cleanupRuleRegistryKeepsOneRulePerDefinitionFile() throws {
-    let rulesDirectory = repositoryRoot.appending(path: "Sources/SiftCore/CleanupRules", directoryHint: .isDirectory)
+    let rulesDirectory = repositoryRoot.appending(path: "Sources/MachKitCore/CleanupRules", directoryHint: .isDirectory)
     let definitionFiles = try FileManager.default.contentsOfDirectory(
         at: rulesDirectory,
         includingPropertiesForKeys: nil
@@ -106,7 +106,7 @@ private func formatPlaceholders(in value: String) -> [String] {
 
 @Test func scannerCombinesResultsFromIndependentRules() async throws {
     let root = FileManager.default.temporaryDirectory
-        .appending(path: "sift-parallel-rules-\(UUID().uuidString)", directoryHint: .isDirectory)
+        .appending(path: "machkit-parallel-rules-\(UUID().uuidString)", directoryHint: .isDirectory)
     defer { try? FileManager.default.removeItem(at: root) }
     let firstFile = root.appending(path: "First/old.one")
     let secondFile = root.appending(path: "Second/old.two")
@@ -143,7 +143,7 @@ private func formatPlaceholders(in value: String) -> [String] {
 
 @Test func scannerDoesNotDescendIntoExcludedCacheRoots() async throws {
     let root = FileManager.default.temporaryDirectory
-        .appending(path: "sift-exclusions-\(UUID().uuidString)", directoryHint: .isDirectory)
+        .appending(path: "machkit-exclusions-\(UUID().uuidString)", directoryHint: .isDirectory)
     defer { try? FileManager.default.removeItem(at: root) }
     let cache = root.appending(path: "Library/Caches", directoryHint: .isDirectory)
     let ordinary = cache.appending(path: "ordinary/old.data")
@@ -502,8 +502,8 @@ private func formatPlaceholders(in value: String) -> [String] {
 }
 
 @Test func loginItemRemovalRejectsNestedAndLookalikeDirectories() async {
-    let home = URL(fileURLWithPath: "/tmp/SiftHome", isDirectory: true)
-    let library = URL(fileURLWithPath: "/tmp/SiftLibrary", isDirectory: true)
+    let home = URL(fileURLWithPath: "/tmp/MachKitHome", isDirectory: true)
+    let library = URL(fileURLWithPath: "/tmp/MachKitLibrary", isDirectory: true)
     let nested = home.appending(path: "Library/LaunchAgents/Nested/item.plist")
     let lookalike = home.appending(path: "Library/LaunchAgents-Old/item.plist")
     let scanner = SystemInventoryScanner()
@@ -803,7 +803,7 @@ private func formatPlaceholders(in value: String) -> [String] {
 
 @Test func orphanedApplicationResiduesRequireConservativeEvidence() async throws {
     let home = FileManager.default.temporaryDirectory
-        .appending(path: "sift-residue-\(UUID().uuidString)", directoryHint: .isDirectory)
+        .appending(path: "machkit-residue-\(UUID().uuidString)", directoryHint: .isDirectory)
     defer { try? FileManager.default.removeItem(at: home) }
 
     func makeDirectory(_ relativePath: String) throws {

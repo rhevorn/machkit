@@ -1,6 +1,6 @@
 import AppKit
 import Charts
-import SiftCore
+import MachKitCore
 import SwiftUI
 
 private enum SoftwareTab: String, CaseIterable, Identifiable {
@@ -204,7 +204,7 @@ struct ContentView: View {
     }
 
     private func openFeedback() {
-        if let url = URL(string: "https://github.com/rhevorn/sift/issues") {
+        if let url = URL(string: "https://github.com/rhevorn/machkit/issues") {
             NSWorkspace.shared.open(url)
         }
     }
@@ -214,7 +214,7 @@ struct ContentView: View {
             .resizable()
             .scaledToFit()
             .frame(width: 34, height: 34)
-            .help("Sift")
+            .help("MachKit")
     }
 
     private func sideButton(_ mode: FeatureMode, icon: String) -> some View {
@@ -1346,7 +1346,7 @@ struct ContentView: View {
             detailValue(title: "Installed At", value: tool.installURL.path)
             detailValue(title: "Storage Used", value: formatted(tool.bytes))
             detailValue(title: "Uninstall Command", value: uninstallCommand(for: tool))
-            Text("Command-line tools are managed by package managers. Sift shows suggested commands instead of deleting directories, which could break dependencies.")
+            Text("Command-line tools are managed by package managers. MachKit shows suggested commands instead of deleting directories, which could break dependencies.")
                 .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             Spacer()
             HStack { Spacer(); Button("Close") { selectedCommandLineTool = nil }.keyboardShortcut(.defaultAction) }
@@ -2895,7 +2895,7 @@ struct ContentView: View {
                     VStack(alignment: .leading, spacing: 9) {
                         Label("What Does Smart Release Do?", systemImage: "questionmark.circle.fill")
                             .font(.system(size: 14, weight: .semibold))
-                        Text("macOS handles hidden apps that are marked for automatic termination and currently unused, while Sift returns reclaimable pages from its own heap.")
+                        Text("macOS handles hidden apps that are marked for automatic termination and currently unused, while MachKit returns reclaimable pages from its own heap.")
                             .font(.system(size: 12)).fixedSize(horizontal: false, vertical: true)
                         Text("Regular foreground apps are not quit, processes are not force terminated, and administrator privileges are not required.")
                             .font(.system(size: 12, weight: .medium)).foregroundStyle(.secondary)

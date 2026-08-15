@@ -12,7 +12,7 @@ import {
   ToolPage,
 } from "@/ui/index.js";
 import { useToolMessages } from "@/i18n.js";
-import { sift } from "@/runtime/sift.js";
+import { machkit } from "@/runtime/machkit.js";
 import { mountTool } from "@/runtime/mount-tool.jsx";
 import { convertCodec, hashAlgorithms } from "./codec.js";
 
@@ -102,7 +102,7 @@ function CodecTool() {
   return (
     <ToolPage title={text.title} adaptiveHeight>
       <ToolContent className="flex flex-col pt-4 pb-5">
-        <div className="sift-toolbar gap-2">
+        <div className="machkit-toolbar gap-2">
           <SegmentedControl
             value={tab}
             onChange={changeTab}
@@ -123,14 +123,14 @@ function CodecTool() {
           />
         </div>
 
-        <aside className="sift-callout">
+        <aside className="machkit-callout">
           {text[introKey]}
         </aside>
 
-        <div className="sift-toolbar flex-wrap gap-4">
+        <div className="machkit-toolbar flex-wrap gap-4">
           {tab === "hash" ? (
             <div className="flex min-w-0 flex-1 items-center gap-3">
-              <span className="sift-control-label">{text.algorithm}</span>
+              <span className="machkit-control-label">{text.algorithm}</span>
               <SelectControl
                 value={algorithm}
                 onChange={setAlgorithm}
@@ -174,7 +174,7 @@ function CodecTool() {
 
           {tab === "url" ? (
             <div className="ml-auto flex min-w-0 items-center gap-3">
-              <span className="sift-control-label">{text.urlMode}</span>
+              <span className="machkit-control-label">{text.urlMode}</span>
               <SelectControl
                 value={urlMode}
                 onChange={setUrlMode}
@@ -192,7 +192,7 @@ function CodecTool() {
         <div className="flex w-full flex-col gap-4 pt-4">
           <label className="flex w-full flex-col gap-2">
             <div className="flex items-center gap-2">
-              <span className="sift-control-label">{text.input}</span>
+              <span className="machkit-control-label">{text.input}</span>
               <div className="ml-auto">
                 <Button
                   variant="ghost"
@@ -219,9 +219,9 @@ function CodecTool() {
 
           <div className="flex w-full flex-col gap-2">
             <div className="flex items-center gap-2">
-              <span className="sift-control-label">{text.output}</span>
+              <span className="machkit-control-label">{text.output}</span>
               <div className="ml-auto">
-                <Button variant="ghost" size="sm" disabled={!output} onClick={() => sift.copy(output)}>
+                <Button variant="ghost" size="sm" disabled={!output} onClick={() => machkit.copy(output)}>
                   <CopySimple size={16} />
                   {text.copy}
                 </Button>

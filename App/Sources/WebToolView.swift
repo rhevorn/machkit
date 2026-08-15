@@ -1,6 +1,6 @@
 import SwiftUI
 import WebKit
-import SiftCore
+import MachKitCore
 
 struct WebToolView: View {
     let tool: DeveloperTool
@@ -57,7 +57,7 @@ private struct ToolWindowConfigurator: NSViewRepresentable {
         window.titlebarSeparatorStyle = .none
         window.contentMinSize = minimumSize
 
-        let autosaveName = "Sift.WebTool.v\(frameVersion).\(toolID)"
+        let autosaveName = "MachKit.WebTool.v\(frameVersion).\(toolID)"
         let restoredPreviousFrame = window.setFrameUsingName(autosaveName)
         window.setFrameAutosaveName(autosaveName)
         if !restoredPreviousFrame {
@@ -82,7 +82,7 @@ private struct BundledWebView: NSViewRepresentable {
     func makeNSView(context: Context) -> WKWebView {
         let configuration = WKWebViewConfiguration()
         configuration.websiteDataStore = .nonPersistent()
-        configuration.setURLSchemeHandler(context.coordinator, forURLScheme: "sift-tool")
+        configuration.setURLSchemeHandler(context.coordinator, forURLScheme: "machkit-tool")
         configuration.userContentController.addScriptMessageHandler(
             context.coordinator,
             contentWorld: .page,
@@ -134,9 +134,9 @@ private struct BundledWebView: NSViewRepresentable {
         let safeLocale = locale.isEmpty ? "en" : locale
         let safeAppearance = ["system", "light", "dark"].contains(theme) ? theme : "system"
         return """
-        window.__SIFT__ = Object.freeze({ locale: '\(safeLocale)', appearance: '\(safeAppearance)' });
+        window.__MACHKIT__ = Object.freeze({ locale: '\(safeLocale)', appearance: '\(safeAppearance)' });
         (function () {
-          var appearance = window.__SIFT__.appearance;
+          var appearance = window.__MACHKIT__.appearance;
           var root = document.documentElement;
           if (appearance === 'light' || appearance === 'dark') {
             root.dataset.appearance = appearance;
@@ -180,10 +180,10 @@ private struct BundledWebView: NSViewRepresentable {
             let safeLocale = locale.isEmpty ? "en" : locale
             let safeAppearance = ["system", "light", "dark"].contains(theme) ? theme : "system"
             let script = """
-            if (typeof window.__SIFT_APPLY_PREFERENCES__ === 'function') {
-              window.__SIFT_APPLY_PREFERENCES__({ locale: '\(safeLocale)', appearance: '\(safeAppearance)' });
+            if (typeof window.__MACHKIT_APPLY_PREFERENCES__ === 'function') {
+              window.__MACHKIT_APPLY_PREFERENCES__({ locale: '\(safeLocale)', appearance: '\(safeAppearance)' });
             } else {
-              window.__SIFT__ = Object.freeze({ locale: '\(safeLocale)', appearance: '\(safeAppearance)' });
+              window.__MACHKIT__ = Object.freeze({ locale: '\(safeLocale)', appearance: '\(safeAppearance)' });
               var root = document.documentElement;
               if ('\(safeAppearance)' === 'light' || '\(safeAppearance)' === 'dark') {
                 root.dataset.appearance = '\(safeAppearance)';
@@ -220,7 +220,7 @@ private struct BundledWebView: NSViewRepresentable {
             let fileURL = resourceRoot.appendingPathComponent(entryFile).standardizedFileURL
             guard fileURL.path.hasPrefix(resourceRoot.path + "/"),
                   FileManager.default.fileExists(atPath: fileURL.path),
-                  let toolURL = URL(string: "sift-tool://app/\(entryFile)") else {
+                  let toolURL = URL(string: "machkit-tool://app/\(entryFile)") else {
                 showMissingPage(in: webView)
                 return
             }
@@ -296,7 +296,7 @@ private struct BundledWebView: NSViewRepresentable {
 
         private func isTrusted(url: URL?) -> Bool {
             guard let url else { return false }
-            if url.scheme == "sift-tool", url.host == "app" {
+            if url.scheme == "machkit-tool", url.host == "app" {
                 let expectedPath = "/" + entryFile
                 return url.path == expectedPath
             }
@@ -342,7 +342,7 @@ private struct BundledWebView: NSViewRepresentable {
 
         func webView(_ webView: WKWebView, start urlSchemeTask: any WKURLSchemeTask) {
             guard let requestURL = urlSchemeTask.request.url,
-                  requestURL.scheme == "sift-tool",
+                  requestURL.scheme == "machkit-tool",
                   requestURL.host == "app",
                   let allowedRoot else {
                 fail(urlSchemeTask, code: 400)
@@ -419,7 +419,7 @@ private struct BundledWebView: NSViewRepresentable {
             let isDevelopmentURL = false
             #endif
 
-            if url.scheme == "about" || url.scheme == "sift-tool" || isDevelopmentURL {
+            if url.scheme == "about" || url.scheme == "machkit-tool" || isDevelopmentURL {
                 decisionHandler(.allow)
             } else if url.isFileURL,
                       let allowedRoot,

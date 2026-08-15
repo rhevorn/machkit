@@ -4,10 +4,10 @@ import { mountTool } from "@/runtime/mount-tool.jsx";
 
 function Tool() {
   return (
-    <ToolPage title="Sift Tool">
+    <ToolPage title="MachKit Tool">
       <EmptyToolState>Replace this template with the tool UI.</EmptyToolState>
     </ToolPage>
   );
 }
 
-mountTool(<Tool />, { name: "Sift Tool" });
+mountTool(<Tool />, { name: "MachKit Tool" });

@@ -51,8 +51,8 @@ export function DateTimePicker({ value, onChange, label, className }) {
             <DateSegment
               segment={segment}
               className={cn(
-                "sift-date-segment rounded-[4px] px-[1px] text-foreground outline-none data-[focused]:bg-accent data-[focused]:text-white data-[placeholder]:text-tertiary",
-                `sift-date-segment-${segment.type}`,
+                "machkit-date-segment rounded-[4px] px-[1px] text-foreground outline-none data-[focused]:bg-accent data-[focused]:text-white data-[placeholder]:text-tertiary",
+                `machkit-date-segment-${segment.type}`,
               )}
             >
               {segment.isPlaceholder || !["month", "day", "hour", "minute", "second"].includes(segment.type)

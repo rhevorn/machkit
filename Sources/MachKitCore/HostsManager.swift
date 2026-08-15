@@ -1,7 +1,7 @@
 import Darwin
 import Foundation
 import Security
-import SiftPrivilegedShim
+import MachKitPrivilegedShim
 
 public struct HostsEnvironment: Codable, Identifiable, Equatable, Sendable {
     public let id: UUID
@@ -52,9 +52,9 @@ public enum HostsFileError: LocalizedError, Equatable, Sendable {
     public var errorDescription: String? {
         switch self {
         case .incompleteManagedSection:
-            "The Sift section in /etc/hosts is incomplete. Remove the broken markers manually and try again."
+            "The MachKit section in /etc/hosts is incomplete. Remove the broken markers manually and try again."
         case .reservedMarker:
-            "Host entries cannot contain Sift's reserved section markers."
+            "Host entries cannot contain MachKit's reserved section markers."
         case let .invalidEntry(line):
             "Line \(line) is not a valid hosts entry. Use an IP address followed by one or more host names."
         case .authorizationCancelled:
@@ -68,8 +68,8 @@ public enum HostsFileError: LocalizedError, Equatable, Sendable {
 }
 
 public enum HostsFileComposer {
-    public static let startMarker = "# >>> Sift managed hosts"
-    public static let endMarker = "# <<< Sift managed hosts"
+    public static let startMarker = "# >>> MachKit managed hosts"
+    public static let endMarker = "# <<< MachKit managed hosts"
     private static let environmentPrefix = "# Environment: "
 
     public static func validate(_ content: String) throws {
@@ -89,12 +89,11 @@ public enum HostsFileComposer {
 
     public static func parse(_ content: String) throws -> HostsDocument {
         let lines = content.components(separatedBy: .newlines)
-        let start = lines.firstIndex(of: startMarker)
-        let end = lines.firstIndex(of: endMarker)
-        guard start != nil || end != nil else {
+        guard let managedRange = try managedRange(in: lines) else {
             return HostsDocument(unmanagedContent: content)
         }
-        guard let start, let end, start <= end else { throw HostsFileError.incompleteManagedSection }
+        let start = managedRange.lowerBound
+        let end = managedRange.upperBound
 
         let unmanaged = Array(lines[..<start]) + Array(lines[(end + 1)...])
         let section = Array(lines[(start + 1)..<end])
@@ -139,14 +138,21 @@ public enum HostsFileComposer {
 
     public static func removingManagedSection(from content: String) throws -> String {
         let lines = content.components(separatedBy: .newlines)
-        let start = lines.firstIndex(of: startMarker)
-        let end = lines.firstIndex(of: endMarker)
-        guard start != nil || end != nil else { return content }
-        guard let start, let end, start <= end else { throw HostsFileError.incompleteManagedSection }
+        guard let managedRange = try managedRange(in: lines) else { return content }
 
         var result = lines
-        result.removeSubrange(start...end)
+        result.removeSubrange(managedRange)
         return result.joined(separator: "\n")
+    }
+
+    private static func managedRange(in lines: [String]) throws -> ClosedRange<Int>? {
+        let start = lines.firstIndex(of: startMarker)
+        let end = lines.firstIndex(of: endMarker)
+        guard start != nil || end != nil else { return nil }
+        guard let start, let end, start <= end else {
+            throw HostsFileError.incompleteManagedSection
+        }
+        return start...end
     }
 
     private static func managedSection(_ environment: HostsEnvironment) -> String {
@@ -227,7 +233,7 @@ public actor HostsSystemService {
 
     private func performReplacement(_ replacement: String) throws {
         let temporaryURL = fileManager.temporaryDirectory
-            .appending(path: "sift-hosts-\(UUID().uuidString)")
+            .appending(path: "machkit-hosts-\(UUID().uuidString)")
         defer { try? fileManager.removeItem(at: temporaryURL) }
 
         do {
@@ -240,7 +246,7 @@ public actor HostsSystemService {
         let authorization = try authorizationReference()
         var communicationsPipe: UnsafeMutablePointer<FILE>?
         let executeStatus = temporaryURL.path.withCString { sourcePath in
-            SiftReplaceHostsFile(authorization, sourcePath, &communicationsPipe)
+            MachKitReplaceHostsFile(authorization, sourcePath, &communicationsPipe)
         }
         guard executeStatus == errAuthorizationSuccess else {
             if executeStatus == errAuthorizationCanceled { throw HostsFileError.authorizationCancelled }

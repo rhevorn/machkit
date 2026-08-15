@@ -27,7 +27,7 @@ const title = toolID
 const indexPath = resolve(destination, "index.html");
 const mainPath = resolve(destination, "main.jsx");
 
-writeFileSync(indexPath, readFileSync(indexPath, "utf8").replace("Sift Tool", title));
+writeFileSync(indexPath, readFileSync(indexPath, "utf8").replace("MachKit Tool", title));
 writeFileSync(
   mainPath,
   readFileSync(mainPath, "utf8").replace(

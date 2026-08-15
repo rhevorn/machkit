@@ -2,7 +2,7 @@ export const messages = {
   en: {
     title: "JSON Formatter",
     info: "Format or minify JSON, then query values with paths such as $.store.book[0].author, store.book[*].price, or $..author.",
-    placeholder: '{\n  "hello": "sift"\n}',
+    placeholder: '{\n  "hello": "machkit"\n}',
     path: "Path",
     pathPlaceholder: "$.store.book[*].author",
     format: "Format",
@@ -24,7 +24,7 @@ export const messages = {
   "zh-Hans": {
     title: "JSON 格式化",
     info: "格式化或压缩 JSON，并用路径查询值，例如 $.store.book[0].author、store.book[*].price 或 $..author。",
-    placeholder: '{\n  "hello": "sift"\n}',
+    placeholder: '{\n  "hello": "machkit"\n}',
     path: "路径",
     pathPlaceholder: "$.store.book[*].author",
     format: "格式化",
@@ -46,7 +46,7 @@ export const messages = {
   "zh-Hant": {
     title: "JSON 格式化",
     info: "格式化或壓縮 JSON，並用路徑查詢值，例如 $.store.book[0].author、store.book[*].price 或 $..author。",
-    placeholder: '{\n  "hello": "sift"\n}',
+    placeholder: '{\n  "hello": "machkit"\n}',
     path: "路徑",
     pathPlaceholder: "$.store.book[*].author",
     format: "格式化",
@@ -68,7 +68,7 @@ export const messages = {
   ja: {
     title: "JSON フォーマッタ",
     info: "JSON の整形・圧縮に加え、$.store.book[0].author、store.book[*].price、$..author などのパスで値を検索できます。",
-    placeholder: '{\n  "hello": "sift"\n}',
+    placeholder: '{\n  "hello": "machkit"\n}',
     path: "パス",
     pathPlaceholder: "$.store.book[*].author",
     format: "整形",
@@ -90,7 +90,7 @@ export const messages = {
   ko: {
     title: "JSON 포맷터",
     info: "JSON을 포맷하거나 압축하고, $.store.book[0].author, store.book[*].price, $..author 같은 경로로 값을 조회합니다.",
-    placeholder: '{\n  "hello": "sift"\n}',
+    placeholder: '{\n  "hello": "machkit"\n}',
     path: "경로",
     pathPlaceholder: "$.store.book[*].author",
     format: "포맷",
@@ -112,7 +112,7 @@ export const messages = {
   es: {
     title: "Formateador JSON",
     info: "Formatea o minimiza JSON y consulta valores con rutas como $.store.book[0].author, store.book[*].price o $..author.",
-    placeholder: '{\n  "hello": "sift"\n}',
+    placeholder: '{\n  "hello": "machkit"\n}',
     path: "Ruta",
     pathPlaceholder: "$.store.book[*].author",
     format: "Formatear",
@@ -134,7 +134,7 @@ export const messages = {
   fr: {
     title: "Formateur JSON",
     info: "Formatez ou minifiez du JSON, puis interrogez des valeurs avec des chemins comme $.store.book[0].author, store.book[*].price ou $..author.",
-    placeholder: '{\n  "hello": "sift"\n}',
+    placeholder: '{\n  "hello": "machkit"\n}',
     path: "Chemin",
     pathPlaceholder: "$.store.book[*].author",
     format: "Formater",
@@ -156,7 +156,7 @@ export const messages = {
   de: {
     title: "JSON-Formatierer",
     info: "JSON formatieren oder komprimieren und Werte mit Pfaden wie $.store.book[0].author, store.book[*].price oder $..author abfragen.",
-    placeholder: '{\n  "hello": "sift"\n}',
+    placeholder: '{\n  "hello": "machkit"\n}',
     path: "Pfad",
     pathPlaceholder: "$.store.book[*].author",
     format: "Formatieren",
@@ -178,7 +178,7 @@ export const messages = {
   "pt-BR": {
     title: "Formatador JSON",
     info: "Formate ou compacte JSON e consulte valores com caminhos como $.store.book[0].author, store.book[*].price ou $..author.",
-    placeholder: '{\n  "hello": "sift"\n}',
+    placeholder: '{\n  "hello": "machkit"\n}',
     path: "Caminho",
     pathPlaceholder: "$.store.book[*].author",
     format: "Formatar",
@@ -200,7 +200,7 @@ export const messages = {
   ru: {
     title: "Форматирование JSON",
     info: "Форматируйте или сжимайте JSON и запрашивайте значения по путям вроде $.store.book[0].author, store.book[*].price или $..author.",
-    placeholder: '{\n  "hello": "sift"\n}',
+    placeholder: '{\n  "hello": "machkit"\n}',
     path: "Путь",
     pathPlaceholder: "$.store.book[*].author",
     format: "Форматировать",

@@ -78,7 +78,7 @@ public actor PortScanner {
 
     public func terminate(_ port: ListeningPort, force: Bool = false) -> String? {
         guard port.processIdentifier > 1 else { return "Core system processes are protected." }
-        guard port.processIdentifier != getpid() else { return "Sift cannot quit its own process." }
+        guard port.processIdentifier != getpid() else { return "MachKit cannot quit its own process." }
         guard let currentOwner = processOwnerUserID(processIdentifier: port.processIdentifier) else {
             return "The process has exited, or process information cannot be read."
         }
@@ -388,7 +388,7 @@ public actor PortScanner {
         currentProcessID: Int32
     ) -> String? {
         if processIdentifier <= 1 { return "Core system processes cannot be quit here." }
-        if processIdentifier == currentProcessID { return "Sift cannot quit its own process." }
+        if processIdentifier == currentProcessID { return "MachKit cannot quit its own process." }
         if ownerUserID != currentUserID { return "Only processes owned by the current user can be quit." }
         guard let executablePath else { return "The executable could not be verified, so this process cannot be quit." }
         let path = URL(fileURLWithPath: executablePath).standardizedFileURL.path

@@ -1,5 +1,5 @@
 import Foundation
-import SiftCore
+import MachKitCore
 
 private struct HostsWorkspace: Codable {
     var environments: [HostsEnvironment]
@@ -24,7 +24,7 @@ final class HostsWebBridge {
     private init(fileManager: FileManager = .default) {
         let base = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? fileManager.homeDirectoryForCurrentUser.appending(path: "Library/Application Support")
-        storageURL = base.appending(path: "Sift/Hosts/environments.json")
+        storageURL = base.appending(path: "MachKit/Hosts/environments.json")
         if let data = try? Data(contentsOf: storageURL),
            let saved = try? JSONDecoder().decode(HostsWorkspace.self, from: data) {
             workspace = saved

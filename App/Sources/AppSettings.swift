@@ -50,7 +50,7 @@ struct AppSettingsView: View {
                         icon: "character.bubble",
                         color: .blue,
                         title: "Language",
-                        detail: "Select the interface language used by Sift"
+                        detail: "Select the interface language used by MachKit"
                     ) {
                         Picker("Language", selection: $languageRawValue) {
                             ForEach(AppLanguage.allCases) { option in
@@ -139,7 +139,7 @@ struct AppSettingsView: View {
                     icon: "trash",
                     color: .red,
                     title: "Clear App Data",
-                    detail: "Remove Sift's saved settings, shortcuts, tool data, and window state"
+                    detail: "Remove MachKit's saved settings, shortcuts, tool data, and window state"
                 ) {
                     Button("Clear Data…".localized, role: .destructive) {
                         showingClearDataConfirmation = true
@@ -168,7 +168,7 @@ struct AppSettingsView: View {
             Button("Cancel".localized, role: .cancel) {}
             Button("Clear and Quit".localized, role: .destructive) { clearAppData() }
         } message: {
-            Text("This removes all data saved by Sift on this Mac and then quits the app. System files and scan targets are not deleted.".localized)
+            Text("This removes all data saved by MachKit on this Mac and then quits the app. System files and scan targets are not deleted.".localized)
         }
         .alert("Could Not Clear App Data".localized, isPresented: Binding(
             get: { clearDataError != nil },

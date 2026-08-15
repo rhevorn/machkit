@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { EditorView } from "@codemirror/view";
-import { sift } from "@/runtime/sift.js";
+import { machkit } from "@/runtime/machkit.js";
 
 function useSystemDark() {
   const [systemDark, setSystemDark] = useState(
@@ -18,12 +18,12 @@ function useSystemDark() {
 }
 
 export function useEditorDark() {
-  const preferences = useSyncExternalStore(sift.subscribePreferences, sift.getPreferences, sift.getPreferences);
+  const preferences = useSyncExternalStore(machkit.subscribePreferences, machkit.getPreferences, machkit.getPreferences);
   const systemDark = useSystemDark();
   return preferences.appearance === "dark" || (preferences.appearance !== "light" && systemDark);
 }
 
-export function useSiftEditorTheme() {
+export function useMachKitEditorTheme() {
   const dark = useEditorDark();
 
   return useMemo(
@@ -31,28 +31,28 @@ export function useSiftEditorTheme() {
       EditorView.theme(
         {
           "&": {
-            backgroundColor: "var(--sift-field)",
-            color: "var(--sift-text)",
+            backgroundColor: "var(--machkit-field)",
+            color: "var(--machkit-text)",
           },
           ".cm-content": {
-            caretColor: "var(--sift-accent)",
+            caretColor: "var(--machkit-accent)",
           },
           ".cm-cursor, .cm-dropCursor": {
-            borderLeftColor: "var(--sift-accent)",
+            borderLeftColor: "var(--machkit-accent)",
           },
           ".cm-placeholder": {
-            color: "var(--sift-tertiary)",
+            color: "var(--machkit-tertiary)",
           },
           ".cm-gutters": {
-            backgroundColor: "var(--sift-field)",
-            color: "var(--sift-tertiary)",
+            backgroundColor: "var(--machkit-field)",
+            color: "var(--machkit-tertiary)",
             border: "none",
           },
           ".cm-activeLine, .cm-activeLineGutter": {
-            backgroundColor: "color-mix(in srgb, var(--sift-text) 4%, transparent)",
+            backgroundColor: "color-mix(in srgb, var(--machkit-text) 4%, transparent)",
           },
           "&.cm-focused .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection": {
-            backgroundColor: "color-mix(in srgb, var(--sift-accent) 22%, transparent) !important",
+            backgroundColor: "color-mix(in srgb, var(--machkit-accent) 22%, transparent) !important",
           },
         },
         { dark },

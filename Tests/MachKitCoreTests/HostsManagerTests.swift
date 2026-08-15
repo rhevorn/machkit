@@ -1,16 +1,16 @@
 import Foundation
 import Testing
-@testable import SiftCore
+@testable import MachKitCore
 
 struct HostsManagerTests {
-    @Test func replacesOnlySiftManagedSection() throws {
+    @Test func replacesOnlyMachKitManagedSection() throws {
         let current = """
         127.0.0.1 localhost
 
-        # >>> Sift managed hosts
+        # >>> MachKit managed hosts
         # old
         10.0.0.1 old.local
-        # <<< Sift managed hosts
+        # <<< MachKit managed hosts
         """
         let environment = HostsEnvironment(name: "Development", content: "10.0.0.2 api.local")
         let base = try HostsFileComposer.removingManagedSection(from: current)
@@ -51,7 +51,7 @@ struct HostsManagerTests {
     @Test func rejectsUnknownManagedSectionFormat() {
         #expect(throws: HostsFileError.incompleteManagedSection) {
             try HostsFileComposer.parse(
-                "\(HostsFileComposer.startMarker)\n# Sift shared: obsolete\n\(HostsFileComposer.endMarker)"
+                "\(HostsFileComposer.startMarker)\n# MachKit shared: obsolete\n\(HostsFileComposer.endMarker)"
             )
         }
     }

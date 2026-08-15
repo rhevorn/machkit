@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { sift } from "./runtime/sift.js";
+import { machkit } from "./runtime/machkit.js";
 import { supportedLocales } from "./i18n-catalog.js";
 export { catalogIssues, supportedLocales } from "./i18n-catalog.js";
 
@@ -21,18 +21,18 @@ export function resolveLocale(requested, catalog = supportedLocaleCatalog) {
 }
 
 export function currentLocale() {
-  return resolveLocale(sift.getPreferences().locale || window.__SIFT__?.locale || navigator.language || "en");
+  return resolveLocale(machkit.getPreferences().locale || window.__MACHKIT__?.locale || navigator.language || "en");
 }
 
 export function useLocale() {
-  useSyncExternalStore(sift.subscribePreferences, sift.getPreferences, sift.getPreferences);
+  useSyncExternalStore(machkit.subscribePreferences, machkit.getPreferences, machkit.getPreferences);
   return currentLocale();
 }
 
 export function useToolMessages(catalog) {
-  useSyncExternalStore(sift.subscribePreferences, sift.getPreferences, sift.getPreferences);
+  useSyncExternalStore(machkit.subscribePreferences, machkit.getPreferences, machkit.getPreferences);
   const locale = resolveLocale(
-    sift.getPreferences().locale || window.__SIFT__?.locale || navigator.language || "en",
+    machkit.getPreferences().locale || window.__MACHKIT__?.locale || navigator.language || "en",
     catalog,
   );
   return catalog[locale] || catalog.en;

@@ -43,10 +43,10 @@ test("encodes and decodes hex", () => {
 });
 
 test("encodes and decodes Base62", () => {
-  const encoded = encodeBase62("Sift");
-  assert.equal(decodeBase62(encoded).value, "Sift");
+  const encoded = encodeBase62("MachKit");
+  assert.equal(decodeBase62(encoded).value, "MachKit");
   assert.equal(decodeBase62("$$$").ok, false);
-  const withLeadingZero = "\0Sift";
+  const withLeadingZero = "\0MachKit";
   assert.equal(decodeBase62(encodeBase62(withLeadingZero)).value, withLeadingZero);
 });
 

@@ -1,6 +1,6 @@
 import AppKit
 import Darwin
-import SiftCore
+import MachKitCore
 import Foundation
 
 @MainActor
@@ -73,7 +73,7 @@ final class CleanerViewModel: ObservableObject {
     @Published var discoveredBytes: Int64 = 0
     @Published var status = L10n.string("Choose your user folder or a test folder.")
 
-    private let scanner = SiftCore.Scanner()
+    private let scanner = MachKitCore.Scanner()
     private let cleaner = Cleaner()
     private let applicationScanner = ApplicationScanner()
     private let systemInventoryScanner = SystemInventoryScanner()
@@ -475,7 +475,7 @@ final class CleanerViewModel: ObservableObject {
             try? await Task.sleep(for: .milliseconds(800))
             refreshPerformanceSnapshot()
             isOptimizingMemory = false
-            status = L10n.string("Smart release complete; idle background apps were handled and Sift returned its own reclaimable memory.")
+            status = L10n.string("Smart release complete; idle background apps were handled and MachKit returned its own reclaimable memory.")
         }
     }
 
@@ -633,7 +633,7 @@ final class CleanerViewModel: ObservableObject {
 
     func requestPortTermination(_ port: ListeningPort) {
         guard port.canTerminate else {
-            removalFailureMessage = port.protectionReason ?? L10n.string("This process cannot be quit from Sift.")
+            removalFailureMessage = port.protectionReason ?? L10n.string("This process cannot be quit from MachKit.")
             showRemovalFailure = true
             return
         }

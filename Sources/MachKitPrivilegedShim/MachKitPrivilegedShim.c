@@ -1,8 +1,8 @@
-#include "SiftPrivilegedShim.h"
+#include "MachKitPrivilegedShim.h"
 
 #include <string.h>
 
-OSStatus SiftExecuteSFLTool(
+OSStatus MachKitExecuteSFLTool(
     AuthorizationRef authorization,
     const char *action,
     FILE **communicationsPipe
@@ -28,7 +28,7 @@ OSStatus SiftExecuteSFLTool(
     return status;
 }
 
-OSStatus SiftReplaceHostsFile(
+OSStatus MachKitReplaceHostsFile(
     AuthorizationRef authorization,
     const char *sourcePath,
     FILE **communicationsPipe

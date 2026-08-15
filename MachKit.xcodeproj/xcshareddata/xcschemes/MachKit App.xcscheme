@@ -16,9 +16,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A50000000000000000000001"
-               BuildableName = "Sift.app"
-               BlueprintName = "Sift App"
-               ReferencedContainer = "container:Sift.xcodeproj">
+               BuildableName = "MachKit.app"
+               BlueprintName = "MachKit App"
+               ReferencedContainer = "container:MachKit.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -30,9 +30,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A50000000000000000000002"
-               BuildableName = "SiftCoreTests.xctest"
-               BlueprintName = "SiftCoreTests"
-               ReferencedContainer = "container:Sift.xcodeproj">
+               BuildableName = "MachKitCoreTests.xctest"
+               BlueprintName = "MachKitCoreTests"
+               ReferencedContainer = "container:MachKit.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -50,9 +50,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A50000000000000000000002"
-               BuildableName = "SiftCoreTests.xctest"
-               BlueprintName = "SiftCoreTests"
-               ReferencedContainer = "container:Sift.xcodeproj">
+               BuildableName = "MachKitCoreTests.xctest"
+               BlueprintName = "MachKitCoreTests"
+               ReferencedContainer = "container:MachKit.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A50000000000000000000001"
-            BuildableName = "Sift.app"
-            BlueprintName = "Sift App"
-            ReferencedContainer = "container:Sift.xcodeproj">
+            BuildableName = "MachKit.app"
+            BlueprintName = "MachKit App"
+            ReferencedContainer = "container:MachKit.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -89,9 +89,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A50000000000000000000001"
-            BuildableName = "Sift.app"
-            BlueprintName = "Sift App"
-            ReferencedContainer = "container:Sift.xcodeproj">
+            BuildableName = "MachKit.app"
+            BlueprintName = "MachKit App"
+            ReferencedContainer = "container:MachKit.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

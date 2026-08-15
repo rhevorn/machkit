@@ -4,8 +4,8 @@ const DEFAULT_BRIDGE_TIMEOUT = 10_000;
 
 function readBootstrapPreferences() {
   return {
-    locale: window.__SIFT__?.locale || navigator.language || "en",
-    appearance: window.__SIFT__?.appearance || "system",
+    locale: window.__MACHKIT__?.locale || navigator.language || "en",
+    appearance: window.__MACHKIT__?.appearance || "system",
   };
 }
 
@@ -28,29 +28,29 @@ function publishPreferences(next) {
     locale: next.locale || preferences.locale || "en",
     appearance: next.appearance || preferences.appearance || "system",
   };
-  window.__SIFT__ = Object.freeze({ ...preferences });
+  window.__MACHKIT__ = Object.freeze({ ...preferences });
   applyAppearance(preferences.appearance);
   preferenceListeners.forEach((listener) => listener(preferences));
 }
 
 function announceCopyResult(ok, error = null) {
-  window.dispatchEvent(new CustomEvent("sift:copy-result", { detail: { ok, error } }));
+  window.dispatchEvent(new CustomEvent("machkit:copy-result", { detail: { ok, error } }));
 }
 
 applyAppearance(preferences.appearance);
 
-window.__SIFT_APPLY_PREFERENCES__ = (next) => {
+window.__MACHKIT_APPLY_PREFERENCES__ = (next) => {
   if (!next || typeof next !== "object") return;
   publishPreferences(next);
 };
 
-export const sift = Object.freeze({
+export const machkit = Object.freeze({
   isEmbedded: Boolean(handlers()?.bridge),
 
   async request(method, params = {}, { timeout = DEFAULT_BRIDGE_TIMEOUT } = {}) {
     const handler = handlers()?.bridge;
     if (!handler || typeof handler.postMessage !== "function") {
-      throw new Error("This operation is available in the Sift app.");
+      throw new Error("This operation is available in the MachKit app.");
     }
 
     let timeoutID = 0;

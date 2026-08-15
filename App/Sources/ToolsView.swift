@@ -178,9 +178,9 @@ struct ToolsView: View {
     }
 
     private func open(_ tool: DeveloperTool) {
-        SiftAppLifecycle.showInForeground()
+        MachKitAppLifecycle.showInForeground()
         openWindow(id: "web-tool", value: tool.id)
-        SiftAppLifecycle.bringWindowToFront(titled: tool.localizedTitle)
+        MachKitAppLifecycle.bringWindowToFront(titled: tool.localizedTitle)
     }
 }
 

@@ -21,7 +21,7 @@ if [ -z "$npm_path" ]; then
 fi
 
 if [ -z "$npm_path" ]; then
-    echo "error: npm was not found. Install Node.js before building Sift." >&2
+    echo "error: npm was not found. Install Node.js before building MachKit." >&2
     exit 1
 fi
 

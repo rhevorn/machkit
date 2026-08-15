@@ -10,8 +10,8 @@ import {
   ToolPage,
 } from "@/ui/index.js";
 import { useToolMessages } from "@/i18n.js";
-import { useSiftEditorTheme } from "@/ui/codemirror-theme.js";
-import { sift } from "@/runtime/sift.js";
+import { useMachKitEditorTheme } from "@/ui/codemirror-theme.js";
+import { machkit } from "@/runtime/machkit.js";
 import { mountTool } from "@/runtime/mount-tool.jsx";
 import {
   byteSize,
@@ -33,7 +33,7 @@ function formatBytes(size) {
 
 function JsonFormatter() {
   const text = useToolMessages(messages);
-  const editorTheme = useSiftEditorTheme();
+  const editorTheme = useMachKitEditorTheme();
   const [source, setSource] = useState("");
   const [path, setPath] = useState("");
   const [transformError, setTransformError] = useState("");
@@ -155,7 +155,7 @@ function JsonFormatter() {
   return (
     <ToolPage title={text.title}>
       <ToolContent className="flex min-h-0 flex-1 flex-col pt-4">
-        <div className="sift-toolbar flex-wrap pb-1.5">
+        <div className="machkit-toolbar flex-wrap pb-1.5">
           <Button variant="secondary" size="sm" disabled={!parsed.ok} onClick={() => mutate("format")}>
             <BracketsCurly size={15} />
             {text.format}
@@ -174,7 +174,7 @@ function JsonFormatter() {
             {text.sort}
           </Button>
           <div className="ml-auto flex items-center gap-2">
-            <Button variant="ghost" size="sm" disabled={!source} onClick={() => sift.copy(source)}>
+            <Button variant="ghost" size="sm" disabled={!source} onClick={() => machkit.copy(source)}>
               <CopySimple size={16} />
               <span className="max-[560px]:hidden">{text.copy}</span>
             </Button>
@@ -194,9 +194,9 @@ function JsonFormatter() {
           </div>
         </div>
 
-        <div className="sift-toolbar gap-2">
+        <div className="machkit-toolbar gap-2">
           <MagnifyingGlass size={15} className="shrink-0 text-secondary" />
-          <span className="sift-control-label">{text.path}</span>
+          <span className="machkit-control-label">{text.path}</span>
           <Input
             value={path}
             onChange={(event) => setPath(event.target.value)}
@@ -213,7 +213,7 @@ function JsonFormatter() {
 
         <div className={`grid min-h-0 flex-1 gap-4 py-4 ${showResults ? "min-[900px]:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.9fr)]" : ""}`}>
           <div className="flex min-h-0 flex-col gap-3">
-            <div className="json-code-editor sift-panel min-h-[360px] flex-1">
+            <div className="json-code-editor machkit-panel min-h-[360px] flex-1">
               <CodeMirror
                 value={source}
                 height="100%"
@@ -236,7 +236,7 @@ function JsonFormatter() {
           </div>
 
           {showResults ? (
-            <section className="sift-panel flex min-h-0 flex-col">
+            <section className="machkit-panel flex min-h-0 flex-col">
               <header className="flex h-11 shrink-0 items-center border-b border-border px-4 text-xs font-medium text-secondary">
                 {text.results}
               </header>
@@ -250,7 +250,7 @@ function JsonFormatter() {
                         <button
                           type="button"
                           className="shrink-0 text-[10px] text-secondary hover:text-foreground"
-                          onClick={() => sift.copy(match.path)}
+                          onClick={() => machkit.copy(match.path)}
                         >
                           {text.copyPath}
                         </button>
@@ -262,7 +262,7 @@ function JsonFormatter() {
                         <button
                           type="button"
                           className="shrink-0 text-[10px] text-secondary hover:text-foreground"
-                          onClick={() => sift.copy(valueText)}
+                          onClick={() => machkit.copy(valueText)}
                         >
                           {text.copyValue}
                         </button>

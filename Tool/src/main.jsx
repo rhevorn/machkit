@@ -6,10 +6,10 @@ function App() {
   return (
     <main className="workspace">
       <section className="hero">
-        <span className="eyebrow">Sift · Web Tools</span>
+        <span className="eyebrow">MachKit · Web Tools</span>
         <h1>Embedded tool workspace</h1>
         <p>
-          H5 tools live in isolated folders, share the native Sift appearance, and
+          H5 tools live in isolated folders, share the native MachKit appearance, and
           build into independent pages for WKWebView.
         </p>
       </section>

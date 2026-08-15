@@ -9005,61 +9005,61 @@
         }
       }
     },
-    "Changes apply immediately to all Sift windows." : {
+    "Changes apply immediately to all MachKit windows." : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Änderungen gelten sofort für alle Sift-Fenster."
+            "value" : "Änderungen gelten sofort für alle MachKit-Fenster."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Los cambios se aplican inmediatamente a todas las ventanas Sift."
+            "value" : "Los cambios se aplican inmediatamente a todas las ventanas MachKit."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Les modifications s'appliquent immédiatement à toutes les fenêtres Sift."
+            "value" : "Les modifications s'appliquent immédiatement à toutes les fenêtres MachKit."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "変更はすべての Sift ウィンドウに即座に適用されます。"
+            "value" : "変更はすべての MachKit ウィンドウに即座に適用されます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "변경 사항은 모든 Sift 창에 즉시 적용됩니다."
+            "value" : "변경 사항은 모든 MachKit 창에 즉시 적용됩니다."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "As alterações se aplicam imediatamente a todas as janelas do Sift."
+            "value" : "As alterações se aplicam imediatamente a todas as janelas do MachKit."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Изменения применяются немедленно ко всем окнам Sift."
+            "value" : "Изменения применяются немедленно ко всем окнам MachKit."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "更改会立即应用到所有 Sift 窗口。"
+            "value" : "更改会立即应用到所有 MachKit 窗口。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "變更會立即套用到所有 Sift 視窗。"
+            "value" : "變更會立即套用到所有 MachKit 視窗。"
           }
         }
       }
@@ -10242,61 +10242,61 @@
         }
       }
     },
-    "Choose the interface language Sift uses" : {
+    "Choose the interface language MachKit uses" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wählen Sie die von Sift verwendete Oberflächensprache"
+            "value" : "Wählen Sie die von MachKit verwendete Oberflächensprache"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Elija el idioma de la interfaz que usa Sift"
+            "value" : "Elija el idioma de la interfaz que usa MachKit"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Choisissez la langue d'interface utilisée par Sift"
+            "value" : "Choisissez la langue d'interface utilisée par MachKit"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift が使用するインターフェース言語を選択します"
+            "value" : "MachKit が使用するインターフェース言語を選択します"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift가 사용하는 인터페이스 언어를 선택하세요."
+            "value" : "MachKit가 사용하는 인터페이스 언어를 선택하세요."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Escolha o idioma da interface que o Sift usa"
+            "value" : "Escolha o idioma da interface que o MachKit usa"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Выберите язык интерфейса, который использует Sift"
+            "value" : "Выберите язык интерфейса, который использует MachKit"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "设置 Sift 使用的界面语言"
+            "value" : "设置 MachKit 使用的界面语言"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "设置 Sift 使用的界面语言"
+            "value" : "设置 MachKit 使用的界面语言"
           }
         }
       }
@@ -11478,60 +11478,60 @@
         }
       }
     },
-    "Command-line tools are managed by package managers. Sift shows suggested commands instead of deleting directories, which could break dependencies." : {
+    "Command-line tools are managed by package managers. MachKit shows suggested commands instead of deleting directories, which could break dependencies." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Befehlszeilentools werden von Paketmanagern verwaltet. Sift zeigt vorgeschlagene Befehle an, anstatt Verzeichnisse zu löschen, wodurch Abhängigkeiten unterbrochen werden könnten."
+            "value" : "Befehlszeilentools werden von Paketmanagern verwaltet. MachKit zeigt vorgeschlagene Befehle an, anstatt Verzeichnisse zu löschen, wodurch Abhängigkeiten unterbrochen werden könnten."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Las herramientas de línea de comandos son administradas por administradores de paquetes. Sift muestra comandos sugeridos en lugar de eliminar directorios, lo que podría romper las dependencias."
+            "value" : "Las herramientas de línea de comandos son administradas por administradores de paquetes. MachKit muestra comandos sugeridos en lugar de eliminar directorios, lo que podría romper las dependencias."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Les outils de ligne de commande sont gérés par les gestionnaires de packages. Sift affiche les commandes suggérées au lieu de supprimer les répertoires, ce qui pourrait rompre les dépendances."
+            "value" : "Les outils de ligne de commande sont gérés par les gestionnaires de packages. MachKit affiche les commandes suggérées au lieu de supprimer les répertoires, ce qui pourrait rompre les dépendances."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "コマンドライン ツールはパッケージ マネージャーによって管理されます。 Sift はディレクトリを削除する代わりに推奨コマンドを表示しますが、依存関係が壊れる可能性があります。"
+            "value" : "コマンドライン ツールはパッケージ マネージャーによって管理されます。 MachKit はディレクトリを削除する代わりに推奨コマンドを表示しますが、依存関係が壊れる可能性があります。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "명령줄 도구는 패키지 관리자에 의해 관리됩니다. Sift는 종속성을 깨뜨릴 수 있는 디렉터리를 삭제하는 대신 추천 명령을 표시합니다."
+            "value" : "명령줄 도구는 패키지 관리자에 의해 관리됩니다. MachKit는 종속성을 깨뜨릴 수 있는 디렉터리를 삭제하는 대신 추천 명령을 표시합니다."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "As ferramentas de linha de comando são gerenciadas por gerenciadores de pacotes. Sift mostra comandos sugeridos em vez de excluir diretórios, o que pode quebrar dependências."
+            "value" : "As ferramentas de linha de comando são gerenciadas por gerenciadores de pacotes. MachKit mostra comandos sugeridos em vez de excluir diretórios, o que pode quebrar dependências."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Инструменты командной строки управляются менеджерами пакетов. Sift показывает предлагаемые команды вместо удаления каталогов, которые могут нарушить зависимости."
+            "value" : "Инструменты командной строки управляются менеджерами пакетов. MachKit показывает предлагаемые команды вместо удаления каталогов, которые могут нарушить зависимости."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "命令行工具由包管理器维护。Sift 只展示建议命令，不直接删除其目录，以免破坏依赖关系。"
+            "value" : "命令行工具由包管理器维护。MachKit 只展示建议命令，不直接删除其目录，以免破坏依赖关系。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "命令列工具由套件管理器維護。 Sift 只展示建議指令，不直接刪除其目錄，以免破壞依賴關係。"
+            "value" : "命令列工具由套件管理器維護。 MachKit 只展示建議指令，不直接刪除其目錄，以免破壞依賴關係。"
           }
         }
       }
@@ -13184,61 +13184,61 @@
         }
       }
     },
-    "Customize Sift's language and appearance" : {
+    "Customize MachKit's language and appearance" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Passen Sie die Sprache und das Erscheinungsbild von Sift an"
+            "value" : "Passen Sie die Sprache und das Erscheinungsbild von MachKit an"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Personaliza el idioma y la apariencia de Sift"
+            "value" : "Personaliza el idioma y la apariencia de MachKit"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Personnaliser la langue et l'apparence de Sift"
+            "value" : "Personnaliser la langue et l'apparence de MachKit"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift の言語と外観をカスタマイズする"
+            "value" : "MachKit の言語と外観をカスタマイズする"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift의 언어 및 모양 사용자 정의"
+            "value" : "MachKit의 언어 및 모양 사용자 정의"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Personalize o idioma e a aparência do Sift"
+            "value" : "Personalize o idioma e a aparência do MachKit"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Настройте язык и внешний вид Sift"
+            "value" : "Настройте язык и внешний вид MachKit"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "调整 Sift 的语言和外观"
+            "value" : "调整 MachKit 的语言和外观"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "調整 Sift 的語言和外觀"
+            "value" : "調整 MachKit 的語言和外觀"
           }
         }
       }
@@ -16831,49 +16831,49 @@
         }
       }
     },
-    "Follow macOS, or keep Sift in Light or Dark mode" : {
+    "Follow macOS, or keep MachKit in Light or Dark mode" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Folgen Sie macOS oder lassen Sie Sift im Hell- oder Dunkelmodus"
+            "value" : "Folgen Sie macOS oder lassen Sie MachKit im Hell- oder Dunkelmodus"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Siga macOS o mantenga Sift en modo claro u oscuro"
+            "value" : "Siga macOS o mantenga MachKit en modo claro u oscuro"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Suivez macOS ou gardez Sift en mode clair ou sombre"
+            "value" : "Suivez macOS ou gardez MachKit en mode clair ou sombre"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "macOS に従うか、Sift をライト モードまたはダーク モードのままにしてください"
+            "value" : "macOS に従うか、MachKit をライト モードまたはダーク モードのままにしてください"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "macOS를 따르거나 Sift를 밝은 모드 또는 어두운 모드로 유지하세요"
+            "value" : "macOS를 따르거나 MachKit를 밝은 모드 또는 어두운 모드로 유지하세요"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Siga o macOS ou mantenha o Sift no modo Claro ou Escuro"
+            "value" : "Siga o macOS ou mantenha o MachKit no modo Claro ou Escuro"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Следуйте macOS или оставьте Sift в светлом или темном режиме."
+            "value" : "Следуйте macOS или оставьте MachKit в светлом или темном режиме."
           }
         },
         "zh-Hans" : {
@@ -17008,61 +17008,61 @@
         }
       }
     },
-    "Follow the system language or choose one specifically for Sift" : {
+    "Follow the system language or choose one specifically for MachKit" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Folgen Sie der Systemsprache oder wählen Sie eine speziell für Sift aus"
+            "value" : "Folgen Sie der Systemsprache oder wählen Sie eine speziell für MachKit aus"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Siga el idioma del sistema o elija uno específico para Sift"
+            "value" : "Siga el idioma del sistema o elija uno específico para MachKit"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Suivez la langue du système ou choisissez-en une spécifiquement pour Sift"
+            "value" : "Suivez la langue du système ou choisissez-en une spécifiquement pour MachKit"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "システム言語に従うか、Sift 専用の言語を選択してください"
+            "value" : "システム言語に従うか、MachKit 専用の言語を選択してください"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "시스템 언어를 따르거나 특별히 Sift용 언어를 선택하세요."
+            "value" : "시스템 언어를 따르거나 특별히 MachKit용 언어를 선택하세요."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Siga o idioma do sistema ou escolha um específico para Sift"
+            "value" : "Siga o idioma do sistema ou escolha um específico para MachKit"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Следуйте языку системы или выберите язык специально для Sift."
+            "value" : "Следуйте языку системы или выберите язык специально для MachKit."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "选择跟随系统，或为 Sift 单独指定语言"
+            "value" : "选择跟随系统，或为 MachKit 单独指定语言"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "选择跟随系统，或为 Sift 单独指定语言"
+            "value" : "选择跟随系统，或为 MachKit 单独指定语言"
           }
         }
       }
@@ -18948,61 +18948,61 @@
         }
       }
     },
-    "Host entries cannot contain Sift's reserved section markers." : {
+    "Host entries cannot contain MachKit's reserved section markers." : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hosts-Einträge dürfen keine reservierten Sift-Marker enthalten."
+            "value" : "Hosts-Einträge dürfen keine reservierten MachKit-Marker enthalten."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Las entradas hosts no pueden contener los marcadores reservados de Sift."
+            "value" : "Las entradas hosts no pueden contener los marcadores reservados de MachKit."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Les entrées hosts ne peuvent pas contenir les marqueurs réservés de Sift."
+            "value" : "Les entrées hosts ne peuvent pas contenir les marqueurs réservés de MachKit."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hosts エントリには Sift の予約済みマーカーを含められません。"
+            "value" : "Hosts エントリには MachKit の予約済みマーカーを含められません。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hosts 항목에는 Sift의 예약된 섹션 마커를 포함할 수 없습니다."
+            "value" : "Hosts 항목에는 MachKit의 예약된 섹션 마커를 포함할 수 없습니다."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "As entradas hosts não podem conter os marcadores reservados do Sift."
+            "value" : "As entradas hosts não podem conter os marcadores reservados do MachKit."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Записи hosts не могут содержать служебные маркеры Sift."
+            "value" : "Записи hosts не могут содержать служебные маркеры MachKit."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hosts 条目不能包含 Sift 的保留区块标记。"
+            "value" : "Hosts 条目不能包含 MachKit 的保留区块标记。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hosts 項目不能包含 Sift 的保留區塊標記。"
+            "value" : "Hosts 項目不能包含 MachKit 的保留區塊標記。"
           }
         }
       }
@@ -22360,60 +22360,60 @@
         }
       }
     },
-    "macOS handles hidden apps that are marked for automatic termination and currently unused, while Sift returns reclaimable pages from its own heap." : {
+    "macOS handles hidden apps that are marked for automatic termination and currently unused, while MachKit returns reclaimable pages from its own heap." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "macOS verarbeitet versteckte Apps, die für die automatische Beendigung markiert sind und derzeit nicht verwendet werden, während Sift wiederherstellbare Seiten aus seinem eigenen Heap zurückgibt."
+            "value" : "macOS verarbeitet versteckte Apps, die für die automatische Beendigung markiert sind und derzeit nicht verwendet werden, während MachKit wiederherstellbare Seiten aus seinem eigenen Heap zurückgibt."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "macOS maneja aplicaciones ocultas que están marcadas para terminación automática y que actualmente no se utilizan, mientras que Sift devuelve páginas recuperables desde su propio montón."
+            "value" : "macOS maneja aplicaciones ocultas que están marcadas para terminación automática y que actualmente no se utilizan, mientras que MachKit devuelve páginas recuperables desde su propio montón."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "macOS gère les applications cachées marquées pour une résiliation automatique et actuellement inutilisées, tandis que Sift renvoie les pages récupérables à partir de son propre tas."
+            "value" : "macOS gère les applications cachées marquées pour une résiliation automatique et actuellement inutilisées, tandis que MachKit renvoie les pages récupérables à partir de son propre tas."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "macOS は、自動終了のマークが付けられ、現在は使用されていない非表示のアプリを処理しますが、Sift は自身のヒープから再利用可能なページを返します。"
+            "value" : "macOS は、自動終了のマークが付けられ、現在は使用されていない非表示のアプリを処理しますが、MachKit は自身のヒープから再利用可能なページを返します。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "macOS는 자동 종료로 표시되고 현재 사용되지 않는 숨겨진 앱을 처리하는 반면 Sift는 자체 힙에서 회수 가능한 페이지를 반환합니다."
+            "value" : "macOS는 자동 종료로 표시되고 현재 사용되지 않는 숨겨진 앱을 처리하는 반면 MachKit는 자체 힙에서 회수 가능한 페이지를 반환합니다."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "O macOS lida com aplicativos ocultos marcados para encerramento automático e atualmente não utilizados, enquanto o Sift retorna páginas recuperáveis de seu próprio heap."
+            "value" : "O macOS lida com aplicativos ocultos marcados para encerramento automático e atualmente não utilizados, enquanto o MachKit retorna páginas recuperáveis de seu próprio heap."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "macOS обрабатывает скрытые приложения, которые помечены для автоматического закрытия и в настоящее время не используются, а Sift возвращает пригодные для восстановления страницы из собственной кучи."
+            "value" : "macOS обрабатывает скрытые приложения, которые помечены для автоматического закрытия и в настоящее время не используются, а MachKit возвращает пригодные для восстановления страницы из собственной кучи."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "由 macOS 处理已标记为可自动终止、当前又未使用的隐藏 App，同时归还 Sift 自身堆中可回收的页面。"
+            "value" : "由 macOS 处理已标记为可自动终止、当前又未使用的隐藏 App，同时归还 MachKit 自身堆中可回收的页面。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "由 macOS 處理已標記為可自動終止、目前未使用的隱藏 App，同時歸還 Sift 自身堆中可回收的頁面。"
+            "value" : "由 macOS 處理已標記為可自動終止、目前未使用的隱藏 App，同時歸還 MachKit 自身堆中可回收的頁面。"
           }
         }
       }
@@ -27834,61 +27834,61 @@
         }
       }
     },
-    "Open Sift" : {
+    "Open MachKit" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift öffnen"
+            "value" : "MachKit öffnen"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Abrir Sift"
+            "value" : "Abrir MachKit"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ouvrir Sift"
+            "value" : "Ouvrir MachKit"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift を開く"
+            "value" : "MachKit を開く"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift 열기"
+            "value" : "MachKit 열기"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Abrir Sift"
+            "value" : "Abrir MachKit"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Открыть Sift"
+            "value" : "Открыть MachKit"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "打开 Sift"
+            "value" : "打开 MachKit"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "開啟 Sift"
+            "value" : "開啟 MachKit"
           }
         }
       }
@@ -34059,61 +34059,61 @@
         }
       }
     },
-    "Remove Sift's saved settings, shortcuts, tool data, and window state" : {
+    "Remove MachKit's saved settings, shortcuts, tool data, and window state" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gespeicherte Einstellungen, Tastenkürzel, Werkzeugdaten und Fensterstatus von Sift entfernen"
+            "value" : "Gespeicherte Einstellungen, Tastenkürzel, Werkzeugdaten und Fensterstatus von MachKit entfernen"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Elimina los ajustes, atajos, datos de herramientas y estado de ventanas guardados por Sift"
+            "value" : "Elimina los ajustes, atajos, datos de herramientas y estado de ventanas guardados por MachKit"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Supprimer les réglages, raccourcis, données d’outils et états de fenêtres enregistrés par Sift"
+            "value" : "Supprimer les réglages, raccourcis, données d’outils et états de fenêtres enregistrés par MachKit"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift に保存された設定、ショートカット、ツールデータ、ウインドウ状態を削除"
+            "value" : "MachKit に保存された設定、ショートカット、ツールデータ、ウインドウ状態を削除"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift에 저장된 설정, 단축키, 도구 데이터 및 창 상태 제거"
+            "value" : "MachKit에 저장된 설정, 단축키, 도구 데이터 및 창 상태 제거"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Remova configurações, atalhos, dados de ferramentas e estado das janelas salvos pelo Sift"
+            "value" : "Remova configurações, atalhos, dados de ferramentas e estado das janelas salvos pelo MachKit"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Удалить сохранённые настройки, сочетания клавиш, данные инструментов и состояние окон Sift"
+            "value" : "Удалить сохранённые настройки, сочетания клавиш, данные инструментов и состояние окон MachKit"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "移除 Sift 保存的设置、快捷键、工具数据和窗口状态"
+            "value" : "移除 MachKit 保存的设置、快捷键、工具数据和窗口状态"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "移除 Sift 儲存的設定、快速鍵、工具資料和視窗狀態"
+            "value" : "移除 MachKit 儲存的設定、快速鍵、工具資料和視窗狀態"
           }
         }
       }
@@ -37118,61 +37118,61 @@
         }
       }
     },
-    "Select the interface language used by Sift" : {
+    "Select the interface language used by MachKit" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wählen Sie die von Sift verwendete Schnittstellensprache aus"
+            "value" : "Wählen Sie die von MachKit verwendete Schnittstellensprache aus"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Seleccione el idioma de la interfaz utilizado por Sift"
+            "value" : "Seleccione el idioma de la interfaz utilizado por MachKit"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sélectionnez la langue de l'interface utilisée par Sift"
+            "value" : "Sélectionnez la langue de l'interface utilisée par MachKit"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift で使用するインターフェース言語を選択します"
+            "value" : "MachKit で使用するインターフェース言語を選択します"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift에서 사용하는 인터페이스 언어를 선택하세요."
+            "value" : "MachKit에서 사용하는 인터페이스 언어를 선택하세요."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Selecione o idioma da interface usado pelo Sift"
+            "value" : "Selecione o idioma da interface usado pelo MachKit"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Выберите язык интерфейса, используемый Sift"
+            "value" : "Выберите язык интерфейса, используемый MachKit"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "选择 Sift 使用的界面语言"
+            "value" : "选择 MachKit 使用的界面语言"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "選擇 Sift 使用的介面語言"
+            "value" : "選擇 MachKit 使用的介面語言"
           }
         }
       }
@@ -37879,83 +37879,83 @@
         }
       }
     },
-    "Sift" : {
+    "MachKit" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift"
+            "value" : "MachKit"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift"
+            "value" : "MachKit"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift"
+            "value" : "MachKit"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift"
+            "value" : "MachKit"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift"
+            "value" : "MachKit"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift"
+            "value" : "MachKit"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift"
+            "value" : "MachKit"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift"
+            "value" : "MachKit"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift"
+            "value" : "MachKit"
           }
         }
       }
     },
-    "Sift cannot quit its own process." : {
+    "MachKit cannot quit its own process." : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift kann seinen eigenen Prozess nicht beenden."
+            "value" : "MachKit kann seinen eigenen Prozess nicht beenden."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift no puede abandonar su propio proceso."
+            "value" : "MachKit no puede abandonar su propio proceso."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift ne peut pas quitter son propre processus."
+            "value" : "MachKit ne peut pas quitter son propre processus."
           }
         },
         "ja" : {
@@ -37967,54 +37967,54 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift는 자체 프로세스를 종료할 수 없습니다."
+            "value" : "MachKit는 자체 프로세스를 종료할 수 없습니다."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift não pode encerrar seu próprio processo."
+            "value" : "MachKit não pode encerrar seu próprio processo."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift не может выйти из собственного процесса."
+            "value" : "MachKit не может выйти из собственного процесса."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift 不能结束自身进程。"
+            "value" : "MachKit 不能结束自身进程。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift 不能結束自身進程。"
+            "value" : "MachKit 不能結束自身進程。"
           }
         }
       }
     },
-    "Sift cannot quit itself." : {
+    "MachKit cannot quit itself." : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift kann sich nicht selbst beenden."
+            "value" : "MachKit kann sich nicht selbst beenden."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift no puede abandonarse por sí solo."
+            "value" : "MachKit no puede abandonarse por sí solo."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift ne peut pas s'arrêter."
+            "value" : "MachKit ne peut pas s'arrêter."
           }
         },
         "ja" : {
@@ -38026,113 +38026,113 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift는 스스로 종료할 수 없습니다."
+            "value" : "MachKit는 스스로 종료할 수 없습니다."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift não pode parar sozinho."
+            "value" : "MachKit não pode parar sozinho."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift не может выйти сам."
+            "value" : "MachKit не может выйти сам."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift 不能退出自身。"
+            "value" : "MachKit 不能退出自身。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift 無法退出自身。"
+            "value" : "MachKit 無法退出自身。"
           }
         }
       }
     },
-    "Sift does not have permission to access the Trash. Please turn on \"Full Disk Access\" on the home page, restart Sift and try again." : {
+    "MachKit does not have permission to access the Trash. Please turn on \"Full Disk Access\" on the home page, restart MachKit and try again." : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift hat keine Berechtigung, auf den Papierkorb zuzugreifen. Bitte aktivieren Sie „Vollständiger Festplattenzugriff“ auf der Startseite, starten Sie Sift neu und versuchen Sie es erneut."
+            "value" : "MachKit hat keine Berechtigung, auf den Papierkorb zuzugreifen. Bitte aktivieren Sie „Vollständiger Festplattenzugriff“ auf der Startseite, starten Sie MachKit neu und versuchen Sie es erneut."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift no tiene permiso para acceder a la Papelera. Active \"Acceso total al disco\" en la página de inicio, reinicie Sift e inténtelo de nuevo."
+            "value" : "MachKit no tiene permiso para acceder a la Papelera. Active \"Acceso total al disco\" en la página de inicio, reinicie MachKit e inténtelo de nuevo."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift n'est pas autorisé à accéder à la corbeille. Veuillez activer « Accès complet au disque » sur la page d'accueil, redémarrez Sift et réessayez."
+            "value" : "MachKit n'est pas autorisé à accéder à la corbeille. Veuillez activer « Accès complet au disque » sur la page d'accueil, redémarrez MachKit et réessayez."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift にはゴミ箱にアクセスする権限がありません。ホームページで「フル ディスク アクセス」をオンにし、Sift を再起動してもう一度お試しください。"
+            "value" : "MachKit にはゴミ箱にアクセスする権限がありません。ホームページで「フル ディスク アクセス」をオンにし、MachKit を再起動してもう一度お試しください。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift에는 휴지통에 액세스할 수 있는 권한이 없습니다. 홈 페이지에서 \"전체 디스크 액세스\"를 켜고 Sift를 다시 시작한 후 다시 시도하십시오."
+            "value" : "MachKit에는 휴지통에 액세스할 수 있는 권한이 없습니다. 홈 페이지에서 \"전체 디스크 액세스\"를 켜고 MachKit를 다시 시작한 후 다시 시도하십시오."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift não tem permissão para acessar a Lixeira. Ative o \"Acesso total ao disco\" na página inicial, reinicie o Sift e tente novamente."
+            "value" : "MachKit não tem permissão para acessar a Lixeira. Ative o \"Acesso total ao disco\" na página inicial, reinicie o MachKit e tente novamente."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "У Sift нет разрешения на доступ к корзине. Пожалуйста, включите «Полный доступ к диску» на главной странице, перезапустите Sift и повторите попытку."
+            "value" : "У MachKit нет разрешения на доступ к корзине. Пожалуйста, включите «Полный доступ к диску» на главной странице, перезапустите MachKit и повторите попытку."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift 没有权限访问废纸篓。请在首页打开“完全磁盘访问权限”，重新启动 Sift 后再试。"
+            "value" : "MachKit 没有权限访问废纸篓。请在首页打开“完全磁盘访问权限”，重新启动 MachKit 后再试。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift 沒有權限存取廢紙簍。請在首頁開啟“完全磁碟存取權限”，重新啟動 Sift 後再試一次。"
+            "value" : "MachKit 沒有權限存取廢紙簍。請在首頁開啟“完全磁碟存取權限”，重新啟動 MachKit 後再試一次。"
           }
         }
       }
     },
-    "Sift found app-style identifiers with no matching installed app. These are review-only because helpers and command-line tools can own similar files." : {
+    "MachKit found app-style identifiers with no matching installed app. These are review-only because helpers and command-line tools can own similar files." : {
       "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift hat App-Kennungen ohne passende installierte App gefunden. Sie dienen nur zur Prüfung, da Hilfsprogramme und Befehlszeilentools ähnliche Dateien besitzen können."
+            "value" : "MachKit hat App-Kennungen ohne passende installierte App gefunden. Sie dienen nur zur Prüfung, da Hilfsprogramme und Befehlszeilentools ähnliche Dateien besitzen können."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift encontró identificadores de aplicación sin una app instalada correspondiente. Solo se muestran para revisión porque los auxiliares y las herramientas de línea de comandos pueden tener archivos similares."
+            "value" : "MachKit encontró identificadores de aplicación sin una app instalada correspondiente. Solo se muestran para revisión porque los auxiliares y las herramientas de línea de comandos pueden tener archivos similares."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift a trouvé des identifiants d’app sans application installée correspondante. Ils sont uniquement à vérifier, car des utilitaires et outils en ligne de commande peuvent posséder des fichiers similaires."
+            "value" : "MachKit a trouvé des identifiants d’app sans application installée correspondante. Ils sont uniquement à vérifier, car des utilitaires et outils en ligne de commande peuvent posséder des fichiers similaires."
           }
         },
         "ja" : {
@@ -38150,36 +38150,36 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "O Sift encontrou identificadores de app sem um aplicativo instalado correspondente. Eles são apenas para revisão, pois auxiliares e ferramentas de linha de comando podem ter arquivos semelhantes."
+            "value" : "O MachKit encontrou identificadores de app sem um aplicativo instalado correspondente. Eles são apenas para revisão, pois auxiliares e ferramentas de linha de comando podem ter arquivos semelhantes."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift обнаружил идентификаторы приложений без соответствующего установленного приложения. Они показаны только для проверки, поскольку похожие файлы могут принадлежать вспомогательным и консольным программам."
+            "value" : "MachKit обнаружил идентификаторы приложений без соответствующего установленного приложения. Они показаны только для проверки, поскольку похожие файлы могут принадлежать вспомогательным и консольным программам."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift 发现了一些没有对应已安装应用的 App 标识符。辅助程序和命令行工具也可能拥有类似文件，因此这里只供检查。"
+            "value" : "MachKit 发现了一些没有对应已安装应用的 App 标识符。辅助程序和命令行工具也可能拥有类似文件，因此这里只供检查。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift 發現了一些沒有對應已安裝 App 的識別碼。輔助程式和命令列工具也可能擁有類似檔案，因此這裡只供檢查。"
+            "value" : "MachKit 發現了一些沒有對應已安裝 App 的識別碼。輔助程式和命令列工具也可能擁有類似檔案，因此這裡只供檢查。"
           }
         }
       }
     },
-    "Sift version: %@\nmacOS: %@" : {
+    "MachKit version: %@\nmacOS: %@" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift-Version: %@\nmacOS: %@"
+            "value" : "MachKit-Version: %@\nmacOS: %@"
           }
         },
         "es" : {
@@ -38221,13 +38221,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "\n\nSift 版本：%@\nmacOS：%@"
+            "value" : "\n\nMachKit 版本：%@\nmacOS：%@"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sift 版本：%@\nmacOS：%@"
+            "value" : "MachKit 版本：%@\nmacOS：%@"
           }
         }
       }
@@ -38349,61 +38349,61 @@
         }
       }
     },
-    "Smart release complete; idle background apps were handled and Sift returned its own reclaimable memory." : {
+    "Smart release complete; idle background apps were handled and MachKit returned its own reclaimable memory." : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Smart Release abgeschlossen; Inaktive Hintergrund-Apps wurden behandelt und Sift gab seinen eigenen zurückgewinnbaren Speicher zurück."
+            "value" : "Smart Release abgeschlossen; Inaktive Hintergrund-Apps wurden behandelt und MachKit gab seinen eigenen zurückgewinnbaren Speicher zurück."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lanzamiento inteligente completo; Se manejaron las aplicaciones inactivas en segundo plano y Sift devolvió su propia memoria recuperable."
+            "value" : "Lanzamiento inteligente completo; Se manejaron las aplicaciones inactivas en segundo plano y MachKit devolvió su propia memoria recuperable."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Version intelligente terminée ; les applications inactives en arrière-plan ont été gérées et Sift a restitué sa propre mémoire récupérable."
+            "value" : "Version intelligente terminée ; les applications inactives en arrière-plan ont été gérées et MachKit a restitué sa propre mémoire récupérable."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "スマートリリースが完了しました。アイドル状態のバックグラウンド アプリが処理され、Sift は独自の再利用可能なメモリを返しました。"
+            "value" : "スマートリリースが完了しました。アイドル状態のバックグラウンド アプリが処理され、MachKit は独自の再利用可能なメモリを返しました。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "스마트 출시 완료; 유휴 백그라운드 앱이 처리되고 Sift가 자체 회수 가능한 메모리를 반환했습니다."
+            "value" : "스마트 출시 완료; 유휴 백그라운드 앱이 처리되고 MachKit가 자체 회수 가능한 메모리를 반환했습니다."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Liberação inteligente concluída; aplicativos ociosos em segundo plano foram tratados e o Sift retornou sua própria memória recuperável."
+            "value" : "Liberação inteligente concluída; aplicativos ociosos em segundo plano foram tratados e o MachKit retornou sua própria memória recuperável."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Смарт-релиз завершен; Неработающие фоновые приложения были обработаны, и Sift вернул свою собственную восстанавливаемую память."
+            "value" : "Смарт-релиз завершен; Неработающие фоновые приложения были обработаны, и MachKit вернул свою собственную восстанавливаемую память."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "智能释放完成；已处理闲置后台 App，并归还 Sift 自身可回收内存。"
+            "value" : "智能释放完成；已处理闲置后台 App，并归还 MachKit 自身可回收内存。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "智慧釋放完成；已處理閒置後台 App，並歸還 Sift 自身可回收記憶體。"
+            "value" : "智慧釋放完成；已處理閒置後台 App，並歸還 MachKit 自身可回收記憶體。"
           }
         }
       }
@@ -41583,61 +41583,61 @@
         }
       }
     },
-    "The Sift section in /etc/hosts is incomplete. Remove the broken markers manually and try again." : {
+    "The MachKit section in /etc/hosts is incomplete. Remove the broken markers manually and try again." : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Der Sift-Abschnitt in /etc/hosts ist unvollständig. Entferne die defekten Marker und versuche es erneut."
+            "value" : "Der MachKit-Abschnitt in /etc/hosts ist unvollständig. Entferne die defekten Marker und versuche es erneut."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "La sección de Sift en /etc/hosts está incompleta. Elimina los marcadores dañados y vuelve a intentarlo."
+            "value" : "La sección de MachKit en /etc/hosts está incompleta. Elimina los marcadores dañados y vuelve a intentarlo."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "La section Sift de /etc/hosts est incomplète. Supprimez manuellement les marqueurs endommagés et réessayez."
+            "value" : "La section MachKit de /etc/hosts est incomplète. Supprimez manuellement les marqueurs endommagés et réessayez."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "/etc/hosts の Sift セクションが不完全です。壊れたマーカーを手動で削除して再試行してください。"
+            "value" : "/etc/hosts の MachKit セクションが不完全です。壊れたマーカーを手動で削除して再試行してください。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "/etc/hosts의 Sift 섹션이 불완전합니다. 손상된 마커를 직접 제거한 후 다시 시도하세요."
+            "value" : "/etc/hosts의 MachKit 섹션이 불완전합니다. 손상된 마커를 직접 제거한 후 다시 시도하세요."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A seção do Sift em /etc/hosts está incompleta. Remova os marcadores danificados e tente novamente."
+            "value" : "A seção do MachKit em /etc/hosts está incompleta. Remova os marcadores danificados e tente novamente."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Раздел Sift в /etc/hosts повреждён. Удалите маркеры вручную и повторите попытку."
+            "value" : "Раздел MachKit в /etc/hosts повреждён. Удалите маркеры вручную и повторите попытку."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "/etc/hosts 中的 Sift 区块不完整。请手动移除损坏的标记后重试。"
+            "value" : "/etc/hosts 中的 MachKit 区块不完整。请手动移除损坏的标记后重试。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "/etc/hosts 中的 Sift 區塊不完整。請手動移除損壞的標記後再試。"
+            "value" : "/etc/hosts 中的 MachKit 區塊不完整。請手動移除損壞的標記後再試。"
           }
         }
       }
@@ -42527,120 +42527,120 @@
         }
       }
     },
-    "This process cannot be quit from Sift." : {
+    "This process cannot be quit from MachKit." : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dieser Vorgang kann nicht von Sift aus beendet werden."
+            "value" : "Dieser Vorgang kann nicht von MachKit aus beendet werden."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Este proceso no se puede salir de Sift."
+            "value" : "Este proceso no se puede salir de MachKit."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ce processus ne peut pas être quitté depuis Sift."
+            "value" : "Ce processus ne peut pas être quitté depuis MachKit."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "このプロセスは Sift から終了できません。"
+            "value" : "このプロセスは MachKit から終了できません。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "이 프로세스는 Sift에서 종료할 수 없습니다."
+            "value" : "이 프로세스는 MachKit에서 종료할 수 없습니다."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Este processo não pode ser encerrado no Sift."
+            "value" : "Este processo não pode ser encerrado no MachKit."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Этот процесс невозможно завершить из Sift."
+            "value" : "Этот процесс невозможно завершить из MachKit."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "这个进程不能在 Sift 中结束。"
+            "value" : "这个进程不能在 MachKit 中结束。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "這個進程不能在 Sift 中結束。"
+            "value" : "這個進程不能在 MachKit 中結束。"
           }
         }
       }
     },
-    "This removes all data saved by Sift on this Mac and then quits the app. System files and scan targets are not deleted." : {
+    "This removes all data saved by MachKit on this Mac and then quits the app. System files and scan targets are not deleted." : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dadurch werden alle von Sift auf diesem Mac gespeicherten Daten gelöscht und die App anschließend beendet. Systemdateien und Scan-Ziele werden nicht gelöscht."
+            "value" : "Dadurch werden alle von MachKit auf diesem Mac gespeicherten Daten gelöscht und die App anschließend beendet. Systemdateien und Scan-Ziele werden nicht gelöscht."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Esto elimina todos los datos guardados por Sift en este Mac y cierra la app. No se eliminan archivos del sistema ni objetivos de análisis."
+            "value" : "Esto elimina todos los datos guardados por MachKit en este Mac y cierra la app. No se eliminan archivos del sistema ni objetivos de análisis."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cette action supprime toutes les données enregistrées par Sift sur ce Mac, puis quitte l’app. Les fichiers système et les cibles d’analyse ne sont pas supprimés."
+            "value" : "Cette action supprime toutes les données enregistrées par MachKit sur ce Mac, puis quitte l’app. Les fichiers système et les cibles d’analyse ne sont pas supprimés."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "この Mac に Sift が保存したすべてのデータを削除して、アプリを終了します。システムファイルとスキャン対象は削除されません。"
+            "value" : "この Mac に MachKit が保存したすべてのデータを削除して、アプリを終了します。システムファイルとスキャン対象は削除されません。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "이 Mac에 Sift가 저장한 모든 데이터를 삭제한 후 앱을 종료합니다. 시스템 파일과 검사 대상은 삭제되지 않습니다."
+            "value" : "이 Mac에 MachKit가 저장한 모든 데이터를 삭제한 후 앱을 종료합니다. 시스템 파일과 검사 대상은 삭제되지 않습니다."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Isso remove todos os dados salvos pelo Sift neste Mac e fecha o app. Arquivos do sistema e alvos de análise não são excluídos."
+            "value" : "Isso remove todos os dados salvos pelo MachKit neste Mac e fecha o app. Arquivos do sistema e alvos de análise não são excluídos."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Это удалит все данные, сохранённые Sift на этом Mac, а затем завершит работу приложения. Системные файлы и объекты сканирования не удаляются."
+            "value" : "Это удалит все данные, сохранённые MachKit на этом Mac, а затем завершит работу приложения. Системные файлы и объекты сканирования не удаляются."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "这会移除 Sift 在此 Mac 上保存的所有数据，然后退出应用。系统文件和扫描目标不会被删除。"
+            "value" : "这会移除 MachKit 在此 Mac 上保存的所有数据，然后退出应用。系统文件和扫描目标不会被删除。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "這會移除 Sift 在此 Mac 上儲存的所有資料，然後結束 App。系統檔案和掃描目標不會被刪除。"
+            "value" : "這會移除 MachKit 在此 Mac 上儲存的所有資料，然後結束 App。系統檔案和掃描目標不會被刪除。"
           }
         }
       }
@@ -44349,61 +44349,61 @@
         }
       }
     },
-    "Unable to read macOS login items. Please allow Sift to control System Events in system settings, or manage it directly in system settings." : {
+    "Unable to read macOS login items. Please allow MachKit to control System Events in system settings, or manage it directly in system settings." : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "macOS-Anmeldeelemente können nicht gelesen werden. Bitte erlauben Sie Sift, Systemereignisse in den Systemeinstellungen zu steuern, oder verwalten Sie sie direkt in den Systemeinstellungen."
+            "value" : "macOS-Anmeldeelemente können nicht gelesen werden. Bitte erlauben Sie MachKit, Systemereignisse in den Systemeinstellungen zu steuern, oder verwalten Sie sie direkt in den Systemeinstellungen."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No se pueden leer los elementos de inicio de sesión de macOS. Permita que Sift controle los eventos del sistema en la configuración del sistema o adminístrelo directamente en la configuración del sistema."
+            "value" : "No se pueden leer los elementos de inicio de sesión de macOS. Permita que MachKit controle los eventos del sistema en la configuración del sistema o adminístrelo directamente en la configuración del sistema."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Impossible de lire les éléments de connexion macOS. Veuillez autoriser Sift à contrôler les événements système dans les paramètres système, ou à les gérer directement dans les paramètres système."
+            "value" : "Impossible de lire les éléments de connexion macOS. Veuillez autoriser MachKit à contrôler les événements système dans les paramètres système, ou à les gérer directement dans les paramètres système."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "macOS のログイン項目を読み取ることができません。 Sift がシステム設定でシステム イベントを制御できるようにするか、システム設定で直接管理できるようにしてください。"
+            "value" : "macOS のログイン項目を読み取ることができません。 MachKit がシステム設定でシステム イベントを制御できるようにするか、システム設定で直接管理できるようにしてください。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "macOS 로그인 항목을 읽을 수 없습니다. Sift가 시스템 설정에서 시스템 이벤트를 제어하도록 허용하거나 시스템 설정에서 직접 관리하세요."
+            "value" : "macOS 로그인 항목을 읽을 수 없습니다. MachKit가 시스템 설정에서 시스템 이벤트를 제어하도록 허용하거나 시스템 설정에서 직접 관리하세요."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Não é possível ler os itens de login do macOS. Permita que o Sift controle os eventos do sistema nas configurações do sistema ou gerencie-os diretamente nas configurações do sistema."
+            "value" : "Não é possível ler os itens de login do macOS. Permita que o MachKit controle os eventos do sistema nas configurações do sistema ou gerencie-os diretamente nas configurações do sistema."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Невозможно прочитать элементы входа в macOS. Разрешите Sift контролировать системные события в настройках системы или управлять ими непосредственно в настройках системы."
+            "value" : "Невозможно прочитать элементы входа в macOS. Разрешите MachKit контролировать системные события в настройках системы или управлять ими непосредственно в настройках системы."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "无法读取 macOS 登录项。请在系统设置中允许 Sift 控制“系统事件”，或直接在系统设置中管理。"
+            "value" : "无法读取 macOS 登录项。请在系统设置中允许 MachKit 控制“系统事件”，或直接在系统设置中管理。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "無法讀取 macOS 登入項目。請在系統設定中允許 Sift 控制“系統事件”，或直接在系統設定中管理。"
+            "value" : "無法讀取 macOS 登入項目。請在系統設定中允許 MachKit 控制“系統事件”，或直接在系統設定中管理。"
           }
         }
       }
@@ -45702,61 +45702,61 @@
         }
       }
     },
-    "Unsaved work may trigger the app’s own save prompt. Sift will first ask the app to quit normally." : {
+    "Unsaved work may trigger the app’s own save prompt. MachKit will first ask the app to quit normally." : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nicht gespeicherte Arbeiten können die eigene Speicheraufforderung der App auslösen. Sift fordert die App zunächst auf, normal zu beenden."
+            "value" : "Nicht gespeicherte Arbeiten können die eigene Speicheraufforderung der App auslösen. MachKit fordert die App zunächst auf, normal zu beenden."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "El trabajo no guardado puede activar el mensaje de guardado de la aplicación. Sift primero le pedirá a la aplicación que se cierre normalmente."
+            "value" : "El trabajo no guardado puede activar el mensaje de guardado de la aplicación. MachKit primero le pedirá a la aplicación que se cierre normalmente."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Le travail non enregistré peut déclencher la propre invite d'enregistrement de l'application. Sift demandera d’abord à l’application de se fermer normalement."
+            "value" : "Le travail non enregistré peut déclencher la propre invite d'enregistrement de l'application. MachKit demandera d’abord à l’application de se fermer normalement."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "保存されていない作業内容により、アプリ独自の保存プロンプトがトリガーされる場合があります。 Sift はまずアプリに通常どおり終了するように要求します。"
+            "value" : "保存されていない作業内容により、アプリ独自の保存プロンプトがトリガーされる場合があります。 MachKit はまずアプリに通常どおり終了するように要求します。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "저장되지 않은 작업은 앱 자체의 저장 메시지를 트리거할 수 있습니다. Sift는 먼저 앱에 정상적으로 종료하도록 요청합니다."
+            "value" : "저장되지 않은 작업은 앱 자체의 저장 메시지를 트리거할 수 있습니다. MachKit는 먼저 앱에 정상적으로 종료하도록 요청합니다."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "O trabalho não salvo pode acionar o prompt de salvamento do próprio aplicativo. O Sift primeiro pedirá que o aplicativo feche normalmente."
+            "value" : "O trabalho não salvo pode acionar o prompt de salvamento do próprio aplicativo. O MachKit primeiro pedirá que o aplicativo feche normalmente."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Несохраненная работа может вызвать собственный запрос на сохранение в приложении. Sift сначала попросит приложение завершить работу в обычном режиме."
+            "value" : "Несохраненная работа может вызвать собственный запрос на сохранение в приложении. MachKit сначала попросит приложение завершить работу в обычном режиме."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "未保存的内容可能会触发 App 自己的保存提示。Sift 会先请求 App 正常退出。"
+            "value" : "未保存的内容可能会触发 App 自己的保存提示。MachKit 会先请求 App 正常退出。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "未儲存的內容可能會觸發 App 自己的儲存提示。 Sift 會先要求 App 正常退出。"
+            "value" : "未儲存的內容可能會觸發 App 自己的儲存提示。 MachKit 會先要求 App 正常退出。"
           }
         }
       }

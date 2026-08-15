@@ -3,9 +3,9 @@ import CodeMirror from "@uiw/react-codemirror";
 import { Check, Desktop, HardDrives, Link, Plus, Power, Trash } from "@phosphor-icons/react";
 import * as ContextMenu from "@radix-ui/react-context-menu";
 import { Button, InlineMessage, ToolPage } from "@/ui/index.js";
-import { useSiftEditorTheme } from "@/ui/codemirror-theme.js";
+import { useMachKitEditorTheme } from "@/ui/codemirror-theme.js";
 import { useToolMessages } from "@/i18n.js";
-import { sift } from "@/runtime/sift.js";
+import { machkit } from "@/runtime/machkit.js";
 import { mountTool } from "@/runtime/mount-tool.jsx";
 
 import { labels } from "./messages.js";
@@ -13,7 +13,7 @@ import { createOperationQueue } from "./operation-queue.js";
 
 function HostsManager() {
   const text = useToolMessages(labels);
-  const editorTheme = useSiftEditorTheme();
+  const editorTheme = useMachKitEditorTheme();
   const [data, setData] = useState(null);
   const [selection, setSelection] = useState("system");
   const [drafts, setDrafts] = useState([]);
@@ -55,7 +55,7 @@ function HostsManager() {
       : selectedEnvironment?.content || "";
 
   useEffect(() => {
-    sift.hosts("load").then((nextData) => {
+    machkit.hosts("load").then((nextData) => {
       replaceData(nextData);
     }).catch((error) => setMessage(error.message));
   }, []);
@@ -67,7 +67,7 @@ function HostsManager() {
     const localEditRevision = editRevisionRef.current;
     setMessage("");
     try {
-      const nextData = await operationQueueRef.current.run(() => sift.hosts("save", {
+      const nextData = await operationQueueRef.current.run(() => machkit.hosts("save", {
         environments: nextDrafts,
         sharedContent: nextSharedContent,
         revision: dataRef.current?.revision,
@@ -93,7 +93,7 @@ function HostsManager() {
     if (!await save()) return;
     setMessage("");
     try {
-      const nextData = await operationQueueRef.current.run(() => sift.hosts("activate", {
+      const nextData = await operationQueueRef.current.run(() => machkit.hosts("activate", {
         id,
         revision: dataRef.current?.revision,
       }));
@@ -158,12 +158,12 @@ function HostsManager() {
     <ToolPage title="Hosts Manager">
       <div className="flex min-h-0 flex-1 bg-surface">
         <aside className="w-[220px] shrink-0 bg-surface p-3">
-          <div className="sift-sidebar-label px-2 pt-1 pb-1.5">{text.system}</div>
+          <div className="machkit-sidebar-label px-2 pt-1 pb-1.5">{text.system}</div>
           {rows.slice(0, 1).map((row) => <HostRow key={row.id} row={row} selected={selection === row.id} active={false} onSelect={setSelection} />)}
-          <div className="sift-sidebar-label px-2 pt-3 pb-1.5">{text.shared}</div>
+          <div className="machkit-sidebar-label px-2 pt-3 pb-1.5">{text.shared}</div>
           {rows.slice(1, 2).map((row) => <HostRow key={row.id} row={row} selected={selection === row.id} active={false} onSelect={setSelection} />)}
           <div className="mt-3 flex items-center justify-between px-2.5 py-2">
-            <span className="sift-sidebar-label">{text.environments}</span>
+            <span className="machkit-sidebar-label">{text.environments}</span>
             <Button variant="ghost" size="icon" className="size-7" onClick={addEnvironment} aria-label={text.add}><Plus size={14} /></Button>
           </div>
           <div className="space-y-1 overflow-auto">
@@ -217,7 +217,7 @@ function HostsManager() {
               onChange={updateContent}
               onBlur={() => selection !== "system" && save()}
               placeholder={`# ${text.empty}\n127.0.0.1    api.example.local`}
-              className="hosts-code-editor sift-panel h-full min-h-0"
+              className="hosts-code-editor machkit-panel h-full min-h-0"
             />
           </div>
           {message ? <div className="px-3 pb-3"><InlineMessage tone="danger">{message}</InlineMessage></div> : null}

@@ -279,7 +279,7 @@ final class ToolShortcutStore: ObservableObject {
     }
 }
 
-private let globalHotKeySignature: OSType = 0x53494654 // SIFT
+private let globalHotKeySignature: OSType = 0x4D4B4954 // MKIT
 
 private let globalHotKeyEventHandler: EventHandlerUPP = { _, event, _ in
     guard let event else { return OSStatus(eventNotHandledErr) }
@@ -420,15 +420,15 @@ struct DeveloperToolCommands: Commands {
     }
 
     private func open(_ tool: DeveloperTool) {
-        SiftAppLifecycle.showInForeground()
+        MachKitAppLifecycle.showInForeground()
         openWindow(id: "web-tool", value: tool.id)
-        SiftAppLifecycle.bringWindowToFront(titled: tool.localizedTitle)
+        MachKitAppLifecycle.bringWindowToFront(titled: tool.localizedTitle)
     }
 
     private func openToolList() {
         model.changeMode(.tools)
-        SiftAppLifecycle.showInForeground()
+        MachKitAppLifecycle.showInForeground()
         openWindow(id: "main")
-        SiftAppLifecycle.bringWindowToFront(titled: "Sift")
+        MachKitAppLifecycle.bringWindowToFront(titled: "MachKit")
     }
 }

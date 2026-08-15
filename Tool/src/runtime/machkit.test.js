@@ -11,7 +11,7 @@ globalThis.CustomEvent = class CustomEvent {
   }
 };
 globalThis.window = {
-  __SIFT__: { locale: "en", appearance: "system" },
+  __MACHKIT__: { locale: "en", appearance: "system" },
   webkit: { messageHandlers: { bridge: { postMessage: (request) => postMessage(request) } } },
   setTimeout,
   clearTimeout,
@@ -22,7 +22,7 @@ Object.defineProperty(globalThis, "navigator", {
   value: { language: "en" },
 });
 
-const { sift } = await import("./sift.js");
+const { machkit } = await import("./machkit.js");
 
 test("native requests carry a versioned method contract", async () => {
   postMessage = async (request) => {
@@ -33,25 +33,25 @@ test("native requests carry a versioned method contract", async () => {
     });
     return { revision: 2 };
   };
-  assert.deepEqual(await sift.hosts("load"), { revision: 2 });
+  assert.deepEqual(await machkit.hosts("load"), { revision: 2 });
 });
 
 test("copy feedback waits for the native acknowledgement", async () => {
   events.length = 0;
   let acknowledge;
   postMessage = () => new Promise((resolve) => { acknowledge = resolve; });
-  const copy = sift.copy("value");
+  const copy = machkit.copy("value");
   assert.equal(events.length, 0);
   acknowledge({ ok: true });
   assert.equal(await copy, true);
-  assert.equal(events.at(-1).type, "sift:copy-result");
+  assert.equal(events.at(-1).type, "machkit:copy-result");
   assert.equal(events.at(-1).detail.ok, true);
 });
 
 test("bridge requests time out instead of hanging forever", async () => {
   postMessage = () => new Promise(() => {});
   await assert.rejects(
-    sift.request("hosts.load", {}, { timeout: 5 }),
+    machkit.request("hosts.load", {}, { timeout: 5 }),
     /timed out/,
   );
 });

@@ -1,4 +1,4 @@
-import SiftCore
+import MachKitCore
 import Foundation
 import Testing
 
@@ -23,8 +23,8 @@ import Testing
 }
 
 @Test func canonicalContainmentRejectsSiblingWithSharedPrefix() {
-    let root = URL(fileURLWithPath: "/tmp/SiftHome")
-    let sibling = URL(fileURLWithPath: "/tmp/SiftHome-Other/file.log")
+    let root = URL(fileURLWithPath: "/tmp/MachKitHome")
+    let sibling = URL(fileURLWithPath: "/tmp/MachKitHome-Other/file.log")
     #expect(!SafetyPolicy.contains(sibling, in: root))
 }
 

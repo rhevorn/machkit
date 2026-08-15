@@ -1,5 +1,5 @@
 import Foundation
-import SiftCore
+import MachKitCore
 
 struct JunkScanGroup: Identifiable, Sendable {
     let id: String
