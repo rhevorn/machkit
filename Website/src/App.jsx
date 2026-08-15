@@ -35,6 +35,7 @@ const SCREEN_KEYS = [
 const GROUP_ICONS = [ChartDonut, Wrench, Pulse, Code];
 
 function preferredTheme() {
+  if (typeof window === "undefined") return "light";
   const savedTheme = window.localStorage.getItem(THEME_KEY);
   if (savedTheme === "light" || savedTheme === "dark") return savedTheme;
   return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
@@ -61,9 +62,9 @@ function CapabilityGroup({ group, index }) {
         </div>
       </header>
       <dl>
-        {group.items.map(([title, detail]) => (
+        {group.items.map(([title, detail, href]) => (
           <div key={title}>
-            <dt>{title}</dt>
+            <dt>{href ? <a href={href}>{title}</a> : title}</dt>
             <dd>{detail}</dd>
           </div>
         ))}
@@ -72,16 +73,26 @@ function CapabilityGroup({ group, index }) {
   );
 }
 
-export function App() {
-  const locale = document.documentElement.dataset.locale === "zh-CN" ? "zh-CN" : "en";
-  const assetBase = document.documentElement.dataset.assetBase || ".";
+export function App({
+  locale: localeOverride,
+  assetBase: assetBaseOverride,
+  initialTheme,
+} = {}) {
+  const documentLocale = typeof document !== "undefined" && document.documentElement.dataset.locale === "zh-CN"
+    ? "zh-CN"
+    : "en";
+  const locale = localeOverride || documentLocale;
+  const assetBase = assetBaseOverride
+    || (typeof document !== "undefined" ? document.documentElement.dataset.assetBase : ".")
+    || ".";
   const copy = messages[locale];
-  const [theme, setTheme] = useState(preferredTheme);
+  const [theme, setTheme] = useState(() => initialTheme || preferredTheme());
   const [selectedScreen, setSelectedScreen] = useState("overview");
   const [release, setRelease] = useState(fallbackRelease);
 
   const languageURL = locale === "en" ? "./zh-CN/" : "../";
   const languageLabel = locale === "en" ? "中文" : "English";
+  const developerToolsURL = "./developer-tools/";
 
   const screenImages = useMemo(() => ({
     overview: `${assetBase}/assets/overview.webp`,
@@ -267,17 +278,30 @@ export function App() {
               <p className="kicker">{copy.tools.kicker}</p>
               <h2 id="tools-title">{copy.tools.title}</h2>
               <p>{copy.tools.description}</p>
-            </header>
-            <div className="tool-list">
-              {copy.tools.items.map(([title, detail], index) => (
-                <article key={title}>
-                  <span>0{index + 1}</span>
-                  <div>
-                    <h3>{title}</h3>
-                    <p>{detail}</p>
+              <dl className="tool-principles">
+                {copy.tools.principles.map(([title, detail]) => (
+                  <div key={title}>
+                    <dt>{title}</dt>
+                    <dd>{detail}</dd>
                   </div>
-                </article>
-              ))}
+                ))}
+              </dl>
+            </header>
+            <div>
+              <div className="tool-list">
+                {copy.tools.items.map(([title, detail], index) => (
+                  <article key={title}>
+                    <span>{String(index + 1).padStart(2, "0")}</span>
+                    <div>
+                      <h3>{title}</h3>
+                      <p>{detail}</p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+              <a className="tools-explore-link" href={developerToolsURL}>
+                {copy.tools.explore}<ArrowRight size={15} />
+              </a>
             </div>
           </div>
         </section>
@@ -294,7 +318,7 @@ export function App() {
               <GithubLogo size={18} weight="fill" />
               {copy.openSource.primary}
             </a>
-            <a className="text-link" href={DOWNLOAD_URL} target="_blank" rel="noreferrer">
+            <a className="text-link" href={release.downloadURL} target="_blank" rel="noreferrer">
               {copy.openSource.secondary}<ArrowRight size={15} />
             </a>
           </div>
@@ -308,6 +332,7 @@ export function App() {
             <p>{copy.footer.description}</p>
           </div>
           <div className="footer-links">
+            <a href={developerToolsURL}>{copy.footer.tools}</a>
             <a href={`${REPOSITORY_URL}/releases`} target="_blank" rel="noreferrer">{copy.footer.releases}</a>
             <a href={`${REPOSITORY_URL}/issues`} target="_blank" rel="noreferrer">{copy.footer.issues}</a>
             <a href={`${REPOSITORY_URL}/blob/main/LICENSE`} target="_blank" rel="noreferrer">{copy.footer.license}</a>

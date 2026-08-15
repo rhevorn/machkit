@@ -1,8 +1,10 @@
+import { localizedWebsiteTools } from "./tool-catalog.js";
+
 export const messages = {
   en: {
     meta: {
-      title: "MachKit — A native toolbox for your Mac",
-      description: "Understand storage, uninstall apps, inspect performance and networks, manage system items, and use local developer tools from one open-source macOS app.",
+      title: "MachKit — macOS Storage, App Uninstaller & System Tools",
+      description: "Free, open-source macOS utility for storage analysis, safe cleanup, app uninstall, performance and network inspection, plus practical work and developer tools.",
     },
     nav: {
       capabilities: "Capabilities",
@@ -19,7 +21,7 @@ export const messages = {
     hero: {
       eyebrow: "Native macOS utility",
       title: "Keep your Mac understandable.",
-      description: "MachKit brings storage, app removal, performance, networking, system items, cleanup, and everyday developer utilities into one clear workspace.",
+      description: "MachKit brings storage, app removal, performance, networking, system items, and cleanup into one clear workspace—alongside a growing collection of practical tools for work and development.",
       primary: "Download for macOS",
       secondary: "View source",
       compatibility: "Free and open source · macOS 14 or later",
@@ -44,7 +46,7 @@ export const messages = {
           body: "Start with a readable picture of the machine in front of you.",
           items: [
             ["Overview", "Storage health, CPU, memory pressure, network speed, thermal state, and quick actions."],
-            ["Storage", "Disk categories, folder sizes, and large files with drill-down navigation."],
+            ["Storage", "Disk categories, folder sizes, and large files with drill-down navigation.", "./features/storage-cleanup/"],
             ["Performance", "Live resource usage and the apps placing the most pressure on your Mac."],
           ],
         },
@@ -53,8 +55,8 @@ export const messages = {
           title: "Maintain",
           body: "Recover space and remove software without hiding the details.",
           items: [
-            ["Cleanup", "Caches, logs, old installers, developer files, and uninstall leftovers."],
-            ["Apps", "Installed apps, command-line tools, and selectable related support files."],
+            ["Cleanup", "Caches, logs, old installers, developer files, and uninstall leftovers.", "./features/storage-cleanup/"],
+            ["Apps", "Installed apps, command-line tools, and selectable related support files.", "./features/app-uninstaller/"],
             ["Safe removal", "Review uncertain items first; supported operations move files to Trash."],
           ],
         },
@@ -63,18 +65,18 @@ export const messages = {
           title: "Inspect",
           body: "See the background activity that is usually difficult to find.",
           items: [
-            ["Network", "Traffic, connections, listening ports, routes, VPN/TUN, and proxies."],
+            ["Network", "Traffic, connections, listening ports, routes, VPN/TUN, and proxies.", "./features/network-inspector/"],
             ["System", "Login items, background tasks, application extensions, and possible residues."],
             ["Menu bar", "CPU, memory, network speed, and quick access without opening the main window."],
           ],
         },
         {
           tone: "purple",
-          title: "Build",
-          body: "Keep small, frequently used developer utilities one shortcut away.",
+          title: "Work & build",
+          body: "Keep practical everyday and developer utilities one shortcut away.",
           items: [
-            ["Hosts Manager", "Inspect and switch shared or environment-specific host mappings."],
-            ["Data tools", "Generate IDs and passwords, convert timestamps, format and query JSON, and encode or decode text."],
+            ["Hosts Manager", "Inspect and switch shared or environment-specific host mappings.", "./developer-tools/"],
+            ["Data and text tools", "Generate IDs, convert timestamps, format JSON, test regex, compare text, and encode or decode content.", "./developer-tools/"],
             ["Global shortcuts", "Open the tool list or a specific utility from anywhere on your Mac."],
           ],
         },
@@ -151,10 +153,10 @@ export const messages = {
           features: [
             "Manage hosts mappings for shared and environment-specific setups.",
             "Convert timestamps, format and query JSON, and encode or decode text.",
-            "Generate UUIDs, random IDs, hex strings, and passwords locally.",
+            "Generate IDs and passwords, test regular expressions, and compare text locally.",
             "Search tools quickly and assign global keyboard shortcuts to frequent actions.",
           ],
-          alt: "MachKit developer tools workspace showing four local utilities",
+          alt: "MachKit tools workspace with practical work and developer utilities",
         },
         system: {
           label: "System",
@@ -179,16 +181,16 @@ export const messages = {
       ],
     },
     tools: {
-      kicker: "Local developer utilities",
-      title: "Small tools without another website or subscription.",
-      description: "MachKit includes a growing set of focused utilities. They share the app’s appearance and language, run locally, and can be opened from the Tools workspace, the menu, or global shortcuts.",
-      items: [
-        ["Hosts Manager", "Manage shared and per-environment mappings with explicit write permission."],
-        ["Timestamp Converter", "Convert dates and Unix timestamps across units and time zones."],
-        ["JSON Formatter", "Format, minify, sort keys, and query values with path expressions."],
-        ["Codec", "Base64, Base32, Base62, Hex, URL, HTML, Unicode, escape, and hash utilities."],
-        ["String Generator", "Generate UUID v1–v7, ULIDs, Nano IDs, hex strings, and passwords locally."],
+      kicker: "Practical tools for work and development",
+      title: "A growing toolkit, without another website or subscription.",
+      description: "MachKit keeps focused utilities for everyday work and software development in one searchable catalog. Every tool shares the app’s appearance, language, shortcuts, and local-first privacy model—and the catalog is designed to keep growing.",
+      principles: [
+        ["One focused job", "Each utility solves a concrete, recurring task."],
+        ["One consistent system", "Search, shortcuts, themes, languages, and copy feedback work the same way."],
+        ["Room to grow", "New tools join the catalog without adding another standalone app."],
       ],
+      items: localizedWebsiteTools.en,
+      explore: "Explore the growing tool catalog",
     },
     openSource: {
       kicker: "Open source",
@@ -202,14 +204,15 @@ export const messages = {
       platform: "macOS 14+",
       releases: "Releases",
       issues: "Issues",
+      tools: "Tools",
       license: "MIT License",
       local: "Everything runs on your Mac",
     },
   },
   "zh-CN": {
     meta: {
-      title: "MachKit — 原生 Mac 系统工具箱",
-      description: "在一个开源 macOS App 中查看存储、卸载应用、检查性能与网络、管理系统项目，并使用本地开发者工具。",
+      title: "MachKit — Mac 存储分析、应用卸载与系统工具",
+      description: "免费开源的 macOS 系统工具，支持存储分析、安全清理、应用卸载、性能与网络检查，以及持续增长的工作和开发实用工具。",
     },
     nav: {
       capabilities: "功能",
@@ -226,7 +229,7 @@ export const messages = {
     hero: {
       eyebrow: "原生 macOS 工具",
       title: "更清楚地了解和维护你的 Mac。",
-      description: "MachKit 将存储、应用卸载、性能、网络、系统项目、垃圾清理和常用开发者工具集中在一个清晰的工作区中。",
+      description: "MachKit 将存储、应用卸载、性能、网络、系统项目和垃圾清理集中在一个清晰的工作区中，并提供一套持续增长的工作与开发实用工具。",
       primary: "下载 macOS 版",
       secondary: "查看源码",
       compatibility: "免费且开源 · 需要 macOS 14 或更高版本",
@@ -251,7 +254,7 @@ export const messages = {
           body: "先获得一张清晰、易读的当前系统概览。",
           items: [
             ["总览", "存储健康、CPU、内存压力、网速、散热状态和快捷操作。"],
-            ["存储", "磁盘分类、文件夹大小和大文件，支持逐层查看。"],
+            ["存储", "磁盘分类、文件夹大小和大文件，支持逐层查看。", "./features/storage-cleanup/"],
             ["性能", "实时资源使用情况，以及占用最高的应用。"],
           ],
         },
@@ -260,8 +263,8 @@ export const messages = {
           title: "维护",
           body: "释放空间、移除软件，同时保留必要的细节。",
           items: [
-            ["垃圾清理", "缓存、日志、旧安装包、开发文件和卸载残留。"],
-            ["应用", "已安装 App、命令行工具和可选择的关联支持文件。"],
+            ["垃圾清理", "缓存、日志、旧安装包、开发文件和卸载残留。", "./features/storage-cleanup/"],
+            ["应用", "已安装 App、命令行工具和可选择的关联支持文件。", "./features/app-uninstaller/"],
             ["安全移除", "不确定项目先确认；支持的操作会将文件移入废纸篓。"],
           ],
         },
@@ -270,18 +273,18 @@ export const messages = {
           title: "检查",
           body: "看清通常难以发现的后台活动。",
           items: [
-            ["网络", "流量、连接、监听端口、路由、VPN/TUN 和代理。"],
+            ["网络", "流量、连接、监听端口、路由、VPN/TUN 和代理。", "./features/network-inspector/"],
             ["系统", "登录项、后台任务、应用扩展和可能的残留。"],
             ["菜单栏", "无需打开主窗口即可查看 CPU、内存、网速和快捷操作。"],
           ],
         },
         {
           tone: "purple",
-          title: "开发",
-          body: "让常用的小型开发者工具随时可以打开。",
+          title: "工作与开发",
+          body: "让日常工作和开发中的实用小工具随时可以打开。",
           items: [
-            ["Hosts 管理", "查看并切换公共或指定环境的 hosts 映射。"],
-            ["数据工具", "生成 ID 和密码、转换时间戳、格式化和查询 JSON、编码或解码文本。"],
+            ["Hosts 管理", "查看并切换公共或指定环境的 hosts 映射。", "./developer-tools/"],
+            ["数据与文本工具", "生成 ID、转换时间戳、格式化 JSON、测试正则、对比文本以及编解码。", "./developer-tools/"],
             ["全局快捷键", "在 Mac 的任意位置打开工具列表或指定工具。"],
           ],
         },
@@ -358,10 +361,10 @@ export const messages = {
           features: [
             "管理公共环境和指定环境的 Hosts 映射。",
             "转换时间戳、格式化和查询 JSON、编码或解码文本。",
-            "在本地生成 UUID、随机 ID、十六进制字符串和密码。",
+            "在本地生成 ID 和密码、测试正则表达式并对比文本。",
             "快速搜索工具，并为常用操作设置全局键盘快捷键。",
           ],
-          alt: "MachKit 开发者工具工作区，显示四个本地工具",
+          alt: "MachKit 工具工作区，包含工作与开发中的实用小工具",
         },
         system: {
           label: "系统",
@@ -386,16 +389,16 @@ export const messages = {
       ],
     },
     tools: {
-      kicker: "本地开发者工具",
-      title: "小工具不必再打开一个网站或订阅一项服务。",
-      description: "MachKit 内置一组持续扩展的专注工具。它们与 App 共用外观和语言，在本地运行，并可从工具工作区、菜单或全局快捷键打开。",
-      items: [
-        ["Hosts 管理", "通过明确的写入权限管理公共和不同环境的映射。"],
-        ["时间戳转换", "在不同单位和时区之间转换日期与 Unix 时间戳。"],
-        ["JSON 格式化", "格式化、压缩、键排序，并用路径表达式查询数据。"],
-        ["编解码", "支持 Base64、Base32、Base62、Hex、URL、HTML、Unicode、转义和 Hash。"],
-        ["字符串生成", "在本地生成 UUID v1–v7、ULID、Nano ID、十六进制字符串和密码。"],
+      kicker: "工作与开发实用工具",
+      title: "持续增长的工具箱，不必再打开另一个网站或订阅服务。",
+      description: "MachKit 把日常工作和软件开发中的专注小工具集中到一个可搜索的目录。所有工具共享 App 的外观、语言、快捷键和本地优先隐私规则，并可以持续加入更多能力。",
+      principles: [
+        ["一次解决一个问题", "每个工具都针对一个明确、反复出现的任务。"],
+        ["保持一致", "搜索、快捷键、主题、多语言和复制反馈使用同一套方式。"],
+        ["可以持续增长", "新增工具直接加入目录，不再增加另一个独立 App。"],
       ],
+      items: localizedWebsiteTools["zh-CN"],
+      explore: "查看持续增长的工具目录",
     },
     openSource: {
       kicker: "开源",
@@ -409,6 +412,7 @@ export const messages = {
       platform: "macOS 14+",
       releases: "版本发布",
       issues: "问题反馈",
+      tools: "工具",
       license: "MIT 许可证",
       local: "所有处理都在你的 Mac 上完成",
     },
