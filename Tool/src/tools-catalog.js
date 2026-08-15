@@ -19,6 +19,7 @@ const preferredOrder = [
   "url-lab",
   "number-base",
   "xml-plist",
+  "ip-inspector",
 ];
 
 /** Localized title/description for known tools; unknown folders still appear by id. */
@@ -411,6 +412,32 @@ export const toolMeta = {
       de: "XML formatieren und XML-plists nach JSON wandeln",
       "pt-BR": "Formate XML e converta plists XML para JSON",
       ru: "Форматирование XML и конвертация XML-plist в JSON",
+    },
+  },
+  "ip-inspector": {
+    title: {
+      en: "IP Inspector",
+      "zh-Hans": "IP 解析",
+      "zh-Hant": "IP 解析",
+      ja: "IP インスペクタ",
+      ko: "IP 검사기",
+      es: "Inspector IP",
+      fr: "Inspecteur IP",
+      de: "IP-Inspektor",
+      "pt-BR": "Inspetor IP",
+      ru: "IP-инспектор",
+    },
+    description: {
+      en: "Inspect IPv4 and IPv6 addresses, kinds, and reverse DNS labels",
+      "zh-Hans": "查看 IPv4 / IPv6 类型、整数与反向 DNS 标签",
+      "zh-Hant": "檢視 IPv4 / IPv6 類型、整數與反向 DNS 標籤",
+      ja: "IPv4 / IPv6 の種別・整数・逆引きを確認",
+      ko: "IPv4/IPv6 유형·정수·역방향 DNS 확인",
+      es: "Inspecciona IPv4/IPv6, tipos y DNS inverso",
+      fr: "Inspectez IPv4/IPv6, types et DNS inverse",
+      de: "IPv4/IPv6, Typen und Reverse-DNS prüfen",
+      "pt-BR": "Inspecione IPv4/IPv6, tipos e DNS reverso",
+      ru: "Разбор IPv4/IPv6, типов и reverse DNS",
     },
   },
 };

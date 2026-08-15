@@ -41,6 +41,7 @@ Everything runs locally on your Mac. Scans read file metadata only, risky items 
   - **URL Lab** — Parse and rebuild URLs with query and hash editing
   - **Number Base** — Convert integers across bases and byte units locally
   - **XML / Plist** — Format XML and convert Apple XML plists to JSON locally
+  - **IP Inspector** — Inspect IPv4 and IPv6 addresses, kinds, and reverse DNS labels
 
 ## Requirements
 

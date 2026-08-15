@@ -259,6 +259,19 @@ enum DeveloperToolRegistry {
             widthClass: .wide,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/xml-plist/index.html")
+        ),
+        DeveloperTool(
+            id: "ip-inspector",
+            title: "IP Inspector",
+            description: "Inspect IPv4 and IPv6 addresses, kinds, and reverse DNS labels",
+            keywords: [
+                "ip", "ipv4", "ipv6", "address", "arpa", "inspector",
+                "解析", "地址"
+            ],
+            icon: "network",
+            widthClass: .regular,
+            capabilities: [.clipboard],
+            presentation: .bundledWeb(entryFile: "WebTools/tools/ip-inspector/index.html")
         )
     ]
 
