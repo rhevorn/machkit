@@ -24,6 +24,7 @@ const preferredOrder = [
   "jwt-lab",
   "chmod-lab",
   "cert-lab",
+  "text-lab",
 ];
 
 /** Localized title/description for known tools; unknown folders still appear by id. */
@@ -546,6 +547,32 @@ export const toolMeta = {
       de: "PEM-Zertifikate, Gültigkeit, Fingerprints und SANs lokal prüfen",
       "pt-BR": "Inspecione certificados PEM, validade, fingerprints e SAN localmente",
       ru: "Локальный разбор PEM-сертификатов, сроков, отпечатков и SAN",
+    },
+  },
+  "text-lab": {
+    title: {
+      en: "Text Lab",
+      "zh-Hans": "文本处理",
+      "zh-Hant": "文字處理",
+      ja: "テキストラボ",
+      ko: "텍스트 랩",
+      es: "Text Lab",
+      fr: "Text Lab",
+      de: "Text Lab",
+      "pt-BR": "Text Lab",
+      ru: "Text Lab",
+    },
+    description: {
+      en: "Trim, dedupe, sort, and transform text lines locally",
+      "zh-Hans": "本地对文本行去空白、去重、排序与大小写转换",
+      "zh-Hant": "本機對文字行去空白、去重、排序與大小寫轉換",
+      ja: "テキスト行の整形・重複削除・ソートをローカル実行",
+      ko: "텍스트 줄 정리·중복 제거·정렬을 로컬에서 처리",
+      es: "Recorta, deduplica, ordena y transforma líneas en local",
+      fr: "Nettoyez, dédupliquez, triez et transformez des lignes en local",
+      de: "Zeilen lokal trimmen, deduplizieren, sortieren und umwandeln",
+      "pt-BR": "Ajuste, remova duplicatas, ordene e transforme linhas localmente",
+      ru: "Локально чистите, дедуплицируйте и сортируйте строки текста",
     },
   },
 };
