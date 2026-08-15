@@ -168,6 +168,19 @@ enum DeveloperToolRegistry {
             widthClass: .regular,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/ip-cidr/index.html")
+        ),
+        DeveloperTool(
+            id: "cron-expression",
+            title: "Cron Expression",
+            description: "Build five-field cron schedules and preview upcoming runs",
+            keywords: [
+                "cron", "schedule", "crontab", "timer", "job",
+                "定时", "计划任务", "表达式"
+            ],
+            icon: "calendar.badge.clock",
+            widthClass: .regular,
+            capabilities: [.clipboard],
+            presentation: .bundledWeb(entryFile: "WebTools/tools/cron-expression/index.html")
         )
     ]
 

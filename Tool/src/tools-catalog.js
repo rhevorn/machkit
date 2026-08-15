@@ -12,6 +12,7 @@ const preferredOrder = [
   "regex-lab",
   "text-diff",
   "ip-cidr",
+  "cron-expression",
 ];
 
 /** Localized title/description for known tools; unknown folders still appear by id. */
@@ -222,6 +223,32 @@ export const toolMeta = {
       de: "IPv4-Netzdetails, Bereiche und Zugehörigkeit",
       "pt-BR": "Calcule detalhes, intervalos e pertencimento IPv4",
       ru: "Расчёт IPv4: детали сети, диапазон и вхождение",
+    },
+  },
+  "cron-expression": {
+    title: {
+      en: "Cron Expression",
+      "zh-Hans": "Cron 表达式",
+      "zh-Hant": "Cron 運算式",
+      ja: "Cron 式",
+      ko: "Cron 표현식",
+      es: "Expresión cron",
+      fr: "Expression cron",
+      de: "Cron-Ausdruck",
+      "pt-BR": "Expressão cron",
+      ru: "Cron-выражение",
+    },
+    description: {
+      en: "Build five-field cron schedules and preview upcoming runs",
+      "zh-Hans": "编写五段 cron 并预览接下来的执行时间",
+      "zh-Hant": "編寫五段 cron 並預覽接下來的執行時間",
+      ja: "5 フィールド cron と次回実行の確認",
+      ko: "5필드 cron 작성과 다음 실행 미리보기",
+      es: "Crea cron de cinco campos y ve próximas ejecuciones",
+      fr: "Créez des cron à cinq champs et voyez les prochaines exécutions",
+      de: "Fünf-Feld-Cron erstellen und nächste Läufe prüfen",
+      "pt-BR": "Crie cron de cinco campos e veja próximas execuções",
+      ru: "Пятиполевой cron и ближайшие запуски",
     },
   },
 };
