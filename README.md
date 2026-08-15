@@ -31,6 +31,8 @@ Everything runs locally on your Mac. Scans read file metadata only, risky items 
   - **JSON Formatter** — Format, minify, sort keys, and query values with path expressions
   - **Codec** — Encode and decode Base64, Base32, Base62, Hex, URL, HTML, Unicode, Escape, and Hash
   - **String Generator** — Generate UUID v1–v7, ULIDs, Nano IDs, hex strings, and passwords locally
+  - **Regex Lab** — Highlight matches, inspect capture groups, and try common replacements
+  - **Text Diff** — Compare two texts side by side with line-level highlighting
 
 ## Requirements
 

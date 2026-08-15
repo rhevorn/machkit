@@ -1,0 +1,190 @@
+export const maxRegexInput = 500_000;
+export const maxRegexMatches = 500;
+
+const FLAG_CHARS = new Set(["d", "g", "i", "m", "s", "u", "v", "y"]);
+
+export const regexPresets = Object.freeze([
+  {
+    id: "email",
+    pattern: String.raw`[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}`,
+    flags: "gi",
+    replacement: "",
+  },
+  {
+    id: "url",
+    pattern: String.raw`https?:\/\/[^\s<>"']+`,
+    flags: "gi",
+    replacement: "",
+  },
+  {
+    id: "ipv4",
+    pattern: String.raw`\b(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)\b`,
+    flags: "g",
+    replacement: "",
+  },
+  {
+    id: "uuid",
+    pattern: String.raw`\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}\b`,
+    flags: "g",
+    replacement: "",
+  },
+  {
+    id: "hexColor",
+    pattern: String.raw`#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\b`,
+    flags: "g",
+    replacement: "",
+  },
+  {
+    id: "whitespace",
+    pattern: String.raw`[ \t]+`,
+    flags: "g",
+    replacement: " ",
+  },
+  {
+    id: "numbers",
+    pattern: String.raw`-?\d+(?:\.\d+)?`,
+    flags: "g",
+    replacement: "",
+  },
+  {
+    id: "quoted",
+    pattern: String.raw`(["'])(?:\\.|(?!\1).)*\1`,
+    flags: "g",
+    replacement: "$1…$1",
+  },
+]);
+
+export function normalizeFlags(flags = "") {
+  const seen = new Set();
+  let result = "";
+  for (const char of String(flags)) {
+    if (!FLAG_CHARS.has(char) || seen.has(char)) continue;
+    seen.add(char);
+    result += char;
+  }
+  return result;
+}
+
+export function compileRegex(pattern, flags = "g") {
+  const source = String(pattern ?? "");
+  if (!source) return { ok: false, error: "empty-pattern", regex: null };
+  const normalized = normalizeFlags(flags);
+  try {
+    return { ok: true, error: null, regex: new RegExp(source, normalized) };
+  } catch (error) {
+    return { ok: false, error: error?.message || "invalid-pattern", regex: null };
+  }
+}
+
+function groupEntries(match) {
+  const groups = [];
+  for (let index = 1; index < match.length; index += 1) {
+    if (match[index] === undefined) continue;
+    groups.push({
+      index,
+      value: match[index],
+      start: typeof match.indices?.[index]?.[0] === "number" ? match.indices[index][0] : null,
+      end: typeof match.indices?.[index]?.[1] === "number" ? match.indices[index][1] : null,
+    });
+  }
+  const named = {};
+  if (match.groups) {
+    for (const [name, value] of Object.entries(match.groups)) {
+      if (value === undefined) continue;
+      named[name] = value;
+    }
+  }
+  return { groups, named };
+}
+
+export function findMatches(pattern, flags, input, { maxMatches = maxRegexMatches } = {}) {
+  const text = String(input ?? "");
+  if (text.length > maxRegexInput) {
+    return { ok: false, error: "input-too-large", matches: [], truncated: false };
+  }
+
+  let compiled = compileRegex(pattern, flags.includes("d") ? flags : `${normalizeFlags(flags)}d`);
+  if (!compiled.ok && compiled.error !== "empty-pattern") {
+    // Some engines reject 'd' with certain flags; retry without indices.
+    compiled = compileRegex(pattern, flags);
+  }
+  if (!compiled.ok) return { ok: false, error: compiled.error, matches: [], truncated: false };
+
+  const regex = compiled.regex;
+  const matches = [];
+  let truncated = false;
+
+  if (!regex.global) {
+    const match = regex.exec(text);
+    if (match) {
+      const { groups, named } = groupEntries(match);
+      matches.push({
+        index: match.index,
+        length: match[0].length,
+        text: match[0],
+        groups,
+        named,
+      });
+    }
+    return { ok: true, error: null, matches, truncated: false };
+  }
+
+  regex.lastIndex = 0;
+  let guard = 0;
+  let match = regex.exec(text);
+  while (match) {
+    guard += 1;
+    if (guard > maxMatches) {
+      truncated = true;
+      break;
+    }
+    if (match[0].length === 0) {
+      regex.lastIndex = match.index + 1;
+      match = regex.exec(text);
+      continue;
+    }
+    const { groups, named } = groupEntries(match);
+    matches.push({
+      index: match.index,
+      length: match[0].length,
+      text: match[0],
+      groups,
+      named,
+    });
+    match = regex.exec(text);
+  }
+
+  return { ok: true, error: null, matches, truncated };
+}
+
+export function replaceMatches(pattern, flags, input, replacement = "") {
+  const text = String(input ?? "");
+  if (text.length > maxRegexInput) {
+    return { ok: false, error: "input-too-large", value: "" };
+  }
+  const compiled = compileRegex(pattern, flags);
+  if (!compiled.ok) return { ok: false, error: compiled.error, value: "" };
+  try {
+    return { ok: true, error: null, value: text.replace(compiled.regex, String(replacement ?? "")) };
+  } catch (error) {
+    return { ok: false, error: error?.message || "replace-failed", value: "" };
+  }
+}
+
+export function highlightSegments(input, matches) {
+  const text = String(input ?? "");
+  if (!matches?.length) return [{ type: "text", value: text }];
+
+  const segments = [];
+  let cursor = 0;
+  for (const match of matches) {
+    const start = Math.max(0, match.index);
+    const end = Math.min(text.length, start + match.length);
+    if (start < cursor) continue;
+    if (start > cursor) segments.push({ type: "text", value: text.slice(cursor, start) });
+    segments.push({ type: "match", value: text.slice(start, end), matchIndex: match.index });
+    cursor = end;
+  }
+  if (cursor < text.length) segments.push({ type: "text", value: text.slice(cursor) });
+  return segments;
+}

@@ -129,6 +129,32 @@ enum DeveloperToolRegistry {
             widthClass: .compact,
             capabilities: [.clipboard, .storage],
             presentation: .bundledWeb(entryFile: "WebTools/tools/string-generator/index.html")
+        ),
+        DeveloperTool(
+            id: "regex-lab",
+            title: "Regex Lab",
+            description: "Highlight matches, inspect capture groups, and try common replacements",
+            keywords: [
+                "regex", "regexp", "regular expression", "match", "replace", "capture", "group",
+                "正则", "正則", "匹配", "替换", "取代", "分组", "捕获"
+            ],
+            icon: "text.magnifyingglass",
+            widthClass: .wide,
+            capabilities: [.clipboard],
+            presentation: .bundledWeb(entryFile: "WebTools/tools/regex-lab/index.html")
+        ),
+        DeveloperTool(
+            id: "text-diff",
+            title: "Text Diff",
+            description: "Compare two texts side by side with line-level highlighting",
+            keywords: [
+                "diff", "compare", "difference", "patch", "merge", "text",
+                "对比", "差異", "差异", "比较", "差分"
+            ],
+            icon: "square.split.2x1",
+            widthClass: .wide,
+            capabilities: [.clipboard],
+            presentation: .bundledWeb(entryFile: "WebTools/tools/text-diff/index.html")
         )
     ]
 

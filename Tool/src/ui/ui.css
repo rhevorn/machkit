@@ -180,6 +180,16 @@
     font-size: var(--machkit-font-size-label);
     line-height: 1.65;
   }
+
+  .regex-match-mark {
+    color: var(--machkit-text);
+    background: color-mix(in srgb, var(--machkit-accent) 28%, transparent);
+  }
+
+  .diff-row-equal { background: transparent; }
+  .diff-row-delete { background: color-mix(in srgb, #ff3b30 14%, transparent); }
+  .diff-row-insert { background: color-mix(in srgb, #34c759 16%, transparent); }
+  .diff-row-blank { background: color-mix(in srgb, var(--machkit-secondary) 6%, transparent); }
 }
 
 @media (prefers-color-scheme: dark) {
