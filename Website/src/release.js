@@ -1,10 +1,11 @@
 export const REPOSITORY_URL = "https://github.com/rhevorn/machkit";
-export const LATEST_RELEASE_API_URL = "https://api.github.com/repos/rhevorn/machkit/releases/latest";
+export const RELEASES_API_URL = "https://api.github.com/repos/rhevorn/machkit/releases?per_page=2";
 
+/** Last-resort hardcoded download when GitHub is unreachable. */
 export const fallbackRelease = Object.freeze({
-  tag: "v1.2.1",
-  version: "1.2.1",
-  downloadURL: `${REPOSITORY_URL}/releases/download/v1.2.1/MachKit-1.2.1-macOS.zip`,
+  tag: "v2.0.0",
+  version: "2.0.0",
+  downloadURL: `${REPOSITORY_URL}/releases/download/v2.0.0/MachKit-2.0.0-macOS.zip`,
 });
 
 export function resolveReleaseDownload(release, fallback = fallbackRelease) {
@@ -28,11 +29,22 @@ export function resolveReleaseDownload(release, fallback = fallbackRelease) {
   };
 }
 
+export function pickReleaseDownloads(releases, hardcodedFallback = fallbackRelease) {
+  const list = Array.isArray(releases) ? releases : [];
+  const previous = list[1] ? resolveReleaseDownload(list[1], hardcodedFallback) : hardcodedFallback;
+  const latest = list[0] ? resolveReleaseDownload(list[0], previous) : previous;
+  return { latest, previous };
+}
+
 export async function fetchLatestRelease({ signal, fetchImpl = fetch } = {}) {
-  const response = await fetchImpl(LATEST_RELEASE_API_URL, {
+  const response = await fetchImpl(RELEASES_API_URL, {
     signal,
     headers: { Accept: "application/vnd.github+json" },
   });
   if (!response.ok) throw new Error(`GitHub release request failed: ${response.status}`);
-  return resolveReleaseDownload(await response.json());
+  const releases = await response.json();
+  if (!Array.isArray(releases) || releases.length === 0) {
+    throw new Error("GitHub release list was empty");
+  }
+  return pickReleaseDownloads(releases).latest;
 }
