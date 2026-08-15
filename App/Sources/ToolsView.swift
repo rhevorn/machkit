@@ -17,11 +17,7 @@ struct ToolsView: View {
             header
 
             ScrollView {
-                VStack(alignment: .leading, spacing: 14) {
-                    Text("Developer Tools".localized)
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(.secondary)
-
+                Group {
                     if filteredTools.isEmpty {
                         ContentUnavailableView(
                             "No matching tools".localized,
@@ -31,18 +27,20 @@ struct ToolsView: View {
                         .frame(maxWidth: .infinity, minHeight: 280)
                     } else {
                         LazyVGrid(
-                            columns: [GridItem(.adaptive(minimum: 280, maximum: 420), spacing: 12)],
-                            alignment: .leading,
+                            columns: [
+                                GridItem(.flexible(), spacing: 12),
+                                GridItem(.flexible(), spacing: 12),
+                            ],
                             spacing: 12
                         ) {
                             ForEach(filteredTools) { tool in
-                                toolCard(tool)
+                                toolRow(tool)
                             }
                         }
                     }
                 }
                 .padding(.horizontal, 28)
-                .padding(.top, 18)
+                .padding(.top, 14)
                 .padding(.bottom, 28)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
             }
@@ -101,33 +99,35 @@ struct ToolsView: View {
         .padding(.bottom, 8)
     }
 
-    private func toolCard(_ tool: DeveloperTool) -> some View {
+    private func toolRow(_ tool: DeveloperTool) -> some View {
         let isHovered = hoveredToolID == tool.id
+
         return ZStack(alignment: .topTrailing) {
             Button { open(tool) } label: {
-                HStack(alignment: .top, spacing: 12) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 9)
-                            .fill(tool.color.opacity(0.12))
-                        Image(systemName: tool.icon)
-                            .font(.system(size: 20, weight: .medium))
-                            .foregroundStyle(tool.color)
-                    }
-                    .frame(width: 42, height: 42)
+                HStack(spacing: 11) {
+                    Image(systemName: tool.icon)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundStyle(Color.accentColor)
+                        .environment(\.locale, Locale(identifier: "en"))
+                        .frame(width: 34, height: 34)
+                        .background(Color.accentColor.opacity(0.11), in: RoundedRectangle(cornerRadius: 9))
 
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 3) {
                         Text(tool.localizedTitle)
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundStyle(.primary)
-                            .padding(.trailing, 24)
+                            .lineLimit(1)
+                            .padding(.trailing, 22)
                         Text(tool.localizedDescription)
-                            .font(.system(size: 12))
+                            .font(.system(size: 11))
                             .foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
+                            .lineLimit(1)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity, minHeight: 64, alignment: .leading)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -135,7 +135,7 @@ struct ToolsView: View {
             Button { shortcutTool = tool } label: {
                 Image(systemName: "keyboard")
                     .font(.system(size: 10, weight: .medium))
-                    .foregroundStyle(isHovered ? tool.color : Color.secondary)
+                    .foregroundStyle(isHovered ? Color.accentColor : Color.secondary)
                     .frame(width: 20, height: 20)
                     .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 5))
             }
@@ -143,24 +143,17 @@ struct ToolsView: View {
             .opacity(isHovered ? 1 : 0)
             .allowsHitTesting(isHovered)
             .help(shortcutHelp(for: tool))
+            .padding(8)
         }
-        .padding(14)
-        .frame(maxWidth: .infinity, minHeight: 76, alignment: .topLeading)
         .background {
             RoundedRectangle(cornerRadius: 11)
-                .fill(
-                    isHovered
-                        ? tool.color.opacity(0.045)
-                        : Color(nsColor: .textBackgroundColor).opacity(0.72)
-                )
+                .fill(Color(nsColor: .controlBackgroundColor))
         }
         .overlay {
             RoundedRectangle(cornerRadius: 11)
                 .stroke(
-                    isHovered
-                        ? tool.color.opacity(0.28)
-                        : Color(nsColor: .separatorColor).opacity(0.32),
-                    lineWidth: isHovered ? 1 : 0.5
+                    isHovered ? Color.accentColor.opacity(0.22) : Color.clear,
+                    lineWidth: 1
                 )
         }
         .contentShape(RoundedRectangle(cornerRadius: 11))
