@@ -7,7 +7,22 @@ struct RemovalOperationReport: Identifiable {
     let title: String
     let summary: String
     let movedToTrash: [URL]
+    let permanentlyDeleted: [URL]
     let failures: [CleanFailure]
+
+    init(
+        title: String,
+        summary: String,
+        movedToTrash: [URL],
+        permanentlyDeleted: [URL] = [],
+        failures: [CleanFailure]
+    ) {
+        self.title = title
+        self.summary = summary
+        self.movedToTrash = movedToTrash
+        self.permanentlyDeleted = permanentlyDeleted
+        self.failures = failures
+    }
 }
 
 struct OperationResultView: View {
@@ -29,6 +44,14 @@ struct OperationResultView: View {
                 resultGroup(title: "Need to be processed") {
                     ForEach(Array(report.failures.enumerated()), id: \.offset) { _, failure in
                         resultRow(url: failure.url, detail: failure.reason, succeeded: false)
+                    }
+                }
+            }
+
+            if !report.permanentlyDeleted.isEmpty {
+                resultGroup(title: "Permanently deleted") {
+                    ForEach(report.permanentlyDeleted, id: \.path) { url in
+                        resultRow(url: url, detail: "Removed permanently", succeeded: true)
                     }
                 }
             }

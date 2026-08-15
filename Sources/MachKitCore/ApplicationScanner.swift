@@ -17,14 +17,22 @@ private actor ResidueProgressTracker {
         self.callback = callback
     }
 
+    func started() {
+        emit(force: true)
+    }
+
     func completed() {
         completedPaths += 1
+        emit(force: completedPaths >= totalPaths)
+    }
+
+    private func emit(force: Bool) {
         let now = Date()
-        guard now.timeIntervalSince(lastUpdate) >= 0.15 || completedPaths >= totalPaths else { return }
+        guard force || now.timeIntervalSince(lastUpdate) >= 0.2 else { return }
         lastUpdate = now
         callback?(ApplicationResidueScanProgress(
             completedPaths: completedPaths,
-            totalPaths: totalPaths,
+            totalPaths: max(totalPaths, 1),
             inspectedFiles: completedPaths,
             currentPathInspectedFiles: 0
         ))
@@ -245,8 +253,9 @@ public actor ApplicationScanner {
             guard unique.count >= 2 || hasStrongEvidence else { return nil }
             return (identifier, unique)
         }
-        // Discovery is shallow (top-level paths only). Size comes from one `du -sk`
-        // per path so Containers never need a custom recursive walk.
+        // Discovery is shallow (top-level paths only). Sizing must stay cheap:
+        // never request totalFileAllocatedSizeKey or spawn `du` — both can freeze
+        // on large Containers and block the cooperative thread pool.
         let workItems = qualifiedCandidates.flatMap { identifier, evidence in
             evidence.map { ResidueSizeWorkItem(identifier: identifier, url: $0.url, kind: $0.kind) }
         }.sorted { lhs, rhs in
@@ -256,12 +265,18 @@ public actor ApplicationScanner {
             return lhs.url.path.localizedStandardCompare(rhs.url.path) == .orderedAscending
         }
         let tracker = ResidueProgressTracker(totalPaths: workItems.count, callback: onProgress)
-        var residuesByIdentifier: [String: [ApplicationResidue]] = [:]
+        if !workItems.isEmpty {
+            await tracker.started()
+        }
 
-        for work in workItems {
+        var residuesByIdentifier: [String: [ApplicationResidue]] = [:]
+        for (index, work) in workItems.enumerated() {
             guard !Task.isCancelled else { break }
             if let (identifier, residue) = await Self.measureResidue(work, tracker: tracker) {
                 residuesByIdentifier[identifier, default: []].append(residue)
+            }
+            if index.isMultiple(of: 8) {
+                await Task.yield()
             }
         }
 
@@ -335,7 +350,7 @@ public actor ApplicationScanner {
         tracker: ResidueProgressTracker
     ) async -> (String, ApplicationResidue)? {
         guard !Task.isCancelled else { return nil }
-        let bytes = await directoryAllocatedBytes(at: work.url)
+        let bytes = Self.quickAllocatedBytes(at: work.url)
         guard !Task.isCancelled else { return nil }
         await tracker.completed()
         return (work.identifier, ApplicationResidue(
@@ -346,25 +361,40 @@ public actor ApplicationScanner {
         ))
     }
 
-    /// One system-level size query per top-level residue path.
-    private nonisolated static func directoryAllocatedBytes(at url: URL) async -> Int64 {
-        await Task.detached(priority: .utility) {
-            do {
-                let output = try SystemCommandRunner.run(
-                    executable: "/usr/bin/du",
-                    arguments: ["-sk", url.path],
-                    timeout: 30
-                )
-                guard output.status == 0,
-                      let token = output.text.split(whereSeparator: \.isWhitespace).first,
-                      let kilobytes = Int64(token) else {
-                    return 0
-                }
-                return kilobytes * 1_024
-            } catch {
-                return 0
+    /// Fast size probe for leftovers. Avoids recursive filesystem keys and `du`,
+    /// which both stall hard on large Containers.
+    private nonisolated static func quickAllocatedBytes(at url: URL) -> Int64 {
+        let keys: Set<URLResourceKey> = [
+            .isRegularFileKey,
+            .isDirectoryKey,
+            .fileAllocatedSizeKey,
+            .fileSizeKey
+        ]
+        if let values = try? url.resourceValues(forKeys: keys), values.isRegularFile == true {
+            return Int64(values.fileAllocatedSize ?? values.fileSize ?? 0)
+        }
+        return shallowAllocatedBytes(at: url)
+    }
+
+    /// One-level estimate for directories — enough to rank leftovers without freezing.
+    private nonisolated static func shallowAllocatedBytes(at url: URL) -> Int64 {
+        let keys: Set<URLResourceKey> = [.isRegularFileKey, .fileAllocatedSizeKey, .fileSizeKey, .isDirectoryKey]
+        guard let children = try? FileManager.default.contentsOfDirectory(
+            at: url,
+            includingPropertiesForKeys: Array(keys),
+            options: [.skipsHiddenFiles]
+        ) else { return 0 }
+
+        var total: Int64 = 0
+        for child in children.prefix(250) {
+            guard let values = try? child.resourceValues(forKeys: keys) else { continue }
+            if values.isRegularFile == true {
+                total += Int64(values.fileAllocatedSize ?? values.fileSize ?? 0)
+            } else if values.isDirectory == true {
+                total += 4_096
             }
-        }.value
+        }
+        return total
     }
 
     private func looksLikeThirdPartyBundleIdentifier(_ value: String) -> Bool {
@@ -385,11 +415,15 @@ public actor ApplicationScanner {
         let identifier = identifier
             .replacingOccurrences(of: "group.", with: "", options: [.anchored])
             .replacingOccurrences(of: "systemgroup.", with: "", options: [.anchored])
-        return installed.contains { owner in
-            identifier == owner
-                || identifier.hasPrefix(owner + ".")
-                || owner.hasPrefix(identifier + ".")
+        if installed.contains(identifier) { return true }
+
+        var prefix = identifier
+        while let dot = prefix.lastIndex(of: ".") {
+            prefix = String(prefix[..<dot])
+            if installed.contains(prefix) { return true }
         }
+
+        return installed.contains { $0.hasPrefix(identifier + ".") }
     }
 
     private func packageDirectories(

@@ -68,6 +68,20 @@ final class CleanerViewModel: ObservableObject {
     @Published private(set) var completedCleanupPhases: Set<String> = []
     @Published private(set) var activeCleanupPhaseID: String?
     @Published private(set) var showsLeftoverScanPhase = true
+
+    struct CleanupScanPhase: Identifiable, Hashable {
+        let id: String
+        let title: String
+        let icon: String
+        let summary: String
+        let ruleTitles: Set<String>
+    }
+
+    var visibleCleanupScanPhases: [CleanupScanPhase] {
+        Self.cleanupScanPhases.filter { phase in
+            phase.id != "leftovers" || showsLeftoverScanPhase
+        }
+    }
     @Published var inspectedFileCount = 0
     @Published var discoveredFileCount = 0
     @Published var discoveredBytes: Int64 = 0
@@ -716,7 +730,6 @@ final class CleanerViewModel: ObservableObject {
     private func scanCleanupResidues(home: URL) async -> [ApplicationResidueGroup] {
         let installedIdentifiers = await applicationScanner.installedBundleIdentifiers(in: [
             URL(fileURLWithPath: "/Applications", isDirectory: true),
-            URL(fileURLWithPath: "/System/Applications", isDirectory: true),
             home.appending(path: "Applications", directoryHint: .isDirectory)
         ])
         guard !Task.isCancelled else { return [] }
@@ -729,10 +742,12 @@ final class CleanerViewModel: ObservableObject {
                 self.residueCleanupProgress = progress.fractionCompleted
                 self.residueCleanupInspectedFiles = progress.inspectedFiles
                 self.publishCleanupProgress()
-                self.updateCleanupPhases(
-                    completedRuleTitles: [],
-                    currentRuleTitle: DefaultRules.uninstallLeftovers.title
-                )
+                if self.activeCleanupPhaseID != "leftovers" {
+                    self.updateCleanupPhases(
+                        completedRuleTitles: [],
+                        currentRuleTitle: DefaultRules.uninstallLeftovers.title
+                    )
+                }
             }
         }
         guard !Task.isCancelled else { return [] }
@@ -778,8 +793,8 @@ final class CleanerViewModel: ObservableObject {
         if cleanupIncludesResidues,
            residueCleanupProgress < 1,
            standardCleanupProgress >= 1 {
-            activeCleanupPhaseID = "leftoverAppData"
-            currentScanCategory = Self.friendlyCleanupPhase(for: DefaultRules.uninstallLeftovers.title)
+            activeCleanupPhaseID = "leftovers"
+            currentScanCategory = Self.friendlyCleanupPhase(forPhaseID: "leftovers")
             return
         }
 
@@ -787,47 +802,75 @@ final class CleanerViewModel: ObservableObject {
            let phaseID = Self.phaseID(forRuleTitle: currentRuleTitle),
            !done.contains(phaseID) {
             activeCleanupPhaseID = phaseID
-            currentScanCategory = Self.friendlyCleanupPhase(for: currentRuleTitle)
-        } else if let pending = Self.cleanupScanPhases.first(where: { !done.contains($0.id) && ($0.id != "leftoverAppData" || cleanupIncludesResidues) }) {
+            currentScanCategory = Self.friendlyCleanupPhase(forPhaseID: phaseID)
+        } else if let pending = Self.cleanupScanPhases.first(where: {
+            !done.contains($0.id) && ($0.id != "leftovers" || cleanupIncludesResidues)
+        }) {
             activeCleanupPhaseID = pending.id
-            currentScanCategory = Self.friendlyCleanupPhase(for: pending.ruleTitles.sorted().first ?? "")
+            currentScanCategory = Self.friendlyCleanupPhase(forPhaseID: pending.id)
         } else {
             activeCleanupPhaseID = nil
         }
     }
 
-    private struct CleanupScanPhaseDefinition {
-        let id: String
-        let ruleTitles: Set<String>
-    }
-
-    private static let cleanupScanPhases: [CleanupScanPhaseDefinition] = [
-        .init(id: "appCaches", ruleTitles: ["User Caches"]),
-        .init(id: "developerLogs", ruleTitles: ["Old Logs", "npm Debug Logs"]),
+    private static let cleanupScanPhases: [CleanupScanPhase] = [
         .init(
-            id: "dependencyLibraries",
+            id: "trash",
+            title: "Trash",
+            icon: "trash",
+            summary: "Items already in Trash that can be emptied permanently.",
+            ruleTitles: ["Trash"]
+        ),
+        .init(
+            id: "caches",
+            title: "Caches",
+            icon: "internaldrive",
+            summary: "App caches, browser website caches, shared tool caches, temporary files, and language modeling caches.",
             ruleTitles: [
-                "npm Download Cache",
-                "Homebrew Download Cache",
-                "CocoaPods Cache",
-                "Swift Package Manager Cache",
-                "Yarn Download Cache",
-                "Python pip cache",
-                "Python uv cache",
-                "Cargo download cache",
-                "Old installation packages and compressed packages"
+                "User Caches",
+                "Browser Caches",
+                "Shared Tool Caches",
+                "Temporary Files",
+                "Language Support Caches",
             ]
         ),
         .init(
-            id: "buildCaches",
+            id: "downloads",
+            title: "Downloads & mail",
+            icon: "tray.and.arrow.down",
+            summary: "Old installers and archives in Downloads, plus Mail attachment downloads.",
             ruleTitles: [
-                "Gradle Build Cache",
-                "Android Tool Cache",
-                "Xcode Derived Data",
-                "Apple Simulator Cache"
+                "Old installation packages and compressed packages",
+                "Mail Downloads",
             ]
         ),
-        .init(id: "leftoverAppData", ruleTitles: ["Uninstall Leftovers"])
+        .init(
+            id: "backups",
+            title: "Device backups",
+            icon: "iphone",
+            summary: "Local iPhone and iPad backups stored on this Mac.",
+            ruleTitles: ["Device Backups"]
+        ),
+        .init(
+            id: "developer",
+            title: "Developer files",
+            icon: "hammer",
+            summary: "Developer logs, package-manager caches, Xcode build artifacts, and unavailable simulator devices.",
+            ruleTitles: [
+                "Old Logs",
+                "Developer Home Caches",
+                "Xcode Artifacts",
+                "Apple Simulator Cache",
+                "Unavailable Simulator Devices",
+            ]
+        ),
+        .init(
+            id: "leftovers",
+            title: "Leftover apps",
+            icon: "app.badge",
+            summary: "Preferences, containers, and support files left behind after apps were uninstalled.",
+            ruleTitles: ["Uninstall Leftovers"]
+        ),
     ]
 
     private static func phaseID(forRuleTitle ruleTitle: String) -> String? {
@@ -835,31 +878,20 @@ final class CleanerViewModel: ObservableObject {
     }
 
     /// Human-friendly scan phases — never expose rule numbers, paths, or technical titles.
-    private static func friendlyCleanupPhase(for ruleTitle: String) -> String {
-        switch ruleTitle {
-        case "User Caches":
-            return L10n.string("Checking app caches…")
-        case "Old Logs", "npm Debug Logs":
-            return L10n.string("Checking developer logs…")
-        case "Old installation packages and compressed packages":
-            return L10n.string("Checking old installers…")
-        case "npm Download Cache",
-             "Homebrew Download Cache",
-             "CocoaPods Cache",
-             "Swift Package Manager Cache",
-             "Yarn Download Cache",
-             "Python pip cache",
-             "Python uv cache",
-             "Cargo download cache":
-            return L10n.string("Checking dependency libraries…")
-        case "Gradle Build Cache",
-             "Android Tool Cache",
-             "Xcode Derived Data":
-            return L10n.string("Checking build caches…")
-        case "Apple Simulator Cache":
-            return L10n.string("Checking simulator data…")
-        case "Uninstall Leftovers":
-            return L10n.string("Checking leftover app data…")
+    private static func friendlyCleanupPhase(forPhaseID phaseID: String) -> String {
+        switch phaseID {
+        case "trash":
+            return L10n.string("Checking Trash…")
+        case "caches":
+            return L10n.string("Scanning caches…")
+        case "downloads":
+            return L10n.string("Checking downloads and mail…")
+        case "backups":
+            return L10n.string("Checking device backups…")
+        case "developer":
+            return L10n.string("Scanning developer files…")
+        case "leftovers":
+            return L10n.string("Looking for leftover app data…")
         default:
             return L10n.string("Looking around…")
         }
@@ -1312,12 +1344,9 @@ final class CleanerViewModel: ObservableObject {
     private func publishOperationReport(title: String, result: CleanResult) {
         operationReport = RemovalOperationReport(
             title: title,
-            summary: L10n.format(
-                "%lld items moved to Trash; %lld failed.",
-                Int64(result.movedToTrash.count),
-                Int64(result.failures.count)
-            ),
+            summary: Self.cleanupResultSummary(result),
             movedToTrash: result.movedToTrash,
+            permanentlyDeleted: result.permanentlyDeleted,
             failures: result.failures
         )
     }
@@ -1327,28 +1356,62 @@ final class CleanerViewModel: ObservableObject {
         showCleanConfirmation = true
     }
 
+    var selectedIncludesTrashContents: Bool {
+        let trashRoot = cleanupRoot.appending(path: ".Trash", directoryHint: .isDirectory)
+        return items.contains { item in
+            selectedIDs.contains(item.id) && SafetyPolicy.contains(item.url, in: trashRoot)
+        }
+    }
+
+    var selectedIncludesNonTrashContents: Bool {
+        let trashRoot = cleanupRoot.appending(path: ".Trash", directoryHint: .isDirectory)
+        return items.contains { item in
+            selectedIDs.contains(item.id) && !SafetyPolicy.contains(item.url, in: trashRoot)
+        }
+    }
+
     func cleanConfirmed() {
         let selected = items.filter { selectedIDs.contains($0.id) }
         guard !selected.isEmpty else { return }
         Task {
             let result = await cleaner.moveToTrash(items: selected, selectedRoot: cleanupRoot)
-            let moved = Set(result.movedToTrash)
-            items.removeAll { moved.contains($0.url) }
+            let removed = Set(result.movedToTrash + result.permanentlyDeleted)
+            items.removeAll { removed.contains($0.url) }
             selectedIDs.subtract(selected.map(\.id))
             rebuildJunkGroups()
             cleanableBytes = selectedBytes
-            status = L10n.format(
-                "%lld items moved to Trash; %lld failed.",
-                Int64(result.movedToTrash.count),
-                Int64(result.failures.count)
-            )
+            status = Self.cleanupResultSummary(result)
             operationReport = RemovalOperationReport(
                 title: L10n.string("Clean results"),
                 summary: status,
                 movedToTrash: result.movedToTrash,
+                permanentlyDeleted: result.permanentlyDeleted,
                 failures: result.failures
             )
         }
+    }
+
+    private static func cleanupResultSummary(_ result: CleanResult) -> String {
+        if !result.permanentlyDeleted.isEmpty && result.movedToTrash.isEmpty {
+            return L10n.format(
+                "%lld items permanently deleted; %lld failed.",
+                Int64(result.permanentlyDeleted.count),
+                Int64(result.failures.count)
+            )
+        }
+        if !result.permanentlyDeleted.isEmpty {
+            return L10n.format(
+                "%lld items moved to Trash, %lld permanently deleted; %lld failed.",
+                Int64(result.movedToTrash.count),
+                Int64(result.permanentlyDeleted.count),
+                Int64(result.failures.count)
+            )
+        }
+        return L10n.format(
+            "%lld items moved to Trash; %lld failed.",
+            Int64(result.movedToTrash.count),
+            Int64(result.failures.count)
+        )
     }
 
     func isGroupSelected(_ group: JunkScanGroup) -> Bool {

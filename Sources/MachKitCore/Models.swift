@@ -463,15 +463,28 @@ public struct InstalledExtension: Identifiable, Sendable, Hashable, Codable {
     }
 }
 
+public enum ScanEnumerationMode: String, Codable, Sendable, Hashable {
+    /// Recurse and match aged regular files (default).
+    case agedFiles
+    /// Immediate children of each scan root as removable units (files or directories).
+    case topLevelEntries
+    /// CoreSimulator device directories that `simctl` reports as unavailable.
+    case unavailableSimulatorDevices
+}
+
 public struct ScanRule: Identifiable, Codable, Sendable, Hashable {
     public let id: String
     public let title: String
-    public let relativePath: String
+    public let relativePaths: [String]
     public let minimumAgeDays: Int
     public let allowedExtensions: Set<String>
     public let excludedRelativePaths: Set<String>
+    public let enumerationMode: ScanEnumerationMode
     public let risk: RiskLevel
     public let explanation: String
+
+    /// First scan root; kept for callers and tests that expect a single path.
+    public var relativePath: String { relativePaths[0] }
 
     public init(
         id: String,
@@ -480,15 +493,42 @@ public struct ScanRule: Identifiable, Codable, Sendable, Hashable {
         minimumAgeDays: Int,
         allowedExtensions: Set<String> = [],
         excludedRelativePaths: Set<String> = [],
+        enumerationMode: ScanEnumerationMode = .agedFiles,
         risk: RiskLevel,
         explanation: String
     ) {
+        self.init(
+            id: id,
+            title: title,
+            relativePaths: [relativePath],
+            minimumAgeDays: minimumAgeDays,
+            allowedExtensions: allowedExtensions,
+            excludedRelativePaths: excludedRelativePaths,
+            enumerationMode: enumerationMode,
+            risk: risk,
+            explanation: explanation
+        )
+    }
+
+    public init(
+        id: String,
+        title: String,
+        relativePaths: [String],
+        minimumAgeDays: Int,
+        allowedExtensions: Set<String> = [],
+        excludedRelativePaths: Set<String> = [],
+        enumerationMode: ScanEnumerationMode = .agedFiles,
+        risk: RiskLevel,
+        explanation: String
+    ) {
+        precondition(!relativePaths.isEmpty, "ScanRule requires at least one relative path")
         self.id = id
         self.title = title
-        self.relativePath = relativePath
+        self.relativePaths = relativePaths
         self.minimumAgeDays = minimumAgeDays
         self.allowedExtensions = allowedExtensions
         self.excludedRelativePaths = excludedRelativePaths
+        self.enumerationMode = enumerationMode
         self.risk = risk
         self.explanation = explanation
     }
@@ -602,12 +642,16 @@ public struct StorageAnalysisProgress: Sendable, Hashable {
 
 public struct CleanResult: Sendable {
     public let movedToTrash: [URL]
+    public let permanentlyDeleted: [URL]
     public let failures: [CleanFailure]
 
-    public init(movedToTrash: [URL], failures: [CleanFailure]) {
+    public init(movedToTrash: [URL], permanentlyDeleted: [URL] = [], failures: [CleanFailure]) {
         self.movedToTrash = movedToTrash
+        self.permanentlyDeleted = permanentlyDeleted
         self.failures = failures
     }
+
+    public var removedCount: Int { movedToTrash.count + permanentlyDeleted.count }
 }
 
 public struct CleanFailure: Sendable {

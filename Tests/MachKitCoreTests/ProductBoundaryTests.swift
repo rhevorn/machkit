@@ -82,7 +82,7 @@ private func formatPlaceholders(in value: String) -> [String] {
 }
 
 @Test func developerRulesDoNotTargetInstalledDependencies() {
-    let paths = DefaultRules.conservative.map(\.relativePath)
+    let paths = DefaultRules.conservative.flatMap(\.relativePaths)
     #expect(paths.allSatisfy { !$0.contains("node_modules") })
     #expect(paths.allSatisfy { !$0.contains("site-packages") })
     #expect(paths.allSatisfy { !$0.contains(".venv") })
@@ -127,18 +127,93 @@ private func formatPlaceholders(in value: String) -> [String] {
     #expect(Set(items.map { $0.rule.id }) == ["first", "second"])
 }
 
-@Test func broadCacheRuleExcludesDedicatedDeveloperCacheRoots() throws {
-    let broadRule = try #require(DefaultRules.conservative.first { $0.id == "user-caches" })
-    let nestedRules = DefaultRules.conservative.filter {
-        $0.id != broadRule.id && $0.relativePath.hasPrefix("Library/Caches/")
-    }
+@Test func scannerListsTopLevelTrashEntriesWithoutDescending() async throws {
+    let root = FileManager.default.temporaryDirectory
+        .appending(path: "machkit-trash-\(UUID().uuidString)", directoryHint: .isDirectory)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let trash = root.appending(path: ".Trash", directoryHint: .isDirectory)
+    let nested = trash.appending(path: "RemovedFolder/nested.bin")
+    try FileManager.default.createDirectory(at: nested.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try Data("nested".utf8).write(to: nested)
+    try Data("loose".utf8).write(to: trash.appending(path: "note.txt"))
 
-    for rule in nestedRules {
-        let relative = String(rule.relativePath.dropFirst("Library/Caches/".count))
-        #expect(broadRule.excludedRelativePaths.contains { excluded in
-            relative == excluded || relative.hasPrefix(excluded + "/")
-        }, "Dedicated cache rule overlaps the broad user cache rule: \(rule.id)")
-    }
+    let items = await Scanner().scan(root: root, rules: [TrashRule.rule])
+    let names = Set(items.map(\.url.lastPathComponent))
+    #expect(names == ["RemovedFolder", "note.txt"])
+    #expect(items.allSatisfy { $0.rule.risk == .review })
+}
+
+@Test func cleanerPermanentlyDeletesItemsAlreadyInTrash() async throws {
+    let root = FileManager.default.temporaryDirectory
+        .appending(path: "machkit-empty-trash-\(UUID().uuidString)", directoryHint: .isDirectory)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let trashItem = root.appending(path: ".Trash/old.txt")
+    let cacheItem = root.appending(path: "Library/Caches/temp.dat")
+    try FileManager.default.createDirectory(at: trashItem.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try FileManager.default.createDirectory(at: cacheItem.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try Data("trash".utf8).write(to: trashItem)
+    try Data("cache".utf8).write(to: cacheItem)
+
+    let trashScan = ScanItem(url: trashItem, bytes: 5, modifiedAt: Date(), rule: TrashRule.rule)
+    let cacheScan = ScanItem(url: cacheItem, bytes: 5, modifiedAt: Date(), rule: UserCachesRule.rule)
+    let result = await Cleaner().moveToTrash(items: [trashScan, cacheScan], selectedRoot: root)
+
+    #expect(result.permanentlyDeleted.map(\.path) == [trashItem.path])
+    #expect(result.movedToTrash.map(\.path) == [cacheItem.path])
+    #expect(!FileManager.default.fileExists(atPath: trashItem.path))
+}
+
+@Test func unavailableSimulatorEnumerationDoesNotMatchActiveDevicesWithoutSimctlSignal() async throws {
+    let root = FileManager.default.temporaryDirectory
+        .appending(path: "machkit-sim-\(UUID().uuidString)", directoryHint: .isDirectory)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let device = root.appending(
+        path: "Library/Developer/CoreSimulator/Devices/AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE",
+        directoryHint: .isDirectory
+    )
+    try FileManager.default.createDirectory(at: device, withIntermediateDirectories: true)
+    try Data("plist".utf8).write(to: device.appending(path: "device.plist"))
+
+    let items = await Scanner().scan(root: root, rules: [UnavailableSimulatorDevicesRule.rule])
+    #expect(items.isEmpty)
+}
+
+
+@Test func browserCachesAreCarvedOutOfUserCaches() {
+    let browserRoots = Set(BrowserCachesRule.rootsRelativeToLibraryCaches)
+    #expect(UserCachesRule.rule.excludedRelativePaths.isSuperset(of: browserRoots))
+    #expect(BrowserCachesRule.rule.relativePaths.allSatisfy { $0.hasPrefix("Library/Caches/") })
+    #expect(
+        DefaultRules.conservative.contains { $0.id == "browser-caches" && $0.risk == .safe }
+    )
+}
+
+@Test func scannerCombinesMultipleRelativePathsForOneRule() async throws {
+    let root = FileManager.default.temporaryDirectory
+        .appending(path: "machkit-multipath-\(UUID().uuidString)", directoryHint: .isDirectory)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let firstFile = root.appending(path: "Alpha/old.one")
+    let secondFile = root.appending(path: "Beta/old.two")
+    try FileManager.default.createDirectory(at: firstFile.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try FileManager.default.createDirectory(at: secondFile.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try Data("one".utf8).write(to: firstFile)
+    try Data("two".utf8).write(to: secondFile)
+    let oldDate = Date(timeIntervalSinceNow: -3 * 24 * 60 * 60)
+    try FileManager.default.setAttributes([.modificationDate: oldDate], ofItemAtPath: firstFile.path)
+    try FileManager.default.setAttributes([.modificationDate: oldDate], ofItemAtPath: secondFile.path)
+
+    let rule = ScanRule(
+        id: "multi",
+        title: "Multi",
+        relativePaths: ["Alpha", "Beta"],
+        minimumAgeDays: 1,
+        risk: .safe,
+        explanation: ""
+    )
+    let items = await Scanner().scan(root: root, rules: [rule])
+
+    #expect(items.count == 2)
+    #expect(Set(items.map(\.rule.id)) == ["multi"])
 }
 
 @Test func scannerDoesNotDescendIntoExcludedCacheRoots() async throws {

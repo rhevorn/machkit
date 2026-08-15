@@ -132,6 +132,43 @@ public actor Scanner {
         tracker: RuleProgressTracker
     ) async -> RuleScanResult {
         await tracker.started(rule: rule)
+        let result: RuleScanResult
+        switch rule.enumerationMode {
+        case .agedFiles:
+            result = await scanAgedFiles(
+                rule,
+                ruleIndex: ruleIndex,
+                root: root,
+                fileManager: fileManager,
+                tracker: tracker
+            )
+        case .topLevelEntries:
+            result = await scanTopLevelEntries(
+                rule,
+                ruleIndex: ruleIndex,
+                root: root,
+                fileManager: fileManager,
+                tracker: tracker
+            )
+        case .unavailableSimulatorDevices:
+            result = await scanUnavailableSimulatorDevices(
+                rule,
+                ruleIndex: ruleIndex,
+                root: root,
+                fileManager: fileManager,
+                tracker: tracker
+            )
+        }
+        return result
+    }
+
+    private nonisolated static func scanAgedFiles(
+        _ rule: ScanRule,
+        ruleIndex: Int,
+        root: URL,
+        fileManager: SendableFileManager,
+        tracker: RuleProgressTracker
+    ) async -> RuleScanResult {
         var stats = RuleScanStats()
         var results: [ScanItem] = []
         let keys: Set<URLResourceKey> = [
@@ -141,51 +178,151 @@ public actor Scanner {
             .contentModificationDateKey
         ]
 
-        guard let target = try? SafetyPolicy.validate(rule: rule, root: root),
-              let enumerator = fileManager.value.enumerator(
+        let targets = (try? SafetyPolicy.validateTargets(rule: rule, root: root)) ?? []
+        let cutoff = Calendar(identifier: .gregorian)
+            .date(byAdding: .day, value: -rule.minimumAgeDays, to: Date()) ?? .distantPast
+
+        for target in targets {
+            guard !Task.isCancelled else { break }
+            guard let enumerator = fileManager.value.enumerator(
                 at: target,
                 includingPropertiesForKeys: Array(keys),
                 options: [.skipsHiddenFiles, .skipsPackageDescendants]
-              ) else {
+            ) else {
+                continue
+            }
+
+            let excludedPaths = rule.excludedRelativePaths.map {
+                target.appending(path: $0, directoryHint: .isDirectory).standardizedFileURL.path
+            }
+
+            while let fileURL = enumerator.nextObject() as? URL {
+                guard !Task.isCancelled else { break }
+                let standardizedPath = fileURL.standardizedFileURL.path
+                if let excludedRoot = excludedPaths.first(where: {
+                    standardizedPath == $0 || standardizedPath.hasPrefix($0 + "/")
+                }) {
+                    if standardizedPath == excludedRoot { enumerator.skipDescendants() }
+                    continue
+                }
+
+                stats.inspectedFiles += 1
+                if stats.inspectedFiles.isMultiple(of: 512) {
+                    await tracker.updated(rule: rule, stats: stats)
+                    await Task.yield()
+                }
+                guard let values = try? fileURL.resourceValues(forKeys: keys),
+                      values.isRegularFile == true,
+                      values.isSymbolicLink != true,
+                      let modified = values.contentModificationDate,
+                      modified < cutoff else { continue }
+
+                let ext = fileURL.pathExtension.lowercased()
+                guard rule.allowedExtensions.isEmpty || rule.allowedExtensions.contains(ext) else { continue }
+                let item = ScanItem(
+                    url: fileURL,
+                    bytes: Int64(values.fileSize ?? 0),
+                    modifiedAt: modified,
+                    rule: rule
+                )
+                results.append(item)
+                stats.matchedFiles += 1
+                stats.matchedBytes += item.bytes
+            }
+        }
+
+        await tracker.completed(rule: rule, stats: stats)
+        return RuleScanResult(ruleIndex: ruleIndex, items: results)
+    }
+
+    private nonisolated static func scanTopLevelEntries(
+        _ rule: ScanRule,
+        ruleIndex: Int,
+        root: URL,
+        fileManager: SendableFileManager,
+        tracker: RuleProgressTracker
+    ) async -> RuleScanResult {
+        var stats = RuleScanStats()
+        var results: [ScanItem] = []
+        let targets = (try? SafetyPolicy.validateTargets(rule: rule, root: root)) ?? []
+        let cutoff = Calendar(identifier: .gregorian)
+            .date(byAdding: .day, value: -rule.minimumAgeDays, to: Date()) ?? .distantPast
+        let keys: Set<URLResourceKey> = [
+            .isRegularFileKey,
+            .isDirectoryKey,
+            .isSymbolicLinkKey,
+            .fileSizeKey,
+            .contentModificationDateKey
+        ]
+
+        for target in targets {
+            guard !Task.isCancelled else { break }
+            guard fileManager.value.fileExists(atPath: target.path) else { continue }
+            guard let children = try? fileManager.value.contentsOfDirectory(
+                at: target,
+                includingPropertiesForKeys: Array(keys),
+                options: []
+            ) else { continue }
+
+            for child in children.sorted(by: { $0.lastPathComponent.localizedStandardCompare($1.lastPathComponent) == .orderedAscending }) {
+                guard !Task.isCancelled else { break }
+                if child.lastPathComponent == ".DS_Store" { continue }
+                stats.inspectedFiles += 1
+                await tracker.updated(rule: rule, stats: stats)
+
+                guard let values = try? child.resourceValues(forKeys: keys),
+                      values.isSymbolicLink != true else { continue }
+                if rule.minimumAgeDays > 0 {
+                    let modified = values.contentModificationDate ?? .distantPast
+                    guard modified < cutoff else { continue }
+                }
+
+                let bytes = await allocatedBytes(at: child)
+                guard bytes > 0 || values.isDirectory == true || values.isRegularFile == true else { continue }
+                let item = ScanItem(url: child, bytes: bytes, modifiedAt: values.contentModificationDate, rule: rule)
+                results.append(item)
+                stats.matchedFiles += 1
+                stats.matchedBytes += item.bytes
+            }
+        }
+
+        await tracker.completed(rule: rule, stats: stats)
+        return RuleScanResult(ruleIndex: ruleIndex, items: results)
+    }
+
+    private nonisolated static func scanUnavailableSimulatorDevices(
+        _ rule: ScanRule,
+        ruleIndex: Int,
+        root: URL,
+        fileManager: SendableFileManager,
+        tracker: RuleProgressTracker
+    ) async -> RuleScanResult {
+        var stats = RuleScanStats()
+        var results: [ScanItem] = []
+        let targets = (try? SafetyPolicy.validateTargets(rule: rule, root: root)) ?? []
+        guard let devicesRoot = targets.first else {
             await tracker.completed(rule: rule, stats: stats)
             return RuleScanResult(ruleIndex: ruleIndex, items: [])
         }
 
-        let cutoff = Calendar(identifier: .gregorian)
-            .date(byAdding: .day, value: -rule.minimumAgeDays, to: Date()) ?? .distantPast
-        let excludedPaths = rule.excludedRelativePaths.map {
-            target.appending(path: $0, directoryHint: .isDirectory).standardizedFileURL.path
+        let unavailableIDs = unavailableSimulatorDeviceIDs()
+        guard !unavailableIDs.isEmpty else {
+            await tracker.completed(rule: rule, stats: stats)
+            return RuleScanResult(ruleIndex: ruleIndex, items: [])
         }
 
-        while let fileURL = enumerator.nextObject() as? URL {
+        for deviceID in unavailableIDs.sorted() {
             guard !Task.isCancelled else { break }
-            let standardizedPath = fileURL.standardizedFileURL.path
-            if let excludedRoot = excludedPaths.first(where: {
-                standardizedPath == $0 || standardizedPath.hasPrefix($0 + "/")
-            }) {
-                if standardizedPath == excludedRoot { enumerator.skipDescendants() }
-                continue
-            }
-
+            let deviceURL = devicesRoot.appending(path: deviceID, directoryHint: .isDirectory)
             stats.inspectedFiles += 1
-            if stats.inspectedFiles.isMultiple(of: 512) {
-                await tracker.updated(rule: rule, stats: stats)
-                await Task.yield()
-            }
-            guard let values = try? fileURL.resourceValues(forKeys: keys),
-                  values.isRegularFile == true,
-                  values.isSymbolicLink != true,
-                  let modified = values.contentModificationDate,
-                  modified < cutoff else { continue }
+            await tracker.updated(rule: rule, stats: stats)
+            var isDirectory: ObjCBool = false
+            guard fileManager.value.fileExists(atPath: deviceURL.path, isDirectory: &isDirectory),
+                  isDirectory.boolValue else { continue }
 
-            let ext = fileURL.pathExtension.lowercased()
-            guard rule.allowedExtensions.isEmpty || rule.allowedExtensions.contains(ext) else { continue }
-            let item = ScanItem(
-                url: fileURL,
-                bytes: Int64(values.fileSize ?? 0),
-                modifiedAt: modified,
-                rule: rule
-            )
+            let modified = try? deviceURL.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate
+            let bytes = await allocatedBytes(at: deviceURL)
+            let item = ScanItem(url: deviceURL, bytes: bytes, modifiedAt: modified, rule: rule)
             results.append(item)
             stats.matchedFiles += 1
             stats.matchedBytes += item.bytes
@@ -193,5 +330,61 @@ public actor Scanner {
 
         await tracker.completed(rule: rule, stats: stats)
         return RuleScanResult(ruleIndex: ruleIndex, items: results)
+    }
+
+    private nonisolated static func unavailableSimulatorDeviceIDs() -> Set<String> {
+        let output: SystemCommandOutput
+        do {
+            output = try SystemCommandRunner.run(
+                executable: "/usr/bin/xcrun",
+                arguments: ["simctl", "list", "devices", "-j"],
+                timeout: 20
+            )
+        } catch {
+            return []
+        }
+        guard output.status == 0,
+              let data = output.text.data(using: .utf8),
+              let payload = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let devicesByRuntime = payload["devices"] as? [String: Any] else {
+            return []
+        }
+
+        var ids = Set<String>()
+        for (_, value) in devicesByRuntime {
+            guard let devices = value as? [[String: Any]] else { continue }
+            for device in devices {
+                let available = device["isAvailable"] as? Bool ?? true
+                guard !available,
+                      let udid = device["udid"] as? String,
+                      !udid.isEmpty else { continue }
+                ids.insert(udid)
+            }
+        }
+        return ids
+    }
+
+    private nonisolated static func allocatedBytes(at url: URL) async -> Int64 {
+        await Task.detached(priority: .utility) {
+            let keys: Set<URLResourceKey> = [.isRegularFileKey, .fileSizeKey, .fileAllocatedSizeKey]
+            if let values = try? url.resourceValues(forKeys: keys), values.isRegularFile == true {
+                return Int64(values.fileAllocatedSize ?? values.fileSize ?? 0)
+            }
+            do {
+                let output = try SystemCommandRunner.run(
+                    executable: "/usr/bin/du",
+                    arguments: ["-sk", url.path],
+                    timeout: 30
+                )
+                guard output.status == 0,
+                      let token = output.text.split(whereSeparator: \.isWhitespace).first,
+                      let kilobytes = Int64(token) else {
+                    return 0
+                }
+                return kilobytes * 1_024
+            } catch {
+                return 0
+            }
+        }.value
     }
 }

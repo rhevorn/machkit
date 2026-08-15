@@ -5,18 +5,27 @@ public enum SafetyPolicy {
         ".ssh", ".gnupg", "Keychains", "Mail", "Messages", "Photos Library.photoslibrary"
     ]
 
+    public static func validateTargets(rule: ScanRule, root: URL) throws -> [URL] {
+        try rule.relativePaths.map { try validate(relativePath: $0, risk: rule.risk, root: root) }
+    }
+
+    /// Validates the rule's primary path (first entry in `relativePaths`).
     public static func validate(rule: ScanRule, root: URL) throws -> URL {
-        guard !rule.relativePath.hasPrefix("/"), !rule.relativePath.contains("..") else {
-            throw SafetyError.unsafeRule(rule.relativePath)
+        try validate(relativePath: rule.relativePath, risk: rule.risk, root: root)
+    }
+
+    public static func validate(relativePath: String, risk: RiskLevel, root: URL) throws -> URL {
+        guard !relativePath.hasPrefix("/"), !relativePath.contains("..") else {
+            throw SafetyError.unsafeRule(relativePath)
         }
 
-        let components = Set(rule.relativePath.split(separator: "/").map(String.init))
-        guard forbiddenComponents.isDisjoint(with: components), rule.risk != .blocked else {
-            throw SafetyError.forbiddenLocation(rule.relativePath)
+        let components = Set(relativePath.split(separator: "/").map(String.init))
+        guard forbiddenComponents.isDisjoint(with: components), risk != .blocked else {
+            throw SafetyError.forbiddenLocation(relativePath)
         }
 
         let canonicalRoot = root.standardizedFileURL.resolvingSymlinksInPath()
-        let target = canonicalRoot.appending(path: rule.relativePath).standardizedFileURL.resolvingSymlinksInPath()
+        let target = canonicalRoot.appending(path: relativePath).standardizedFileURL.resolvingSymlinksInPath()
         let prefix = canonicalRoot.path.hasSuffix("/") ? canonicalRoot.path : canonicalRoot.path + "/"
         guard target.path.hasPrefix(prefix) else { throw SafetyError.outsideSelectedRoot }
         return target

@@ -60,6 +60,7 @@ struct ContentView: View {
     @State private var inventorySearch = ""
     @State private var performanceSort: PerformanceSort = .cpu
     @State private var showingMemoryHelp = false
+    @State private var cleanupPhaseHelpID: String?
     @State private var portSearch = ""
     @State private var portFilter: PortFilter = .all
     @State private var selectedPort: ListeningPort?
@@ -90,11 +91,11 @@ struct ContentView: View {
             .background(Color(nsColor: .windowBackgroundColor))
         }
         .ignoresSafeArea(.container, edges: .top)
-        .confirmationDialog("Move selected files to Trash?", isPresented: $model.showCleanConfirmation) {
-            Button("Move to Trash", role: .destructive, action: model.cleanConfirmed)
+        .confirmationDialog(cleanConfirmationTitle, isPresented: $model.showCleanConfirmation) {
+            Button(cleanConfirmationActionTitle, role: .destructive, action: model.cleanConfirmed)
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("\(model.selectedCount) items, \(formatted(model.selectedBytes)) total.")
+            Text(cleanConfirmationMessage)
         }
         .sheet(item: $model.uninstallCandidate) { app in
             applicationDetails(app)
@@ -671,19 +672,6 @@ struct ContentView: View {
         .controlSize(.small)
     }
 
-    private var cleanupScanFocusAreas: [(id: String, icon: String, title: String)] {
-        var areas: [(id: String, icon: String, title: String)] = [
-            ("appCaches", "internaldrive", "App caches"),
-            ("developerLogs", "doc.text", "Developer logs"),
-            ("dependencyLibraries", "shippingbox", "Dependency libraries"),
-            ("buildCaches", "hammer", "Build caches")
-        ]
-        if model.showsLeftoverScanPhase {
-            areas.append(("leftoverAppData", "app.badge", "Leftover app data"))
-        }
-        return areas
-    }
-
     private var junkEmptyView: some View {
         VStack(spacing: 0) {
             Spacer(minLength: 34)
@@ -787,31 +775,13 @@ struct ContentView: View {
     }
 
     private var scanningView: some View {
-        VStack(spacing: 0) {
-            Spacer(minLength: 28)
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [Color.accentColor.opacity(0.18), Color.cyan.opacity(0.05)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 132, height: 132)
-                Circle()
-                    .stroke(Color.accentColor.opacity(0.12), lineWidth: 1)
-                    .frame(width: 108, height: 108)
-                Image(systemName: "sparkles.rectangle.stack.fill")
-                    .symbolRenderingMode(.palette)
-                    .foregroundStyle(Color.accentColor, Color.accentColor.opacity(0.25))
-                    .font(.system(size: 46, weight: .light))
-                    .symbolEffect(.pulse, options: .repeating, value: model.isCleanupScanning)
-            }
-            .padding(.bottom, 22)
+        let phases = model.visibleCleanupScanPhases
+        let completedCount = phases.filter { model.completedCleanupPhases.contains($0.id) }.count
+        return VStack(spacing: 0) {
+            Spacer(minLength: 40)
 
             Text(model.currentScanCategory)
-                .font(.system(size: 22, weight: .semibold, design: .rounded))
+                .font(.system(size: 20, weight: .semibold, design: .rounded))
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 440)
                 .contentTransition(.opacity)
@@ -820,71 +790,161 @@ struct ContentView: View {
                 .font(.system(size: 12))
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
-                .frame(maxWidth: 380)
-                .padding(.top, 7)
+                .padding(.top, 6)
 
-            VStack(spacing: 10) {
-                ProgressView(value: model.scanProgress)
-                HStack {
-                    Text("\(Int(model.scanProgress * 100))%")
-                        .font(.system(size: 11, weight: .semibold))
-                        .monospacedDigit()
-                        .foregroundStyle(Color.accentColor)
-                    Spacer()
-                    Text("\(formatted(model.discoveredBytes)) found so far")
-                        .font(.system(size: 11))
+            Text(L10n.format(
+                "%@ found · %lld/%lld steps",
+                formatted(model.discoveredBytes),
+                Int64(completedCount),
+                Int64(phases.count)
+            ))
+            .font(.system(size: 12, weight: .medium))
+            .foregroundStyle(.secondary)
+            .padding(.top, 10)
+
+            scanningPhaseAxis(phases: phases)
+                .padding(.horizontal, 36)
+                .padding(.top, 36)
+                .animation(.easeInOut(duration: 0.25), value: model.completedCleanupPhases)
+                .animation(.easeInOut(duration: 0.25), value: model.activeCleanupPhaseID)
+
+            if let helpPhase = phases.first(where: { $0.id == cleanupPhaseHelpID }) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(helpPhase.title.localized)
+                        .font(.system(size: 12, weight: .semibold))
+                    Text(helpPhase.summary.localized)
+                        .font(.system(size: 12))
                         .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
+                .frame(maxWidth: 520, alignment: .leading)
+                .padding(12)
+                .background(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(Color(nsColor: .controlBackgroundColor))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+                )
+                .padding(.top, 14)
+                .transition(.opacity.combined(with: .move(edge: .top)))
             }
-            .frame(width: 360)
-            .padding(.top, 22)
-
-            VStack(alignment: .leading, spacing: 8) {
-                ForEach(cleanupScanFocusAreas, id: \.id) { area in
-                    let isDone = model.completedCleanupPhases.contains(area.id)
-                    let isActive = !isDone && model.activeCleanupPhaseID == area.id
-                    HStack(spacing: 10) {
-                        Image(systemName: isDone ? "checkmark.circle.fill" : (isActive ? area.icon : "circle"))
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundStyle(isDone || isActive ? Color.accentColor : Color.secondary.opacity(0.55))
-                            .frame(width: 18)
-                        Text(area.title.localized)
-                            .font(.system(size: 13, weight: isActive ? .semibold : .regular))
-                            .foregroundStyle(isDone || isActive ? Color.primary : Color.secondary)
-                        Spacer(minLength: 0)
-                        if isActive {
-                            ProgressView()
-                                .controlSize(.small)
-                        }
-                    }
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
-                    .background(
-                        RoundedRectangle(cornerRadius: 10, style: .continuous)
-                            .fill(isActive ? Color.accentColor.opacity(0.08) : Color.clear)
-                    )
-                }
-            }
-            .frame(width: 360)
-            .padding(12)
-            .background(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(Color(nsColor: .controlBackgroundColor).opacity(0.72))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .stroke(Color.primary.opacity(0.06), lineWidth: 1)
-            )
-            .padding(.top, 26)
-            .animation(.easeInOut(duration: 0.22), value: model.completedCleanupPhases)
-            .animation(.easeInOut(duration: 0.22), value: model.activeCleanupPhaseID)
 
             Button("Cancel Scan", role: .cancel, action: model.cancelScan)
-                .padding(.top, 22)
-            Spacer(minLength: 36)
+                .padding(.top, 28)
+            Spacer(minLength: 48)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .animation(.easeInOut(duration: 0.2), value: model.currentScanCategory)
+        .animation(.easeInOut(duration: 0.18), value: cleanupPhaseHelpID)
+    }
+
+    private func scanningPhaseAxis(phases: [CleanerViewModel.CleanupScanPhase]) -> some View {
+        HStack(alignment: .top, spacing: 0) {
+            ForEach(Array(phases.enumerated()), id: \.element.id) { index, phase in
+                let isDone = model.completedCleanupPhases.contains(phase.id)
+                let isActive = !isDone && model.activeCleanupPhaseID == phase.id
+                let reached = isDone || isActive
+                let leftLit = index > 0 && (
+                    model.completedCleanupPhases.contains(phases[index - 1].id)
+                        || model.activeCleanupPhaseID == phases[index - 1].id
+                        || isDone
+                )
+                let rightLit = isDone
+                let helpShown = cleanupPhaseHelpID == phase.id
+
+                VStack(spacing: 10) {
+                    HStack(spacing: 0) {
+                        Capsule(style: .continuous)
+                            .fill(
+                                index == 0
+                                    ? Color.clear
+                                    : (leftLit ? Color.accentColor.opacity(0.85) : Color.secondary.opacity(0.18))
+                            )
+                            .frame(height: 2)
+                            .frame(maxWidth: .infinity)
+
+                        ZStack {
+                            Circle()
+                                .fill(Color(nsColor: .controlBackgroundColor))
+                                .frame(width: 16, height: 16)
+                            Circle()
+                                .strokeBorder(
+                                    reached ? Color.accentColor : Color.secondary.opacity(0.35),
+                                    lineWidth: isActive ? 2.5 : 1.5
+                                )
+                                .frame(width: 16, height: 16)
+                            if isDone {
+                                Circle()
+                                    .fill(Color.accentColor)
+                                    .frame(width: 8, height: 8)
+                            } else if isActive {
+                                Circle()
+                                    .fill(Color.accentColor)
+                                    .frame(width: 7, height: 7)
+                            }
+                        }
+                        .frame(width: 20, height: 20)
+
+                        Capsule(style: .continuous)
+                            .fill(
+                                index == phases.count - 1
+                                    ? Color.clear
+                                    : (rightLit ? Color.accentColor.opacity(0.85) : Color.secondary.opacity(0.18))
+                            )
+                            .frame(height: 2)
+                            .frame(maxWidth: .infinity)
+                    }
+
+                    HStack(spacing: 3) {
+                        Text(phase.title.localized)
+                            .font(.system(size: 10, weight: isActive ? .semibold : .medium))
+                            .foregroundStyle(reached ? Color.primary : Color.secondary)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.center)
+                        Button {
+                            cleanupPhaseHelpID = helpShown ? nil : phase.id
+                        } label: {
+                            Image(systemName: "questionmark.circle")
+                                .font(.system(size: 11, weight: .regular))
+                                .foregroundStyle(helpShown ? Color.accentColor : Color.secondary.opacity(0.85))
+                                .frame(width: 16, height: 16)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .onHover { hovering in
+                            if hovering {
+                                cleanupPhaseHelpID = phase.id
+                            } else if cleanupPhaseHelpID == phase.id {
+                                // Keep the tip visible briefly so the cursor can move into it;
+                                // click pins/unpins more deliberately.
+                            }
+                        }
+                        .help(phase.summary.localized)
+                        .accessibilityLabel(phase.summary.localized)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .onHover { hovering in
+                        if hovering {
+                            cleanupPhaseHelpID = phase.id
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .padding(.horizontal, 10)
+        .padding(.top, 18)
+        .padding(.bottom, 14)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(nsColor: .controlBackgroundColor).opacity(0.72))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+        )
     }
 
     private var junkDetailList: some View {
@@ -915,6 +975,38 @@ struct ContentView: View {
                 }
             }.padding(14)
         }
+    }
+
+    private var cleanConfirmationTitle: String {
+        if model.selectedIncludesTrashContents && !model.selectedIncludesNonTrashContents {
+            return L10n.string("Permanently delete selected Trash items?")
+        }
+        if model.selectedIncludesTrashContents {
+            return L10n.string("Clean selected items?")
+        }
+        return L10n.string("Move selected files to Trash?")
+    }
+
+    private var cleanConfirmationActionTitle: String {
+        if model.selectedIncludesTrashContents && !model.selectedIncludesNonTrashContents {
+            return L10n.string("Delete Permanently")
+        }
+        return L10n.string("Move to Trash")
+    }
+
+    private var cleanConfirmationMessage: String {
+        let totals = L10n.format(
+            "%lld items, %@ total.",
+            Int64(model.selectedCount),
+            formatted(model.selectedBytes)
+        )
+        if model.selectedIncludesTrashContents && model.selectedIncludesNonTrashContents {
+            return totals + " " + L10n.string("Trash items will be permanently deleted; other items will be moved to Trash.")
+        }
+        if model.selectedIncludesTrashContents {
+            return totals + " " + L10n.string("This permanently deletes files already in Trash and cannot be undone.")
+        }
+        return totals
     }
 
     private var cleanupResultOverview: some View {
