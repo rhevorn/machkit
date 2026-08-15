@@ -184,11 +184,12 @@ enum DeveloperToolRegistry {
         ),
         DeveloperTool(
             id: "number-base",
-            title: "Number Base",
-            description: "Convert integers across bases and byte units locally",
+            title: "Unit Converter",
+            description: "Convert bases, bytes, time, length, mass, temperature, and more locally",
             keywords: [
                 "binary", "octal", "decimal", "hex", "byte", "kib", "mib",
-                "进制", "字节", "换算"
+                "time", "length", "mass", "temperature", "angle", "speed", "area",
+                "进制", "字节", "换算", "单位", "时间", "长度", "温度"
             ],
             icon: "number",
             widthClass: .compact,

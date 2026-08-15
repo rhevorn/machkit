@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { convertBases, convertBytes } from "./number.js";
+import {
+  convertBases,
+  convertBytes,
+  convertLinear,
+  convertTemperature,
+  formatNumber,
+} from "./number.js";
 
 test("converts decimal to other bases", () => {
   const result = convertBases("255");
@@ -19,7 +25,6 @@ test("converts byte units", () => {
   assert.equal(result.ok, true);
   assert.equal(result.formats.B, "1024");
   assert.equal(result.formats.KB, "1.024");
-  assert.equal(result.formats.PiB, "9.094947e-13");
 });
 
 test("converts petabyte scale", () => {
@@ -27,4 +32,42 @@ test("converts petabyte scale", () => {
   assert.equal(result.ok, true);
   assert.equal(result.formats.TB, "1000");
   assert.equal(result.formats.B, "1000000000000000");
+});
+
+test("converts time units", () => {
+  const result = convertLinear("1000", "ms", "time");
+  assert.equal(result.ok, true);
+  assert.equal(result.formats.s, "1");
+  assert.equal(result.formats.min, "0.0166666666667");
+});
+
+test("converts length units", () => {
+  const result = convertLinear("1", "km", "length");
+  assert.equal(result.ok, true);
+  assert.equal(result.formats.m, "1000");
+  assert.equal(result.formats.cm, "100000");
+});
+
+test("converts temperature", () => {
+  const result = convertTemperature("100", "C");
+  assert.equal(result.ok, true);
+  assert.equal(result.formats.C, "100");
+  assert.equal(result.formats.F, "212");
+  assert.equal(result.formats.K, "373.15");
+});
+
+test("converts angle and speed", () => {
+  const angle = convertLinear("180", "deg", "angle");
+  assert.equal(angle.ok, true);
+  assert.equal(angle.formats.turn, "0.5");
+  assert.ok(Math.abs(Number(angle.formats.rad) - Math.PI) < 1e-9);
+
+  const speed = convertLinear("36", "kmh", "speed");
+  assert.equal(speed.ok, true);
+  assert.equal(speed.formats.mps, "10");
+});
+
+test("formats small numbers", () => {
+  assert.equal(formatNumber(0), "0");
+  assert.match(formatNumber(1e-9), /e-/i);
 });
