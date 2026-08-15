@@ -56,8 +56,8 @@ jobs:
         run: |
           set -euo pipefail
           xcodebuild \
-            -project Sift.xcodeproj \
-            -scheme "Sift App" \
+            -project MachKit.xcodeproj \
+            -scheme "MachKit App" \
             -configuration Release \
             -destination "generic/platform=macOS" \
             -derivedDataPath build/XcodeDerivedData \
@@ -77,8 +77,8 @@ jobs:
         run: |
           set -euo pipefail
           build_settings="$(xcodebuild \
-            -project Sift.xcodeproj \
-            -scheme "Sift App" \
+            -project MachKit.xcodeproj \
+            -scheme "MachKit App" \
             -configuration Release \
             -destination "generic/platform=macOS" \
             -derivedDataPath build/XcodeDerivedData \
@@ -116,7 +116,7 @@ jobs:
             echo "Bundled build $bundled_build does not match GitHub run number $BUILD_NUMBER" >&2
             exit 1
           fi
-          architectures="$(lipo -archs "$APP_PATH/Contents/MacOS/Sift")"
+          architectures="$(lipo -archs "$APP_PATH/Contents/MacOS/MachKit")"
           if [[ " $architectures " != *" arm64 "* || " $architectures " != *" x86_64 "* ]]; then
             echo "Release executable is not universal: $architectures" >&2
             exit 1
@@ -140,7 +140,7 @@ jobs:
         run: |
           set -euo pipefail
           release_directory="$GITHUB_WORKSPACE/build/release"
-          archive_path="$release_directory/Sift-$VERSION-macOS.zip"
+          archive_path="$release_directory/MachKit-$VERSION-macOS.zip"
           mkdir -p "$release_directory"
           ditto \
             -c \
@@ -172,5 +172,5 @@ jobs:
           set -euo pipefail
           gh release create "$GITHUB_REF_NAME" "$ARCHIVE_PATH" \
             --verify-tag \
-            --title "Sift $GITHUB_REF_NAME" \
+            --title "MachKit $GITHUB_REF_NAME" \
             --notes-file "$NOTES_PATH"

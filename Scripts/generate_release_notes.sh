@@ -24,7 +24,7 @@ else
   echo "No previous version tag found; generating release notes through $current_tag" >&2
 fi
 
-temporary_directory="$(mktemp -d "${TMPDIR:-/tmp}/sift-release-notes.XXXXXX")"
+temporary_directory="$(mktemp -d "${TMPDIR:-/tmp}/machkit-release-notes.XXXXXX")"
 trap 'rm -rf "$temporary_directory"' EXIT
 
 features="$temporary_directory/features"
@@ -48,7 +48,7 @@ while IFS= read -r subject; do
       refactor) printf '%s\n' "- $description" >> "$improvements" ;;
       docs) printf '%s\n' "- $description" >> "$documentation" ;;
       chore)
-        if [[ "$description" =~ ^release([[:space:]]+Sift)?[[:space:]]+v?[0-9]+\.[0-9]+\.[0-9]+$ ]] \
+        if [[ "$description" =~ ^release([[:space:]]+MachKit)?[[:space:]]+v?[0-9]+\.[0-9]+\.[0-9]+$ ]] \
           || [[ "$description" =~ ^bump[[:space:]]+version ]]; then
           continue
         fi
@@ -94,8 +94,8 @@ mkdir -p "$(dirname "$output_file")"
   echo "## Installation"
   echo
   echo "1. Download the macOS ZIP file."
-  echo "2. Extract it and move Sift to Applications."
-  echo "3. Open Sift."
+  echo "2. Extract it and move MachKit to Applications."
+  echo "3. Open MachKit."
   echo "4. If macOS blocks the app, open System Settings → Privacy & Security and choose Open Anyway."
 } > "$output_file"
 
