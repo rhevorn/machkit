@@ -19,4 +19,12 @@ test("converts byte units", () => {
   assert.equal(result.ok, true);
   assert.equal(result.formats.B, "1024");
   assert.equal(result.formats.KB, "1.024");
+  assert.equal(result.formats.PiB, "9.094947e-13");
+});
+
+test("converts petabyte scale", () => {
+  const result = convertBytes("1", "PB");
+  assert.equal(result.ok, true);
+  assert.equal(result.formats.TB, "1000");
+  assert.equal(result.formats.B, "1000000000000000");
 });

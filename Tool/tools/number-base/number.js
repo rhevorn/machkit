@@ -6,10 +6,14 @@ const BYTE_UNITS = [
   { id: "MB", factor: 1_000_000n },
   { id: "GB", factor: 1_000_000_000n },
   { id: "TB", factor: 1_000_000_000_000n },
+  { id: "PB", factor: 1_000_000_000_000_000n },
+  { id: "EB", factor: 1_000_000_000_000_000_000n },
   { id: "KiB", factor: 1024n },
   { id: "MiB", factor: 1024n ** 2n },
   { id: "GiB", factor: 1024n ** 3n },
   { id: "TiB", factor: 1024n ** 4n },
+  { id: "PiB", factor: 1024n ** 5n },
+  { id: "EiB", factor: 1024n ** 6n },
 ];
 
 export const byteUnits = Object.freeze(BYTE_UNITS.map((unit) => unit.id));
