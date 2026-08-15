@@ -233,6 +233,19 @@ enum DeveloperToolRegistry {
             widthClass: .wide,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/url-lab/index.html")
+        ),
+        DeveloperTool(
+            id: "number-base",
+            title: "Number Base",
+            description: "Convert integers across bases and byte units locally",
+            keywords: [
+                "binary", "octal", "decimal", "hex", "byte", "kib", "mib",
+                "进制", "字节", "换算"
+            ],
+            icon: "number",
+            widthClass: .compact,
+            capabilities: [.clipboard],
+            presentation: .bundledWeb(entryFile: "WebTools/tools/number-base/index.html")
         )
     ]
 

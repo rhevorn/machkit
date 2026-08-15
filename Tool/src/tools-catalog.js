@@ -17,6 +17,7 @@ const preferredOrder = [
   "color-lab",
   "qr-code",
   "url-lab",
+  "number-base",
 ];
 
 /** Localized title/description for known tools; unknown folders still appear by id. */
@@ -357,6 +358,32 @@ export const toolMeta = {
       de: "URLs zerlegen und mit Query/Hash neu bauen",
       "pt-BR": "Analise e remonte URLs com query e hash",
       ru: "Разбор и сборка URL с query и hash",
+    },
+  },
+  "number-base": {
+    title: {
+      en: "Number Base",
+      "zh-Hans": "进制换算",
+      "zh-Hant": "進位換算",
+      ja: "基数変換",
+      ko: "진법 변환",
+      es: "Bases numéricas",
+      fr: "Bases numériques",
+      de: "Zahlensysteme",
+      "pt-BR": "Bases numéricas",
+      ru: "Системы счисления",
+    },
+    description: {
+      en: "Convert integers across bases and byte units locally",
+      "zh-Hans": "本地转换进制与字节单位",
+      "zh-Hant": "本機轉換進位與位元組單位",
+      ja: "基数とバイト単位をローカル変換",
+      ko: "진법과 바이트 단위를 로컬 변환",
+      es: "Convierte bases y unidades de bytes en local",
+      fr: "Convertissez bases et unités d’octets en local",
+      de: "Basen und Byte-Einheiten lokal umwandeln",
+      "pt-BR": "Converta bases e unidades de bytes localmente",
+      ru: "Локальный перевод оснований и единиц байтов",
     },
   },
 };
