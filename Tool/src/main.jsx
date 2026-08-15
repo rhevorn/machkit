@@ -1,32 +1,59 @@
-import React from "react";
-import { createRoot } from "react-dom/client";
+import React, { useMemo } from "react";
+import { CaretRight } from "@phosphor-icons/react";
+import { ToolContent, ToolPage } from "@/ui/index.js";
+import { useLocale, useToolMessages } from "@/i18n.js";
+import { mountTool } from "@/runtime/mount-tool.jsx";
+import { listTools } from "@/tools-catalog.js";
+import { homeMessages } from "@/home-messages.js";
 import "./styles.css";
 
-function App() {
-  return (
-    <main className="workspace">
-      <section className="hero">
-        <span className="eyebrow">MachKit · Web Tools</span>
-        <h1>Embedded tool workspace</h1>
-        <p>
-          H5 tools live in isolated folders, share the native MachKit appearance, and
-          build into independent pages for WKWebView.
-        </p>
-      </section>
+function toolHref(path) {
+  const query = window.location.search;
+  return query ? `${path}${query}` : path;
+}
 
-      <section className="empty-state" aria-labelledby="empty-title">
-        <div className="tool-icon" aria-hidden="true">&lt;/&gt;</div>
-        <div>
-          <h2 id="empty-title">Ready for the next tool</h2>
-          <p>Add a directory under <code>tools/</code> when its product scope is clear.</p>
-        </div>
-      </section>
-    </main>
+function HomePage() {
+  const locale = useLocale();
+  const text = useToolMessages(homeMessages);
+  const tools = useMemo(() => listTools(locale), [locale]);
+
+  return (
+    <ToolPage title={text.title} adaptiveHeight={false}>
+      <ToolContent className="mx-auto flex w-full max-w-[720px] flex-col gap-6 px-6 py-10">
+        <header className="flex flex-col gap-2">
+          <p className="text-[11px] font-semibold tracking-[0.04em] text-accent uppercase">
+            MachKit · Web
+          </p>
+          <h1 className="text-[28px] leading-tight font-semibold tracking-[-0.03em] text-foreground">
+            {text.title}
+          </h1>
+          <p className="max-w-xl text-[13px] leading-relaxed text-secondary">{text.subtitle}</p>
+        </header>
+
+        <section className="flex flex-col gap-2" aria-label={text.tools}>
+          {tools.map((tool) => (
+            <a
+              key={tool.id}
+              href={toolHref(tool.href)}
+              className="group flex items-center gap-4 rounded-panel border border-border bg-field px-4 py-3.5 no-underline transition-[border-color,background-color] hover:border-accent/40 hover:bg-muted"
+            >
+              <div className="min-w-0 flex-1">
+                <div className="text-[14px] font-semibold text-foreground">{tool.title}</div>
+                {tool.description ? (
+                  <p className="mt-1 text-[12px] leading-relaxed text-secondary">{tool.description}</p>
+                ) : null}
+                <p className="mt-1 font-mono text-[11px] text-tertiary">{tool.id}</p>
+              </div>
+              <span className="flex shrink-0 items-center gap-1 text-[12px] font-medium text-accent opacity-80 group-hover:opacity-100">
+                {text.open}
+                <CaretRight size={14} weight="bold" />
+              </span>
+            </a>
+          ))}
+        </section>
+      </ToolContent>
+    </ToolPage>
   );
 }
 
-createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-);
+mountTool(<HomePage />, { name: "home" });

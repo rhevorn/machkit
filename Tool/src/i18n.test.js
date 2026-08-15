@@ -6,6 +6,7 @@ import { messages as codecMessages } from "../tools/codec/messages.js";
 import { messages as jsonMessages } from "../tools/json-formatter/messages.js";
 import { messages as stringMessages } from "../tools/string-generator/messages.js";
 import { labels as hostsMessages } from "../tools/hosts-manager/messages.js";
+import { homeMessages } from "./home-messages.js";
 
 for (const [name, catalog] of Object.entries({
   timestamp: timestampMessages,
@@ -13,6 +14,7 @@ for (const [name, catalog] of Object.entries({
   json: jsonMessages,
   string: stringMessages,
   hosts: hostsMessages,
+  home: homeMessages,
 })) {
   test(`${name} translations have the same non-empty keys`, () => {
     assert.deepEqual(catalogIssues(catalog), []);
@@ -20,7 +22,7 @@ for (const [name, catalog] of Object.entries({
 }
 
 test("fully localized tools cover every supported locale", () => {
-  for (const catalog of [timestampMessages, codecMessages, jsonMessages, stringMessages, hostsMessages]) {
+  for (const catalog of [timestampMessages, codecMessages, jsonMessages, stringMessages, hostsMessages, homeMessages]) {
     assert.deepEqual(Object.keys(catalog).sort(), [...supportedLocales].sort());
   }
 });

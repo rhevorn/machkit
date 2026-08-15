@@ -16,7 +16,8 @@ Debug builds load tools from `http://127.0.0.1:4174` and update through Vite HMR
 without rebuilding MachKit. If the server is not running, MachKit automatically falls
 back to the bundled tool. Release builds always use bundled resources.
 
-The development server runs at `http://127.0.0.1:4174`.
+The development server runs at `http://127.0.0.1:4174`. The root page is a simple
+index of every H5 tool under `tools/` (folders starting with `_` are skipped).
 
 In the browser (not inside MachKit), each tool page shows a floating **Dev** bar for
 locale and theme. Drag the `Dev` handle to move it, or press **Hide** to collapse it

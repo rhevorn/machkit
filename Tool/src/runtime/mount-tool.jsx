@@ -40,6 +40,15 @@ const appearanceOptions = [
 
 const DOCK_LAYOUT_KEY = "machkit:dev-dock-layout";
 
+function homeHref() {
+  const marker = "/tools/";
+  const index = window.location.pathname.indexOf(marker);
+  if (index < 0) return null;
+  const url = new URL(window.location.href);
+  url.pathname = `${url.pathname.slice(0, index)}/` || "/";
+  return `${url.pathname}${url.search}`;
+}
+
 function defaultDockLayout() {
   return {
     x: Math.max(16, window.innerWidth / 2 - 160),
@@ -210,6 +219,14 @@ function DevPreferencesDock() {
           ))}
         </select>
       </label>
+      {homeHref() ? (
+        <a
+          href={homeHref()}
+          className="h-7 rounded-control px-2 text-[11px] leading-7 text-secondary no-underline hover:bg-muted hover:text-foreground"
+        >
+          Home
+        </a>
+      ) : null}
       <button
         type="button"
         className="ml-auto h-7 rounded-control px-2 text-[11px] text-secondary hover:bg-muted hover:text-foreground"
