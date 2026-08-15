@@ -207,29 +207,29 @@ export const featurePages = Object.freeze([
     },
   },
   {
-    id: "developer-tools",
-    slug: "developer-tools",
+    id: "utilities",
+    slug: "utilities",
     image: "tools.webp",
     locales: {
       en: {
-        title: "Practical Work & Developer Tools for Mac — MachKit",
-        description: "A growing collection of focused Mac utilities for everyday work and development: Hosts, timestamps, JSON, codecs, IDs, regex, text diff, and more over time.",
+        title: "Practical Local Utilities for Mac — MachKit",
+        description: "A growing collection of focused Mac utilities for text, data, images, networking, diagnostics, and everyday tasks—all running locally.",
         eyebrow: "A toolkit designed to grow",
         heading: "Small, practical tools should live in one dependable place.",
-        lead: "MachKit is building a growing catalog of focused utilities for everyday work and software development. Each tool solves one concrete task, shares the same native shell, language, theme, shortcuts, and privacy model, and stays close without becoming another browser tab or subscription.",
+        lead: "MachKit is building a growing catalog of focused local utilities for text, data, images, networking, diagnostics, and everyday tasks. Each tool solves one concrete problem, shares the same native shell, language, theme, shortcuts, and privacy model, and stays close without becoming another browser tab or subscription.",
         highlights: [
           ["Useful by design", "Each utility starts with a real recurring task instead of a broad feature checklist."],
           ["One consistent system", "Tools share search, global shortcuts, appearance, localization, clipboard feedback, and local storage."],
           ["Ready to expand", "New utilities join the catalog without adding another standalone app or a different interaction model."],
         ],
         catalogTitle: "Available tools today",
-        catalogIntro: "The catalog currently covers environment setup, data transformation, text inspection, and identifier generation. It will continue to grow around practical work and development workflows.",
+        catalogIntro: "The catalog currently covers text and data transformation, images, identifiers, certificates, network diagnostics, environment setup, and more. It will continue to grow around practical recurring tasks.",
         catalog: localizedWebsiteTools.en,
         sections: [
           {
-            title: "For both everyday work and development",
-            body: "The catalog is not limited to programming syntax. It can include any focused utility that removes a repetitive step from technical work, content handling, debugging, data preparation, or daily Mac use.",
-            items: ["Text and data transformation", "Inspection and comparison", "Environment and workflow helpers"],
+            title: "Useful well beyond software development",
+            body: "The catalog is not limited to programming syntax. It includes focused utilities that remove repetitive steps from writing, content handling, data preparation, networking, troubleshooting, and daily Mac use.",
+            items: ["Text, data, and image tools", "Network and certificate inspection", "Everyday workflow helpers"],
           },
           {
             title: "Local, searchable, and one shortcut away",
@@ -244,24 +244,24 @@ export const featurePages = Object.freeze([
         ],
       },
       "zh-CN": {
-        title: "Mac 工作与开发实用工具合集 — MachKit",
-        description: "持续增长的 Mac 工作与开发实用工具合集，包含 Hosts、时间戳、JSON、编解码、ID、正则、文本对比，并会继续扩展。",
+        title: "Mac 本地实用工具合集 — MachKit",
+        description: "持续增长的 Mac 本地实用工具合集，覆盖文本、数据、图片、网络、诊断和日常任务，全部在本机运行。",
         eyebrow: "为持续扩展而设计的工具箱",
         heading: "小而实用的工具，应该集中在一个可靠的地方。",
-        lead: "MachKit 正在建立一套持续增长的实用工具目录，服务于日常工作和软件开发。每个工具解决一个明确问题，并共享同一套原生窗口、语言、主题、快捷键和隐私规则，不必再增加浏览器标签、独立 App 或订阅。",
+        lead: "MachKit 正在建立一套持续增长的本地实用工具目录，覆盖文本、数据、图片、网络、诊断和日常任务。每个工具解决一个明确问题，并共享同一套原生窗口、语言、主题、快捷键和隐私规则，不必再增加浏览器标签、独立 App 或订阅。",
         highlights: [
           ["从实际需求出发", "每个工具都源于一个反复出现的具体任务，而不是为了堆砌功能。"],
           ["一致的使用方式", "工具共享搜索、全局快捷键、外观、多语言、复制反馈和本地存储。"],
           ["可以持续扩展", "新工具直接加入统一目录，不会变成另一个交互完全不同的独立 App。"],
         ],
         catalogTitle: "目前已经提供的工具",
-        catalogIntro: "当前目录覆盖环境配置、数据转换、文本检查和标识符生成，并会继续围绕实际工作与开发流程扩展。",
+        catalogIntro: "当前目录覆盖文本与数据转换、图片、标识符、证书、网络诊断和环境配置等任务，并会围绕反复出现的实际需求继续扩展。",
         catalog: localizedWebsiteTools["zh-CN"],
         sections: [
           {
-            title: "同时服务日常工作与软件开发",
-            body: "工具目录不局限于编程语法。只要能减少技术工作、内容处理、调试、数据准备或日常 Mac 使用中的重复步骤，都可以成为一个专注的小工具。",
-            items: ["文本与数据转换", "检查与对比", "环境和工作流辅助"],
+            title: "用途不局限于软件开发",
+            body: "工具目录不局限于编程语法。它也用于减少写作、内容处理、数据准备、网络检查、故障排查和日常 Mac 使用中的重复步骤。",
+            items: ["文本、数据与图片工具", "网络与证书检查", "日常工作流辅助"],
           },
           {
             title: "本地处理、快速搜索、一个快捷键即可打开",

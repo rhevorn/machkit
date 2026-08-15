@@ -2,7 +2,7 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md)
 
-A privacy-first macOS utility for storage analysis, cleanup, app uninstall, network tools, system inventory, and local developer utilities.
+A privacy-first macOS utility for storage analysis, cleanup, app uninstall, system monitoring, network inspection, and a growing collection of local utilities.
 
 Everything runs locally on your Mac. Scans read file metadata only, risky items stay unchecked by default, and deletions go to the Trash.
 
@@ -21,11 +21,11 @@ Everything runs locally on your Mac. Scans read file metadata only, risky items 
 - **Cleanup** — Find caches, logs, leftovers, and developer files; risky items stay unchecked
 - **Apps** — Browse apps and command-line tools, then uninstall with related support files
 - **Storage** — Understand disk usage and large folders
-- **Performance** — Monitor CPU, memory pressure, and busy apps
+- **Monitor** — Follow CPU, memory pressure, thermal state, and busy apps
 - **Network** — Inspect traffic, connections, listening ports, routes, VPN/TUN, and proxies
 - **System** — Review login items, background activity, and extensions
 - **Menu bar** — Keep a lightweight monitor for CPU, memory, network speed, and quick actions
-- **Developer tools** — Open local utilities from the Tools workspace, menu, or global shortcuts:
+- **Utilities** — Open focused local tools from the Tools workspace, menu, or global shortcuts:
   - **Hosts Manager** — View `/etc/hosts` and switch shared / environment mappings safely
   - **Timestamp Converter** — Convert dates and Unix timestamps across units and time zones
   - **JSON Formatter** — Format, minify, sort keys, and query values with path expressions
@@ -43,6 +43,13 @@ Everything runs locally on your Mac. Scans read file metadata only, risky items 
   - **XML / Plist** — Format XML and convert Apple XML plists to JSON locally
   - **IP Inspector** — Inspect IPv4 and IPv6 addresses, kinds, and reverse DNS labels
   - **Image Tools** — Convert formats and control output by quality, target size, or dimensions
+  - **JWT Lab** — Decode, inspect, and create JSON Web Tokens locally
+  - **chmod Lab** — Convert Unix permission modes and preview symbolic changes
+  - **Certificate Lab** — Inspect certificates, CSRs, and certificate chains locally
+  - **Text Lab** — Clean, transform, sort, count, and reshape text
+  - **cURL Lab** — Build, parse, and edit cURL requests without sending them
+  - **Connection Trace** — Trace how a destination resolves and routes through the Mac
+  - **Port Scanner** — Scan any TCP port or range with progress and open-port results
 
 ## Requirements
 
@@ -89,7 +96,7 @@ Core library tests:
 swift test
 ```
 
-H5 developer tools (optional during UI work):
+H5 utilities (optional during UI work):
 
 ```bash
 cd Tool
@@ -117,7 +124,7 @@ English is the source language. The app also includes Simplified Chinese, Tradit
 ```text
 App/                 SwiftUI app, preferences, tools shell, and bridges
 Sources/MachKitCore/    Scanning, risk rules, cleanup, hosts, and system inventory
-Tool/                H5 developer tools (Vite + React), bundled into Resources/WebTools
+Tool/                H5 utilities (Vite + React), bundled into Resources/WebTools
 Resources/           App icon and Localizable.xcstrings
 Tests/MachKitCoreTests/ Core behavior and safety tests
 MachKit.xcodeproj/      macOS app project

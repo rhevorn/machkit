@@ -35,10 +35,10 @@ test("feature pages provide complete localized content and unique paths", () => 
   }
 });
 
-test("developer tools page represents the current growing catalog", () => {
-  const page = featurePages.find((candidate) => candidate.id === "developer-tools");
-  assert.equal(page.locales.en.catalog.length, 7);
-  assert.equal(page.locales["zh-CN"].catalog.length, 7);
+test("utilities page represents the current growing catalog", () => {
+  const page = featurePages.find((candidate) => candidate.id === "utilities");
+  assert.equal(page.locales.en.catalog.length, 24);
+  assert.equal(page.locales["zh-CN"].catalog.length, 24);
   assert.match(page.locales.en.lead, /growing catalog/i);
   assert.match(page.locales["zh-CN"].lead, /持续增长/);
 });
@@ -55,7 +55,7 @@ test("feature documents expose canonical, alternate, and structured data", () =>
 test("sitemap includes every localized homepage and feature page", () => {
   const sitemap = renderSitemap("2026-08-15");
   assert.equal((sitemap.match(/<url>/g) || []).length, 10);
-  assert.match(sitemap, /https:\/\/machkit\.app\/developer-tools\//);
-  assert.match(sitemap, /https:\/\/machkit\.app\/zh-CN\/developer-tools\//);
+  assert.match(sitemap, /https:\/\/machkit\.app\/utilities\//);
+  assert.match(sitemap, /https:\/\/machkit\.app\/zh-CN\/utilities\//);
   assert.equal((sitemap.match(/<lastmod>2026-08-15<\/lastmod>/g) || []).length, 10);
 });

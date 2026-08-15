@@ -63,7 +63,7 @@ assert.match(homepage, /Text Diff/);
 
 const sitemap = await fs.readFile(path.join(clientDirectory, "sitemap.xml"), "utf8");
 assert.equal((sitemap.match(/<url>/g) || []).length, 10);
-assert.match(sitemap, /https:\/\/machkit\.app\/developer-tools\//);
-assert.match(sitemap, /https:\/\/machkit\.app\/zh-CN\/developer-tools\//);
+assert.match(sitemap, /https:\/\/machkit\.app\/utilities\//);
+assert.match(sitemap, /https:\/\/machkit\.app\/zh-CN\/utilities\//);
 
 console.log(`Verified ${indexableFiles.length} prerendered pages and their local links.`);

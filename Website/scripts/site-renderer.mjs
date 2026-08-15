@@ -78,7 +78,7 @@ function renderHeader(locale, activePage) {
   const homeURL = locale === "zh-CN" ? "/zh-CN/" : "/";
   const otherLocale = locale === "zh-CN" ? "en" : "zh-CN";
   const languageURL = localizedPath(activePage, otherLocale);
-  const toolsPage = featurePages.find((page) => page.id === "developer-tools");
+  const toolsPage = featurePages.find((page) => page.id === "utilities");
   return `<header class="site-header">
     <nav class="nav-shell" aria-label="${escapeHTML(text.capabilities)}">
       ${renderBrand(locale)}

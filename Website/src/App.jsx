@@ -92,7 +92,7 @@ export function App({
 
   const languageURL = locale === "en" ? "./zh-CN/" : "../";
   const languageLabel = locale === "en" ? "中文" : "English";
-  const developerToolsURL = "./developer-tools/";
+  const utilitiesURL = "./utilities/";
 
   const screenImages = useMemo(() => ({
     overview: `${assetBase}/assets/overview.webp`,
@@ -299,7 +299,7 @@ export function App({
                   </article>
                 ))}
               </div>
-              <a className="tools-explore-link" href={developerToolsURL}>
+              <a className="tools-explore-link" href={utilitiesURL}>
                 {copy.tools.explore}<ArrowRight size={15} />
               </a>
             </div>
@@ -332,7 +332,7 @@ export function App({
             <p>{copy.footer.description}</p>
           </div>
           <div className="footer-links">
-            <a href={developerToolsURL}>{copy.footer.tools}</a>
+            <a href={utilitiesURL}>{copy.footer.tools}</a>
             <a href={`${REPOSITORY_URL}/releases`} target="_blank" rel="noreferrer">{copy.footer.releases}</a>
             <a href={`${REPOSITORY_URL}/issues`} target="_blank" rel="noreferrer">{copy.footer.issues}</a>
             <a href={`${REPOSITORY_URL}/blob/main/LICENSE`} target="_blank" rel="noreferrer">{copy.footer.license}</a>
