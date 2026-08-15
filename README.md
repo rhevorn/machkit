@@ -36,6 +36,7 @@ Everything runs locally on your Mac. Scans read file metadata only, risky items 
   - **IP / CIDR Calculator** — Calculate IPv4 network details, ranges, and membership checks
   - **Cron Expression** — Build five-field cron schedules and preview upcoming runs
   - **Data Format** — Convert between JSON, YAML, and TOML locally
+  - **Color Lab** — Convert HEX, RGB, HSL, and HSV with local contrast checks
 
 ## Requirements
 

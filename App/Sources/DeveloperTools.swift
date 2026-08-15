@@ -194,6 +194,19 @@ enum DeveloperToolRegistry {
             widthClass: .wide,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/data-format/index.html")
+        ),
+        DeveloperTool(
+            id: "color-lab",
+            title: "Color Lab",
+            description: "Convert HEX, RGB, HSL, and HSV with local contrast checks",
+            keywords: [
+                "color", "hex", "rgb", "hsl", "hsv", "contrast", "picker",
+                "颜色", "色彩", "色值", "对比度"
+            ],
+            icon: "paintpalette",
+            widthClass: .regular,
+            capabilities: [.clipboard],
+            presentation: .bundledWeb(entryFile: "WebTools/tools/color-lab/index.html")
         )
     ]
 

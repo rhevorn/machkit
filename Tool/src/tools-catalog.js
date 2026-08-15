@@ -14,6 +14,7 @@ const preferredOrder = [
   "ip-cidr",
   "cron-expression",
   "data-format",
+  "color-lab",
 ];
 
 /** Localized title/description for known tools; unknown folders still appear by id. */
@@ -276,6 +277,32 @@ export const toolMeta = {
       de: "JSON, YAML und TOML lokal umwandeln",
       "pt-BR": "Converta JSON, YAML e TOML localmente",
       ru: "Локальная конвертация JSON, YAML и TOML",
+    },
+  },
+  "color-lab": {
+    title: {
+      en: "Color Lab",
+      "zh-Hans": "颜色实验室",
+      "zh-Hant": "顏色實驗室",
+      ja: "カラーラボ",
+      ko: "색상 랩",
+      es: "Laboratorio de color",
+      fr: "Labo couleur",
+      de: "Farblabor",
+      "pt-BR": "Lab de cores",
+      ru: "Цветовая лаборатория",
+    },
+    description: {
+      en: "Convert HEX, RGB, HSL, and HSV with local contrast checks",
+      "zh-Hans": "本地转换 HEX / RGB / HSL / HSV 并检查对比度",
+      "zh-Hant": "本機轉換 HEX / RGB / HSL / HSV 並檢查對比度",
+      ja: "HEX・RGB・HSL・HSV 変換とコントラスト確認",
+      ko: "HEX, RGB, HSL, HSV 변환과 대비 확인",
+      es: "Convierte HEX, RGB, HSL y HSV con contraste local",
+      fr: "Convertissez HEX, RGB, HSL et HSV avec contraste local",
+      de: "HEX, RGB, HSL und HSV lokal mit Kontrastprüfung",
+      "pt-BR": "Converta HEX, RGB, HSL e HSV com contraste local",
+      ru: "Конвертация HEX, RGB, HSL, HSV и проверка контраста",
     },
   },
 };
