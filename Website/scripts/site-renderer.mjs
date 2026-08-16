@@ -19,6 +19,10 @@ function jsonLD(value) {
   return JSON.stringify(value, null, 2).replaceAll("<", "\\u003c");
 }
 
+function localizedImageName(image, locale) {
+  return locale === "zh-CN" ? image.replace(/\.webp$/, "-zh-CN.webp") : image;
+}
+
 function localeText(locale) {
   return locale === "zh-CN"
     ? {
@@ -188,7 +192,8 @@ export function renderFeatureDocument({
   const text = localeText(locale);
   const canonical = localizedURL(page, locale);
   const homeURL = locale === "zh-CN" ? `${site.origin}/zh-CN/` : `${site.origin}/`;
-  const imageURL = `${site.origin}/assets/${page.image}`;
+  const image = localizedImageName(page.image, locale);
+  const imageURL = `${site.origin}/assets/${image}`;
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
@@ -265,7 +270,7 @@ export function renderFeatureDocument({
             </div>
           </div>
           <div class="feature-visual">
-            <img src="/assets/${page.image}" alt="${escapeHTML(content.heading)}" width="1600" height="1329" />
+            <img src="/assets/${image}" alt="${escapeHTML(content.heading)}" width="1600" height="1329" />
           </div>
         </section>
 

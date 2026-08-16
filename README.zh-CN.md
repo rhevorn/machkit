@@ -10,7 +10,7 @@ MachKit 不使用分析服务或云端后台。扫描只读取本机文件元数
   <table cellpadding="12" cellspacing="0">
     <tr>
       <td align="center" bgcolor="#e8e8ed">
-        <img src="Website/public/assets/overview.webp" alt="MachKit 总览界面" width="900" />
+        <img src="Website/public/assets/overview-zh-CN.webp" alt="MachKit 总览界面" width="900" />
       </td>
     </tr>
   </table>

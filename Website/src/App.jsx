@@ -94,16 +94,12 @@ export function App({
   const languageLabel = locale === "en" ? "中文" : "English";
   const utilitiesURL = "./utilities/";
 
-  const screenImages = useMemo(() => ({
-    overview: `${assetBase}/assets/overview.webp`,
-    cleanup: `${assetBase}/assets/cleanup.webp`,
-    apps: `${assetBase}/assets/apps.webp`,
-    storage: `${assetBase}/assets/storage.webp`,
-    performance: `${assetBase}/assets/performance.webp`,
-    network: `${assetBase}/assets/network.webp`,
-    tools: `${assetBase}/assets/tools.webp`,
-    system: `${assetBase}/assets/system.webp`,
-  }), [assetBase]);
+  const screenImages = useMemo(() => {
+    const localeSuffix = locale === "zh-CN" ? "-zh-CN" : "";
+    return Object.fromEntries(
+      SCREEN_KEYS.map((key) => [key, `${assetBase}/assets/${key}${localeSuffix}.webp`]),
+    );
+  }, [assetBase, locale]);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;

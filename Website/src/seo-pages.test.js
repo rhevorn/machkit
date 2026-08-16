@@ -81,10 +81,14 @@ test("utilities page represents the current growing catalog with introductions",
 test("feature documents expose canonical, alternate, and structured data", () => {
   const page = featurePages[0];
   const html = renderFeatureDocument({ page, locale: "en", stylesheetHref: "/assets/site.css" });
+  const chineseHTML = renderFeatureDocument({ page, locale: "zh-CN", stylesheetHref: "/assets/site.css" });
   assert.match(html, /<link rel="canonical" href="https:\/\/machkit\.app\/features\/storage-cleanup\/"/);
   assert.match(html, /hreflang="zh-CN"/);
   assert.match(html, /"@type": "WebPage"/);
   assert.match(html, /\/assets\/site\.css/);
+  assert.match(html, /\/assets\/cleanup\.webp/);
+  assert.doesNotMatch(html, /-zh-CN\.webp/);
+  assert.match(chineseHTML, /\/assets\/cleanup-zh-CN\.webp/);
 });
 
 test("sitemap includes every localized homepage and feature page", () => {
