@@ -1,4 +1,4 @@
-import { localizedWebsiteTools } from "./tool-catalog.js";
+import { groupedWebsiteTools, localizedWebsiteTools } from "./tool-catalog.js";
 
 export const messages = {
   en: {
@@ -182,15 +182,19 @@ export const messages = {
     },
     tools: {
       kicker: "Practical local utilities",
-      title: "A growing toolkit, without another website or subscription.",
-      description: "MachKit keeps focused utilities for text, data, images, networking, diagnostics, and everyday work in one searchable catalog. Every tool shares the app’s appearance, language, shortcuts, and local-first privacy model—and the catalog is designed to keep growing.",
+      title: "A growing toolkit on its own page.",
+      description: "MachKit keeps focused utilities for text, data, images, networking, diagnostics, and everyday work in one searchable catalog. Every tool shares the app’s appearance, language, shortcuts, and local-first privacy model—and each one has a clear introduction on the tools page.",
       principles: [
         ["One focused job", "Each utility solves a concrete, recurring task."],
         ["One consistent system", "Search, shortcuts, themes, languages, and copy feedback work the same way."],
         ["Room to grow", "New tools join the catalog without adding another standalone app."],
       ],
-      items: localizedWebsiteTools.en,
-      explore: "Explore the growing tool catalog",
+      count: `${localizedWebsiteTools("en").length} tools across ${groupedWebsiteTools("en").length} categories`,
+      preview: groupedWebsiteTools("en").map((group) => [
+        group.category,
+        `${group.tools.length} tools · ${group.tools.slice(0, 3).map((tool) => tool.title).join(", ")}`,
+      ]),
+      explore: "Open the tools page",
     },
     openSource: {
       kicker: "Open source",
@@ -390,15 +394,19 @@ export const messages = {
     },
     tools: {
       kicker: "本地实用工具",
-      title: "持续增长的工具箱，不必再打开另一个网站或订阅服务。",
-      description: "MachKit 把文本、数据、图片、网络、诊断和日常工作中的专注小工具集中到一个可搜索的目录。所有工具共享 App 的外观、语言、快捷键和本地优先隐私规则，并可以持续加入更多能力。",
+      title: "持续增长的工具箱，单独成页。",
+      description: "MachKit 把文本、数据、图片、网络、诊断和日常工作中的专注小工具集中到一个可搜索的目录。所有工具共享 App 的外观、语言、快捷键和本地优先隐私规则，并在工具页为每一个工具提供清晰介绍。",
       principles: [
         ["一次解决一个问题", "每个工具都针对一个明确、反复出现的任务。"],
         ["保持一致", "搜索、快捷键、主题、多语言和复制反馈使用同一套方式。"],
         ["可以持续增长", "新增工具直接加入目录，不再增加另一个独立 App。"],
       ],
-      items: localizedWebsiteTools["zh-CN"],
-      explore: "查看持续增长的工具目录",
+      count: `${localizedWebsiteTools("zh-CN").length} 个工具 · ${groupedWebsiteTools("zh-CN").length} 个分类`,
+      preview: groupedWebsiteTools("zh-CN").map((group) => [
+        group.category,
+        `${group.tools.length} 个工具 · ${group.tools.slice(0, 3).map((tool) => tool.title).join("、")}`,
+      ]),
+      explore: "打开工具页面",
     },
     openSource: {
       kicker: "开源",

@@ -58,8 +58,15 @@ const homepage = await fs.readFile(path.join(clientDirectory, "index.html"), "ut
 assert.match(homepage, /"@type": "WebSite"/);
 assert.match(homepage, /"@type": "Offer"/);
 assert.match(homepage, /"price": "0"/);
-assert.match(homepage, /Regex Lab/);
-assert.match(homepage, /Text Diff/);
+assert.match(homepage, /Open the tools page|打开工具页面/);
+assert.match(homepage, /href="\.\/utilities\/"/);
+
+const utilities = await fs.readFile(path.join(clientDirectory, "utilities/index.html"), "utf8");
+assert.match(utilities, /Regex Lab/);
+assert.match(utilities, /Text Diff/);
+assert.match(utilities, /cURL Lab/);
+assert.match(utilities, /tool-introduction/);
+assert.match(utilities, /id="port-scan"/);
 
 const sitemap = await fs.readFile(path.join(clientDirectory, "sitemap.xml"), "utf8");
 assert.equal((sitemap.match(/<url>/g) || []).length, 10);

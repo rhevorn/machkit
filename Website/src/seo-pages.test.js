@@ -6,16 +6,32 @@ import {
   supportedLocales,
 } from "./seo-pages.js";
 import { renderFeatureDocument, renderSitemap } from "../scripts/site-renderer.mjs";
-import { localizedWebsiteTools, websiteToolCatalog } from "./tool-catalog.js";
+import {
+  groupedWebsiteTools,
+  localizedWebsiteTools,
+  websiteToolCatalog,
+} from "./tool-catalog.js";
 
-test("website tool catalog keeps unique localized entries", () => {
+test("website tool catalog keeps unique localized entries with introductions", () => {
   assert.equal(new Set(websiteToolCatalog.map((tool) => tool.id)).size, websiteToolCatalog.length);
-  assert.equal(localizedWebsiteTools.en.length, websiteToolCatalog.length);
-  assert.equal(localizedWebsiteTools["zh-CN"].length, websiteToolCatalog.length);
+  assert.equal(localizedWebsiteTools("en").length, websiteToolCatalog.length);
+  assert.equal(localizedWebsiteTools("zh-CN").length, websiteToolCatalog.length);
   for (const tool of websiteToolCatalog) {
-    assert.ok(tool.en.every(Boolean));
-    assert.ok(tool["zh-CN"].every(Boolean));
+    assert.ok(tool.category);
+    assert.ok(tool.en.title);
+    assert.ok(tool.en.summary);
+    assert.ok(tool.en.introduction.length > tool.en.summary.length);
+    assert.ok(tool.en.highlights.length >= 3);
+    assert.ok(tool["zh-CN"].title);
+    assert.ok(tool["zh-CN"].summary);
+    assert.ok(tool["zh-CN"].introduction.length > tool["zh-CN"].summary.length);
+    assert.ok(tool["zh-CN"].highlights.length >= 3);
   }
+  assert.equal(groupedWebsiteTools("en").length, 4);
+  assert.equal(
+    groupedWebsiteTools("en").reduce((sum, group) => sum + group.tools.length, 0),
+    websiteToolCatalog.length,
+  );
 });
 
 test("feature pages provide complete localized content and unique paths", () => {
@@ -35,12 +51,22 @@ test("feature pages provide complete localized content and unique paths", () => 
   }
 });
 
-test("utilities page represents the current growing catalog", () => {
+test("utilities page represents the current growing catalog with introductions", () => {
   const page = featurePages.find((candidate) => candidate.id === "utilities");
   assert.equal(page.locales.en.catalog.length, 24);
   assert.equal(page.locales["zh-CN"].catalog.length, 24);
+  assert.equal(page.locales.en.catalogGroups.length, 4);
   assert.match(page.locales.en.lead, /growing catalog/i);
   assert.match(page.locales["zh-CN"].lead, /持续增长/);
+  assert.match(page.locales.en.catalogTitle, /introduction/i);
+  assert.match(page.locales["zh-CN"].catalogTitle, /介绍/);
+
+  const html = renderFeatureDocument({ page, locale: "en", stylesheetHref: "/assets/site.css" });
+  assert.match(html, /id="curl-lab"/);
+  assert.match(html, /cURL Lab/);
+  assert.match(html, /Run requests locally when needed/);
+  assert.match(html, /Text &amp; Data/);
+  assert.match(html, /tool-introduction/);
 });
 
 test("feature documents expose canonical, alternate, and structured data", () => {

@@ -119,6 +119,7 @@ function renderFooter(locale) {
         <p>${escapeHTML(text.exploreBody)}</p>
       </div>
       <div class="footer-links">
+        <a href="${localizedPath(featurePages.find((page) => page.id === "utilities"), locale)}">${escapeHTML(text.tools)}</a>
         <a href="${site.repositoryURL}/releases">${escapeHTML(text.releases)}</a>
         <a href="${site.repositoryURL}/issues">${escapeHTML(text.issues)}</a>
         <a href="${site.repositoryURL}/blob/main/LICENSE">${escapeHTML(text.license)}</a>
@@ -133,19 +134,41 @@ function renderFooter(locale) {
 }
 
 function renderCatalog(content) {
-  if (!content.catalog?.length) return "";
+  const groups = content.catalogGroups?.length
+    ? content.catalogGroups
+    : content.catalog?.length
+      ? [{ id: "all", category: content.catalogTitle, tools: content.catalog }]
+      : [];
+  if (!groups.length) return "";
+
+  let toolIndex = 0;
   return `<section class="feature-catalog section-shell" aria-labelledby="catalog-title">
     <header class="section-heading">
       <p class="kicker">${escapeHTML(content.eyebrow)}</p>
       <h2 id="catalog-title">${escapeHTML(content.catalogTitle)}</h2>
       <p>${escapeHTML(content.catalogIntro)}</p>
     </header>
-    <div class="feature-catalog-grid">
-      ${content.catalog.map(([title, detail], index) => `<article>
-        <span>${String(index + 1).padStart(2, "0")}</span>
-        <h3>${escapeHTML(title)}</h3>
-        <p>${escapeHTML(detail)}</p>
-      </article>`).join("")}
+    <div class="tool-catalog">
+      ${groups.map((group) => `<section class="tool-category" aria-labelledby="category-${escapeHTML(group.id)}">
+        <h3 id="category-${escapeHTML(group.id)}">${escapeHTML(group.category)}</h3>
+        <div class="tool-category-list">
+          ${group.tools.map((entry) => {
+            toolIndex += 1;
+            const tool = Array.isArray(entry)
+              ? { id: `tool-${toolIndex}`, title: entry[0], summary: entry[1], introduction: entry[1], highlights: [] }
+              : entry;
+            return `<article id="${escapeHTML(tool.id)}">
+              <span>${String(toolIndex).padStart(2, "0")}</span>
+              <div>
+                <h4>${escapeHTML(tool.title)}</h4>
+                <p class="tool-summary">${escapeHTML(tool.summary)}</p>
+                <p class="tool-introduction">${escapeHTML(tool.introduction)}</p>
+                ${tool.highlights?.length ? `<ul>${tool.highlights.map((item) => `<li>${escapeHTML(item)}</li>`).join("")}</ul>` : ""}
+              </div>
+            </article>`;
+          }).join("")}
+        </div>
+      </section>`).join("")}
     </div>
   </section>`;
 }

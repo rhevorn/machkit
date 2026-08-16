@@ -1,4 +1,4 @@
-import { localizedWebsiteTools } from "./tool-catalog.js";
+import { groupedWebsiteTools, localizedWebsiteTools } from "./tool-catalog.js";
 import { fallbackRelease } from "./release.js";
 
 export const site = Object.freeze({
@@ -222,9 +222,10 @@ export const featurePages = Object.freeze([
           ["One consistent system", "Tools share search, global shortcuts, appearance, localization, clipboard feedback, and local storage."],
           ["Ready to expand", "New utilities join the catalog without adding another standalone app or a different interaction model."],
         ],
-        catalogTitle: "Available tools today",
-        catalogIntro: "The catalog currently covers text and data transformation, images, identifiers, certificates, network diagnostics, environment setup, and more. It will continue to grow around practical recurring tasks.",
-        catalog: localizedWebsiteTools.en,
+        catalogTitle: "Every tool, with a clear introduction",
+        catalogIntro: "Browse the full catalog by category. Each utility includes a short summary, a fuller introduction, and the concrete jobs it is meant to cover.",
+        catalog: localizedWebsiteTools("en"),
+        catalogGroups: groupedWebsiteTools("en"),
         sections: [
           {
             title: "Useful well beyond software development",
@@ -254,9 +255,10 @@ export const featurePages = Object.freeze([
           ["一致的使用方式", "工具共享搜索、全局快捷键、外观、多语言、复制反馈和本地存储。"],
           ["可以持续扩展", "新工具直接加入统一目录，不会变成另一个交互完全不同的独立 App。"],
         ],
-        catalogTitle: "目前已经提供的工具",
-        catalogIntro: "当前目录覆盖文本与数据转换、图片、标识符、证书、网络诊断和环境配置等任务，并会围绕反复出现的实际需求继续扩展。",
-        catalog: localizedWebsiteTools["zh-CN"],
+        catalogTitle: "每个工具都有清晰介绍",
+        catalogIntro: "按分类浏览完整目录。每个工具都包含简短摘要、完整介绍，以及它具体能解决哪些问题。",
+        catalog: localizedWebsiteTools("zh-CN"),
+        catalogGroups: groupedWebsiteTools("zh-CN"),
         sections: [
           {
             title: "用途不局限于软件开发",

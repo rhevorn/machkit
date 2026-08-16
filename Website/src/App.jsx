@@ -143,7 +143,7 @@ export function App({
             <a href="#capabilities">{copy.nav.capabilities}</a>
             <a href="#product">{copy.nav.screens}</a>
             <a href="#safety">{copy.nav.safety}</a>
-            <a href="#tools">{copy.nav.tools}</a>
+            <a href={utilitiesURL}>{copy.nav.tools}</a>
           </div>
           <div className="nav-actions">
             <a className="language-link" href={languageURL} aria-label={copy.controls.language}>
@@ -287,18 +287,16 @@ export function App({
                 ))}
               </dl>
             </header>
-            <div>
-              <div className="tool-list">
-                {copy.tools.items.map(([title, detail], index) => (
-                  <article key={title}>
-                    <span>{String(index + 1).padStart(2, "0")}</span>
-                    <div>
-                      <h3>{title}</h3>
-                      <p>{detail}</p>
-                    </div>
-                  </article>
+            <div className="tools-teaser-aside">
+              <p className="tools-count">{copy.tools.count}</p>
+              <dl className="tools-preview">
+                {copy.tools.preview.map(([title, detail]) => (
+                  <div key={title}>
+                    <dt>{title}</dt>
+                    <dd>{detail}</dd>
+                  </div>
                 ))}
-              </div>
+              </dl>
               <a className="tools-explore-link" href={utilitiesURL}>
                 {copy.tools.explore}<ArrowRight size={15} />
               </a>
