@@ -60,6 +60,11 @@ assert.match(homepage, /"@type": "Offer"/);
 assert.match(homepage, /"price": "0"/);
 assert.match(homepage, /Open the tools page|打开工具页面/);
 assert.match(homepage, /href="\.\/utilities\/"/);
+assert.match(homepage, /Mackit/);
+assert.match(homepage, /Mac cleaner/);
+assert.match(homepage, /href="\.\/features\/screenshot\/"/);
+assert.match(homepage, /width="1600" height="1329"/);
+assert.match(homepage, /data-anchor-pending/);
 
 const utilities = await fs.readFile(path.join(clientDirectory, "utilities/index.html"), "utf8");
 assert.match(utilities, /Regex Lab/);
@@ -70,7 +75,11 @@ assert.match(utilities, /id="port-scan"/);
 
 const sitemap = await fs.readFile(path.join(clientDirectory, "sitemap.xml"), "utf8");
 assert.equal((sitemap.match(/<url>/g) || []).length, 12);
+assert.equal((sitemap.match(/<image:image>/g) || []).length, 12);
+assert.match(sitemap, /xmlns:image="http:\/\/www\.google\.com\/schemas\/sitemap-image\/1\.1"/);
 assert.match(sitemap, /https:\/\/machkit\.app\/utilities\//);
 assert.match(sitemap, /https:\/\/machkit\.app\/zh-CN\/utilities\//);
+assert.match(sitemap, /https:\/\/machkit\.app\/features\/screenshot\//);
+assert.match(sitemap, /https:\/\/machkit\.app\/zh-CN\/features\/screenshot\//);
 
 console.log(`Verified ${indexableFiles.length} prerendered pages and their local links.`);

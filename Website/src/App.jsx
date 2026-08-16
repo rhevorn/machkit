@@ -153,7 +153,12 @@ export function App({
               aria-label={copy.controls.theme}
               title={copy.controls.theme}
             >
-              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+              <span className="theme-icon theme-icon-light" aria-hidden="true">
+                <Moon size={18} />
+              </span>
+              <span className="theme-icon theme-icon-dark" aria-hidden="true">
+                <Sun size={18} />
+              </span>
             </button>
             <a className="nav-download" href={release.downloadURL}>
               <DownloadSimple size={16} weight="bold" />
@@ -185,7 +190,13 @@ export function App({
 
           <div className="hero-product" aria-label={copy.hero.previewAlt}>
             <div className="product-window">
-              <img src={screenImages.overview} alt={copy.hero.previewAlt} fetchPriority="high" />
+              <img
+                src={screenImages.overview}
+                alt={copy.hero.previewAlt}
+                width="1600"
+                height="1329"
+                fetchPriority="high"
+              />
             </div>
           </div>
         </section>
@@ -245,7 +256,12 @@ export function App({
                 </ul>
               </div>
               <div className="screen-frame">
-                <img src={screenImages[selectedScreen]} alt={activeScreen.alt} />
+                <img
+                  src={screenImages[selectedScreen]}
+                  alt={activeScreen.alt}
+                  width="1600"
+                  height="1329"
+                />
               </div>
             </div>
           </div>

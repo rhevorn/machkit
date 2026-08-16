@@ -91,11 +91,28 @@ test("feature documents expose canonical, alternate, and structured data", () =>
   assert.match(chineseHTML, /\/assets\/cleanup-zh-CN\.webp/);
 });
 
+test("screenshot page has localized capture and annotation content", () => {
+  const page = featurePages.find((candidate) => candidate.id === "screenshot");
+  assert.ok(page);
+  assert.match(page.locales.en.title, /Mac Screenshot Tool/);
+  assert.match(page.locales.en.lead, /global shortcut/i);
+  assert.match(page.locales["zh-CN"].lead, /全局快捷键/);
+  assert.match(page.locales.en.sections[1].body, /mosaic/i);
+});
+
 test("sitemap includes every localized homepage and feature page", () => {
   const sitemap = renderSitemap("2026-08-15");
   assert.equal((sitemap.match(/<url>/g) || []).length, 12);
   assert.match(sitemap, /https:\/\/machkit\.app\/utilities\//);
   assert.match(sitemap, /https:\/\/machkit\.app\/zh-CN\/utilities\//);
   assert.match(sitemap, /https:\/\/machkit\.app\/features\/screenshot\//);
+  assert.match(sitemap, /xmlns:image="http:\/\/www\.google\.com\/schemas\/sitemap-image\/1\.1"/);
+  assert.equal((sitemap.match(/<image:image>/g) || []).length, 12);
+  assert.match(sitemap, /https:\/\/machkit\.app\/assets\/overview-zh-CN\.webp/);
+  assert.match(sitemap, /https:\/\/machkit\.app\/assets\/tools-zh-CN\.webp/);
   assert.equal((sitemap.match(/<lastmod>2026-08-15<\/lastmod>/g) || []).length, 12);
+});
+
+test("sitemap omits lastmod when no reliable content date is available", () => {
+  assert.doesNotMatch(renderSitemap({}), /<lastmod>/);
 });

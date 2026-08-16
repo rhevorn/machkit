@@ -1,5 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import { pathToFileURL } from "node:url";
 import { fileURLToPath } from "node:url";
 import {
@@ -10,9 +12,25 @@ import {
 import { renderFeatureDocument, renderSitemap } from "./site-renderer.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const repositoryRoot = path.resolve(root, "..");
 const clientDirectory = path.join(root, "dist/client");
 const serverEntry = path.join(root, "dist/server/entry-server.js");
 const { renderHome } = await import(pathToFileURL(serverEntry));
+const execFileAsync = promisify(execFile);
+
+async function gitLastModified(paths) {
+  try {
+    const { stdout } = await execFileAsync(
+      "git",
+      ["log", "-1", "--format=%cs", "--", ...paths],
+      { cwd: repositoryRoot },
+    );
+    const value = stdout.trim();
+    return /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 function pageFile(pathname) {
   return path.join(clientDirectory, pathname.replace(/^\//, ""), "index.html");
@@ -61,9 +79,28 @@ for (const page of featurePages) {
 }
 
 const requestedDate = process.env.SITE_LAST_MODIFIED;
-const lastModified = /^\d{4}-\d{2}-\d{2}$/.test(requestedDate || "")
+const explicitDate = /^\d{4}-\d{2}-\d{2}$/.test(requestedDate || "")
   ? requestedDate
-  : new Date().toISOString().slice(0, 10);
+  : undefined;
+const lastModified = explicitDate
+  ? { home: explicitDate, features: explicitDate, utilities: explicitDate }
+  : {
+      home: await gitLastModified([
+        "Website/index.html",
+        "Website/zh-CN/index.html",
+        "Website/src/App.jsx",
+        "Website/src/i18n.js",
+      ]),
+      features: await gitLastModified([
+        "Website/src/seo-pages.js",
+        "Website/scripts/site-renderer.mjs",
+      ]),
+      utilities: await gitLastModified([
+        "Website/src/seo-pages.js",
+        "Website/src/tool-catalog.js",
+        "Website/scripts/site-renderer.mjs",
+      ]),
+    };
 await fs.writeFile(
   path.join(clientDirectory, "sitemap.xml"),
   renderSitemap(lastModified),

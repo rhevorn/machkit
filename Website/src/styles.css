@@ -193,6 +193,19 @@ dd {
   font-weight: 600;
 }
 
+.theme-icon {
+  display: inline-flex;
+}
+
+.theme-icon-dark,
+[data-theme="dark"] .theme-icon-light {
+  display: none;
+}
+
+[data-theme="dark"] .theme-icon-dark {
+  display: inline-flex;
+}
+
 .theme-button {
   width: 34px;
   padding: 0;

@@ -236,6 +236,9 @@ export function renderFeatureDocument({
     <meta property="og:description" content="${escapeHTML(content.description)}" />
     <meta property="og:url" content="${canonical}" />
     <meta property="og:image" content="${imageURL}" />
+    <meta property="og:image:type" content="image/webp" />
+    <meta property="og:image:width" content="1600" />
+    <meta property="og:image:height" content="1329" />
     <meta property="og:image:alt" content="${escapeHTML(content.heading)}" />
     <meta property="og:locale" content="${locale === "zh-CN" ? "zh_CN" : "en_US"}" />
     <meta property="og:locale:alternate" content="${locale === "zh-CN" ? "en_US" : "zh_CN"}" />
@@ -243,6 +246,7 @@ export function renderFeatureDocument({
     <meta name="twitter:title" content="${escapeHTML(content.title)}" />
     <meta name="twitter:description" content="${escapeHTML(content.description)}" />
     <meta name="twitter:image" content="${imageURL}" />
+    <meta name="twitter:image:alt" content="${escapeHTML(content.heading)}" />
     <link rel="icon" type="image/png" href="/assets/favicon.png" />
     <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
     <link rel="stylesheet" href="${stylesheetHref}" />
@@ -324,10 +328,17 @@ export function renderFeatureDocument({
 </html>`;
 }
 
+function sitemapLastModified(source, key) {
+  const value = typeof source === "string" ? source : source?.[key];
+  return /^\d{4}-\d{2}-\d{2}$/.test(value || "") ? value : null;
+}
+
 export function renderSitemap(lastModified) {
   const entries = [
     ...supportedLocales.map((locale) => ({
       url: locale === "zh-CN" ? `${site.origin}/zh-CN/` : `${site.origin}/`,
+      imageURL: `${site.origin}/assets/${localizedImageName("overview.webp", locale)}`,
+      lastModified: sitemapLastModified(lastModified, "home"),
       alternates: {
         en: `${site.origin}/`,
         "zh-CN": `${site.origin}/zh-CN/`,
@@ -336,6 +347,8 @@ export function renderSitemap(lastModified) {
     })),
     ...featurePages.flatMap((page) => supportedLocales.map((locale) => ({
       url: localizedURL(page, locale),
+      imageURL: `${site.origin}/assets/${localizedImageName(page.image, locale)}`,
+      lastModified: sitemapLastModified(lastModified, page.id === "utilities" ? "utilities" : "features"),
       alternates: {
         en: localizedURL(page, "en"),
         "zh-CN": localizedURL(page, "zh-CN"),
@@ -348,10 +361,13 @@ export function renderSitemap(lastModified) {
 <urlset
   xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml"
+  xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
 >
 ${entries.map((entry) => `  <url>
     <loc>${entry.url}</loc>
-    <lastmod>${lastModified}</lastmod>
+${entry.lastModified ? `    <lastmod>${entry.lastModified}</lastmod>\n` : ""}    <image:image>
+      <image:loc>${entry.imageURL}</image:loc>
+    </image:image>
     <xhtml:link rel="alternate" hreflang="en" href="${entry.alternates.en}" />
     <xhtml:link rel="alternate" hreflang="zh-CN" href="${entry.alternates["zh-CN"]}" />
     <xhtml:link rel="alternate" hreflang="x-default" href="${entry.alternates["x-default"]}" />
