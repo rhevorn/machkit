@@ -3,8 +3,8 @@ import { groupedWebsiteTools, localizedWebsiteTools } from "./tool-catalog.js";
 export const messages = {
   en: {
     meta: {
-      title: "MachKit — macOS Storage, App Uninstaller & System Tools",
-      description: "Free, open-source macOS utility for storage analysis, safe cleanup, app uninstall, system monitoring, network inspection, annotated screenshots, and practical local utilities.",
+      title: "MachKit — Free Mac Cleaner, Screenshot & Utility Tools",
+      description: "Free, open-source Mac cleanup and utility app for storage analysis, safe cleaning, app uninstall, system monitoring, screenshots, networking, and 24 local tools.",
     },
     nav: {
       capabilities: "Capabilities",
@@ -21,7 +21,7 @@ export const messages = {
     hero: {
       eyebrow: "Native macOS utility",
       title: "Keep your Mac understandable.",
-      description: "MachKit brings storage, app removal, system monitoring, networking, system items, cleanup, and annotated screenshots into one clear workspace—alongside a growing collection of practical local utilities.",
+      description: "MachKit is a free, open-source Mac cleanup and utility app for storage, app removal, system monitoring, networking, annotated screenshots, and 24 practical local tools.",
       primary: "Download for macOS",
       secondary: "View source",
       compatibility: "Free and open source · macOS 14 or later",
@@ -33,6 +33,7 @@ export const messages = {
       paragraphs: [
         "A storage question should not require jumping between Finder, System Settings, Activity Monitor, and Terminal. MachKit collects the information you actually need, explains it in plain language, and keeps the next action close by.",
         "It is not a one-click optimizer. You can inspect paths, sizes, processes, routes, related files, and the reason behind every cleanup recommendation before deciding what to do.",
+        "MachKit is the project’s correct name; people also find it by searching for Mackit or Mach Kit. Whether you need a careful Mac cleaner, an annotated screenshot tool, or a collection of practical Mac tools, it is the same free open-source app.",
       ],
     },
     capabilities: {
@@ -75,7 +76,7 @@ export const messages = {
           title: "Utilities",
           body: "Keep capture and everyday helpers one shortcut away.",
           items: [
-            ["Screenshot", "Capture a region from anywhere, annotate with shapes, arrows, highlight, mosaic, and text, then copy or save locally."],
+            ["Screenshot", "Capture a region from anywhere, annotate with shapes, arrows, highlight, mosaic, and text, then copy or save locally.", "./features/screenshot/"],
             ["Hosts Manager", "Inspect and switch shared or environment-specific host mappings.", "./utilities/"],
             ["Global shortcuts", "Open the tool list, a utility, or screenshot capture from anywhere on your Mac."],
           ],
@@ -245,6 +246,7 @@ export const messages = {
       paragraphs: [
         "查看一次存储问题，不应该在访达、系统设置、活动监视器和终端之间反复切换。MachKit 整理真正有用的信息，用易懂的方式说明，并把下一步操作放在合适的位置。",
         "它不是一个含糊的一键优化器。你可以先查看路径、大小、进程、路由、关联文件以及每条清理建议的原因，再决定是否操作。",
+        "项目的正确名称是 MachKit，也有人通过 Mackit 或 Mach Kit 找到它。无论你需要 Mac 清理、区域截图还是一组本地实用工具，指向的都是这款免费开源 App。",
       ],
     },
     capabilities: {
@@ -287,7 +289,7 @@ export const messages = {
           title: "实用工具",
           body: "让截图标注和日常小工具随时可以打开。",
           items: [
-            ["截图", "从任意位置框选屏幕区域，用形状、箭头、高亮、马赛克和文字标注，再本地复制或保存。"],
+            ["截图", "从任意位置框选屏幕区域，用形状、箭头、高亮、马赛克和文字标注，再本地复制或保存。", "./features/screenshot/"],
             ["Hosts 管理", "查看并切换公共或指定环境的 hosts 映射。", "./utilities/"],
             ["全局快捷键", "在 Mac 的任意位置打开工具列表、指定工具或截图。"],
           ],
