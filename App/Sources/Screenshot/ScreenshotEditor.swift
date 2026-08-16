@@ -565,7 +565,7 @@ private struct ScreenshotAnnotatorView: View {
     var body: some View {
         GeometryReader { proxy in
             ZStack {
-                Color.black.opacity(0.38)
+                Color.black.opacity(0.42)
                     .ignoresSafeArea()
                     .contentShape(Rectangle())
                     .onTapGesture { model.commitInlineTextIfNeeded() }
@@ -1061,10 +1061,12 @@ final class ScreenshotEditorController: NSWindowController, NSWindowDelegate {
     private let model: ScreenshotEditorModel
     private var onFinish: (() -> Void)?
     private var isClosing = false
+    private var hostingController: NSHostingController<ScreenshotAnnotatorView>?
 
     init(
         image: CGImage,
         selectionRect: CGRect,
+        backdrop: ScreenshotDesktopSnapshot,
         onFinish: @escaping () -> Void
     ) {
         // Annotation sizes are expressed in screen points. Keeping the NSImage at
@@ -1089,9 +1091,9 @@ final class ScreenshotEditorController: NSWindowController, NSWindowDelegate {
             backing: .buffered,
             defer: false
         )
-        window.setFrame(desktopFrame, display: true)
-        window.isOpaque = false
-        window.backgroundColor = .clear
+        window.setFrame(desktopFrame, display: false)
+        window.isOpaque = true
+        window.backgroundColor = .black
         window.hasShadow = false
         window.isFloatingPanel = true
         window.hidesOnDeactivate = false
@@ -1099,8 +1101,20 @@ final class ScreenshotEditorController: NSWindowController, NSWindowDelegate {
         window.level = .screenSaver
         window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .ignoresCycle]
         window.isReleasedWhenClosed = false
+        window.animationBehavior = .none
         super.init(window: window)
         window.delegate = self
+
+        let rootView = NSView(frame: CGRect(origin: .zero, size: desktopFrame.size))
+        rootView.wantsLayer = true
+
+        let backdropView = ScreenshotEditorBackdropView(
+            desktopFrame: desktopFrame,
+            displays: backdrop.displays
+        )
+        backdropView.frame = rootView.bounds
+        backdropView.autoresizingMask = [.width, .height]
+        rootView.addSubview(backdropView)
 
         let hostingController = NSHostingController(
             rootView: ScreenshotAnnotatorView(
@@ -1111,11 +1125,17 @@ final class ScreenshotEditorController: NSWindowController, NSWindowDelegate {
                 onSave: { [weak self] in self?.save() }
             )
         )
-        hostingController.view.frame = CGRect(origin: .zero, size: desktopFrame.size)
-        window.contentViewController = hostingController
-        // GeometryReader has no intrinsic size. Assigning its hosting controller
-        // can otherwise collapse a borderless window to 0 × 0.
-        window.setFrame(desktopFrame, display: true)
+        hostingController.view.frame = rootView.bounds
+        hostingController.view.autoresizingMask = [.width, .height]
+        hostingController.view.wantsLayer = true
+        // Keep SwiftUI translucent so the AppKit-frozen backdrop stays visible
+        // underneath the dimmer from the very first composited frame.
+        hostingController.view.layer?.backgroundColor = NSColor.clear.cgColor
+        rootView.addSubview(hostingController.view)
+        self.hostingController = hostingController
+
+        window.contentView = rootView
+        window.setFrame(desktopFrame, display: false)
     }
 
     @available(*, unavailable)
@@ -1199,4 +1219,46 @@ final class ScreenshotEditorController: NSWindowController, NSWindowDelegate {
 private final class ScreenshotEditorWindow: NSPanel {
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { false }
+}
+
+/// AppKit-backed freeze so the editor's first on-screen frame already covers the
+/// desktop. SwiftUI alone can lag one frame and flash the live screen.
+private final class ScreenshotEditorBackdropView: NSView {
+    private let layers: [(frame: CGRect, image: NSImage)]
+
+    init(desktopFrame: CGRect, displays: [ScreenshotDisplayBackdrop]) {
+        self.layers = displays.map { display in
+            let local = CGRect(
+                x: display.frame.minX - desktopFrame.minX,
+                y: display.frame.minY - desktopFrame.minY,
+                width: display.frame.width,
+                height: display.frame.height
+            )
+            let image = NSImage(
+                cgImage: display.image,
+                size: NSSize(width: display.image.width, height: display.image.height)
+            )
+            return (local, image)
+        }
+        super.init(frame: .zero)
+        wantsLayer = true
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) { fatalError() }
+
+    override var isOpaque: Bool { true }
+
+    override func draw(_ dirtyRect: NSRect) {
+        NSColor.black.setFill()
+        bounds.fill()
+        for layer in layers {
+            layer.image.draw(
+                in: layer.frame,
+                from: .zero,
+                operation: .copy,
+                fraction: 1
+            )
+        }
+    }
 }

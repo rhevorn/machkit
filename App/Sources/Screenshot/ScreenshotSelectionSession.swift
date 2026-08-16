@@ -17,6 +17,8 @@ final class ScreenshotSelectionSession {
         self.onCancel = onCancel
     }
 
+    var overlayWindows: [NSWindow] { windows }
+
     func present() {
         guard windows.isEmpty, !isFinished else { return }
         windows = NSScreen.screens.compactMap { screen in
@@ -28,10 +30,25 @@ final class ScreenshotSelectionSession {
                 onCancel: { [weak self] in self?.cancel() }
             )
         }
-        for window in windows { window.orderFrontRegardless() }
+        for window in windows {
+            window.alphaValue = 1
+            window.orderFrontRegardless()
+        }
         let pointer = NSEvent.mouseLocation
         let keyWindow = windows.first { $0.frame.contains(pointer) } ?? windows.first
         keyWindow?.makeKeyAndOrderFront(nil)
+        // Force the dim layer on-screen before any capture runs beneath it.
+        for window in windows {
+            window.displayIfNeeded()
+        }
+    }
+
+    func applySnapshot(_ snapshot: ScreenshotDesktopSnapshot) {
+        for window in windows {
+            let displayID = window.screen?.displayID ?? window.trackedDisplayID
+            guard let image = snapshot.image(for: displayID) else { continue }
+            window.setFrozenImage(image)
+        }
     }
 
     func dismiss() {
@@ -66,19 +83,28 @@ final class ScreenshotSelectionSession {
 }
 
 private final class ScreenshotSelectionWindow: NSPanel, ScreenshotOverlayWindowMarker {
+    let trackedDisplayID: CGDirectDisplayID
+    private let selectionView: ScreenshotSelectionView
+
     init(
         screen: NSScreen,
         displayID: CGDirectDisplayID,
         onSelect: @escaping (ScreenshotSelection) -> Void,
         onCancel: @escaping () -> Void
     ) {
+        self.trackedDisplayID = displayID
+        self.selectionView = ScreenshotSelectionView(
+            displayID: displayID,
+            onSelect: onSelect,
+            onCancel: onCancel
+        )
         super.init(
             contentRect: screen.frame,
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
         )
-        setFrame(screen.frame, display: true)
+        setFrame(screen.frame, display: false)
         isOpaque = false
         backgroundColor = .clear
         hasShadow = false
@@ -89,21 +115,23 @@ private final class ScreenshotSelectionWindow: NSPanel, ScreenshotOverlayWindowM
         collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .ignoresCycle]
         acceptsMouseMovedEvents = true
         isReleasedWhenClosed = false
-        contentView = ScreenshotSelectionView(
-            displayID: displayID,
-            onSelect: onSelect,
-            onCancel: onCancel
-        )
+        animationBehavior = .none
+        contentView = selectionView
     }
 
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { false }
+
+    func setFrozenImage(_ image: CGImage) {
+        selectionView.setFrozenImage(image)
+    }
 }
 
 private final class ScreenshotSelectionView: NSView {
     private let displayID: CGDirectDisplayID
     private let onSelect: (ScreenshotSelection) -> Void
     private let onCancel: () -> Void
+    private var frozenNSImage: NSImage?
     private var dragStart: CGPoint?
     private var dragCurrent: CGPoint?
     private var completedSelectionRect: CGRect?
@@ -117,6 +145,8 @@ private final class ScreenshotSelectionView: NSView {
         self.onSelect = onSelect
         self.onCancel = onCancel
         super.init(frame: .zero)
+        wantsLayer = true
+        layerContentsRedrawPolicy = .onSetNeedsDisplay
     }
 
     @available(*, unavailable)
@@ -124,15 +154,35 @@ private final class ScreenshotSelectionView: NSView {
 
     override var acceptsFirstResponder: Bool { true }
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+    override var isOpaque: Bool { frozenNSImage != nil }
+
+    func setFrozenImage(_ image: CGImage) {
+        frozenNSImage = NSImage(
+            cgImage: image,
+            size: NSSize(width: image.width, height: image.height)
+        )
+        needsDisplay = true
+        displayIfNeeded()
+    }
 
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
         frame = window?.contentView?.bounds ?? frame
         window?.makeFirstResponder(self)
         NSCursor.crosshair.set()
+        needsDisplay = true
     }
 
     override func draw(_ dirtyRect: NSRect) {
+        if let frozenNSImage {
+            frozenNSImage.draw(
+                in: bounds,
+                from: .zero,
+                operation: .copy,
+                fraction: 1
+            )
+        }
+
         let selection = selectionRect
         NSColor.black.withAlphaComponent(0.42).setFill()
         if let selection, selection.width >= 1, selection.height >= 1 {

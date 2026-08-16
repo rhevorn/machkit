@@ -1,5 +1,5 @@
 import AppKit
-import ImageIO
+import CoreGraphics
 
 enum ScreenshotCaptureError: LocalizedError {
     case captureFailed
@@ -19,50 +19,44 @@ struct ScreenshotCaptureResult {
     let selectionRect: CGRect
 }
 
-private struct ScreenshotDisplaySnapshot {
+struct ScreenshotDisplayBackdrop: Identifiable {
+    var id: CGDirectDisplayID { displayID }
+    let displayID: CGDirectDisplayID
     let frame: CGRect
     let image: CGImage
 }
 
 struct ScreenshotDesktopSnapshot {
-    fileprivate let displays: [CGDirectDisplayID: ScreenshotDisplaySnapshot]
+    let displays: [ScreenshotDisplayBackdrop]
+
+    func image(for displayID: CGDirectDisplayID) -> CGImage? {
+        displays.first { $0.displayID == displayID }?.image
+    }
 }
 
 @MainActor
 enum ScreenshotCapture {
-    /// Freezes all displays before MachKit presents its selector. Cropping the
-    /// selected region later is synchronous and cannot flash the desktop.
-    static func captureDesktop() async throws -> ScreenshotDesktopSnapshot {
-        let displayIDs = activeDisplayIDs()
-        guard !displayIDs.isEmpty else { throw ScreenshotCaptureError.captureFailed }
-
-        var displays: [CGDirectDisplayID: ScreenshotDisplaySnapshot] = [:]
-        for displayID in displayIDs {
-            guard let screen = NSScreen.screens.first(where: { $0.displayID == displayID }) else {
+    /// Captures what is currently behind the selector windows. Call this only
+    /// after the overlays are on-screen so any capture-side flicker stays hidden.
+    static func captureDesktop(below windows: [NSWindow]) throws -> ScreenshotDesktopSnapshot {
+        var displays: [ScreenshotDisplayBackdrop] = []
+        for window in windows {
+            guard let screen = window.screen,
+                  let displayID = screen.displayID,
+                  let image = CGWindowListCreateImage(
+                    .null,
+                    .optionOnScreenBelowWindow,
+                    CGWindowID(window.windowNumber),
+                    [.bestResolution, .boundsIgnoreFraming]
+                  ),
+                  image.width > 0,
+                  image.height > 0
+            else {
                 continue
             }
-            let destination = temporaryDestination()
-            let displayBounds = CGDisplayBounds(displayID).integral
-            let rectangle = [
-                displayBounds.minX,
-                displayBounds.minY,
-                displayBounds.width,
-                displayBounds.height,
-            ]
-                .map { String(Int($0.rounded())) }
-                .joined(separator: ",")
-            do {
-                try await runSystemCapture(
-                    arguments: ["-x", "-R\(rectangle)", "-tpng", destination.path],
-                    destination: destination
-                )
-                defer { try? FileManager.default.removeItem(at: destination) }
-                let image = try loadImage(at: destination)
-                displays[displayID] = ScreenshotDisplaySnapshot(frame: screen.frame, image: image)
-            } catch {
-                try? FileManager.default.removeItem(at: destination)
-                throw error
-            }
+            displays.append(
+                ScreenshotDisplayBackdrop(displayID: displayID, frame: screen.frame, image: image)
+            )
         }
         guard !displays.isEmpty else { throw ScreenshotCaptureError.captureFailed }
         return ScreenshotDesktopSnapshot(displays: displays)
@@ -72,7 +66,7 @@ enum ScreenshotCapture {
         _ selection: ScreenshotSelection,
         from snapshot: ScreenshotDesktopSnapshot
     ) throws -> ScreenshotCaptureResult {
-        guard let display = snapshot.displays[selection.displayID] else {
+        guard let display = snapshot.displays.first(where: { $0.displayID == selection.displayID }) else {
             throw ScreenshotCaptureError.captureFailed
         }
         let selectedRect = selection.rect.intersection(display.frame).integral
@@ -111,62 +105,6 @@ enum ScreenshotCapture {
         }
         if let tiff = representation.representation(using: .tiff, properties: [:]) {
             _ = pasteboard.setData(tiff, forType: .tiff)
-        }
-    }
-
-    private static func activeDisplayIDs() -> [CGDirectDisplayID] {
-        var count: UInt32 = 0
-        guard CGGetActiveDisplayList(0, nil, &count) == .success, count > 0 else { return [] }
-        var displays = Array(repeating: CGDirectDisplayID(), count: Int(count))
-        guard CGGetActiveDisplayList(count, &displays, &count) == .success else { return [] }
-        return Array(displays.prefix(Int(count)))
-    }
-
-    private static func temporaryDestination() -> URL {
-        FileManager.default.temporaryDirectory
-            .appendingPathComponent("machkit-screen-\(UUID().uuidString)")
-            .appendingPathExtension("png")
-    }
-
-    private static func loadImage(at destination: URL) throws -> CGImage {
-        guard let data = try? Data(contentsOf: destination), !data.isEmpty,
-              let source = CGImageSourceCreateWithData(data as CFData, nil),
-              let image = CGImageSourceCreateImageAtIndex(source, 0, nil),
-              image.width > 0,
-              image.height > 0
-        else {
-            throw ScreenshotCaptureError.captureFailed
-        }
-        return image
-    }
-
-    private static func runSystemCapture(
-        arguments: [String],
-        destination: URL
-    ) async throws {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
-        process.arguments = arguments
-
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            process.terminationHandler = { finishedProcess in
-                guard finishedProcess.terminationStatus == 0,
-                      FileManager.default.fileExists(atPath: destination.path)
-                else {
-                    try? FileManager.default.removeItem(at: destination)
-                    continuation.resume(throwing: ScreenshotCaptureError.captureFailed)
-                    return
-                }
-                continuation.resume()
-            }
-
-            do {
-                try process.run()
-            } catch {
-                process.terminationHandler = nil
-                try? FileManager.default.removeItem(at: destination)
-                continuation.resume(throwing: ScreenshotCaptureError.captureFailed)
-            }
         }
     }
 }

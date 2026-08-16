@@ -29,30 +29,24 @@ final class ScreenshotController: ObservableObject {
             previousApplication = frontmost
         }
 
-        captureTask = Task { [weak self] in
-            guard let self else { return }
-            do {
-                let snapshot = try await ScreenshotCapture.captureDesktop()
-                try Task.checkCancellation()
-                captureTask = nil
-                desktopSnapshot = snapshot
-                presentSelection()
-            } catch is CancellationError {
-                finish()
-            } catch {
-                presentError(error)
-                finish()
-            }
-        }
-    }
-
-    private func presentSelection() {
+        // Show the dim overlay first. Any capture flicker stays hidden underneath.
         let session = ScreenshotSelectionSession(
             onSelect: { [weak self] selection in self?.capture(selection) },
             onCancel: { [weak self] in self?.cancelSelection() }
         )
         selectionSession = session
         session.present()
+
+        do {
+            let snapshot = try ScreenshotCapture.captureDesktop(below: session.overlayWindows)
+            desktopSnapshot = snapshot
+            session.applySnapshot(snapshot)
+        } catch {
+            selectionSession?.dismiss()
+            selectionSession = nil
+            presentError(error)
+            finish()
+        }
     }
 
     private func capture(_ selection: ScreenshotSelection) {
@@ -63,14 +57,16 @@ final class ScreenshotController: ObservableObject {
             do {
                 guard let desktopSnapshot else { throw ScreenshotCaptureError.captureFailed }
                 let result = try ScreenshotCapture.crop(selection, from: desktopSnapshot)
-                self.desktopSnapshot = nil
                 try Task.checkCancellation()
                 captureTask = nil
-                presentEditor(result.image, selectionRect: result.selectionRect)
-                // Keep the frozen selector behind the editor until SwiftUI has
-                // rendered the editor's first frame. This prevents a one-frame
-                // reveal of the original desktop during the window handoff.
-                try await Task.sleep(for: .milliseconds(34))
+                presentEditor(
+                    result.image,
+                    selectionRect: result.selectionRect,
+                    backdrop: desktopSnapshot
+                )
+                self.desktopSnapshot = nil
+                // Editor now owns an opaque frozen backdrop, so the selector can
+                // go away without revealing the live desktop for a frame.
                 selectionSession?.dismiss()
                 selectionSession = nil
             } catch is CancellationError {
@@ -93,11 +89,13 @@ final class ScreenshotController: ObservableObject {
 
     private func presentEditor(
         _ image: CGImage,
-        selectionRect: CGRect
+        selectionRect: CGRect,
+        backdrop: ScreenshotDesktopSnapshot
     ) {
         let editor = ScreenshotEditorController(
             image: image,
             selectionRect: selectionRect,
+            backdrop: backdrop,
             onFinish: { [weak self] in
                 guard let self else { return }
                 editorController = nil
