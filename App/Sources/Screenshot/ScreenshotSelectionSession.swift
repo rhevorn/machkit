@@ -76,12 +76,14 @@ final class ScreenshotSelectionSession {
     private func select(_ selection: ScreenshotSelection) {
         guard !isFinished else { return }
         isFinished = true
+        // Defer so mouseUp finishes before the selection session tears down.
         DispatchQueue.main.async { [onSelect] in onSelect(selection) }
     }
 
     private func cancel() {
         guard !isFinished else { return }
         isFinished = true
+        // Defer so key handling finishes before the selection session tears down.
         DispatchQueue.main.async { [onCancel] in onCancel() }
     }
 }

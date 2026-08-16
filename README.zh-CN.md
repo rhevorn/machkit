@@ -122,8 +122,8 @@ git push origin v0.9.0
 ## 项目结构
 
 ```text
-App/                 SwiftUI 界面、偏好设置、工具壳层与原生桥接
-Sources/MachKitCore/    扫描、风险判断、清理、hosts 与系统盘点逻辑
+App/                 SwiftUI 界面、偏好设置、工具壳层、原生桥接与截图
+Sources/MachKitCore/    扫描、风险判断、清理、hosts、系统盘点与几何辅助
 Tool/                H5 实用工具（Vite + React），打包进 Resources/WebTools
 Resources/           App Icon 与 Localizable.xcstrings
 Tests/MachKitCoreTests/ 核心行为与安全边界测试

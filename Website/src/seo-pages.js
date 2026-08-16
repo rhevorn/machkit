@@ -207,16 +207,81 @@ export const featurePages = Object.freeze([
     },
   },
   {
+    id: "screenshot",
+    slug: "features/screenshot",
+    image: "tools.webp",
+    locales: {
+      en: {
+        title: "Mac Screenshot Tool with Local Annotation — MachKit",
+        description: "Capture a screen region from a global shortcut, then annotate it with shapes, arrows, pen, highlight, mosaic, and text before copying or saving locally.",
+        eyebrow: "Screenshot and annotation",
+        heading: "Capture, annotate, and continue without leaving your current app.",
+        lead: "MachKit provides a native Mac screenshot workflow for the moments when you need to explain what is on screen. Press the global shortcut, select a region in place, add the annotations you need, and finish directly to the clipboard or a PNG file.",
+        highlights: [
+          ["Region capture", "Select exactly the part of the screen you need without opening the MachKit window first."],
+          ["Annotation in place", "Add rectangles, ellipses, arrows, freehand marks, highlights, mosaic, and multiple text labels."],
+          ["Local export", "Press Return or confirm to copy the finished image, or save it as a PNG on your Mac."],
+        ],
+        sections: [
+          {
+            title: "Start from anywhere with one shortcut",
+            body: "The default Command-Shift-A shortcut starts region capture over the app you are currently using. The desktop is captured once and stays visually stable while you select and annotate, so the MachKit main window does not interrupt the workflow.",
+            items: ["Global Command-Shift-A shortcut", "Region selection over the current app", "Escape to cancel without saving"],
+          },
+          {
+            title: "Use the right mark for the explanation",
+            body: "Choose geometric shapes for structure, an arrow for direction, pen or highlight for emphasis, mosaic for sensitive areas, and text for context. Tool-specific size controls show the actual stroke or mosaic footprint before you draw.",
+            items: ["Rectangle, ellipse, arrow, pen, and highlight", "6 px, 12 px, and 24 px drawing or mosaic sizes", "Multiple editable text labels without a background fill"],
+          },
+          {
+            title: "Keep screen content on your Mac",
+            body: "Capture and annotation are performed locally. MachKit does not upload the screenshot, require an account, or send the selected content to a cloud editor.",
+            items: ["No cloud upload", "Copy directly to the clipboard", "Save a local PNG when needed"],
+          },
+        ],
+      },
+      "zh-CN": {
+        title: "Mac 区域截图与本地标注工具 — MachKit",
+        description: "使用全局快捷键框选屏幕区域，再用形状、箭头、画笔、高亮、马赛克和文字标注，最后在本地复制或保存。",
+        eyebrow: "截图与标注",
+        heading: "不用离开当前 App，完成截图、标注和复制。",
+        lead: "MachKit 提供一套原生 Mac 区域截图流程，适合需要马上说明屏幕内容的时刻。按下全局快捷键，就地框选区域，添加需要的标注，再直接复制到剪贴板或保存为 PNG。",
+        highlights: [
+          ["区域框选", "不必先打开 MachKit 主窗口，直接选择真正需要的屏幕内容。"],
+          ["就地标注", "添加矩形、椭圆、箭头、涂鸦、高亮、马赛克和多个文字标签。"],
+          ["本地导出", "按回车或点击确认即可复制成图，也可以在 Mac 上保存为 PNG。"],
+        ],
+        sections: [
+          {
+            title: "从任意 App 用一个快捷键开始",
+            body: "默认的 Command-Shift-A 快捷键会在当前 App 上方启动区域截图。桌面只捕获一次，并在框选和标注期间保持画面稳定，MachKit 主窗口不会打断当前流程。",
+            items: ["全局 Command-Shift-A 快捷键", "直接框选当前 App 的内容", "按 Escape 取消且不保存"],
+          },
+          {
+            title: "根据说明内容选择合适的标注",
+            body: "用几何形状标出结构、用箭头指示方向、用画笔或高亮强调重点、用马赛克遮挡敏感内容，再用文字补充上下文。每种工具的大小选项都会展示实际笔触或马赛克范围。",
+            items: ["矩形、椭圆、箭头、画笔与高亮", "6 px、12 px、24 px 画笔或马赛克大小", "可添加多个、没有背景色的文字标签"],
+          },
+          {
+            title: "让屏幕内容留在你的 Mac 上",
+            body: "截图与标注都在本机完成。MachKit 不上传截图、不要求账户，也不会把选择的内容发送到云端编辑器。",
+            items: ["无需上传到云端", "直接复制到剪贴板", "需要时保存本地 PNG"],
+          },
+        ],
+      },
+    },
+  },
+  {
     id: "utilities",
     slug: "utilities",
     image: "tools.webp",
     locales: {
       en: {
-        title: "Practical Local Utilities for Mac — MachKit",
-        description: "A growing collection of focused Mac utilities for text, data, images, networking, diagnostics, and everyday tasks—plus native region screenshots with annotation, all running locally.",
+        title: "24 Practical Mac Tools in One Local App — MachKit",
+        description: "Use 24 focused Mac tools for text, data, images, networking, security, diagnostics, and everyday tasks. Everything runs locally in one native app.",
         eyebrow: "A toolkit designed to grow",
         heading: "Small, practical tools should live in one dependable place.",
-        lead: "MachKit is building a growing catalog of focused local utilities for text, data, images, networking, diagnostics, and everyday tasks. Alongside that catalog, a native screenshot workflow lets you capture any region from a global shortcut, annotate with shapes, arrows, highlight, mosaic, and text, then copy or save—without another window or cloud upload. Each tool shares the same native shell, language, theme, shortcuts, and privacy model.",
+        lead: "MachKit brings 24 focused Mac tools into one native, searchable catalog for text, data, images, networking, security, diagnostics, and everyday tasks. Alongside that catalog, a native screenshot workflow lets you capture any region from a global shortcut, annotate with shapes, arrows, highlight, mosaic, and text, then copy or save—without another window or cloud upload. Each tool shares the same shell, language, theme, shortcuts, and privacy model.",
         highlights: [
           ["Native screenshot", "Freeze the desktop, annotate in place, and export to the clipboard or a file—entirely on your Mac."],
           ["Useful by design", "Each utility starts with a real recurring task instead of a broad feature checklist."],

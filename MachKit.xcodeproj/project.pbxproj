@@ -34,7 +34,12 @@
 		A10000000000000000000021 /* ScreenshotCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000029 /* ScreenshotCapture.swift */; };
 		A10000000000000000000022 /* ScreenshotSelectionSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000002A /* ScreenshotSelectionSession.swift */; };
 		A10000000000000000000023 /* ScreenshotController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000002B /* ScreenshotController.swift */; };
-		A10000000000000000000024 /* ScreenshotEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000002C /* ScreenshotEditor.swift */; };
+		A10000000000000000000024 /* ScreenshotEditorController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000002C /* ScreenshotEditorController.swift */; };
+		A10000000000000000000025 /* ScreenshotInk.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000002D /* ScreenshotInk.swift */; };
+		A10000000000000000000026 /* ScreenshotStroke.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000002E /* ScreenshotStroke.swift */; };
+		A10000000000000000000027 /* ScreenshotStrokeRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000002F /* ScreenshotStrokeRenderer.swift */; };
+		A10000000000000000000028 /* ScreenshotEditorModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000030 /* ScreenshotEditorModel.swift */; };
+		A10000000000000000000029 /* ScreenshotAnnotatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000031 /* ScreenshotAnnotatorView.swift */; };
 		B10000000000000000000001 /* HostsManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* HostsManagerTests.swift */; };
 		B10000000000000000000002 /* ConnectionTraceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* ConnectionTraceTests.swift */; };
 		B10000000000000000000003 /* CurlLabRunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000003 /* CurlLabRunnerTests.swift */; };
@@ -80,7 +85,12 @@
 		A20000000000000000000029 /* ScreenshotCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotCapture.swift; sourceTree = "<group>"; };
 		A2000000000000000000002A /* ScreenshotSelectionSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotSelectionSession.swift; sourceTree = "<group>"; };
 		A2000000000000000000002B /* ScreenshotController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotController.swift; sourceTree = "<group>"; };
-		A2000000000000000000002C /* ScreenshotEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotEditor.swift; sourceTree = "<group>"; };
+		A2000000000000000000002C /* ScreenshotEditorController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotEditorController.swift; sourceTree = "<group>"; };
+		A2000000000000000000002D /* ScreenshotInk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotInk.swift; sourceTree = "<group>"; };
+		A2000000000000000000002E /* ScreenshotStroke.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotStroke.swift; sourceTree = "<group>"; };
+		A2000000000000000000002F /* ScreenshotStrokeRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotStrokeRenderer.swift; sourceTree = "<group>"; };
+		A20000000000000000000030 /* ScreenshotEditorModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotEditorModel.swift; sourceTree = "<group>"; };
+		A20000000000000000000031 /* ScreenshotAnnotatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotAnnotatorView.swift; sourceTree = "<group>"; };
 		B20000000000000000000001 /* HostsManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostsManagerTests.swift; sourceTree = "<group>"; };
 		B20000000000000000000002 /* ConnectionTraceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionTraceTests.swift; sourceTree = "<group>"; };
 		B20000000000000000000003 /* CurlLabRunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurlLabRunnerTests.swift; sourceTree = "<group>"; };
@@ -169,7 +179,12 @@
 				A20000000000000000000029 /* ScreenshotCapture.swift */,
 				A2000000000000000000002A /* ScreenshotSelectionSession.swift */,
 				A2000000000000000000002B /* ScreenshotController.swift */,
-				A2000000000000000000002C /* ScreenshotEditor.swift */,
+				A2000000000000000000002D /* ScreenshotInk.swift */,
+				A2000000000000000000002E /* ScreenshotStroke.swift */,
+				A2000000000000000000002F /* ScreenshotStrokeRenderer.swift */,
+				A20000000000000000000030 /* ScreenshotEditorModel.swift */,
+				A20000000000000000000031 /* ScreenshotAnnotatorView.swift */,
+				A2000000000000000000002C /* ScreenshotEditorController.swift */,
 			);
 			path = Screenshot;
 			sourceTree = "<group>";
@@ -380,7 +395,12 @@
 				A10000000000000000000021 /* ScreenshotCapture.swift in Sources */,
 				A10000000000000000000022 /* ScreenshotSelectionSession.swift in Sources */,
 				A10000000000000000000023 /* ScreenshotController.swift in Sources */,
-				A10000000000000000000024 /* ScreenshotEditor.swift in Sources */,
+				A10000000000000000000025 /* ScreenshotInk.swift in Sources */,
+				A10000000000000000000026 /* ScreenshotStroke.swift in Sources */,
+				A10000000000000000000027 /* ScreenshotStrokeRenderer.swift in Sources */,
+				A10000000000000000000028 /* ScreenshotEditorModel.swift in Sources */,
+				A10000000000000000000029 /* ScreenshotAnnotatorView.swift in Sources */,
+				A10000000000000000000024 /* ScreenshotEditorController.swift in Sources */,
 				A10000000000000000000017 /* ToolsView.swift in Sources */,
 				A10000000000000000000019 /* DeveloperTools.swift in Sources */,
 				A1000000000000000000001A /* WebToolView.swift in Sources */,

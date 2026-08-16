@@ -21,6 +21,15 @@ final class ScreenshotController: ObservableObject {
 
     func start() {
         guard !isBusy else { return }
+
+        if !ScreenshotPermission.hasScreenCaptureAccess(promptIfNeeded: false) {
+            let granted = ScreenshotPermission.hasScreenCaptureAccess(promptIfNeeded: true)
+            if !granted {
+                presentPermissionError()
+                return
+            }
+        }
+
         isBusy = true
 
         let currentPID = ProcessInfo.processInfo.processIdentifier
@@ -41,13 +50,20 @@ final class ScreenshotController: ObservableObject {
         captureTask = Task { [weak self] in
             guard let self else { return }
             do {
-                let snapshot = try await ScreenshotCapture.captureDesktop(below: session.overlayWindows)
+                let snapshot = try await ScreenshotCapture.captureDesktopWithTimeout(
+                    below: session.overlayWindows
+                )
                 try Task.checkCancellation()
                 desktopSnapshot = snapshot
                 session.applySnapshot(snapshot)
                 session.setInteractionEnabled(true)
                 captureTask = nil
             } catch is CancellationError {
+                finish()
+            } catch let error as ScreenshotCaptureError where error == .permissionDenied {
+                selectionSession?.dismiss()
+                selectionSession = nil
+                presentPermissionError()
                 finish()
             } catch {
                 selectionSession?.dismiss()
@@ -73,9 +89,8 @@ final class ScreenshotController: ObservableObject {
                     selectionRect: result.selectionRect,
                     backdrop: desktopSnapshot
                 )
+                // Release the full-desktop freeze as soon as the editor owns its backdrop.
                 self.desktopSnapshot = nil
-                // Editor now owns an opaque frozen backdrop, so the selector can
-                // go away without revealing the live desktop for a frame.
                 selectionSession?.dismiss()
                 selectionSession = nil
             } catch is CancellationError {
@@ -131,12 +146,33 @@ final class ScreenshotController: ObservableObject {
         MachKitAppLifecycle.moveToBackgroundIfNeeded()
     }
 
+    private func presentPermissionError() {
+        MachKitAppLifecycle.showInForeground()
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = "Screenshot".localized
+        alert.informativeText = ScreenshotCaptureError.permissionDenied.localizedDescription
+        alert.addButton(withTitle: "Open Screen Recording Settings".localized)
+        alert.addButton(withTitle: "Cancel".localized)
+        if alert.runModal() == .alertFirstButtonReturn {
+            ScreenshotPermission.openScreenRecordingSettings()
+        }
+    }
+
     private func presentError(_ error: Error) {
         MachKitAppLifecycle.showInForeground()
         let alert = NSAlert()
         alert.alertStyle = .warning
         alert.messageText = "Screenshot".localized
         alert.informativeText = error.localizedDescription
+        if let captureError = error as? ScreenshotCaptureError, captureError == .permissionDenied {
+            alert.addButton(withTitle: "Open Screen Recording Settings".localized)
+            alert.addButton(withTitle: "Cancel".localized)
+            if alert.runModal() == .alertFirstButtonReturn {
+                ScreenshotPermission.openScreenRecordingSettings()
+            }
+            return
+        }
         alert.addButton(withTitle: "OK".localized)
         alert.runModal()
     }

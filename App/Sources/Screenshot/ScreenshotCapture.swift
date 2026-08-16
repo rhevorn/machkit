@@ -1,11 +1,31 @@
 import AppKit
+import CoreGraphics
+import MachKitCore
 import ScreenCaptureKit
 
-enum ScreenshotCaptureError: LocalizedError {
+enum ScreenshotCaptureError: LocalizedError, Equatable {
     case captureFailed
+    case permissionDenied
+    case emptySelection
+    case pasteboardFailed
+    case encodeFailed
+    case timedOut
 
     var errorDescription: String? {
-        "Unable to capture the screen.".localized
+        switch self {
+        case .captureFailed:
+            "Unable to capture the screen.".localized
+        case .permissionDenied:
+            "Screen Recording permission is required to capture screenshots.".localized
+        case .emptySelection:
+            "The selected area is too small.".localized
+        case .pasteboardFailed:
+            "Unable to copy the screenshot to the clipboard.".localized
+        case .encodeFailed:
+            "Unable to encode the screenshot.".localized
+        case .timedOut:
+            "Screenshot capture timed out.".localized
+        }
     }
 }
 
@@ -36,19 +56,30 @@ struct ScreenshotDesktopSnapshot {
 
 @MainActor
 enum ScreenshotCapture {
+    static let captureTimeout: Duration = .seconds(8)
+
     /// Captures what is currently behind the selector windows. Call this only
     /// after the overlays are on-screen so any capture-side flicker stays hidden.
     static func captureDesktop(below windows: [NSWindow]) async throws -> ScreenshotDesktopSnapshot {
+        try Task.checkCancellation()
+        guard ScreenshotPermission.hasScreenCaptureAccess(promptIfNeeded: false) else {
+            throw ScreenshotCaptureError.permissionDenied
+        }
+
         let content = try await SCShareableContent.excludingDesktopWindows(
             false,
             onScreenWindowsOnly: true
         )
         let overlayIDs = Set(windows.map { CGWindowID($0.windowNumber) })
         let excludedWindows = content.windows.filter { overlayIDs.contains($0.windowID) }
+        guard excludedWindows.count == overlayIDs.count else {
+            throw ScreenshotCaptureError.captureFailed
+        }
 
         var displays: [ScreenshotDisplayBackdrop] = []
         var capturedDisplayIDs = Set<CGDirectDisplayID>()
         for window in windows {
+            try Task.checkCancellation()
             guard let screen = window.screen,
                   let displayID = screen.displayID,
                   !capturedDisplayIDs.contains(displayID),
@@ -80,6 +111,21 @@ enum ScreenshotCapture {
         return ScreenshotDesktopSnapshot(displays: displays)
     }
 
+    static func captureDesktopWithTimeout(below windows: [NSWindow]) async throws -> ScreenshotDesktopSnapshot {
+        try await withThrowingTaskGroup(of: ScreenshotDesktopSnapshot.self) { group in
+            group.addTask {
+                try await captureDesktop(below: windows)
+            }
+            group.addTask {
+                try await Task.sleep(for: captureTimeout)
+                throw ScreenshotCaptureError.timedOut
+            }
+            let result = try await group.next()!
+            group.cancelAll()
+            return result
+        }
+    }
+
     static func crop(
         _ selection: ScreenshotSelection,
         from snapshot: ScreenshotDesktopSnapshot
@@ -88,24 +134,14 @@ enum ScreenshotCapture {
             throw ScreenshotCaptureError.captureFailed
         }
         let selectedRect = selection.rect.intersection(display.frame).integral
-        guard selectedRect.width >= 2, selectedRect.height >= 2 else {
-            throw ScreenshotCaptureError.captureFailed
-        }
-
-        let scaleX = CGFloat(display.image.width) / display.frame.width
-        let scaleY = CGFloat(display.image.height) / display.frame.height
-        let pixelRect = CGRect(
-            x: (selectedRect.minX - display.frame.minX) * scaleX,
-            y: (display.frame.maxY - selectedRect.maxY) * scaleY,
-            width: selectedRect.width * scaleX,
-            height: selectedRect.height * scaleY
-        ).integral.intersection(
-            CGRect(x: 0, y: 0, width: display.image.width, height: display.image.height)
-        )
-        guard pixelRect.width >= 2, pixelRect.height >= 2,
-              let image = display.image.cropping(to: pixelRect)
+        guard let pixelRect = ScreenshotGeometry.pixelRect(
+            selection: selectedRect,
+            displayFrame: display.frame,
+            imageWidth: display.image.width,
+            imageHeight: display.image.height
+        ), let image = display.image.cropping(to: pixelRect)
         else {
-            throw ScreenshotCaptureError.captureFailed
+            throw ScreenshotCaptureError.emptySelection
         }
         return ScreenshotCaptureResult(image: image, selectionRect: selectedRect)
     }
@@ -113,17 +149,38 @@ enum ScreenshotCapture {
     static func copyToPasteboard(_ image: CGImage) throws {
         let representation = NSBitmapImageRep(cgImage: image)
         guard let png = representation.representation(using: .png, properties: [:]) else {
-            throw ScreenshotCaptureError.captureFailed
+            throw ScreenshotCaptureError.encodeFailed
         }
 
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         guard pasteboard.setData(png, forType: .png) else {
-            throw ScreenshotCaptureError.captureFailed
+            throw ScreenshotCaptureError.pasteboardFailed
         }
         if let tiff = representation.representation(using: .tiff, properties: [:]) {
             _ = pasteboard.setData(tiff, forType: .tiff)
         }
+    }
+}
+
+enum ScreenshotPermission {
+    static func hasScreenCaptureAccess(promptIfNeeded: Bool) -> Bool {
+        if promptIfNeeded {
+            return CGRequestScreenCaptureAccess()
+        }
+        return CGPreflightScreenCaptureAccess()
+    }
+
+    @MainActor
+    static func openScreenRecordingSettings() {
+        let urls = [
+            "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture",
+            "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_ScreenCapture",
+        ]
+        for value in urls {
+            if let url = URL(string: value), NSWorkspace.shared.open(url) { return }
+        }
+        NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/System Settings.app"))
     }
 }
 

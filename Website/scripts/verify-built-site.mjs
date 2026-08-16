@@ -26,7 +26,7 @@ function localTarget(href) {
 }
 
 const htmlFiles = await collectHTML(clientDirectory);
-assert.equal(htmlFiles.length, 12, "expected 10 indexable pages plus two verification HTML files");
+assert.equal(htmlFiles.length, 14, "expected 12 indexable pages plus two verification HTML files");
 
 const indexableFiles = [];
 for (const file of htmlFiles) {
@@ -52,7 +52,7 @@ for (const file of htmlFiles) {
   }
 }
 
-assert.equal(indexableFiles.length, 10, "expected 10 indexable localized pages");
+assert.equal(indexableFiles.length, 12, "expected 12 indexable localized pages");
 
 const homepage = await fs.readFile(path.join(clientDirectory, "index.html"), "utf8");
 assert.match(homepage, /"@type": "WebSite"/);
@@ -69,7 +69,7 @@ assert.match(utilities, /tool-introduction/);
 assert.match(utilities, /id="port-scan"/);
 
 const sitemap = await fs.readFile(path.join(clientDirectory, "sitemap.xml"), "utf8");
-assert.equal((sitemap.match(/<url>/g) || []).length, 10);
+assert.equal((sitemap.match(/<url>/g) || []).length, 12);
 assert.match(sitemap, /https:\/\/machkit\.app\/utilities\//);
 assert.match(sitemap, /https:\/\/machkit\.app\/zh-CN\/utilities\//);
 

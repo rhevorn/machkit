@@ -4,6 +4,7 @@ import Foundation
 @MainActor
 final class PermissionManager: ObservableObject {
     @Published private(set) var hasFullDiskAccess = false
+    @Published private(set) var hasScreenRecordingAccess = false
 
     init() {
         refresh()
@@ -25,6 +26,7 @@ final class PermissionManager: ObservableObject {
         } catch {
             hasFullDiskAccess = false
         }
+        hasScreenRecordingAccess = ScreenshotPermission.hasScreenCaptureAccess(promptIfNeeded: false)
     }
 
     func openFullDiskAccessSettings() {
@@ -36,5 +38,9 @@ final class PermissionManager: ObservableObject {
             if let url = URL(string: value), NSWorkspace.shared.open(url) { return }
         }
         NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/System Settings.app"))
+    }
+
+    func openScreenRecordingSettings() {
+        ScreenshotPermission.openScreenRecordingSettings()
     }
 }

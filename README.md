@@ -122,8 +122,8 @@ English is the source language. The app also includes Simplified Chinese, Tradit
 ## Project layout
 
 ```text
-App/                 SwiftUI app, preferences, tools shell, and bridges
-Sources/MachKitCore/    Scanning, risk rules, cleanup, hosts, and system inventory
+App/                 SwiftUI app, preferences, tools shell, bridges, and screenshot
+Sources/MachKitCore/    Scanning, risk rules, cleanup, hosts, system inventory, geometry helpers
 Tool/                H5 utilities (Vite + React), bundled into Resources/WebTools
 Resources/           App icon and Localizable.xcstrings
 Tests/MachKitCoreTests/ Core behavior and safety tests
