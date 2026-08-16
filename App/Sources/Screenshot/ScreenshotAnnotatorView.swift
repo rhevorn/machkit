@@ -178,7 +178,7 @@ struct ScreenshotAnnotatorView: View {
                             textFieldIsFocused = false
                         }
                     }
-                TextField("", text: $model.textDraft)
+                TextField("Text".localized, text: $model.textDraft)
                     .textFieldStyle(.plain)
                     .font(.system(size: max(12, model.activeSize * scale), weight: .semibold))
                     .foregroundStyle(model.color)
@@ -346,7 +346,7 @@ struct ScreenshotAnnotatorView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help("\(Int(size)) px")
+        .help(Text(verbatim: "\(Int(size)) px"))
     }
 
     @ViewBuilder

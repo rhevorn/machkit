@@ -1,9 +1,6 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "" : {
-
-    },
     "—" : {
       "localizations" : {
         "de" : {
@@ -4862,9 +4859,6 @@
           }
         }
       }
-    },
-    "%lld px" : {
-
     },
     "%lld related files · Review only" : {
       "extractionState" : "manual",
