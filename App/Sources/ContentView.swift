@@ -137,7 +137,7 @@ struct ContentView: View {
             Button("Rebuild Database", role: .destructive, action: model.resetBackgroundTaskDatabaseConfirmed)
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("This resets all login item and background activity records, not just the current leftover. Installed apps will register again, and some allowed or blocked states may need confirmation. Restart your Mac afterward.")
+            Text("Use this when an app was uninstalled but still appears under Background Activity or Login Items. macOS often cannot remove a single leftover record. Rebuilding resets all login and background records; installed apps register again after restart, and some allowed or blocked states may need confirmation.")
         }
         .confirmationDialog("Remove this extension?", isPresented: $model.showExtensionRemovalConfirmation) {
             Button("Move to Trash", role: .destructive, action: model.removeExtensionConfirmed)
@@ -1782,6 +1782,7 @@ struct ContentView: View {
                         } label: {
                             Label("Rebuild Database", systemImage: "arrow.triangle.2.circlepath")
                         }
+                        .help("Use when an uninstalled app still shows under Background Activity or Login Items.")
                         refreshControl(for: .backgroundActivity, action: model.scanBackgroundActivity)
                     }
                     .disabled(model.isScanning)
@@ -1797,6 +1798,8 @@ struct ContentView: View {
                 detail: "\"Autostart\" means to start after the configuration is loaded; \"Restart after exit\" means that launchd will try to start again after the process exits.",
                 buttonTitle: "Open Background Settings"
             )
+
+            rebuildDatabaseTipBanner
 
             inventorySearchField(placeholder: "Search background items, labels, or paths")
 
@@ -2088,7 +2091,7 @@ struct ContentView: View {
             Image(systemName: icon).font(.system(size: 18)).foregroundStyle(Color.accentColor).frame(width: 24)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title.localized).font(.system(size: 12, weight: .semibold))
-                Text(detail.localized).font(.caption2).foregroundStyle(.secondary).lineLimit(2)
+                Text(detail.localized).font(.caption2).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             }
             Spacer()
             Button(buttonTitle, action: openLoginItemsSettings).buttonStyle(.bordered).controlSize(.small)
@@ -2096,6 +2099,27 @@ struct ContentView: View {
         .padding(11)
         .background(Color.accentColor.opacity(0.06), in: RoundedRectangle(cornerRadius: 9))
         .padding(.horizontal, 16).padding(.top, 12)
+    }
+
+    private var rebuildDatabaseTipBanner: some View {
+        HStack(alignment: .top, spacing: 11) {
+            Image(systemName: "arrow.triangle.2.circlepath")
+                .font(.system(size: 16, weight: .medium))
+                .foregroundStyle(.orange)
+                .frame(width: 24)
+            VStack(alignment: .leading, spacing: 3) {
+                Text("When to Rebuild Database".localized)
+                    .font(.system(size: 12, weight: .semibold))
+                Text("Use this after uninstalling an app if it still appears under Background Activity or Login Items. macOS often cannot delete a single leftover record; rebuilding clears the whole database so remaining apps can register again after a restart.".localized)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(11)
+        .background(Color.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 9))
+        .padding(.horizontal, 16).padding(.top, 8)
     }
 
     private var systemInventoryTabs: some View {

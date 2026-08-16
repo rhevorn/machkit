@@ -49790,6 +49790,7 @@
       }
     },
     "This resets all login item and background activity records, not just the current leftover. Installed apps will register again, and some allowed or blocked states may need confirmation. Restart your Mac afterward." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -54024,6 +54025,183 @@
         }
       }
     },
+    "Use this after uninstalling an app if it still appears under Background Activity or Login Items. macOS often cannot delete a single leftover record; rebuilding clears the whole database so remaining apps can register again after a restart." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwenden Sie dies, wenn eine deinstallierte App weiterhin unter Hintergrundaktivität oder Anmeldeobjekten erscheint. macOS kann einzelne Resteinträge oft nicht löschen; durch Neuaufbau wird die gesamte Datenbank geleert, damit verbleibende Apps nach dem Neustart erneut registriert werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Úsalo tras desinstalar una app si sigue apareciendo en Actividad en segundo plano o Elementos de inicio. macOS a menudo no puede borrar un solo registro residual; reconstruir vacía toda la base de datos para que las apps restantes se registren de nuevo tras reiniciar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilisez ceci après la désinstallation d’une app si elle apparaît encore dans Activité en arrière-plan ou Éléments d’ouverture. macOS ne peut souvent pas supprimer un seul enregistrement résiduel ; la reconstruction vide toute la base afin que les apps restantes se réenregistrent après redémarrage."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アプリをアンインストールしたあと、バックグラウンドアクティビティやログイン項目に残る場合に使います。macOS は単一の残骸レコードを削除できないことが多く、再構築でデータベース全体をクリアし、再起動後に残りのアプリが再登録されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "앱을 제거한 뒤에도 백그라운드 활동이나 로그인 항목에 남아 있을 때 사용하세요. macOS는 단일 잔여 기록을 삭제하지 못하는 경우가 많으며, 재구축으로 전체 데이터베이스를 비운 뒤 재시동하면 남은 앱이 다시 등록됩니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use depois de desinstalar um app se ele ainda aparecer em Atividade em segundo plano ou Itens de login. O macOS muitas vezes não consegue apagar um único registro residual; reconstruir limpa todo o banco para que os apps restantes se registrem de novo após reiniciar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Используйте после удаления приложения, если оно всё ещё видно в фоновой активности или элементах входа. macOS часто не может удалить одну остаточную запись; перестроение очищает всю базу, чтобы оставшиеся приложения снова зарегистрировались после перезагрузки."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "适合在卸载应用后，它仍出现在「后台活动」或「登录项」里时使用。macOS 通常无法单独删除一条残留记录；重建会清空整个数据库，重启后仍安装的应用会重新登记。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "適合在解除安裝應用程式後，它仍出現在「背景活動」或「登入項目」時使用。macOS 通常無法單獨刪除一筆殘留紀錄；重建會清空整個資料庫，重新啟動後仍安裝的應用程式會重新登錄。"
+          }
+        }
+      }
+    },
+    "Use this when an app was uninstalled but still appears under Background Activity or Login Items. macOS often cannot remove a single leftover record. Rebuilding resets all login and background records; installed apps register again after restart, and some allowed or blocked states may need confirmation." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwenden Sie dies, wenn eine App deinstalliert wurde, aber weiterhin unter Hintergrundaktivität oder Anmeldeobjekten erscheint. macOS kann einzelne Reste oft nicht entfernen. Neuaufbau setzt alle Anmelde- und Hintergrunddatensätze zurück; installierte Apps registrieren sich nach dem Neustart erneut, und einige Zustände müssen ggf. bestätigt werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Úsalo cuando una app se desinstaló pero sigue en Actividad en segundo plano o Elementos de inicio. macOS a menudo no puede quitar un solo registro residual. Reconstruir restablece todos los registros de inicio y segundo plano; las apps instaladas se registran de nuevo tras reiniciar y algunos estados pueden requerir confirmación."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilisez ceci quand une app désinstallée apparaît encore dans Activité en arrière-plan ou Éléments d’ouverture. macOS ne peut souvent pas retirer un seul enregistrement résiduel. La reconstruction réinitialise tous les enregistrements ; les apps installées se réenregistrent après redémarrage et certains états peuvent nécessiter une confirmation."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アプリをアンインストールしたのにバックグラウンドやログイン項目に残る場合に使います。macOS は単一の残骸を削除できないことが多く、再構築ですべてのログイン／バックグラウンド記録をリセットします。再起動後に残りのアプリが再登録され、許可／ブロック状態の再確認が必要な場合があります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "앱을 제거했는데도 백그라운드 활동이나 로그인 항목에 남아 있을 때 사용하세요. macOS는 단일 잔여 기록을 제거하지 못하는 경우가 많습니다. 재구축은 모든 로그인·백그라운드 기록을 초기화하며, 재시동 후 남은 앱이 다시 등록되고 일부 허용/차단 상태를 다시 확인해야 할 수 있습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use quando um app foi desinstalado mas ainda aparece em Atividade em segundo plano ou Itens de login. O macOS muitas vezes não remove um único registro residual. Reconstruir redefine todos os registros; apps instalados se registram de novo após reiniciar e alguns estados podem precisar de confirmação."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Используйте, если приложение удалено, но всё ещё видно в фоновой активности или элементах входа. macOS часто не может удалить одну остаточную запись. Перестроение сбрасывает все записи; установленные приложения регистрируются снова после перезагрузки, а некоторые состояния могут потребовать подтверждения."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "适合在应用已卸载、却仍出现在「后台活动」或「登录项」时使用。macOS 通常无法单独删除一条残留记录。重建会重置全部登录项与后台记录；重启后仍安装的应用会重新登记，部分允许/阻止状态可能需要再次确认。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "適合在應用程式已解除安裝、卻仍出現在「背景活動」或「登入項目」時使用。macOS 通常無法單獨刪除一筆殘留紀錄。重建會重設全部登入項目與背景紀錄；重新啟動後仍安裝的應用程式會重新登錄，部分允許／阻止狀態可能需要再次確認。"
+          }
+        }
+      }
+    },
+    "Use when an uninstalled app still shows under Background Activity or Login Items." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwenden, wenn eine deinstallierte App weiterhin unter Hintergrundaktivität oder Anmeldeobjekten erscheint."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Úsalo cuando una app desinstalada siga apareciendo en Actividad en segundo plano o Elementos de inicio."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "À utiliser lorsqu’une app désinstallée apparaît encore dans Activité en arrière-plan ou Éléments d’ouverture."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アンインストール済みアプリがバックグラウンドやログイン項目に残るときに使います。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "제거된 앱이 백그라운드 활동이나 로그인 항목에 남아 있을 때 사용합니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use quando um app desinstalado ainda aparecer em Atividade em segundo plano ou Itens de login."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Используйте, если удалённое приложение всё ещё видно в фоновой активности или элементах входа."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当已卸载的应用仍出现在后台活动或登录项中时使用。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "當已解除安裝的應用程式仍出現在背景活動或登入項目中時使用。"
+          }
+        }
+      }
+    },
     "Used" : {
       "localizations" : {
         "de" : {
@@ -56020,6 +56198,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "什麼是“內存優化”？"
+          }
+        }
+      }
+    },
+    "When to Rebuild Database" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wann die Datenbank neu erstellt werden sollte"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuándo reconstruir la base de datos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quand reconstruire la base de données"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "データベース再構築が必要なとき"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "데이터베이스를 재구축해야 할 때"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando reconstruir o banco de dados"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Когда перестраивать базу данных"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "什么情况下要重建数据库"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "什麼情況下要重建資料庫"
           }
         }
       }
