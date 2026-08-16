@@ -3186,19 +3186,102 @@ struct ContentView: View {
                 Text(snapshot.cpuPercent.formatted(.number.precision(.fractionLength(0))))
                     .font(.system(size: 32, weight: .semibold, design: .rounded)).monospacedDigit()
                 Text("%").font(.system(size: 15, weight: .medium)).foregroundStyle(.secondary)
-            }
-            ProgressView(value: snapshot.cpuPercent, total: 100)
-                .tint(snapshot.cpuPercent > 85 ? Color.orange : Color.accentColor)
-            HStack {
-                Text("Total System Usage")
-                Spacer()
+                Spacer(minLength: 8)
                 Label(thermalStateText(snapshot.thermalState), systemImage: "thermometer.medium")
+                    .font(.caption).foregroundStyle(.secondary)
             }
-            .font(.caption).foregroundStyle(.secondary)
+            if snapshot.cpuCores.isEmpty {
+                ProgressView(value: snapshot.cpuPercent, total: 100)
+                    .tint(snapshot.cpuPercent > 85 ? Color.orange : Color.accentColor)
+                Text("Total System Usage")
+                    .font(.caption).foregroundStyle(.secondary)
+            } else {
+                cpuCoreBars(snapshot.cpuCores)
+                HStack(spacing: 10) {
+                    Text("Per-core usage")
+                    Spacer(minLength: 4)
+                    if snapshot.cpuCores.contains(where: { $0.kind == .performance }) {
+                        Label("P-core", systemImage: "circle.fill")
+                            .foregroundStyle(Color.accentColor)
+                    }
+                    if snapshot.cpuCores.contains(where: { $0.kind == .efficiency }) {
+                        Label("E-core", systemImage: "circle.fill")
+                            .foregroundStyle(Color.teal)
+                    }
+                    if snapshot.cpuCores.contains(where: { $0.kind == .standard }) {
+                        Label("Core", systemImage: "circle.fill")
+                            .foregroundStyle(Color.accentColor)
+                    }
+                }
+                .font(.caption).foregroundStyle(.secondary)
+            }
         }
         .padding(15)
         .frame(maxWidth: .infinity, minHeight: 154)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func cpuCoreBars(_ cores: [CPUCoreUsage]) -> some View {
+        let performanceCount = cores.filter { $0.kind == .performance }.count
+        return GeometryReader { geometry in
+            let spacing: CGFloat = cores.count > 12 ? 2 : 3
+            let barWidth = max(
+                4,
+                (geometry.size.width - spacing * CGFloat(max(cores.count - 1, 0))) / CGFloat(max(cores.count, 1))
+            )
+            HStack(alignment: .bottom, spacing: spacing) {
+                ForEach(cores) { core in
+                    VStack(spacing: 3) {
+                        Capsule()
+                            .fill(coreBarColor(core).opacity(0.18))
+                            .frame(width: barWidth, height: geometry.size.height - 14)
+                            .overlay(alignment: .bottom) {
+                                Capsule()
+                                    .fill(coreBarColor(core))
+                                    .frame(
+                                        width: barWidth,
+                                        height: max(2, (geometry.size.height - 14) * core.percent / 100)
+                                    )
+                            }
+                        Text(coreBarLabel(core, performanceCount: performanceCount, compact: cores.count > 16))
+                            .font(.system(size: 8, weight: .medium, design: .rounded))
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                            .frame(width: barWidth)
+                    }
+                    .help(L10n.format(
+                        "Core %lld · %lld%%",
+                        core.index + 1,
+                        Int64(core.percent.rounded())
+                    ))
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+        }
+        .frame(height: 78)
+        .accessibilityElement(children: .contain)
+    }
+
+    private func coreBarColor(_ core: CPUCoreUsage) -> Color {
+        switch core.kind {
+        case .performance, .standard:
+            return core.percent > 85 ? .orange : Color.accentColor
+        case .efficiency:
+            return core.percent > 85 ? .orange : .teal
+        }
+    }
+
+    private func coreBarLabel(_ core: CPUCoreUsage, performanceCount: Int, compact: Bool) -> String {
+        if compact { return "\(core.index + 1)" }
+        switch core.kind {
+        case .performance:
+            return "P\(core.index + 1)"
+        case .efficiency:
+            return "E\(max(1, core.index - performanceCount + 1))"
+        case .standard:
+            return "\(core.index + 1)"
+        }
     }
 
     private func memoryMetricCard(_ snapshot: PerformanceSnapshot) -> some View {
@@ -3269,6 +3352,16 @@ struct ContentView: View {
                 .font(.system(size: 14, weight: .semibold))
                 .padding(.horizontal, 14).padding(.top, 13).padding(.bottom, 8)
             computeHardwareRow(
+                icon: "cpu",
+                title: "CPU",
+                subtitle: L10n.format("%@ · %@", hardware.cpuName, cpuCoreSummary(hardware)),
+                status: hardware.hasUnifiedMemory
+                    ? "Apple Silicon"
+                    : L10n.format("%lld threads", hardware.logicalCores),
+                color: .orange
+            )
+            Divider().padding(.leading, 57)
+            computeHardwareRow(
                 icon: "display",
                 title: "GPU",
                 subtitle: hardware.recommendedGPUWorkingSet > 0
@@ -3277,8 +3370,35 @@ struct ContentView: View {
                 status: hardware.hasUnifiedMemory ? "Unified Memory" : "Dedicated Memory",
                 color: .blue
             )
+            Divider().padding(.leading, 57)
+            computeHardwareRow(
+                icon: "sparkles",
+                title: "Apple Intelligence",
+                subtitle: hardware.appleIntelligence.detail,
+                status: hardware.appleIntelligence.rawValue,
+                color: hardware.appleIntelligence.isUsable ? .green : .purple
+            )
         }
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func cpuCoreSummary(_ hardware: ComputeHardwareInfo) -> String {
+        if hardware.performanceCores > 0, hardware.efficiencyCores > 0 {
+            return L10n.format(
+                "%lld cores (%lldP + %lldE)",
+                hardware.physicalCores,
+                hardware.performanceCores,
+                hardware.efficiencyCores
+            )
+        }
+        if hardware.logicalCores > hardware.physicalCores {
+            return L10n.format(
+                "%lld cores · %lld threads",
+                hardware.physicalCores,
+                hardware.logicalCores
+            )
+        }
+        return L10n.format("%lld cores", hardware.physicalCores)
     }
 
     private func computeHardwareRow(icon: String, title: String, subtitle: String, status: String, color: Color) -> some View {

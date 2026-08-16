@@ -2,11 +2,51 @@ import AppKit
 import Darwin
 import Foundation
 import Metal
+#if canImport(FoundationModels)
+import FoundationModels
+#endif
 
 struct ComputeHardwareInfo: Sendable {
+    let cpuName: String
+    let physicalCores: Int
+    let logicalCores: Int
+    let performanceCores: Int
+    let efficiencyCores: Int
     let gpuName: String
     let hasUnifiedMemory: Bool
     let recommendedGPUWorkingSet: Int64
+    let appleIntelligence: AppleIntelligenceStatus
+}
+
+enum AppleIntelligenceStatus: String, Sendable {
+    case available = "Available"
+    case notEnabled = "Not enabled"
+    case modelNotReady = "Model not ready"
+    case deviceNotSupported = "Device not supported"
+    case requiresNewerOS = "Requires macOS 15.1+"
+    case checkSystemSettings = "Check System Settings"
+    case unavailable = "Unavailable"
+
+    var isUsable: Bool { self == .available }
+
+    var detail: String {
+        switch self {
+        case .available:
+            return "On-device Apple Intelligence is ready"
+        case .notEnabled:
+            return "Turn on Apple Intelligence in System Settings"
+        case .modelNotReady:
+            return "The on-device model is still downloading or preparing"
+        case .deviceNotSupported:
+            return "This Mac does not support Apple Intelligence"
+        case .requiresNewerOS:
+            return "Update macOS to use Apple Intelligence"
+        case .checkSystemSettings:
+            return "Hardware looks eligible — confirm in System Settings"
+        case .unavailable:
+            return "Apple Intelligence is currently unavailable"
+        }
+    }
 }
 
 enum MemoryPressureLevel: String, Sendable {
@@ -25,9 +65,24 @@ struct ApplicationResourceUsage: Identifiable, Sendable {
     var id: pid_t { processIdentifier }
 }
 
+struct CPUCoreUsage: Identifiable, Sendable {
+    enum Kind: String, Sendable {
+        case performance
+        case efficiency
+        case standard
+    }
+
+    let index: Int
+    let percent: Double
+    let kind: Kind
+
+    var id: Int { index }
+}
+
 struct PerformanceSnapshot: Sendable {
     let sampledAt: Date
     let cpuPercent: Double
+    let cpuCores: [CPUCoreUsage]
     let physicalMemory: Int64
     let usedMemory: Int64
     let cachedMemory: Int64
@@ -59,8 +114,20 @@ final class PerformanceMonitor {
         let sampledAt: Date
     }
 
+    private struct CachedCPUInfo {
+        let name: String
+        let physicalCores: Int
+        let logicalCores: Int
+        let performanceCores: Int
+        let efficiencyCores: Int
+        let performanceLogicalCores: Int
+        let efficiencyLogicalCores: Int
+    }
+
     private var previousCPUTicks: [UInt64]?
+    private var previousPerCoreTicks: [[UInt64]]?
     private var previousProcessSamples: [pid_t: ProcessSample] = [:]
+    private lazy var cpuInfo: CachedCPUInfo = Self.readCPUInfo()
     private lazy var gpuInfo: (name: String, unifiedMemory: Bool, workingSet: Int64) = {
         guard let device = MTLCreateSystemDefaultDevice() else { return ("Metal GPU not detected", false, 0) }
         return (device.name, device.hasUnifiedMemory, Int64(device.recommendedMaxWorkingSetSize))
@@ -78,11 +145,15 @@ final class PerformanceMonitor {
     func sample() -> PerformanceSnapshot {
         let now = Date()
         let cpuPercent = sampleCPUPercent()
+        let cpuCores = sampleCPUCores()
         let memory = sampleMemory()
         let applications = sampleApplications(at: now)
+        let cpu = cpuInfo
+        let gpu = gpuInfo
         return PerformanceSnapshot(
             sampledAt: now,
             cpuPercent: cpuPercent,
+            cpuCores: cpuCores,
             physicalMemory: memory.total,
             usedMemory: memory.used,
             cachedMemory: memory.cached,
@@ -92,12 +163,93 @@ final class PerformanceMonitor {
             memoryPressureLevel: memory.level,
             thermalState: ProcessInfo.processInfo.thermalState,
             computeHardware: ComputeHardwareInfo(
-                gpuName: gpuInfo.name,
-                hasUnifiedMemory: gpuInfo.unifiedMemory,
-                recommendedGPUWorkingSet: gpuInfo.workingSet
+                cpuName: cpu.name.isEmpty ? gpu.name : cpu.name,
+                physicalCores: cpu.physicalCores,
+                logicalCores: cpu.logicalCores,
+                performanceCores: cpu.performanceCores,
+                efficiencyCores: cpu.efficiencyCores,
+                gpuName: gpu.name,
+                hasUnifiedMemory: gpu.unifiedMemory,
+                recommendedGPUWorkingSet: gpu.workingSet,
+                appleIntelligence: Self.appleIntelligenceStatus(hasUnifiedMemory: gpu.unifiedMemory)
             ),
             applications: applications
         )
+    }
+
+    private static func appleIntelligenceStatus(hasUnifiedMemory: Bool) -> AppleIntelligenceStatus {
+        #if canImport(FoundationModels)
+        if #available(macOS 26.0, *) {
+            switch SystemLanguageModel.default.availability {
+            case .available:
+                return .available
+            case .unavailable(.deviceNotEligible):
+                return .deviceNotSupported
+            case .unavailable(.appleIntelligenceNotEnabled):
+                return .notEnabled
+            case .unavailable(.modelNotReady):
+                return .modelNotReady
+            case .unavailable:
+                return .unavailable
+            @unknown default:
+                return .unavailable
+            }
+        }
+        #endif
+
+        #if arch(arm64)
+        if #available(macOS 15.1, *) {
+            // Foundation Models API is macOS 26+; on Sequoia we can only confirm hardware eligibility.
+            return hasUnifiedMemory ? .checkSystemSettings : .deviceNotSupported
+        }
+        return .requiresNewerOS
+        #else
+        return .deviceNotSupported
+        #endif
+    }
+
+    private static func readCPUInfo() -> CachedCPUInfo {
+        let brand = sysctlString("machdep.cpu.brand_string")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let physical = max(1, sysctlInt("hw.physicalcpu") ?? ProcessInfo.processInfo.processorCount)
+        let logical = max(physical, sysctlInt("hw.logicalcpu") ?? ProcessInfo.processInfo.processorCount)
+        let performance = sysctlInt("hw.perflevel0.physicalcpu") ?? 0
+        let efficiency = sysctlInt("hw.perflevel1.physicalcpu") ?? 0
+        let performanceLogical = sysctlInt("hw.perflevel0.logicalcpu") ?? performance
+        let efficiencyLogical = sysctlInt("hw.perflevel1.logicalcpu") ?? efficiency
+        let name: String
+        if !brand.isEmpty {
+            name = brand
+        } else if let device = MTLCreateSystemDefaultDevice()?.name, !device.isEmpty {
+            // Apple Silicon often leaves brand_string empty; Metal device name is the chip.
+            name = device
+        } else {
+            name = "CPU"
+        }
+        return CachedCPUInfo(
+            name: name,
+            physicalCores: physical,
+            logicalCores: logical,
+            performanceCores: performance,
+            efficiencyCores: efficiency,
+            performanceLogicalCores: performanceLogical,
+            efficiencyLogicalCores: efficiencyLogical
+        )
+    }
+
+    private static func sysctlInt(_ name: String) -> Int? {
+        var value: Int32 = 0
+        var size = MemoryLayout<Int32>.size
+        guard sysctlbyname(name, &value, &size, nil, 0) == 0 else { return nil }
+        return Int(value)
+    }
+
+    private static func sysctlString(_ name: String) -> String {
+        var size = 0
+        guard sysctlbyname(name, nil, &size, nil, 0) == 0, size > 1 else { return "" }
+        var buffer = [CChar](repeating: 0, count: size)
+        guard sysctlbyname(name, &buffer, &size, nil, 0) == 0 else { return "" }
+        return String(cString: buffer)
     }
 
     private func sampleCPUPercent() -> Double {
@@ -121,6 +273,70 @@ final class PerformanceMonitor {
         guard total > 0 else { return 0 }
         let idle = deltas[Int(CPU_STATE_IDLE)]
         return min(100, max(0, Double(total - idle) / Double(total) * 100))
+    }
+
+    private func sampleCPUCores() -> [CPUCoreUsage] {
+        var cpuCount: natural_t = 0
+        var cpuInfoArray: processor_info_array_t?
+        var numCpuInfo: mach_msg_type_number_t = 0
+        let kr = host_processor_info(
+            mach_host_self(),
+            PROCESSOR_CPU_LOAD_INFO,
+            &cpuCount,
+            &cpuInfoArray,
+            &numCpuInfo
+        )
+        guard kr == KERN_SUCCESS, let cpuInfoArray, cpuCount > 0 else { return [] }
+        defer {
+            let bytes = vm_size_t(numCpuInfo) * vm_size_t(MemoryLayout<integer_t>.stride)
+            vm_deallocate(mach_task_self_, vm_address_t(UInt(bitPattern: cpuInfoArray)), bytes)
+        }
+
+        let stateCount = Int(CPU_STATE_MAX)
+        var currentTicks: [[UInt64]] = []
+        currentTicks.reserveCapacity(Int(cpuCount))
+        for coreIndex in 0..<Int(cpuCount) {
+            let base = coreIndex * stateCount
+            var ticks = [UInt64](repeating: 0, count: stateCount)
+            for state in 0..<stateCount {
+                ticks[state] = UInt64(cpuInfoArray[base + state])
+            }
+            currentTicks.append(ticks)
+        }
+
+        defer { previousPerCoreTicks = currentTicks }
+
+        let performanceLogical = max(0, cpuInfo.performanceLogicalCores)
+        let hasPESplit = performanceLogical > 0 && performanceLogical < currentTicks.count
+
+        guard let previousPerCoreTicks, previousPerCoreTicks.count == currentTicks.count else {
+            return currentTicks.indices.map { index in
+                CPUCoreUsage(
+                    index: index,
+                    percent: 0,
+                    kind: coreKind(index: index, performanceLogical: performanceLogical, hasPESplit: hasPESplit)
+                )
+            }
+        }
+
+        return currentTicks.indices.map { index in
+            let deltas = zip(currentTicks[index], previousPerCoreTicks[index]).map { current, previous in
+                current >= previous ? current - previous : 0
+            }
+            let total = deltas.reduce(0, +)
+            let idle = deltas.indices.contains(Int(CPU_STATE_IDLE)) ? deltas[Int(CPU_STATE_IDLE)] : 0
+            let percent = total > 0 ? min(100, max(0, Double(total - idle) / Double(total) * 100)) : 0
+            return CPUCoreUsage(
+                index: index,
+                percent: percent,
+                kind: coreKind(index: index, performanceLogical: performanceLogical, hasPESplit: hasPESplit)
+            )
+        }
+    }
+
+    private func coreKind(index: Int, performanceLogical: Int, hasPESplit: Bool) -> CPUCoreUsage.Kind {
+        guard hasPESplit else { return .standard }
+        return index < performanceLogical ? .performance : .efficiency
     }
 
     private func sampleMemory() -> (total: Int64, used: Int64, cached: Int64, compressed: Int64, pressure: Double, level: MemoryPressureLevel) {
