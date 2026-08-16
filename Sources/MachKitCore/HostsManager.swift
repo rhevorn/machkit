@@ -1,7 +1,5 @@
 import Darwin
 import Foundation
-import Security
-import MachKitPrivilegedShim
 
 public struct HostsEnvironment: Codable, Identifiable, Equatable, Sendable {
     public let id: UUID
@@ -176,18 +174,9 @@ public enum HostsFileComposer {
     }
 }
 
-private final class HostsAuthorizationSession: @unchecked Sendable {
-    var reference: AuthorizationRef?
-
-    deinit {
-        if let reference { AuthorizationFree(reference, []) }
-    }
-}
-
 public actor HostsSystemService {
     private let fileManager: FileManager
     private let hostsURL: URL
-    private let authorizationSession = HostsAuthorizationSession()
 
     public init(
         fileManager: FileManager = .default,
@@ -243,19 +232,12 @@ public actor HostsSystemService {
             throw HostsFileError.writeFailed(error.localizedDescription)
         }
 
-        let authorization = try authorizationReference()
-        var communicationsPipe: UnsafeMutablePointer<FILE>?
-        let executeStatus = temporaryURL.path.withCString { sourcePath in
-            MachKitReplaceHostsFile(authorization, sourcePath, &communicationsPipe)
-        }
-        guard executeStatus == errAuthorizationSuccess else {
-            if executeStatus == errAuthorizationCanceled { throw HostsFileError.authorizationCancelled }
-            throw HostsFileError.authorizationFailed(securityMessage(executeStatus))
-        }
-
-        if let communicationsPipe {
-            _ = FileHandle(fileDescriptor: fileno(communicationsPipe), closeOnDealloc: true)
-                .readDataToEndOfFile()
+        do {
+            try PrivilegedCommandRunner.replaceHostsFile(with: temporaryURL)
+        } catch PrivilegedCommandError.authorizationCancelled {
+            throw HostsFileError.authorizationCancelled
+        } catch {
+            throw HostsFileError.authorizationFailed(error.localizedDescription)
         }
 
         do {
@@ -269,38 +251,4 @@ public actor HostsSystemService {
         }
     }
 
-    private func authorizationReference() throws -> AuthorizationRef {
-        if let existing = authorizationSession.reference { return existing }
-
-        var created: AuthorizationRef?
-        let createStatus = AuthorizationCreate(nil, nil, [], &created)
-        guard createStatus == errAuthorizationSuccess, let created else {
-            throw HostsFileError.authorizationFailed(securityMessage(createStatus))
-        }
-
-        let rightStatus = kAuthorizationRightExecute.withCString { rightName in
-            var item = AuthorizationItem(name: rightName, valueLength: 0, value: nil, flags: 0)
-            return withUnsafeMutablePointer(to: &item) { itemPointer in
-                var rights = AuthorizationRights(count: 1, items: itemPointer)
-                return AuthorizationCopyRights(
-                    created,
-                    &rights,
-                    nil,
-                    [.interactionAllowed, .extendRights, .preAuthorize],
-                    nil
-                )
-            }
-        }
-        guard rightStatus == errAuthorizationSuccess else {
-            AuthorizationFree(created, [])
-            if rightStatus == errAuthorizationCanceled { throw HostsFileError.authorizationCancelled }
-            throw HostsFileError.authorizationFailed(securityMessage(rightStatus))
-        }
-        authorizationSession.reference = created
-        return created
-    }
-
-    private func securityMessage(_ status: OSStatus) -> String {
-        SecCopyErrorMessageString(status, nil) as String? ?? "Error code \(status)"
-    }
 }

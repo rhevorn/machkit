@@ -2,7 +2,7 @@ import Foundation
 
 public enum SafetyPolicy {
     private static let forbiddenComponents: Set<String> = [
-        ".ssh", ".gnupg", "Keychains", "Mail", "Messages", "Photos Library.photoslibrary"
+        ".ssh", ".gnupg", "keychains", "mail", "messages", "photos library.photoslibrary"
     ]
 
     public static func validateTargets(rule: ScanRule, root: URL) throws -> [URL] {
@@ -15,12 +15,12 @@ public enum SafetyPolicy {
     }
 
     public static func validate(relativePath: String, risk: RiskLevel, root: URL) throws -> URL {
-        guard !relativePath.hasPrefix("/"), !relativePath.contains("..") else {
+        let pathComponents = relativePath.split(separator: "/").map(String.init)
+        guard !relativePath.hasPrefix("/"), !pathComponents.contains("..") else {
             throw SafetyError.unsafeRule(relativePath)
         }
 
-        let components = Set(relativePath.split(separator: "/").map(String.init))
-        guard forbiddenComponents.isDisjoint(with: components), risk != .blocked else {
+        guard !containsForbiddenComponent(pathComponents), risk != .blocked else {
             throw SafetyError.forbiddenLocation(relativePath)
         }
 
@@ -38,7 +38,12 @@ public enum SafetyPolicy {
         guard canonicalItem.path.hasPrefix(prefix), canonicalItem != canonicalRoot else {
             throw SafetyError.outsideSelectedRoot
         }
-        guard item.rule.risk != .blocked else { throw SafetyError.forbiddenLocation(item.url.path) }
+        let relativePath = String(canonicalItem.path.dropFirst(prefix.count))
+        let relativeComponents = relativePath.split(separator: "/").map(String.init)
+        guard item.rule.risk != .blocked,
+              !containsForbiddenComponent(relativeComponents) else {
+            throw SafetyError.forbiddenLocation(item.url.path)
+        }
     }
 
     /// Checks containment using canonicalized path components rather than a lexical
@@ -72,6 +77,10 @@ public enum SafetyPolicy {
             resolved.append(path: component)
         }
         return resolved.standardizedFileURL
+    }
+
+    private static func containsForbiddenComponent(_ components: [String]) -> Bool {
+        components.contains { forbiddenComponents.contains($0.lowercased()) }
     }
 }
 

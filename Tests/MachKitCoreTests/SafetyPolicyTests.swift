@@ -16,6 +16,28 @@ import Testing
     }
 }
 
+@Test func cleaningRechecksSensitiveFoldersAtTheDestructiveBoundary() {
+    let root = URL(fileURLWithPath: "/tmp/MachKitHome", isDirectory: true)
+    let rule = ScanRule(
+        id: "mistaken-safe-item",
+        title: "Mistaken safe item",
+        relativePath: "Library/Caches",
+        minimumAgeDays: 0,
+        risk: .safe,
+        explanation: ""
+    )
+    let item = ScanItem(
+        url: root.appending(path: ".SSH/private-key"),
+        bytes: 1,
+        modifiedAt: nil,
+        rule: rule
+    )
+
+    #expect(throws: SafetyError.self) {
+        try SafetyPolicy.validateForCleaning(item: item, selectedRoot: root)
+    }
+}
+
 @Test func resolvesSafeRuleInsideRoot() throws {
     let rule = ScanRule(id: "ok", title: "ok", relativePath: "Library/Caches", minimumAgeDays: 0, risk: .safe, explanation: "")
     let result = try SafetyPolicy.validate(rule: rule, root: URL(fileURLWithPath: "/tmp/root"))

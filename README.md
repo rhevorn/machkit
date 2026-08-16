@@ -2,9 +2,9 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md)
 
-A privacy-first macOS utility for storage analysis, cleanup, app uninstall, system monitoring, network inspection, and a growing collection of local utilities.
+A privacy-first macOS utility for storage analysis, cleanup, app uninstall, system monitoring, network inspection, annotated screenshots, and a growing collection of local utilities.
 
-Everything runs locally on your Mac. Scans read file metadata only, risky items stay unchecked by default, and deletions go to the Trash.
+MachKit has no analytics service or cloud backend. Scans read local file metadata only, risky items stay unchecked by default, and removable items go to the Trash unless the UI explicitly identifies an operation as permanent. Network diagnostics and cURL Lab send requests only when you explicitly start them, directly from your Mac.
 
 <p align="center">
   <table cellpadding="12" cellspacing="0">
@@ -25,6 +25,7 @@ Everything runs locally on your Mac. Scans read file metadata only, risky items 
 - **Network** — Inspect traffic, connections, listening ports, routes, VPN/TUN, and proxies
 - **System** — Review login items, background activity, and extensions
 - **Menu bar** — Keep a lightweight monitor for CPU, memory, network speed, and quick actions
+- **Screenshot** — Capture any screen region from a global shortcut, freeze the desktop, annotate with rectangles, ellipses, arrows, pen, highlight, mosaic, and text, then copy or save—all on your Mac, without opening another window
 - **Utilities** — Open focused local tools from the Tools workspace, menu, or global shortcuts:
   - **Hosts Manager** — View `/etc/hosts` and switch shared / environment mappings safely
   - **Timestamp Converter** — Convert dates and Unix timestamps across units and time zones
@@ -47,7 +48,7 @@ Everything runs locally on your Mac. Scans read file metadata only, risky items 
   - **chmod Lab** — Convert Unix permission modes and preview symbolic changes
   - **Certificate Lab** — Inspect certificates, CSRs, and certificate chains locally
   - **Text Lab** — Clean, transform, sort, count, and reshape text
-  - **cURL Lab** — Build, parse, and edit cURL requests without sending them
+  - **cURL Lab** — Build, parse, edit, and explicitly run cURL requests directly from your Mac
   - **Connection Trace** — Trace how a destination resolves and routes through the Mac
   - **Port Scanner** — Scan any TCP port or range with progress and open-port results
 
@@ -55,25 +56,24 @@ Everything runs locally on your Mac. Scans read file metadata only, risky items 
 
 - macOS 14 or later
 - Xcode 16 / Swift 6 (for building from source)
+- Node.js 24 / npm (for building the embedded H5 tools)
 - Full Disk Access may be required for some user directories
 - Editing hosts files requires administrator authentication when writing
 
 ## Install
 
-MachKit is currently distributed as an **unsigned** ad-hoc build, so macOS Gatekeeper will block a normal double-click the first time.
+Official MachKit releases are signed with Developer ID and notarized by Apple. Source builds use your local Xcode signing configuration.
 
 1. Download `MachKit-*-macOS.zip` from [GitHub Releases](https://github.com/rhevorn/machkit/releases/latest).
 2. Unzip it, then move `MachKit.app` into `/Applications`.
-3. Open it with either method:
-   - Right-click `MachKit.app` → **Open** → **Open**
-   - Or go to **System Settings → Privacy & Security**, find the blocked-app notice, and choose **Open Anyway**
-4. After the first successful launch, you can open MachKit normally from Applications or Spotlight.
+3. Open MachKit from Applications or Spotlight.
 
 ## Build
 
-Open the Xcode project and run the `MachKit App` scheme:
+Install the locked frontend dependencies once, then open the Xcode project and run the `MachKit App` scheme:
 
 ```bash
+cd Tool && npm ci && cd ..
 open MachKit.xcodeproj
 ```
 
@@ -96,11 +96,11 @@ Core library tests:
 swift test
 ```
 
-H5 utilities (optional during UI work):
+Run the H5 development server when working on embedded tools:
 
 ```bash
 cd Tool
-npm install
+npm ci
 npm run dev
 ```
 
@@ -108,7 +108,7 @@ Debug builds can load tools from the local Vite server with HMR; Release builds 
 
 ## Releases
 
-Local builds use `dev`. Release tags are the source of truth for shipped versions: pushing a tag such as `v0.9.0` overrides the app version with `CFBundleShortVersionString=0.9.0`, while the GitHub Actions run number becomes `CFBundleVersion`. The workflow verifies both values before packaging and publishing the ZIP.
+Local builds use `dev`. Release tags are the source of truth for shipped versions: pushing a tag such as `v0.9.0` overrides the app version with `CFBundleShortVersionString=0.9.0`, while the GitHub Actions run number becomes `CFBundleVersion`. The workflow verifies both values, signs with Developer ID, submits the app for notarization, staples the ticket, and only then publishes the ZIP. Maintainers must configure the signing and notarization secrets documented in the release workflow.
 
 ```bash
 git tag v0.9.0
@@ -133,7 +133,7 @@ Website/             Marketing site
 
 ## Contributing
 
-Issues and pull requests are welcome. Keep changes focused, and prefer local, reversible operations for anything that deletes or terminates processes.
+Issues and pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) for setup, checks, and safety rules. Security reports should follow [SECURITY.md](SECURITY.md).
 
 ## License
 

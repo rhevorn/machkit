@@ -25,6 +25,7 @@ function localeText(locale) {
         home: "首页",
         capabilities: "功能",
         product: "产品",
+        safety: "安全",
         tools: "工具",
         download: "下载",
         language: "English",
@@ -41,11 +42,13 @@ function localeText(locale) {
         license: "MIT 许可证",
         local: "所有处理都在你的 Mac 上完成",
         platform: "macOS 14+",
+        primaryNav: "主导航",
       }
     : {
         home: "Home",
         capabilities: "Capabilities",
         product: "Product",
+        safety: "Safety",
         tools: "Tools",
         download: "Download",
         language: "中文",
@@ -62,6 +65,7 @@ function localeText(locale) {
         license: "MIT License",
         local: "Everything runs on your Mac",
         platform: "macOS 14+",
+        primaryNav: "Primary navigation",
       };
 }
 
@@ -80,11 +84,12 @@ function renderHeader(locale, activePage) {
   const languageURL = localizedPath(activePage, otherLocale);
   const toolsPage = featurePages.find((page) => page.id === "utilities");
   return `<header class="site-header">
-    <nav class="nav-shell" aria-label="${escapeHTML(text.capabilities)}">
+    <nav class="nav-shell" aria-label="${escapeHTML(text.primaryNav)}">
       ${renderBrand(locale)}
       <div class="nav-links">
         <a href="${homeURL}#capabilities">${escapeHTML(text.capabilities)}</a>
         <a href="${homeURL}#product">${escapeHTML(text.product)}</a>
+        <a href="${homeURL}#safety">${escapeHTML(text.safety)}</a>
         <a href="${localizedPath(toolsPage, locale)}">${escapeHTML(text.tools)}</a>
       </div>
       <div class="nav-actions">

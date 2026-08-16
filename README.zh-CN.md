@@ -2,9 +2,9 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md)
 
-一款隐私优先的 macOS 本地管理工具，用于存储分析、垃圾清理、软件卸载、系统监控、网络检查，以及持续增长的本地实用工具。
+一款隐私优先的 macOS 本地管理工具，用于存储分析、垃圾清理、软件卸载、系统监控、网络检查、区域截图标注，以及持续增长的本地实用工具。
 
-所有处理都在本机完成。扫描只读取文件元数据，风险项默认不勾选，删除统一移入废纸篓。
+MachKit 不使用分析服务或云端后台。扫描只读取本机文件元数据，风险项默认不勾选；可恢复内容会移入废纸篓，只有界面明确标注为永久删除的操作才会直接删除。网络诊断与 cURL 实验室仅在用户主动执行时从当前 Mac 直接发起请求。
 
 <p align="center">
   <table cellpadding="12" cellspacing="0">
@@ -25,6 +25,7 @@
 - **网络** — 查看流量、连接、监听端口、路由、VPN/TUN 和代理
 - **系统** — 查看登录项、后台活动和扩展
 - **菜单栏** — 常驻轻量监控，显示 CPU、内存、网速和快捷操作
+- **截图** — 全局快捷键框选任意区域，冻结桌面后用矩形、椭圆、箭头、画笔、高亮、马赛克和文字标注，再复制或保存；全程留在本机，不必另开窗口
 - **实用工具** — 可从 Tools 工作区、菜单或全局快捷键打开专注的本地工具：
   - **Hosts 管理** — 查看 `/etc/hosts`，在公共配置与多环境映射间安全切换
   - **时间戳转换** — 在日期与 Unix 时间戳之间转换，支持单位和时区
@@ -47,7 +48,7 @@
   - **chmod 实验室** — 转换 Unix 权限模式并预览符号权限变化
   - **证书实验室** — 在本地检查证书、CSR 和证书链
   - **文本实验室** — 清理、转换、排序、统计和重组文本
-  - **cURL 实验室** — 构建、解析和编辑 cURL 请求，不会实际发送
+  - **cURL 实验室** — 构建、解析、编辑，并由用户主动从当前 Mac 直接发送 cURL 请求
   - **连接追踪** — 追踪目标地址如何解析并通过 Mac 路由
   - **端口扫描** — 扫描任意 TCP 端口或范围，显示进度和开放端口
 
@@ -55,25 +56,24 @@
 
 - macOS 14 或更高版本
 - 从源码构建需要 Xcode 16 / Swift 6
+- 构建内嵌 H5 工具需要 Node.js 24 / npm
 - 部分用户目录可能需要「完全磁盘访问权限」
 - 写入 hosts 时需要管理员认证
 
 ## 安装
 
-当前发布包是**未签名**的 ad-hoc 构建，首次用双击打开会被 macOS Gatekeeper 拦截。
+MachKit 官方发布包使用 Developer ID 签名，并经过 Apple 公证。源码构建使用本机 Xcode 的签名配置。
 
 1. 从 [GitHub Releases](https://github.com/rhevorn/machkit/releases/latest) 下载 `MachKit-*-macOS.zip`。
 2. 解压后，将 `MachKit.app` 移到「应用程序」文件夹（`/Applications`）。
-3. 用下面任一方式打开：
-   - 右键点击 `MachKit.app` → **打开** → 再点 **打开**
-   - 或打开 **系统设置 → 隐私与安全性**，在被拦截提示处选择 **仍要打开**
-4. 首次成功启动后，之后就可以像普通 App 一样从「应用程序」或 Spotlight 打开。
+3. 从「应用程序」或 Spotlight 打开 MachKit。
 
 ## 构建
 
-打开 Xcode 工程，选择 `MachKit App` Scheme 运行：
+首次构建先安装锁定的前端依赖，再打开 Xcode 工程并运行 `MachKit App` Scheme：
 
 ```bash
+cd Tool && npm ci && cd ..
 open MachKit.xcodeproj
 ```
 
@@ -96,11 +96,11 @@ open build/XcodeDerivedData/Build/Products/Debug/MachKit.app
 swift test
 ```
 
-开发 H5 工具（界面联调时可选）：
+开发内嵌 H5 工具时启动本地服务：
 
 ```bash
 cd Tool
-npm install
+npm ci
 npm run dev
 ```
 
@@ -108,7 +108,7 @@ Debug 构建可从本地 Vite 服务热更新加载工具；Release 构建始终
 
 ## 发布
 
-本地构建统一使用 `dev`。正式发布以 Git tag 作为版本唯一来源：推送 `v0.9.0` 后，工作流会将 App 版本覆盖为 `CFBundleShortVersionString=0.9.0`，GitHub Actions 运行编号作为 `CFBundleVersion`。工作流会在打包和发布 ZIP 前校验这两个值。
+本地构建统一使用 `dev`。正式发布以 Git tag 作为版本唯一来源：推送 `v0.9.0` 后，工作流会将 App 版本覆盖为 `CFBundleShortVersionString=0.9.0`，GitHub Actions 运行编号作为 `CFBundleVersion`。工作流会校验版本、使用 Developer ID 签名、提交 Apple 公证并装订公证票据，最后才发布 ZIP。维护者需要在仓库中配置发布工作流所列的签名与公证 secrets。
 
 ```bash
 git tag v0.9.0
@@ -133,7 +133,7 @@ Website/             产品官网
 
 ## 参与贡献
 
-欢迎提交 Issue 和 Pull Request。请保持改动聚焦；涉及删除或结束进程的操作，优先采用本地、可撤销的方式。
+欢迎提交 Issue 和 Pull Request。开发环境、检查命令与安全规则见 [CONTRIBUTING.md](CONTRIBUTING.md)；安全漏洞请按 [SECURITY.md](SECURITY.md) 私密报告。
 
 ## 许可证
 

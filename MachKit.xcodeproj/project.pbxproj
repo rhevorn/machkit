@@ -35,6 +35,15 @@
 		A10000000000000000000022 /* ScreenshotSelectionSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000002A /* ScreenshotSelectionSession.swift */; };
 		A10000000000000000000023 /* ScreenshotController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000002B /* ScreenshotController.swift */; };
 		A10000000000000000000024 /* ScreenshotEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000002C /* ScreenshotEditor.swift */; };
+		B10000000000000000000001 /* HostsManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* HostsManagerTests.swift */; };
+		B10000000000000000000002 /* ConnectionTraceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* ConnectionTraceTests.swift */; };
+		B10000000000000000000003 /* CurlLabRunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000003 /* CurlLabRunnerTests.swift */; };
+		B10000000000000000000004 /* TCPPortScanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000004 /* TCPPortScanTests.swift */; };
+		B10000000000000000000005 /* PrivilegedCommandRunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000005 /* PrivilegedCommandRunnerTests.swift */; };
+		C10000000000000000000001 /* AppSnapshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000001 /* AppSnapshotStore.swift */; };
+		C10000000000000000000002 /* ContentViewSoftware.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000002 /* ContentViewSoftware.swift */; };
+		C10000000000000000000003 /* ContentViewNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000003 /* ContentViewNetwork.swift */; };
+		C10000000000000000000004 /* ContentViewStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000004 /* ContentViewStorage.swift */; };
 		A10000000000000000000017 /* ToolsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000019 /* ToolsView.swift */; };
 		A10000000000000000000019 /* DeveloperTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000021 /* DeveloperTools.swift */; };
 		A1000000000000000000001A /* WebToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000022 /* WebToolView.swift */; };
@@ -72,6 +81,15 @@
 		A2000000000000000000002A /* ScreenshotSelectionSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotSelectionSession.swift; sourceTree = "<group>"; };
 		A2000000000000000000002B /* ScreenshotController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotController.swift; sourceTree = "<group>"; };
 		A2000000000000000000002C /* ScreenshotEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotEditor.swift; sourceTree = "<group>"; };
+		B20000000000000000000001 /* HostsManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostsManagerTests.swift; sourceTree = "<group>"; };
+		B20000000000000000000002 /* ConnectionTraceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionTraceTests.swift; sourceTree = "<group>"; };
+		B20000000000000000000003 /* CurlLabRunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurlLabRunnerTests.swift; sourceTree = "<group>"; };
+		B20000000000000000000004 /* TCPPortScanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPPortScanTests.swift; sourceTree = "<group>"; };
+		B20000000000000000000005 /* PrivilegedCommandRunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivilegedCommandRunnerTests.swift; sourceTree = "<group>"; };
+		C20000000000000000000001 /* AppSnapshotStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSnapshotStore.swift; sourceTree = "<group>"; };
+		C20000000000000000000002 /* ContentViewSoftware.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewSoftware.swift; sourceTree = "<group>"; };
+		C20000000000000000000003 /* ContentViewNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewNetwork.swift; sourceTree = "<group>"; };
+		C20000000000000000000004 /* ContentViewStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewStorage.swift; sourceTree = "<group>"; };
 		A20000000000000000000019 /* ToolsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsView.swift; sourceTree = "<group>"; };
 		A20000000000000000000021 /* DeveloperTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperTools.swift; sourceTree = "<group>"; };
 		A20000000000000000000022 /* WebToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebToolView.swift; sourceTree = "<group>"; };
@@ -123,7 +141,11 @@
 			children = (
 				A20000000000000000000001 /* MachKitApp.swift */,
 				A20000000000000000000002 /* ContentView.swift */,
+				C20000000000000000000002 /* ContentViewSoftware.swift */,
+				C20000000000000000000003 /* ContentViewNetwork.swift */,
+				C20000000000000000000004 /* ContentViewStorage.swift */,
 				A20000000000000000000003 /* CleanerViewModel.swift */,
+				C20000000000000000000001 /* AppSnapshotStore.swift */,
 				A20000000000000000000004 /* PerformanceMonitor.swift */,
 				A20000000000000000000005 /* PermissionManager.swift */,
 				A2000000000000000000000D /* FeatureMode.swift */,
@@ -190,6 +212,11 @@
 			children = (
 				A2000000000000000000000A /* ProductBoundaryTests.swift */,
 				A2000000000000000000000B /* SafetyPolicyTests.swift */,
+				B20000000000000000000001 /* HostsManagerTests.swift */,
+				B20000000000000000000002 /* ConnectionTraceTests.swift */,
+				B20000000000000000000003 /* CurlLabRunnerTests.swift */,
+				B20000000000000000000004 /* TCPPortScanTests.swift */,
+				B20000000000000000000005 /* PrivilegedCommandRunnerTests.swift */,
 			);
 			path = Tests/MachKitCoreTests;
 			sourceTree = "<group>";
@@ -244,8 +271,8 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2600;
-				LastUpgradeCheck = 2600;
+				LastSwiftUpdateCheck = 2660;
+				LastUpgradeCheck = 2660;
 				TargetAttributes = {
 					A50000000000000000000001 = {
 						CreatedOnToolsVersion = 26.0;
@@ -331,7 +358,11 @@
 			files = (
 				A10000000000000000000001 /* MachKitApp.swift in Sources */,
 				A10000000000000000000002 /* ContentView.swift in Sources */,
+				C10000000000000000000002 /* ContentViewSoftware.swift in Sources */,
+				C10000000000000000000003 /* ContentViewNetwork.swift in Sources */,
+				C10000000000000000000004 /* ContentViewStorage.swift in Sources */,
 				A10000000000000000000003 /* CleanerViewModel.swift in Sources */,
+				C10000000000000000000001 /* AppSnapshotStore.swift in Sources */,
 				A10000000000000000000004 /* PerformanceMonitor.swift in Sources */,
 				A10000000000000000000005 /* PermissionManager.swift in Sources */,
 				A1000000000000000000000B /* FeatureMode.swift in Sources */,
@@ -362,6 +393,11 @@
 			files = (
 				A10000000000000000000008 /* ProductBoundaryTests.swift in Sources */,
 				A10000000000000000000009 /* SafetyPolicyTests.swift in Sources */,
+				B10000000000000000000001 /* HostsManagerTests.swift in Sources */,
+				B10000000000000000000002 /* ConnectionTraceTests.swift in Sources */,
+				B10000000000000000000003 /* CurlLabRunnerTests.swift in Sources */,
+				B10000000000000000000004 /* TCPPortScanTests.swift in Sources */,
+				B10000000000000000000005 /* PrivilegedCommandRunnerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -22,6 +22,58 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
+      # Required repository secrets:
+      # DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64, DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD,
+      # DEVELOPER_ID_APPLICATION_IDENTITY, SIGNING_KEYCHAIN_PASSWORD,
+      # APPLE_ID, APPLE_APP_SPECIFIC_PASSWORD, and APPLE_TEAM_ID.
+      - name: Validate signing and notarization secrets
+        shell: bash
+        env:
+          CERTIFICATE_BASE64: ${{ secrets.DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD }}
+          SIGNING_IDENTITY: ${{ secrets.DEVELOPER_ID_APPLICATION_IDENTITY }}
+          KEYCHAIN_PASSWORD: ${{ secrets.SIGNING_KEYCHAIN_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -euo pipefail
+          for variable in CERTIFICATE_BASE64 CERTIFICATE_PASSWORD SIGNING_IDENTITY KEYCHAIN_PASSWORD APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID; do
+            if [[ -z "${!variable}" ]]; then
+              echo "Required release secret is missing: $variable" >&2
+              exit 1
+            fi
+          done
+
+      - name: Import Developer ID certificate
+        id: signing
+        shell: bash
+        env:
+          CERTIFICATE_BASE64: ${{ secrets.DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.SIGNING_KEYCHAIN_PASSWORD }}
+          SIGNING_IDENTITY: ${{ secrets.DEVELOPER_ID_APPLICATION_IDENTITY }}
+        run: |
+          set -euo pipefail
+          certificate_path="$RUNNER_TEMP/machkit-developer-id.p12"
+          keychain_path="$RUNNER_TEMP/machkit-signing.keychain-db"
+          printf '%s' "$CERTIFICATE_BASE64" | base64 --decode > "$certificate_path"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$keychain_path"
+          security set-keychain-settings -lut 21600 "$keychain_path"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$keychain_path"
+          security import "$certificate_path" \
+            -k "$keychain_path" \
+            -P "$CERTIFICATE_PASSWORD" \
+            -T /usr/bin/codesign
+          security set-key-partition-list \
+            -S apple-tool:,apple:,codesign: \
+            -s \
+            -k "$KEYCHAIN_PASSWORD" \
+            "$keychain_path"
+          security list-keychains -d user -s "$keychain_path"
+          security find-identity -v -p codesigning "$keychain_path" | grep -F "$SIGNING_IDENTITY"
+          echo "keychain_path=$keychain_path" >> "$GITHUB_OUTPUT"
+
       - name: Read version from tag
         id: version
         shell: bash
@@ -127,14 +179,41 @@ jobs:
             exit 1
           fi
 
-      - name: Apply and verify ad-hoc signature
+      - name: Sign and verify with Developer ID
         shell: bash
         env:
           APP_PATH: ${{ steps.app.outputs.path }}
+          SIGNING_IDENTITY: ${{ secrets.DEVELOPER_ID_APPLICATION_IDENTITY }}
         run: |
           set -euo pipefail
-          codesign --force --deep --sign - "$APP_PATH"
+          codesign \
+            --force \
+            --timestamp \
+            --options runtime \
+            --entitlements App/MachKit.entitlements \
+            --sign "$SIGNING_IDENTITY" \
+            "$APP_PATH"
           codesign --verify --deep --strict --verbose=2 "$APP_PATH"
+
+      - name: Notarize and staple app
+        shell: bash
+        env:
+          APP_PATH: ${{ steps.app.outputs.path }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -euo pipefail
+          submission_path="$RUNNER_TEMP/MachKit-notarization.zip"
+          ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" "$submission_path"
+          xcrun notarytool submit "$submission_path" \
+            --apple-id "$APPLE_ID" \
+            --password "$APPLE_PASSWORD" \
+            --team-id "$APPLE_TEAM_ID" \
+            --wait
+          xcrun stapler staple "$APP_PATH"
+          xcrun stapler validate "$APP_PATH"
+          spctl --assess --type execute --verbose=2 "$APP_PATH"
 
       - name: Package macOS ZIP
         id: package
@@ -179,3 +258,13 @@ jobs:
             --verify-tag \
             --title "MachKit $GITHUB_REF_NAME" \
             --notes-file "$NOTES_PATH"
+
+      - name: Remove temporary signing keychain
+        if: always()
+        shell: bash
+        env:
+          KEYCHAIN_PATH: ${{ steps.signing.outputs.keychain_path }}
+        run: |
+          if [[ -n "$KEYCHAIN_PATH" && -f "$KEYCHAIN_PATH" ]]; then
+            security delete-keychain "$KEYCHAIN_PATH"
+          fi

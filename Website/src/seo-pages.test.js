@@ -57,7 +57,9 @@ test("utilities page represents the current growing catalog with introductions",
   assert.equal(page.locales["zh-CN"].catalog.length, 24);
   assert.equal(page.locales.en.catalogGroups.length, 4);
   assert.match(page.locales.en.lead, /growing catalog/i);
+  assert.match(page.locales.en.lead, /screenshot/i);
   assert.match(page.locales["zh-CN"].lead, /持续增长/);
+  assert.match(page.locales["zh-CN"].lead, /截图/);
   assert.match(page.locales.en.catalogTitle, /introduction/i);
   assert.match(page.locales["zh-CN"].catalogTitle, /介绍/);
 
@@ -67,6 +69,13 @@ test("utilities page represents the current growing catalog with introductions",
   assert.match(html, /Run requests locally when needed/);
   assert.match(html, /Text &amp; Data/);
   assert.match(html, /tool-introduction/);
+  assert.match(html, /Native screenshot/);
+  assert.match(html, /Global shortcut region capture/);
+  assert.match(html, /aria-label="Primary navigation"/);
+  assert.match(html, /href="\/#capabilities"/);
+  assert.match(html, /href="\/#product"/);
+  assert.match(html, /href="\/#safety"/);
+  assert.match(html, /href="\/utilities\/"/);
 });
 
 test("feature documents expose canonical, alternate, and structured data", () => {

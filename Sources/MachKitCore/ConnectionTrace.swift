@@ -385,7 +385,8 @@ public enum ConnectionTrace {
             NI_NUMERICHOST
         )
         guard result == 0 else { return nil }
-        return String(cString: buffer)
+        let end = buffer.firstIndex(of: 0) ?? buffer.endIndex
+        return String(decoding: buffer[..<end].map { UInt8(bitPattern: $0) }, as: UTF8.self)
     }
 
     private static func stripBrackets(_ host: String) -> String {

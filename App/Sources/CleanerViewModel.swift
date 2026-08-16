@@ -113,15 +113,17 @@ final class CleanerViewModel: ObservableObject {
     @Published var discoveredBytes: Int64 = 0
     @Published var status = L10n.string("Choose your user folder or a test folder.")
 
-    private let cleaner = Cleaner()
+    private let cleaner: any CleaningService
+    private let snapshotStore: any AppSnapshotStoring
     private let applicationScanner = ApplicationScanner()
     private let systemInventoryScanner = SystemInventoryScanner()
-    private let fileAnalyzer = FileAnalyzer()
+    private let fileAnalyzer: any StorageAnalysisService
     private let performanceMonitor = PerformanceMonitor()
     private let portScanner = PortScanner()
     private let networkScanner = NetworkScanner()
     private var scanTask: Task<Void, Never>?
     private var storageAnalysisTask: Task<Void, Never>?
+    private var storageAnalysisGeneration = UUID()
     private var featureTasks: [FeatureMode: Task<Void, Never>] = [:]
     private var performanceTask: Task<Void, Never>?
     private var networkMonitoringTask: Task<Void, Never>?
@@ -130,8 +132,6 @@ final class CleanerViewModel: ObservableObject {
     private var hasScannedApplications = false
     private var hasAnalyzedStorage = false
     private var storageCache: [String: StorageAnalysis] = [:]
-    private static let storageSnapshotKey = "storageOverviewSnapshot"
-    private static let inventorySnapshotKey = "inventorySnapshot"
     private var hasScannedLoginApplications = false
     private var hasScannedBackgroundItems = false
     private var hasScannedExtensions = false
@@ -155,13 +155,22 @@ final class CleanerViewModel: ObservableObject {
         mode == .files ? isStorageAnalyzing : loadingModes.contains(mode)
     }
 
-    init() {
+    init(
+        cleaner: any CleaningService = LiveCleaningService(),
+        fileAnalyzer: any StorageAnalysisService = LiveStorageAnalysisService(),
+        snapshotStore: any AppSnapshotStoring = UserDefaultsAppSnapshotStore()
+    ) {
+        self.cleaner = cleaner
+        self.fileAnalyzer = fileAnalyzer
+        self.snapshotStore = snapshotStore
         restoreStorageSnapshot()
         restoreInventorySnapshot()
         refreshSystemStorage()
         refreshPerformanceSnapshot()
         startHomeMonitoring()
     }
+
+    // MARK: - Root selection
 
     func selectHomeAndScan() {
         cleanupRoot = FileManager.default.homeDirectoryForCurrentUser
@@ -188,6 +197,8 @@ final class CleanerViewModel: ObservableObject {
         rebuildJunkGroups()
         status = L10n.format("%@ selected; not scanned yet.", url.path)
     }
+
+    // MARK: - Application inventory
 
     func scanInstalledApplications() {
         featureTasks[.uninstall]?.cancel()
@@ -222,6 +233,8 @@ final class CleanerViewModel: ObservableObject {
             }
         }
     }
+
+    // MARK: - Cleanup scanning
 
     func scan() {
         if mode == .files {
@@ -479,8 +492,12 @@ final class CleanerViewModel: ObservableObject {
         currentScanCategory = Self.friendlyCleanupPhase(forPhaseID: event.categoryID)
     }
 
+    // MARK: - Storage analysis
+
     func scanStorageAnalysis() {
         storageAnalysisTask?.cancel()
+        let generation = UUID()
+        storageAnalysisGeneration = generation
         let home = FileManager.default.homeDirectoryForCurrentUser.standardizedFileURL
         let selectedRoot = (root ?? home).standardizedFileURL
         root = selectedRoot
@@ -499,7 +516,8 @@ final class CleanerViewModel: ObservableObject {
                 volumeURL: URL(fileURLWithPath: "/", isDirectory: true)
             ) { [weak self] progress in
                 Task { @MainActor in
-                    guard let self, !Task.isCancelled else { return }
+                    guard let self,
+                          self.storageAnalysisGeneration == generation else { return }
                     self.storageInspectedFiles = progress.inspectedFiles
                     self.storageScannedBytes = progress.scannedBytes
                     self.inspectedFileCount = progress.inspectedFiles
@@ -511,7 +529,8 @@ final class CleanerViewModel: ObservableObject {
                     self.scanProgress = min(0.95, 0.08 + Double(progress.inspectedFiles) / 80_000)
                 }
             }
-            guard !Task.isCancelled else { return }
+            guard !Task.isCancelled,
+                  storageAnalysisGeneration == generation else { return }
             storageAnalysis = analysis
             storageCache[selectedRoot.path] = analysis
             storagePath = breadcrumbPath(to: selectedRoot)
@@ -545,6 +564,8 @@ final class CleanerViewModel: ObservableObject {
             return
         }
         storageAnalysisTask?.cancel()
+        let generation = UUID()
+        storageAnalysisGeneration = generation
         isStorageAnalyzing = true
         currentScanCategory = url.lastPathComponent
         status = L10n.string("Reading directory occupancy...")
@@ -553,7 +574,8 @@ final class CleanerViewModel: ObservableObject {
                 root: url,
                 volumeURL: URL(fileURLWithPath: "/", isDirectory: true)
             )
-            guard !Task.isCancelled else { return }
+            guard !Task.isCancelled,
+                  storageAnalysisGeneration == generation else { return }
             storageCache[url.path] = overview
             storageAnalysis = mergeFolderListing(overview, into: storageAnalysis)
             isStorageAnalyzing = false
@@ -604,103 +626,14 @@ final class CleanerViewModel: ObservableObject {
         return result
     }
 
-    private struct StoredDirectory: Codable {
-        let path: String
-        let bytes: Int64
-        let explanation: String
-    }
-
-    private struct StoredCategory: Codable {
-        let category: String
-        let bytes: Int64
-        let fileCount: Int
-    }
-
-    private struct StoredLargeFile: Codable {
-        let path: String
-        let bytes: Int64
-        let modifiedAt: Date?
-    }
-
-    private struct StoredStorageSnapshot: Codable {
-        let rootPath: String
-        let totalCapacity: Int64
-        let availableCapacity: Int64
-        let scannedBytes: Int64
-        let scannedFileCount: Int?
-        let inaccessibleItemCount: Int?
-        let savedAt: Date
-        let directories: [StoredDirectory]
-        let categories: [StoredCategory]?
-        let largeFiles: [StoredLargeFile]?
-    }
-
     private func persistStorageSnapshot(_ analysis: StorageAnalysis) {
-        guard let root = analysis.analyzedRoots.first else { return }
-        let snapshot = StoredStorageSnapshot(
-            rootPath: root.path,
-            totalCapacity: analysis.totalCapacity,
-            availableCapacity: analysis.availableCapacity,
-            scannedBytes: analysis.scannedBytes,
-            scannedFileCount: analysis.scannedFileCount,
-            inaccessibleItemCount: analysis.inaccessibleItemCount,
-            savedAt: lastScanAt ?? Date(),
-            directories: analysis.directories.map {
-                StoredDirectory(path: $0.url.path, bytes: $0.bytes, explanation: $0.explanation)
-            },
-            categories: analysis.categories.map {
-                StoredCategory(category: $0.category.rawValue, bytes: $0.bytes, fileCount: $0.fileCount)
-            },
-            largeFiles: Array(analysis.largeFiles.prefix(80)).map {
-                StoredLargeFile(path: $0.url.path, bytes: $0.bytes, modifiedAt: $0.modifiedAt)
-            }
-        )
-        if let data = try? JSONEncoder().encode(snapshot) {
-            UserDefaults.standard.set(data, forKey: Self.storageSnapshotKey)
-        }
+        snapshotStore.saveStorage(analysis, savedAt: lastScanAt ?? Date())
     }
 
     private func restoreStorageSnapshot() {
-        guard let data = UserDefaults.standard.data(forKey: Self.storageSnapshotKey),
-              let snapshot = try? JSONDecoder().decode(StoredStorageSnapshot.self, from: data) else { return }
-        let root = URL(fileURLWithPath: snapshot.rootPath, isDirectory: true)
-        let largeFileRule = ScanRule(
-            id: "large-file",
-            title: "Large Files",
-            relativePath: ".",
-            minimumAgeDays: 0,
-            risk: .review,
-            explanation: "Large files do not mean garbage, they are only used to understand the space occupied."
-        )
-        let categories = (snapshot.categories ?? []).compactMap { stored -> StorageCategoryUsage? in
-            guard let kind = StorageCategoryKind(rawValue: stored.category) else { return nil }
-            return StorageCategoryUsage(category: kind, bytes: stored.bytes, fileCount: stored.fileCount)
-        }
-        let largeFiles = (snapshot.largeFiles ?? []).map {
-            ScanItem(
-                url: URL(fileURLWithPath: $0.path),
-                bytes: $0.bytes,
-                modifiedAt: $0.modifiedAt,
-                rule: largeFileRule
-            )
-        }
-        let analysis = StorageAnalysis(
-            totalCapacity: snapshot.totalCapacity,
-            availableCapacity: snapshot.availableCapacity,
-            scannedBytes: snapshot.scannedBytes,
-            scannedFileCount: snapshot.scannedFileCount ?? snapshot.directories.count,
-            inaccessibleItemCount: snapshot.inaccessibleItemCount ?? 0,
-            categories: categories,
-            largeFiles: largeFiles,
-            analyzedRoots: [root],
-            directories: snapshot.directories.map {
-                StorageDirectoryUsage(
-                    url: URL(fileURLWithPath: $0.path, isDirectory: true),
-                    bytes: $0.bytes,
-                    explanation: $0.explanation
-                )
-            }
-        )
+        guard let snapshot = snapshotStore.loadStorage(),
+              let root = snapshot.analysis.analyzedRoots.first else { return }
+        let analysis = snapshot.analysis
         storageAnalysis = analysis
         storageCache[root.path] = analysis
         storageDeepRoot = root
@@ -710,32 +643,19 @@ final class CleanerViewModel: ObservableObject {
         hasAnalyzedStorage = true
     }
 
-    private struct StoredInventorySnapshot: Codable {
-        let applications: [InstalledApplication]
-        let commandLineTools: [CommandLineTool]
-        let loginApplications: [LoginApplication]
-        let backgroundItems: [LoginItem]
-        let registeredBackgroundTasks: [RegisteredBackgroundTask]
-        let installedExtensions: [InstalledExtension]
-    }
-
     private func persistInventorySnapshot() {
-        let snapshot = StoredInventorySnapshot(
+        snapshotStore.saveInventory(InventorySnapshotState(
             applications: applications,
             commandLineTools: commandLineTools,
             loginApplications: loginApplications,
             backgroundItems: backgroundItems,
             registeredBackgroundTasks: registeredBackgroundTasks,
             installedExtensions: installedExtensions
-        )
-        if let data = try? JSONEncoder().encode(snapshot) {
-            UserDefaults.standard.set(data, forKey: Self.inventorySnapshotKey)
-        }
+        ))
     }
 
     private func restoreInventorySnapshot() {
-        guard let data = UserDefaults.standard.data(forKey: Self.inventorySnapshotKey),
-              let snapshot = try? JSONDecoder().decode(StoredInventorySnapshot.self, from: data) else { return }
+        guard let snapshot = snapshotStore.loadInventory() else { return }
         applications = snapshot.applications
         commandLineTools = snapshot.commandLineTools
         loginApplications = snapshot.loginApplications
@@ -752,6 +672,7 @@ final class CleanerViewModel: ObservableObject {
     func cancelScan() {
         if mode == .files, isStorageAnalyzing {
             storageAnalysisTask?.cancel()
+            storageAnalysisGeneration = UUID()
             storageAnalysisTask = nil
             isStorageAnalyzing = false
             currentScanCategory = L10n.string("Analysis canceled")
@@ -765,6 +686,8 @@ final class CleanerViewModel: ObservableObject {
         currentScanCategory = L10n.string("Scan canceled")
         status = L10n.string("Scan canceled.")
     }
+
+    // MARK: - Performance monitoring
 
     func startPerformanceMonitoring() {
         performanceTask?.cancel()
@@ -884,6 +807,8 @@ final class CleanerViewModel: ObservableObject {
             }
         }
     }
+
+    // MARK: - Network monitoring
 
     func scanPorts() {
         featureTasks[.network]?.cancel()
@@ -1082,6 +1007,8 @@ final class CleanerViewModel: ObservableObject {
         }
     }
 
+    // MARK: - Feature lifecycle
+
     func changeMode(_ newMode: FeatureMode) {
         guard newMode != mode else { return }
         performanceTask?.cancel()
@@ -1241,6 +1168,8 @@ final class CleanerViewModel: ObservableObject {
             status = L10n.string("Manage language, appearance, and other preferences.")
         }
     }
+
+    // MARK: - System inventory
 
     func scanLoginItems() {
         featureTasks[.loginItems]?.cancel()
@@ -1471,6 +1400,8 @@ final class CleanerViewModel: ObservableObject {
         }
     }
 
+    // MARK: - Application removal
+
     func prepareUninstall(_ app: InstalledApplication) {
         isPreparingUninstall = true
         status = L10n.format("Finding files related to %@…", app.name)
@@ -1535,6 +1466,8 @@ final class CleanerViewModel: ObservableObject {
             failures: result.failures
         )
     }
+
+    // MARK: - Cleanup actions and selection
 
     func requestClean() {
         guard !selectedIDs.isEmpty else { return }

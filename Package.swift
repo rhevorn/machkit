@@ -8,12 +8,7 @@ let package = Package(
         .library(name: "MachKitCore", targets: ["MachKitCore"])
     ],
     targets: [
-        .target(
-            name: "MachKitPrivilegedShim",
-            publicHeadersPath: "include",
-            linkerSettings: [.linkedFramework("Security")]
-        ),
-        .target(name: "MachKitCore", dependencies: ["MachKitPrivilegedShim"]),
+        .target(name: "MachKitCore"),
         .testTarget(name: "MachKitCoreTests", dependencies: ["MachKitCore"])
     ]
 )

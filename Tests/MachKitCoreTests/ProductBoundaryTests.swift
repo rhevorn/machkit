@@ -47,6 +47,22 @@ private func formatPlaceholders(in value: String) -> [String] {
     #expect(workflow.contains("generic/platform=macOS"))
     #expect(workflow.contains("ARCHS=\"arm64 x86_64\""))
     #expect(workflow.contains("lipo -archs"))
+    #expect(workflow.contains("--options runtime"))
+    #expect(workflow.contains("notarytool submit"))
+    #expect(workflow.contains("stapler staple"))
+    #expect(!workflow.contains("codesign --force --deep --sign -"))
+}
+
+@Test func continuousIntegrationChecksEveryProductBoundary() throws {
+    let workflow = try String(
+        contentsOf: repositoryRoot.appending(path: ".github/workflows/ci.yml"),
+        encoding: .utf8
+    )
+    #expect(workflow.contains("pull_request:"))
+    #expect(workflow.contains("swift test"))
+    #expect(workflow.contains("npm test"))
+    #expect(workflow.contains("xcodebuild"))
+    #expect(workflow.contains("npm run build"))
 }
 
 @Test func closingTheLastWindowOnlyKeepsAnEnabledMenuBarAppAlive() throws {
@@ -336,7 +352,10 @@ private final class LockedCleanupProgress: @unchecked Sendable {
     )
     let items = await Scanner().scan(root: root, rules: [rule])
 
-    #expect(items.map { $0.url.resolvingSymlinksInPath().path } == [ordinary.resolvingSymlinksInPath().path])
+    #expect(
+        items.map { $0.url.resolvingSymlinksInPath().path }
+            == [ordinary.deletingLastPathComponent().resolvingSymlinksInPath().path]
+    )
 }
 
 @Test func fileAnalysisNeverDefaultsToSafeDeletion() async throws {

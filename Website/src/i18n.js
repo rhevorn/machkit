@@ -4,7 +4,7 @@ export const messages = {
   en: {
     meta: {
       title: "MachKit — macOS Storage, App Uninstaller & System Tools",
-      description: "Free, open-source macOS utility for storage analysis, safe cleanup, app uninstall, system monitoring, network inspection, and practical local utilities.",
+      description: "Free, open-source macOS utility for storage analysis, safe cleanup, app uninstall, system monitoring, network inspection, annotated screenshots, and practical local utilities.",
     },
     nav: {
       capabilities: "Capabilities",
@@ -21,7 +21,7 @@ export const messages = {
     hero: {
       eyebrow: "Native macOS utility",
       title: "Keep your Mac understandable.",
-      description: "MachKit brings storage, app removal, system monitoring, networking, system items, and cleanup into one clear workspace—alongside a growing collection of practical local utilities.",
+      description: "MachKit brings storage, app removal, system monitoring, networking, system items, cleanup, and annotated screenshots into one clear workspace—alongside a growing collection of practical local utilities.",
       primary: "Download for macOS",
       secondary: "View source",
       compatibility: "Free and open source · macOS 14 or later",
@@ -73,11 +73,11 @@ export const messages = {
         {
           tone: "purple",
           title: "Utilities",
-          body: "Keep practical tools for text, data, images, networking, and everyday tasks one shortcut away.",
+          body: "Keep capture and everyday helpers one shortcut away.",
           items: [
+            ["Screenshot", "Capture a region from anywhere, annotate with shapes, arrows, highlight, mosaic, and text, then copy or save locally."],
             ["Hosts Manager", "Inspect and switch shared or environment-specific host mappings.", "./utilities/"],
-            ["Data and text tools", "Generate IDs, convert timestamps, format JSON, test regex, compare text, and encode or decode content.", "./utilities/"],
-            ["Global shortcuts", "Open the tool list or a specific utility from anywhere on your Mac."],
+            ["Global shortcuts", "Open the tool list, a utility, or screenshot capture from anywhere on your Mac."],
           ],
         },
       ],
@@ -151,9 +151,9 @@ export const messages = {
           label: "Tools",
           title: "Keep useful local utilities nearby.",
           features: [
+            "Capture any screen region with a global shortcut, annotate it, and copy or save without leaving your current app.",
             "Manage hosts mappings for shared and environment-specific setups.",
             "Convert timestamps, format and query JSON, and encode or decode text.",
-            "Generate IDs and passwords, test regular expressions, and compare text locally.",
             "Search tools quickly and assign global keyboard shortcuts to frequent actions.",
           ],
           alt: "MachKit tools workspace with practical local utilities",
@@ -183,10 +183,10 @@ export const messages = {
     tools: {
       kicker: "Practical local utilities",
       title: "A growing toolkit on its own page.",
-      description: "MachKit keeps focused utilities for text, data, images, networking, diagnostics, and everyday work in one searchable catalog. Every tool shares the app’s appearance, language, shortcuts, and local-first privacy model—and each one has a clear introduction on the tools page.",
+      description: "MachKit keeps focused utilities for text, data, images, networking, diagnostics, and everyday work in one searchable catalog—plus a native screenshot workflow you can trigger from anywhere. Every tool shares the app’s appearance, language, shortcuts, and local-first privacy model—and each utility has a clear introduction on the tools page.",
       principles: [
         ["One focused job", "Each utility solves a concrete, recurring task."],
-        ["One consistent system", "Search, shortcuts, themes, languages, and copy feedback work the same way."],
+        ["Native screenshot", "Region capture, annotation, mosaic, and clipboard export stay on your Mac."],
         ["Room to grow", "New tools join the catalog without adding another standalone app."],
       ],
       count: `${localizedWebsiteTools("en").length} tools across ${groupedWebsiteTools("en").length} categories`,
@@ -216,7 +216,7 @@ export const messages = {
   "zh-CN": {
     meta: {
       title: "MachKit — Mac 存储分析、应用卸载与系统工具",
-      description: "免费开源的 macOS 系统工具，支持存储分析、安全清理、应用卸载、系统监控、网络检查，以及持续增长的本地实用工具。",
+      description: "免费开源的 macOS 系统工具，支持存储分析、安全清理、应用卸载、系统监控、网络检查、区域截图标注，以及持续增长的本地实用工具。",
     },
     nav: {
       capabilities: "功能",
@@ -233,7 +233,7 @@ export const messages = {
     hero: {
       eyebrow: "原生 macOS 工具",
       title: "更清楚地了解和维护你的 Mac。",
-      description: "MachKit 将存储、应用卸载、系统监控、网络、系统项目和垃圾清理集中在一个清晰的工作区中，并提供一套持续增长的本地实用工具。",
+      description: "MachKit 将存储、应用卸载、系统监控、网络、系统项目、垃圾清理和区域截图标注集中在一个清晰的工作区中，并提供一套持续增长的本地实用工具。",
       primary: "下载 macOS 版",
       secondary: "查看源码",
       compatibility: "免费且开源 · 需要 macOS 14 或更高版本",
@@ -285,11 +285,11 @@ export const messages = {
         {
           tone: "purple",
           title: "实用工具",
-          body: "让文本、数据、图片、网络和日常任务中的实用小工具随时可以打开。",
+          body: "让截图标注和日常小工具随时可以打开。",
           items: [
+            ["截图", "从任意位置框选屏幕区域，用形状、箭头、高亮、马赛克和文字标注，再本地复制或保存。"],
             ["Hosts 管理", "查看并切换公共或指定环境的 hosts 映射。", "./utilities/"],
-            ["数据与文本工具", "生成 ID、转换时间戳、格式化 JSON、测试正则、对比文本以及编解码。", "./utilities/"],
-            ["全局快捷键", "在 Mac 的任意位置打开工具列表或指定工具。"],
+            ["全局快捷键", "在 Mac 的任意位置打开工具列表、指定工具或截图。"],
           ],
         },
       ],
@@ -363,9 +363,9 @@ export const messages = {
           label: "工具",
           title: "让常用实用工具随时可用。",
           features: [
+            "用全局快捷键框选任意屏幕区域，标注后复制或保存，无需离开当前 App。",
             "管理公共环境和指定环境的 Hosts 映射。",
             "转换时间戳、格式化和查询 JSON、编码或解码文本。",
-            "在本地生成 ID 和密码、测试正则表达式并对比文本。",
             "快速搜索工具，并为常用操作设置全局键盘快捷键。",
           ],
           alt: "MachKit 工具工作区，包含实用的本地小工具",
@@ -395,10 +395,10 @@ export const messages = {
     tools: {
       kicker: "本地实用工具",
       title: "持续增长的工具箱，单独成页。",
-      description: "MachKit 把文本、数据、图片、网络、诊断和日常工作中的专注小工具集中到一个可搜索的目录。所有工具共享 App 的外观、语言、快捷键和本地优先隐私规则，并在工具页为每一个工具提供清晰介绍。",
+      description: "MachKit 把文本、数据、图片、网络、诊断和日常工作中的专注小工具集中到一个可搜索的目录，并提供可从任意位置触发的原生截图标注流程。所有工具共享 App 的外观、语言、快捷键和本地优先隐私规则，并在工具页为每一个工具提供清晰介绍。",
       principles: [
         ["一次解决一个问题", "每个工具都针对一个明确、反复出现的任务。"],
-        ["保持一致", "搜索、快捷键、主题、多语言和复制反馈使用同一套方式。"],
+        ["原生截图", "区域框选、标注、马赛克和剪贴板导出都留在本机完成。"],
         ["可以持续增长", "新增工具直接加入目录，不再增加另一个独立 App。"],
       ],
       count: `${localizedWebsiteTools("zh-CN").length} 个工具 · ${groupedWebsiteTools("zh-CN").length} 个分类`,

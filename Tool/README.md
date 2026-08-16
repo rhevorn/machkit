@@ -51,8 +51,9 @@ Browser choices are remembered in `localStorage` and synced into the URL.
    `Resources/WebTools` directory. This directory is generated and ignored by
    Git. Xcode runs the same build automatically before compiling app resources.
 
-Run `npm install` once after cloning the repository so Xcode can use the local,
-locked frontend dependencies without downloading packages during every build.
+Run `npm ci` once after cloning the repository. If dependencies are missing,
+the Xcode build phase performs the same locked install automatically. It hashes
+the H5 sources and skips Vite when the bundled output is already current.
 
 ## Shared UI
 

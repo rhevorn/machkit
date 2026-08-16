@@ -1,20 +1,7 @@
 import Foundation
-import Security
-import MachKitPrivilegedShim
-
-private final class PrivilegedAuthorizationSession: @unchecked Sendable {
-    var reference: AuthorizationRef?
-
-    deinit {
-        if let reference {
-            AuthorizationFree(reference, [])
-        }
-    }
-}
 
 public actor SystemInventoryScanner {
     private let fileManager: FileManager
-    private let privilegedAuthorizationSession = PrivilegedAuthorizationSession()
 
     public init(fileManager: FileManager = .default) {
         self.fileManager = fileManager
@@ -437,64 +424,11 @@ public actor SystemInventoryScanner {
     }
 
     private func runPrivilegedSFLTool(action: String) -> (status: Int32, output: String, message: String?) {
-        guard action == "dumpbtm" || action == "resetbtm" else {
-            return (-1, "", "Unsupported background database operation.")
+        do {
+            return (0, try PrivilegedCommandRunner.runSFLTool(action: action), nil)
+        } catch {
+            return (-1, "", error.localizedDescription)
         }
-
-        let authorization: AuthorizationRef
-        if let existingAuthorization = privilegedAuthorizationSession.reference {
-            authorization = existingAuthorization
-        } else {
-            var createdAuthorization: AuthorizationRef?
-            let createStatus = AuthorizationCreate(nil, nil, [], &createdAuthorization)
-            guard createStatus == errAuthorizationSuccess, let createdAuthorization else {
-                return (createStatus, "", authorizationFailureMessage(createStatus))
-            }
-            privilegedAuthorizationSession.reference = createdAuthorization
-            authorization = createdAuthorization
-        }
-
-        let rightStatus = kAuthorizationRightExecute.withCString { rightName in
-            var authorizationItem = AuthorizationItem(
-                name: rightName,
-                valueLength: 0,
-                value: nil,
-                flags: 0
-            )
-            return withUnsafeMutablePointer(to: &authorizationItem) { itemPointer in
-                var rights = AuthorizationRights(count: 1, items: itemPointer)
-                return AuthorizationCopyRights(
-                    authorization,
-                    &rights,
-                    nil,
-                    [.interactionAllowed, .extendRights, .preAuthorize],
-                    nil
-                )
-            }
-        }
-        guard rightStatus == errAuthorizationSuccess else {
-            return (rightStatus, "", authorizationFailureMessage(rightStatus))
-        }
-
-        var communicationsPipe: UnsafeMutablePointer<FILE>?
-        let executeStatus = action.withCString { actionPointer in
-            MachKitExecuteSFLTool(authorization, actionPointer, &communicationsPipe)
-        }
-        guard executeStatus == errAuthorizationSuccess else {
-            return (executeStatus, "", authorizationFailureMessage(executeStatus))
-        }
-        guard let communicationsPipe else { return (0, "", nil) }
-        let output = FileHandle(fileDescriptor: fileno(communicationsPipe), closeOnDealloc: true)
-            .readDataToEndOfFile()
-        return (0, String(decoding: output, as: UTF8.self), nil)
-    }
-
-    private func authorizationFailureMessage(_ status: OSStatus) -> String {
-        if status == errAuthorizationCanceled {
-            return "Administrator authorization has been canceled."
-        }
-        let detail = SecCopyErrorMessageString(status, nil) as String? ?? "Error code \(status)"
-        return "Administrator authorization failed: \(detail)"
     }
 
     private func extensionKind(pathExtension: String, pointIdentifier: String?) -> InstalledExtensionKind {

@@ -213,20 +213,25 @@ export const featurePages = Object.freeze([
     locales: {
       en: {
         title: "Practical Local Utilities for Mac — MachKit",
-        description: "A growing collection of focused Mac utilities for text, data, images, networking, diagnostics, and everyday tasks—all running locally.",
+        description: "A growing collection of focused Mac utilities for text, data, images, networking, diagnostics, and everyday tasks—plus native region screenshots with annotation, all running locally.",
         eyebrow: "A toolkit designed to grow",
         heading: "Small, practical tools should live in one dependable place.",
-        lead: "MachKit is building a growing catalog of focused local utilities for text, data, images, networking, diagnostics, and everyday tasks. Each tool solves one concrete problem, shares the same native shell, language, theme, shortcuts, and privacy model, and stays close without becoming another browser tab or subscription.",
+        lead: "MachKit is building a growing catalog of focused local utilities for text, data, images, networking, diagnostics, and everyday tasks. Alongside that catalog, a native screenshot workflow lets you capture any region from a global shortcut, annotate with shapes, arrows, highlight, mosaic, and text, then copy or save—without another window or cloud upload. Each tool shares the same native shell, language, theme, shortcuts, and privacy model.",
         highlights: [
+          ["Native screenshot", "Freeze the desktop, annotate in place, and export to the clipboard or a file—entirely on your Mac."],
           ["Useful by design", "Each utility starts with a real recurring task instead of a broad feature checklist."],
           ["One consistent system", "Tools share search, global shortcuts, appearance, localization, clipboard feedback, and local storage."],
-          ["Ready to expand", "New utilities join the catalog without adding another standalone app or a different interaction model."],
         ],
         catalogTitle: "Every tool, with a clear introduction",
         catalogIntro: "Browse the full catalog by category. Each utility includes a short summary, a fuller introduction, and the concrete jobs it is meant to cover.",
         catalog: localizedWebsiteTools("en"),
         catalogGroups: groupedWebsiteTools("en"),
         sections: [
+          {
+            title: "Capture and annotate without leaving your flow",
+            body: "MachKit’s screenshot tool is built for the moment you need to explain something on screen. Trigger it from a global shortcut, drag a region, mark it up with rectangles, ellipses, arrows, pen, highlight, mosaic, or text, then copy or save. The capture stays local and does not require opening the main window.",
+            items: ["Global shortcut region capture", "Shapes, arrows, highlight, mosaic, and text", "Copy to clipboard or save a PNG"],
+          },
           {
             title: "Useful well beyond software development",
             body: "The catalog is not limited to programming syntax. It includes focused utilities that remove repetitive steps from writing, content handling, data preparation, networking, troubleshooting, and daily Mac use.",
@@ -237,29 +242,29 @@ export const featurePages = Object.freeze([
             body: "Open the full tool list, search by name or keyword, or assign a global keyboard shortcut to a frequently used utility. Inputs remain local and tools do not require an account.",
             items: ["Tool catalog and keyword search", "Per-tool global shortcuts", "Local clipboard and preference integration"],
           },
-          {
-            title: "A shared foundation keeps growth coherent",
-            body: "Common UI components, localization checks, theme tokens, native bridge contracts, and per-tool tests make it possible to add more utilities without every tool becoming its own inconsistent mini-app.",
-            items: ["Shared typography and interaction patterns", "English, Chinese, Japanese, Korean, and European languages", "Input limits, error states, and automated tests"],
-          },
         ],
       },
       "zh-CN": {
         title: "Mac 本地实用工具合集 — MachKit",
-        description: "持续增长的 Mac 本地实用工具合集，覆盖文本、数据、图片、网络、诊断和日常任务，全部在本机运行。",
+        description: "持续增长的 Mac 本地实用工具合集，覆盖文本、数据、图片、网络、诊断和日常任务，并提供可标注的原生区域截图，全部在本机运行。",
         eyebrow: "为持续扩展而设计的工具箱",
         heading: "小而实用的工具，应该集中在一个可靠的地方。",
-        lead: "MachKit 正在建立一套持续增长的本地实用工具目录，覆盖文本、数据、图片、网络、诊断和日常任务。每个工具解决一个明确问题，并共享同一套原生窗口、语言、主题、快捷键和隐私规则，不必再增加浏览器标签、独立 App 或订阅。",
+        lead: "MachKit 正在建立一套持续增长的本地实用工具目录，覆盖文本、数据、图片、网络、诊断和日常任务。同时，原生截图流程支持用全局快捷键框选任意区域，再用形状、箭头、高亮、马赛克和文字标注，然后复制或保存——不必另开窗口，也不会上传到云端。每个工具共享同一套原生窗口、语言、主题、快捷键和隐私规则。",
         highlights: [
+          ["原生截图", "冻结桌面、就地标注，再导出到剪贴板或文件，全程留在本机。"],
           ["从实际需求出发", "每个工具都源于一个反复出现的具体任务，而不是为了堆砌功能。"],
           ["一致的使用方式", "工具共享搜索、全局快捷键、外观、多语言、复制反馈和本地存储。"],
-          ["可以持续扩展", "新工具直接加入统一目录，不会变成另一个交互完全不同的独立 App。"],
         ],
         catalogTitle: "每个工具都有清晰介绍",
         catalogIntro: "按分类浏览完整目录。每个工具都包含简短摘要、完整介绍，以及它具体能解决哪些问题。",
         catalog: localizedWebsiteTools("zh-CN"),
         catalogGroups: groupedWebsiteTools("zh-CN"),
         sections: [
+          {
+            title: "不打断当前工作流的截图与标注",
+            body: "MachKit 的截图功能面向你需要马上说明屏幕内容的时刻。用全局快捷键唤起，拖选区域，用矩形、椭圆、箭头、画笔、高亮、马赛克或文字标注，再复制或保存。截图留在本机，也不必打开主窗口。",
+            items: ["全局快捷键区域截图", "形状、箭头、高亮、马赛克与文字", "复制到剪贴板或保存 PNG"],
+          },
           {
             title: "用途不局限于软件开发",
             body: "工具目录不局限于编程语法。它也用于减少写作、内容处理、数据准备、网络检查、故障排查和日常 Mac 使用中的重复步骤。",
@@ -269,11 +274,6 @@ export const featurePages = Object.freeze([
             title: "本地处理、快速搜索、一个快捷键即可打开",
             body: "你可以打开完整工具列表、按名称或关键词搜索，也可以给常用工具设置全局键盘快捷键。输入内容留在本机，使用工具不需要账户。",
             items: ["工具目录与关键词搜索", "每个工具可配置全局快捷键", "本地剪贴板和偏好设置集成"],
-          },
-          {
-            title: "共享基础让持续增长仍然保持一致",
-            body: "统一的 UI 组件、多语言检查、主题变量、原生桥接协议和单工具测试，让更多工具可以持续加入，而不会变成一组互不一致的小网页。",
-            items: ["统一字体与交互方式", "支持中英文、日韩及多种欧洲语言", "输入限制、错误状态和自动化测试"],
           },
         ],
       },

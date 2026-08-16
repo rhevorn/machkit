@@ -734,7 +734,7 @@ private struct ScreenshotAnnotatorView: View {
                     toolbarDivider
                 }
 
-                Text("\(Int(model.activeSize)) px")
+                Text(verbatim: "\(Int(model.activeSize)) px")
                     .font(.system(size: 12, weight: .medium, design: .rounded))
                     .monospacedDigit()
                     .foregroundStyle(.secondary)
@@ -799,7 +799,7 @@ private struct ScreenshotAnnotatorView: View {
         case .mosaic:
             mosaicSizePreview(size: size, tint: tint)
         case .text:
-            Text("T")
+            Text(verbatim: "T")
                 .font(.system(size: [10, 13, 17][min(index, 2)], weight: .bold, design: .rounded))
                 .foregroundStyle(tint)
         }
@@ -881,7 +881,7 @@ private struct ScreenshotAnnotatorView: View {
         } label: {
             Group {
                 if tool == .text {
-                    Text("T")
+                    Text(verbatim: "T")
                         .font(.system(size: 14, weight: .bold, design: .rounded))
                 } else if tool == .mosaic {
                     ScreenshotMosaicGlyph(
