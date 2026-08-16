@@ -50,6 +50,10 @@ final class ScreenshotController: ObservableObject {
         captureTask = Task { [weak self] in
             guard let self else { return }
             do {
+                // Let WindowServer finish publishing the new overlay window IDs
+                // before the first ScreenCaptureKit shareable-content query.
+                try await Task.sleep(for: .milliseconds(30))
+                try Task.checkCancellation()
                 let snapshot = try await ScreenshotCapture.captureDesktopWithTimeout(
                     below: session.overlayWindows
                 )

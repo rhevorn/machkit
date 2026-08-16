@@ -57,6 +57,11 @@ struct ScreenshotDesktopSnapshot {
 @MainActor
 enum ScreenshotCapture {
     static let captureTimeout: Duration = .seconds(8)
+    /// Newly ordered overlay panels are often missing from the first
+    /// `SCShareableContent` snapshot; wait briefly instead of failing outright.
+    private static let overlayResolveTimeout: Duration = .milliseconds(1200)
+    private static let overlayResolvePoll: Duration = .milliseconds(40)
+    private static let imageCaptureAttempts = 3
 
     /// Captures what is currently behind the selector windows. Call this only
     /// after the overlays are on-screen so any capture-side flicker stays hidden.
@@ -66,23 +71,27 @@ enum ScreenshotCapture {
             throw ScreenshotCaptureError.permissionDenied
         }
 
-        let content = try await SCShareableContent.excludingDesktopWindows(
-            false,
-            onScreenWindowsOnly: true
-        )
         let overlayIDs = Set(windows.map { CGWindowID($0.windowNumber) })
-        let excludedWindows = content.windows.filter { overlayIDs.contains($0.windowID) }
-        guard excludedWindows.count == overlayIDs.count else {
-            throw ScreenshotCaptureError.captureFailed
-        }
+        guard !overlayIDs.isEmpty else { throw ScreenshotCaptureError.captureFailed }
+
+        let (content, excludedWindows) = try await resolveOverlayWindows(overlayIDs)
 
         var displays: [ScreenshotDisplayBackdrop] = []
         var capturedDisplayIDs = Set<CGDirectDisplayID>()
         for window in windows {
             try Task.checkCancellation()
-            guard let screen = window.screen,
-                  let displayID = screen.displayID,
-                  !capturedDisplayIDs.contains(displayID),
+            let displayID: CGDirectDisplayID
+            let frame: CGRect
+            if let overlay = window as? ScreenshotOverlayWindowMarker {
+                displayID = overlay.trackedDisplayID
+                frame = NSScreen.screens.first { $0.displayID == displayID }?.frame ?? window.frame
+            } else if let screen = window.screen, let id = screen.displayID {
+                displayID = id
+                frame = screen.frame
+            } else {
+                continue
+            }
+            guard !capturedDisplayIDs.contains(displayID),
                   let scDisplay = content.displays.first(where: { $0.displayID == displayID })
             else {
                 continue
@@ -96,13 +105,13 @@ enum ScreenshotCapture {
             configuration.showsCursor = false
             configuration.captureResolution = .best
 
-            let image = try await SCScreenshotManager.captureImage(
+            let image = try await captureImageWithRetry(
                 contentFilter: filter,
                 configuration: configuration
             )
             guard image.width > 0, image.height > 0 else { continue }
             displays.append(
-                ScreenshotDisplayBackdrop(displayID: displayID, frame: screen.frame, image: image)
+                ScreenshotDisplayBackdrop(displayID: displayID, frame: frame, image: image)
             )
             capturedDisplayIDs.insert(displayID)
         }
@@ -124,6 +133,58 @@ enum ScreenshotCapture {
             group.cancelAll()
             return result
         }
+    }
+
+    private static func resolveOverlayWindows(
+        _ overlayIDs: Set<CGWindowID>
+    ) async throws -> (SCShareableContent, [SCWindow]) {
+        let deadline = ContinuousClock.now + overlayResolveTimeout
+        var lastError: Error?
+
+        while true {
+            try Task.checkCancellation()
+            do {
+                // `onScreenWindowsOnly: false` still returns on-screen windows and
+                // is more reliable for panels that just became key/frontmost.
+                let content = try await SCShareableContent.excludingDesktopWindows(
+                    false,
+                    onScreenWindowsOnly: false
+                )
+                let excludedWindows = content.windows.filter { overlayIDs.contains($0.windowID) }
+                if excludedWindows.count == overlayIDs.count {
+                    return (content, excludedWindows)
+                }
+            } catch {
+                lastError = error
+            }
+
+            if ContinuousClock.now >= deadline { break }
+            try await Task.sleep(for: overlayResolvePoll)
+        }
+
+        if let lastError { throw lastError }
+        throw ScreenshotCaptureError.captureFailed
+    }
+
+    private static func captureImageWithRetry(
+        contentFilter: SCContentFilter,
+        configuration: SCStreamConfiguration
+    ) async throws -> CGImage {
+        var lastError: Error = ScreenshotCaptureError.captureFailed
+        for attempt in 1...imageCaptureAttempts {
+            try Task.checkCancellation()
+            do {
+                return try await SCScreenshotManager.captureImage(
+                    contentFilter: contentFilter,
+                    configuration: configuration
+                )
+            } catch {
+                lastError = error
+                if attempt == imageCaptureAttempts { break }
+                try await Task.sleep(for: .milliseconds(40 * attempt))
+            }
+        }
+        throw lastError
     }
 
     static func crop(

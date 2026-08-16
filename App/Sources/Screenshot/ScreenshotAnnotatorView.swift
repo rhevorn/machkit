@@ -105,7 +105,9 @@ struct ScreenshotAnnotatorView: View {
                 Color.black.opacity(0.42)
                     .ignoresSafeArea()
                     .contentShape(Rectangle())
-                    .onTapGesture { model.commitInlineTextIfNeeded() }
+                    .onTapGesture {
+                        publishModelUpdate { model.commitInlineTextIfNeeded() }
+                    }
 
                 imageCanvas(fit: canvasRect)
                     .position(x: canvasRect.midX, y: canvasRect.midY)
@@ -171,8 +173,10 @@ struct ScreenshotAnnotatorView: View {
                 Color.clear
                     .contentShape(Rectangle())
                     .onTapGesture {
-                        model.commitInlineTextIfNeeded()
-                        textFieldIsFocused = false
+                        publishModelUpdate {
+                            model.commitInlineTextIfNeeded()
+                            textFieldIsFocused = false
+                        }
                     }
                 TextField("", text: $model.textDraft)
                     .textFieldStyle(.plain)
@@ -195,10 +199,15 @@ struct ScreenshotAnnotatorView: View {
                         )
                     )
                     .focused($textFieldIsFocused)
-                    .onAppear { textFieldIsFocused = true }
+                    .onAppear {
+                        // Focus after the current update cycle finishes.
+                        DispatchQueue.main.async { textFieldIsFocused = true }
+                    }
                     .onKeyPress(.return) {
-                        model.commitInlineTextIfNeeded()
-                        textFieldIsFocused = false
+                        publishModelUpdate {
+                            model.commitInlineTextIfNeeded()
+                            textFieldIsFocused = false
+                        }
                         return .handled
                     }
             }
@@ -213,9 +222,13 @@ struct ScreenshotAnnotatorView: View {
         .onContinuousHover { phase in
             switch phase {
             case .active(let location):
-                pointerIsInsideCanvas = true
-                canvasPointerLocation = location
-                updateCanvasCursor(fit: fit)
+                if !pointerIsInsideCanvas {
+                    pointerIsInsideCanvas = true
+                    updateCanvasCursor(fit: fit)
+                }
+                if model.tool == .mosaic {
+                    canvasPointerLocation = location
+                }
             case .ended:
                 pointerIsInsideCanvas = false
                 canvasPointerLocation = nil
@@ -227,7 +240,9 @@ struct ScreenshotAnnotatorView: View {
         .onChange(of: model.toolSizes) { _, _ in updateCanvasCursor(fit: fit) }
         .onChange(of: model.mosaicBrushShape) { _, _ in updateCanvasCursor(fit: fit) }
         .onChange(of: model.editingText) { _, isEditing in
-            if isEditing { textFieldIsFocused = true }
+            if isEditing {
+                DispatchQueue.main.async { textFieldIsFocused = true }
+            }
         }
     }
 
@@ -477,7 +492,9 @@ struct ScreenshotAnnotatorView: View {
     private func dragGesture(fit: CGRect) -> some Gesture {
         DragGesture(minimumDistance: 0, coordinateSpace: .local)
             .onChanged { value in
-                canvasPointerLocation = value.location
+                if model.tool == .mosaic {
+                    canvasPointerLocation = value.location
+                }
                 let point = CGPoint(
                     x: value.location.x / max(fit.width, 1) * model.image.size.width,
                     y: value.location.y / max(fit.height, 1) * model.image.size.height
@@ -486,13 +503,23 @@ struct ScreenshotAnnotatorView: View {
                     x: min(max(0, point.x), model.image.size.width),
                     y: min(max(0, point.y), model.image.size.height)
                 )
-                if model.draft == nil {
-                    model.begin(at: clamped)
-                } else {
-                    model.move(to: clamped)
+                // Drag callbacks can run inside a view update. Publishing
+                // @ObservedObject changes there triggers SwiftUI warnings.
+                publishModelUpdate {
+                    if model.draft == nil {
+                        model.begin(at: clamped)
+                    } else {
+                        model.move(to: clamped)
+                    }
                 }
             }
-            .onEnded { _ in model.end() }
+            .onEnded { _ in
+                publishModelUpdate { model.end() }
+            }
+    }
+
+    private func publishModelUpdate(_ update: @escaping () -> Void) {
+        DispatchQueue.main.async(execute: update)
     }
 
     private func toolbarX(in container: CGSize) -> CGFloat {

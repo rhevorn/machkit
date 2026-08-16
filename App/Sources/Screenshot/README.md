@@ -3,7 +3,9 @@
 Capture flow:
 
 1. `ScreenshotController` shows dim overlays (`ScreenshotSelectionSession`).
-2. `ScreenshotCapture` freezes displays under those overlays via ScreenCaptureKit.
+2. `ScreenshotCapture` waits until those overlay window IDs appear in
+   `SCShareableContent`, then freezes displays under them via ScreenCaptureKit
+   (with short retries—new panels are often missing from the first query).
 3. The user drags a region; `ScreenshotGeometry` maps AppKit screen space to CGImage pixels.
 4. `ScreenshotEditorController` presents annotation UI on an AppKit-frozen desktop backdrop.
 5. Export draws strokes through `ScreenshotStrokeRenderer` (same geometry as the canvas preview).

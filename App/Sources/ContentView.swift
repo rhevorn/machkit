@@ -168,7 +168,9 @@ struct ContentView: View {
             Text(model.removalFailureMessage)
         }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
-            permissions.refresh()
+            DispatchQueue.main.async {
+                permissions.refresh()
+            }
         }
         .onChange(of: languageRawValue) { _, _ in
             model.refreshLocalizedStatus()

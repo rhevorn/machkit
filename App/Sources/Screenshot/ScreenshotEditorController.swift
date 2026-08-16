@@ -161,6 +161,7 @@ final class ScreenshotEditorController: NSWindowController, NSWindowDelegate {
 }
 
 private final class ScreenshotEditorWindow: NSPanel, ScreenshotOverlayWindowMarker {
+    let trackedDisplayID: CGDirectDisplayID = 0
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { false }
 }

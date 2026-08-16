@@ -1,6 +1,8 @@
 import AppKit
 
-protocol ScreenshotOverlayWindowMarker: AnyObject {}
+protocol ScreenshotOverlayWindowMarker: AnyObject {
+    var trackedDisplayID: CGDirectDisplayID { get }
+}
 
 @MainActor
 final class ScreenshotSelectionSession {
@@ -45,8 +47,7 @@ final class ScreenshotSelectionSession {
 
     func applySnapshot(_ snapshot: ScreenshotDesktopSnapshot) {
         for window in windows {
-            let displayID = window.screen?.displayID ?? window.trackedDisplayID
-            guard let image = snapshot.image(for: displayID) else { continue }
+            guard let image = snapshot.image(for: window.trackedDisplayID) else { continue }
             window.setFrozenImage(image)
         }
     }
