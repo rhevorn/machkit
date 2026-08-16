@@ -572,6 +572,21 @@ public enum StorageCategoryKind: String, CaseIterable, Codable, Sendable, Identi
     case other = "Others"
 
     public var id: String { rawValue }
+
+    /// Stable English title used as a localization key in the app.
+    public var titleKey: String {
+        switch self {
+        case .applications: "Applications"
+        case .documents: "Documents"
+        case .downloads: "Downloads"
+        case .pictures: "Pictures"
+        case .music: "Music"
+        case .movies: "Movies"
+        case .developer: "Developer"
+        case .systemData: "System Data"
+        case .other: "Other"
+        }
+    }
 }
 
 public struct StorageCategoryUsage: Identifiable, Sendable, Hashable {

@@ -383,6 +383,29 @@ private final class LockedCleanupProgress: @unchecked Sendable {
     #expect(overview.largeFiles.isEmpty)
 }
 
+@Test func fullStorageAnalysisKeepsFolderOverviewAndDeepCategories() async throws {
+    let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+    let downloads = root.appending(path: "Downloads", directoryHint: .isDirectory)
+    let nested = downloads.appending(path: "Nested", directoryHint: .isDirectory)
+    try FileManager.default.createDirectory(at: nested, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: root) }
+
+    try Data(repeating: 3, count: 3_072).write(to: nested.appending(path: "payload.bin"))
+    try Data(repeating: 4, count: 1_024).write(to: downloads.appending(path: "note.txt"))
+
+    let analysis = await FileAnalyzer().fullStorageAnalysis(
+        root: root,
+        volumeURL: root,
+        largeFileMinimumBytes: 1
+    )
+
+    #expect(analysis.directories.contains { $0.url.lastPathComponent == "Downloads" })
+    #expect(!analysis.directories.contains { $0.url.lastPathComponent == "Nested" })
+    #expect(analysis.categories.first(where: { $0.category == .downloads })?.fileCount == 2)
+    #expect(analysis.largeFiles.count == 2)
+    #expect(analysis.scannedFileCount == 2)
+}
+
 @Test func portScannerKeepsListenersAndBoundUDPPortsOnly() {
     let output = """
     p4100

@@ -167,6 +167,52 @@ public actor FileAnalyzer {
         )
     }
 
+    /// Fast folder overview first, then a deep categorize + large-file pass for the same root.
+    public func fullStorageAnalysis(
+        root: URL,
+        volumeURL: URL? = nil,
+        largeFileMinimumBytes: Int64 = 500 * 1_024 * 1_024,
+        progress: (@Sendable (StorageAnalysisProgress) -> Void)? = nil
+    ) -> StorageAnalysis {
+        let root = root.standardizedFileURL
+        let volume = volumeURL ?? URL(fileURLWithPath: "/", isDirectory: true)
+        progress?(StorageAnalysisProgress(currentRoot: root, inspectedFiles: 0, scannedBytes: 0))
+        let overview = directoryOverview(root: root, volumeURL: volume)
+        guard !Task.isCancelled else { return overview }
+
+        let deep = storageAnalysis(
+            roots: [root],
+            volumeURL: volume,
+            largeFileMinimumBytes: largeFileMinimumBytes,
+            progress: progress
+        )
+        guard !Task.isCancelled else {
+            return StorageAnalysis(
+                totalCapacity: overview.totalCapacity,
+                availableCapacity: overview.availableCapacity,
+                scannedBytes: overview.scannedBytes,
+                scannedFileCount: overview.scannedFileCount,
+                inaccessibleItemCount: overview.inaccessibleItemCount,
+                categories: deep.categories,
+                largeFiles: deep.largeFiles,
+                analyzedRoots: overview.analyzedRoots,
+                directories: overview.directories
+            )
+        }
+
+        return StorageAnalysis(
+            totalCapacity: max(overview.totalCapacity, deep.totalCapacity),
+            availableCapacity: deep.availableCapacity > 0 ? deep.availableCapacity : overview.availableCapacity,
+            scannedBytes: deep.scannedBytes,
+            scannedFileCount: deep.scannedFileCount,
+            inaccessibleItemCount: deep.inaccessibleItemCount,
+            categories: deep.categories,
+            largeFiles: deep.largeFiles,
+            analyzedRoots: overview.analyzedRoots,
+            directories: overview.directories
+        )
+    }
+
     public func largeFiles(in root: URL, minimumBytes: Int64 = 500 * 1_024 * 1_024) -> [ScanItem] {
         let keys: Set<URLResourceKey> = [.isRegularFileKey, .isSymbolicLinkKey, .fileSizeKey, .contentModificationDateKey]
         guard let enumerator = fileManager.enumerator(

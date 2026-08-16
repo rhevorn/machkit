@@ -19,6 +19,15 @@ private enum PerformanceSort: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
+private enum StorageBrowseTab: String, CaseIterable, Identifiable {
+    case overview = "Overview"
+    case categories = "Categories"
+    case largeFiles = "Large Files"
+    case folders = "Folders"
+
+    var id: String { rawValue }
+}
+
 private enum PortFilter: String, CaseIterable, Identifiable {
     case all = "All"
     case tcp = "TCP"
@@ -59,6 +68,7 @@ struct ContentView: View {
     @State private var hoveredSoftwareID: String?
     @State private var inventorySearch = ""
     @State private var performanceSort: PerformanceSort = .cpu
+    @State private var storageTab: StorageBrowseTab = .overview
     @State private var showingMemoryHelp = false
     @State private var cleanupPhaseHelpID: String?
     @State private var portSearch = ""
@@ -3561,7 +3571,7 @@ struct ContentView: View {
         VStack(spacing: 0) {
             header(
                 title: "Storage",
-                subtitle: "Inspect disk usage, common folders, and large files",
+                subtitle: "See where disk space goes — categories, large files, and folders",
                 trailing: AnyView(
                     HStack(spacing: 8) {
                         Button("Choose Folder", action: model.chooseFolder)
@@ -3573,7 +3583,7 @@ struct ContentView: View {
                     }
                 )
             )
-                .padding(18)
+            .padding(18)
             if let analysis = model.storageAnalysis {
                 storageAnalysisContent(analysis)
             } else if model.isStorageAnalyzing {
@@ -3604,22 +3614,24 @@ struct ContentView: View {
             }
             .padding(.bottom, 24)
 
-            Text("Quick overview of your home folder")
+            Text("Understand where your disk space goes".localized)
                 .font(.system(size: 24, weight: .semibold, design: .rounded))
-            Text("Shows only top-level folders, explains their purpose, and calculates actual usage")
+            Text("Local analysis of categories, large files, and folder usage — nothing is uploaded or deleted".localized)
                 .font(.system(size: 13)).foregroundStyle(.secondary).padding(.top, 7)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 420)
 
             HStack(spacing: 18) {
                 scanPromise(icon: "lock.shield", text: "Local Analysis")
-                scanPromise(icon: "eye.slash", text: "Contents are not read")
-                scanPromise(icon: "trash.slash", text: "Nothing is deleted automatically")
+                scanPromise(icon: "square.grid.2x2", text: "Categories")
+                scanPromise(icon: "doc.badge.ellipsis", text: "Large Files")
             }
             .padding(.vertical, 22)
 
             Button(action: model.scanStorageAnalysis) {
                 HStack(spacing: 9) {
                     Image(systemName: "chart.pie").font(.system(size: 14, weight: .bold))
-                    Text("Start Analysis").font(.system(size: 14, weight: .semibold))
+                    Text("Start Analysis".localized).font(.system(size: 14, weight: .semibold))
                     Image(systemName: "arrow.right").font(.system(size: 12, weight: .bold))
                 }
                 .foregroundStyle(.white)
@@ -3645,11 +3657,22 @@ struct ContentView: View {
         VStack(spacing: 16) {
             Spacer()
             ProgressView().controlSize(.large)
-            Text("Calculating folders in \(model.currentScanCategory)")
+            Text(model.currentScanCategory.isEmpty
+                 ? L10n.string("Analyzing storage…")
+                 : model.currentScanCategory)
                 .font(.system(size: 15, weight: .semibold))
-            Text("Quickly summarizes the macOS file system without building a deep index")
-                .font(.system(size: 12)).foregroundStyle(.secondary)
-            Text("Reads only paths and disk usage, not file contents")
+            if model.storageInspectedFiles > 0 {
+                Text(L10n.format(
+                    "%lld files · %@",
+                    Int64(model.storageInspectedFiles),
+                    formatted(model.storageScannedBytes)
+                ))
+                .font(.system(size: 12)).foregroundStyle(.secondary).monospacedDigit()
+            } else {
+                Text("Building a folder overview first, then categorizing files".localized)
+                    .font(.system(size: 12)).foregroundStyle(.secondary)
+            }
+            Text("Reads paths and sizes only — not file contents".localized)
                 .font(.caption).foregroundStyle(.tertiary)
             Spacer()
         }
@@ -3657,46 +3680,332 @@ struct ContentView: View {
     }
 
     private func storageAnalysisContent(_ analysis: StorageAnalysis) -> some View {
-        ScrollView {
-            LazyVStack(alignment: .leading, spacing: 14) {
-                if model.isStorageAnalyzing {
-                    HStack(spacing: 10) {
-                        ProgressView().controlSize(.small)
-                        Text("Updating folder sizes in the background")
-                            .font(.system(size: 12, weight: .medium))
-                        Spacer()
-                    }
-                    .padding(11)
-                    .background(Color.accentColor.opacity(0.08), in: RoundedRectangle(cornerRadius: 9))
+        VStack(spacing: 0) {
+            Picker("Storage section", selection: $storageTab) {
+                ForEach(StorageBrowseTab.allCases) { tab in
+                    Text(tab.rawValue.localized).tag(tab)
                 }
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal, 18)
+            .padding(.bottom, 12)
 
-                storageVolumeCard(analysis)
-
-                if !model.storagePath.isEmpty {
-                    HStack(spacing: 5) {
-                        ForEach(Array(model.storagePath.enumerated()), id: \.element.path) { index, url in
-                            if index > 0 {
-                                Image(systemName: "chevron.right")
-                                    .font(.caption2).foregroundStyle(.tertiary)
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 14) {
+                    if model.isStorageAnalyzing {
+                        HStack(spacing: 10) {
+                            ProgressView().controlSize(.small)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(model.currentScanCategory.isEmpty
+                                     ? L10n.string("Updating analysis…")
+                                     : model.currentScanCategory)
+                                    .font(.system(size: 12, weight: .medium))
+                                if model.storageInspectedFiles > 0 {
+                                    Text(L10n.format(
+                                        "%lld files · %@",
+                                        Int64(model.storageInspectedFiles),
+                                        formatted(model.storageScannedBytes)
+                                    ))
+                                    .font(.caption2).foregroundStyle(.secondary).monospacedDigit()
+                                }
                             }
-                            Button(index == 0 ? L10n.string("Home Folder") : url.lastPathComponent) {
-                                model.navigateStorage(to: url)
-                            }
-                            .buttonStyle(.borderless)
-                            .font(.caption)
-                            .disabled(index == model.storagePath.count - 1)
+                            Spacer()
                         }
-                        Spacer()
+                        .padding(11)
+                        .background(Color.accentColor.opacity(0.08), in: RoundedRectangle(cornerRadius: 9))
                     }
-                }
 
-                HStack(alignment: .firstTextBaseline) {
-                    Text("Home Folder")
-                        .font(.system(size: 15, weight: .semibold))
-                    Spacer()
-                    Text("Top Level · Sorted by Size")
+                    storageVolumeCard(analysis)
+                    storageInsightCard(analysis)
+
+                    switch storageTab {
+                    case .overview:
+                        storageOverviewSections(analysis)
+                    case .categories:
+                        storageCategoriesSection(analysis)
+                    case .largeFiles:
+                        storageLargeFilesSection(analysis)
+                    case .folders:
+                        storageFoldersSection(analysis)
+                    }
+
+                    Text("Sizes summarize readable content. Protected or cloud-only items may be undercounted. Storage analysis never deletes files — use Cleanup for safe removals.".localized)
                         .font(.caption).foregroundStyle(.secondary)
                 }
+                .padding(.horizontal, 18)
+                .padding(.bottom, 18)
+            }
+        }
+    }
+
+    private func storageInsightCard(_ analysis: StorageAnalysis) -> some View {
+        let insight = storageInsightText(analysis)
+        return HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "lightbulb.fill")
+                .foregroundStyle(Color.orange)
+                .font(.system(size: 14))
+            Text(insight)
+                .font(.system(size: 12))
+                .foregroundStyle(.primary)
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 0)
+            Button {
+                model.changeMode(.junk)
+            } label: {
+                Label("Open Cleanup".localized, systemImage: "trash")
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+        }
+        .padding(12)
+        .background(Color.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func storageInsightText(_ analysis: StorageAnalysis) -> String {
+        if let top = analysis.categories.first, analysis.scannedBytes > 0 {
+            let percent = Int((Double(top.bytes) / Double(analysis.scannedBytes) * 100).rounded())
+            if let large = analysis.largeFiles.first {
+                return L10n.format(
+                    "%@ is about %lld%% of scanned space. Largest file: %@ (%@).",
+                    top.category.titleKey.localized,
+                    Int64(percent),
+                    large.url.lastPathComponent,
+                    formatted(large.bytes)
+                )
+            }
+            return L10n.format(
+                "%@ is about %lld%% of scanned space across %lld files.",
+                top.category.titleKey.localized,
+                Int64(percent),
+                Int64(top.fileCount)
+            )
+        }
+        if let topFolder = analysis.directories.first {
+            return L10n.format(
+                "Largest folder here is %@ (%@).",
+                topFolder.url.lastPathComponent,
+                formatted(topFolder.bytes)
+            )
+        }
+        return L10n.string("Scan finished. Browse categories, large files, or folders below.")
+    }
+
+    private func storageOverviewSections(_ analysis: StorageAnalysis) -> some View {
+        Group {
+            if !analysis.categories.isEmpty {
+                storageSectionHeader(
+                    title: "Categories",
+                    detail: L10n.format("%lld groups", Int64(analysis.categories.count)),
+                    actionTitle: "See All"
+                ) { storageTab = .categories }
+                storageCategoryChart(analysis)
+                VStack(spacing: 0) {
+                    ForEach(Array(analysis.categories.prefix(4).enumerated()), id: \.element.id) { index, usage in
+                        storageCategoryRow(usage, maximumBytes: analysis.categories.first?.bytes ?? 1)
+                        if index < min(3, analysis.categories.count - 1) {
+                            Divider().padding(.leading, 58)
+                        }
+                    }
+                }
+                .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+            }
+
+            if !analysis.largeFiles.isEmpty {
+                storageSectionHeader(
+                    title: "Large Files",
+                    detail: L10n.format("%lld files ≥ 500 MB", Int64(analysis.largeFiles.count)),
+                    actionTitle: "See All"
+                ) { storageTab = .largeFiles }
+                VStack(spacing: 0) {
+                    ForEach(Array(analysis.largeFiles.prefix(5).enumerated()), id: \.element.id) { index, item in
+                        storageLargeFileRow(item)
+                        if index < min(4, analysis.largeFiles.count - 1) {
+                            Divider().padding(.leading, 58)
+                        }
+                    }
+                }
+                .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+            }
+
+            if !analysis.directories.isEmpty {
+                storageSectionHeader(
+                    title: "Folders",
+                    detail: "Top level · Sorted by size",
+                    actionTitle: "Browse"
+                ) { storageTab = .folders }
+                VStack(spacing: 0) {
+                    ForEach(Array(analysis.directories.prefix(6).enumerated()), id: \.element.id) { index, usage in
+                        storageDirectoryRow(usage)
+                        if index < min(5, analysis.directories.count - 1) {
+                            Divider().padding(.leading, 58)
+                        }
+                    }
+                }
+                .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+            }
+        }
+    }
+
+    private func storageSectionHeader(
+        title: String,
+        detail: String,
+        actionTitle: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        HStack(alignment: .firstTextBaseline) {
+            Text(title.localized).font(.system(size: 15, weight: .semibold))
+            Spacer()
+            Text(detail.localized).font(.caption).foregroundStyle(.secondary)
+            Button(actionTitle.localized, action: action)
+                .buttonStyle(.borderless)
+                .font(.caption.weight(.semibold))
+        }
+    }
+
+    private func storageCategoriesSection(_ analysis: StorageAnalysis) -> some View {
+        Group {
+            if analysis.categories.isEmpty {
+                storageEmptyPanel(
+                    title: "No categories yet",
+                    detail: model.isStorageAnalyzing
+                        ? "Category breakdown appears after the deep scan finishes."
+                        : "Run analysis again to categorize files."
+                )
+            } else {
+                storageCategoryChart(analysis)
+                VStack(spacing: 0) {
+                    ForEach(Array(analysis.categories.enumerated()), id: \.element.id) { index, usage in
+                        storageCategoryRow(usage, maximumBytes: analysis.categories.first?.bytes ?? 1)
+                        if index < analysis.categories.count - 1 {
+                            Divider().padding(.leading, 58)
+                        }
+                    }
+                }
+                .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+            }
+        }
+    }
+
+    private func storageCategoryChart(_ analysis: StorageAnalysis) -> some View {
+        let slices = analysis.categories.filter { $0.bytes > 0 }
+        return HStack(alignment: .center, spacing: 16) {
+            Chart(slices) { usage in
+                SectorMark(
+                    angle: .value("Bytes", usage.bytes),
+                    innerRadius: .ratio(0.56),
+                    angularInset: 1.2
+                )
+                .foregroundStyle(storageCategoryColor(usage.category))
+            }
+            .chartLegend(.hidden)
+            .frame(width: 148, height: 148)
+
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(slices.prefix(6)) { usage in
+                    HStack(spacing: 8) {
+                        Circle()
+                            .fill(storageCategoryColor(usage.category))
+                            .frame(width: 8, height: 8)
+                        Text(usage.category.titleKey.localized)
+                            .font(.caption)
+                            .lineLimit(1)
+                        Spacer()
+                        Text(formatted(usage.bytes))
+                            .font(.caption.weight(.medium))
+                            .monospacedDigit()
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(14)
+        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func storageLargeFilesSection(_ analysis: StorageAnalysis) -> some View {
+        Group {
+            if analysis.largeFiles.isEmpty {
+                storageEmptyPanel(
+                    title: "No large files found",
+                    detail: "Nothing at or above 500 MB in the scanned folder."
+                )
+            } else {
+                HStack {
+                    Text("Files ≥ 500 MB".localized).font(.system(size: 15, weight: .semibold))
+                    Spacer()
+                    Text(L10n.format("%lld files", Int64(analysis.largeFiles.count)))
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+                VStack(spacing: 0) {
+                    ForEach(Array(analysis.largeFiles.enumerated()), id: \.element.id) { index, item in
+                        storageLargeFileRow(item)
+                        if index < analysis.largeFiles.count - 1 {
+                            Divider().padding(.leading, 58)
+                        }
+                    }
+                }
+                .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+            }
+        }
+    }
+
+    private func storageLargeFileRow(_ item: ScanItem) -> some View {
+        Button {
+            reveal(item.url.deletingLastPathComponent())
+        } label: {
+            HStack(spacing: 12) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8).fill(Color.purple.opacity(0.12))
+                    Image(systemName: "doc.fill").foregroundStyle(Color.purple)
+                }
+                .frame(width: 34, height: 34)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(item.url.lastPathComponent)
+                        .font(.system(size: 12, weight: .medium)).lineLimit(1)
+                    Text(item.url.deletingLastPathComponent().path)
+                        .font(.caption2).foregroundStyle(.secondary).lineLimit(1)
+                }
+                Spacer()
+                Text(formatted(item.bytes))
+                    .font(.system(size: 12, weight: .medium)).monospacedDigit()
+                Image(systemName: "arrow.forward.circle").font(.caption).foregroundStyle(.tertiary)
+            }
+            .padding(.horizontal, 13).frame(minHeight: 56)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help("Reveal in Finder")
+    }
+
+    private func storageFoldersSection(_ analysis: StorageAnalysis) -> some View {
+        Group {
+            if !model.storagePath.isEmpty {
+                HStack(spacing: 5) {
+                    ForEach(Array(model.storagePath.enumerated()), id: \.element.path) { index, url in
+                        if index > 0 {
+                            Image(systemName: "chevron.right")
+                                .font(.caption2).foregroundStyle(.tertiary)
+                        }
+                        Button(index == 0 ? L10n.string("Home Folder") : url.lastPathComponent) {
+                            model.navigateStorage(to: url)
+                        }
+                        .buttonStyle(.borderless)
+                        .font(.caption)
+                        .disabled(index == model.storagePath.count - 1)
+                    }
+                    Spacer()
+                }
+            }
+
+            HStack(alignment: .firstTextBaseline) {
+                Text("Folders".localized).font(.system(size: 15, weight: .semibold))
+                Spacer()
+                Text("Top Level · Sorted by Size".localized).font(.caption).foregroundStyle(.secondary)
+            }
+
+            if analysis.directories.isEmpty {
+                storageEmptyPanel(title: "No folders here", detail: "This directory has no readable subfolders.")
+            } else {
                 VStack(spacing: 0) {
                     ForEach(Array(analysis.directories.enumerated()), id: \.element.id) { index, usage in
                         storageDirectoryRow(usage)
@@ -3704,13 +4013,18 @@ struct ContentView: View {
                     }
                 }
                 .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
-
-                Text("Folder sizes summarize currently readable content. Protected items may not be fully counted; click any folder to view it in Finder.")
-                    .font(.caption).foregroundStyle(.secondary)
             }
-            .padding(.horizontal, 18)
-            .padding(.bottom, 18)
         }
+    }
+
+    private func storageEmptyPanel(title: String, detail: String) -> some View {
+        VStack(spacing: 8) {
+            Text(title.localized).font(.system(size: 14, weight: .semibold))
+            Text(detail.localized).font(.caption).foregroundStyle(.secondary).multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(28)
+        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
     }
 
     private func storageDirectoryRow(_ usage: StorageDirectoryUsage) -> some View {
@@ -3744,7 +4058,9 @@ struct ContentView: View {
         .buttonStyle(.plain)
     }
 
-    private var analysisRootURL: URL? { model.storageAnalysis?.analyzedRoots.first }
+    private var analysisRootURL: URL? {
+        model.storagePath.last ?? model.storageAnalysis?.analyzedRoots.first
+    }
 
     private func storageDirectoryIcon(_ name: String) -> String {
         switch name {
@@ -3757,6 +4073,7 @@ struct ContentView: View {
         case "Pictures": "photo.fill"
         case "Applications": "app.fill"
         case ".Trash": "trash.fill"
+        case "Public": "person.2.fill"
         default: "folder.fill"
         }
     }
@@ -3768,22 +4085,33 @@ struct ContentView: View {
         return VStack(alignment: .leading, spacing: 13) {
             HStack {
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("System Disk").font(.system(size: 14, weight: .semibold))
-                    Text("\(formatted(analysis.usedCapacity)) used of \(formatted(analysis.totalCapacity))")
-                        .font(.system(size: 11)).foregroundStyle(.secondary)
+                    Text("System Disk".localized).font(.system(size: 14, weight: .semibold))
+                    Text(L10n.format(
+                        "%@ used of %@",
+                        formatted(analysis.usedCapacity),
+                        formatted(analysis.totalCapacity)
+                    ))
+                    .font(.system(size: 11)).foregroundStyle(.secondary)
                 }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 3) {
                     Text(formatted(analysis.availableCapacity)).font(.system(size: 14, weight: .semibold)).monospacedDigit()
-                    Text("Available Space").font(.caption).foregroundStyle(.secondary)
+                    Text("Available Space".localized).font(.caption).foregroundStyle(.secondary)
                 }
             }
             ProgressView(value: ratio)
                 .tint(ratio > 0.9 ? Color.orange : Color.accentColor)
             HStack {
-                Label("\(formatted(analysis.scannedBytes)) categorized", systemImage: "square.grid.2x2")
+                Label(
+                    L10n.format("%@ scanned", formatted(analysis.scannedBytes)),
+                    systemImage: "square.grid.2x2"
+                )
+                if analysis.inaccessibleItemCount > 0 {
+                    Text("·")
+                    Text(L10n.format("%lld skipped", Int64(analysis.inaccessibleItemCount)))
+                }
                 Spacer()
-                Text("Last analyzed \(model.lastScanText)")
+                Text(L10n.format("Last analyzed %@", model.lastScanText))
             }
             .font(.caption).foregroundStyle(.secondary)
         }
@@ -3802,8 +4130,9 @@ struct ContentView: View {
             .frame(width: 32, height: 32)
             VStack(alignment: .leading, spacing: 5) {
                 HStack {
-                    Text(usage.category.rawValue.localized).font(.system(size: 12, weight: .medium))
-                    Text("\(usage.fileCount) files").font(.caption2).foregroundStyle(.secondary)
+                    Text(usage.category.titleKey.localized).font(.system(size: 12, weight: .medium))
+                    Text(L10n.format("%lld files", Int64(usage.fileCount)))
+                        .font(.caption2).foregroundStyle(.secondary)
                 }
                 GeometryReader { geometry in
                     Capsule().fill(Color.secondary.opacity(0.10))
@@ -3846,6 +4175,7 @@ struct ContentView: View {
         case .other: .brown
         }
     }
+
 
     private func header(title: String, subtitle: String, trailing: AnyView? = nil) -> some View {
         HStack {

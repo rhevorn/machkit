@@ -64,6 +64,9 @@ final class CleanerViewModel: ObservableObject {
     @Published private(set) var isCleanupScanning = false
     @Published private(set) var isPreparingCleanupResults = false
     @Published private(set) var isStorageAnalyzing = false
+    @Published private(set) var storageInspectedFiles = 0
+    @Published private(set) var storageScannedBytes: Int64 = 0
+    @Published private(set) var storageDeepRoot: URL?
     @Published private(set) var loadingModes: Set<FeatureMode> = []
     @Published var showCleanConfirmation = false
     @Published var lastScanAt: Date?
@@ -481,23 +484,37 @@ final class CleanerViewModel: ObservableObject {
         let home = FileManager.default.homeDirectoryForCurrentUser.standardizedFileURL
         let selectedRoot = (root ?? home).standardizedFileURL
         root = selectedRoot
+        storageDeepRoot = selectedRoot
         isStorageAnalyzing = true
         scanProgress = 0
+        storageInspectedFiles = 0
+        storageScannedBytes = 0
         inspectedFileCount = 0
         discoveredBytes = 0
-        currentScanCategory = selectedRoot.lastPathComponent
-        status = L10n.string("Reading directory occupancy...")
+        currentScanCategory = L10n.string("Folder overview")
+        status = L10n.string("Analyzing storage…")
         storageAnalysisTask = Task {
-            let analysis = await fileAnalyzer.directoryOverview(
+            let analysis = await fileAnalyzer.fullStorageAnalysis(
                 root: selectedRoot,
                 volumeURL: URL(fileURLWithPath: "/", isDirectory: true)
-            )
+            ) { [weak self] progress in
+                Task { @MainActor in
+                    guard let self, !Task.isCancelled else { return }
+                    self.storageInspectedFiles = progress.inspectedFiles
+                    self.storageScannedBytes = progress.scannedBytes
+                    self.inspectedFileCount = progress.inspectedFiles
+                    self.discoveredBytes = progress.scannedBytes
+                    self.currentScanCategory = progress.inspectedFiles == 0
+                        ? L10n.string("Folder overview")
+                        : L10n.string("Categorizing files")
+                    // Indeterminate-ish progress: grow slowly with inspected files.
+                    self.scanProgress = min(0.95, 0.08 + Double(progress.inspectedFiles) / 80_000)
+                }
+            }
             guard !Task.isCancelled else { return }
             storageAnalysis = analysis
             storageCache[selectedRoot.path] = analysis
-            if storagePath.isEmpty || storagePath.last != selectedRoot {
-                storagePath = breadcrumbPath(to: selectedRoot)
-            }
+            storagePath = breadcrumbPath(to: selectedRoot)
             items = []
             selectedIDs = []
             lastScanAt = Date()
@@ -506,12 +523,14 @@ final class CleanerViewModel: ObservableObject {
             persistStorageSnapshot(analysis)
             isStorageAnalyzing = false
             storageAnalysisTask = nil
+            scanProgress = 1
             currentScanCategory = L10n.string("Analysis complete")
             if mode == .files {
                 status = L10n.format(
-                    "Read %lld items occupying %@.",
-                    Int64(analysis.directories.count),
-                    ByteCountFormatter.string(fromByteCount: analysis.scannedBytes, countStyle: .file)
+                    "Found %lld files · %@ scanned · %lld large files.",
+                    Int64(analysis.scannedFileCount),
+                    ByteCountFormatter.string(fromByteCount: analysis.scannedBytes, countStyle: .file),
+                    Int64(analysis.largeFiles.count)
                 )
             }
         }
@@ -522,13 +541,52 @@ final class CleanerViewModel: ObservableObject {
         root = url
         storagePath = breadcrumbPath(to: url)
         if let cached = storageCache[url.path] {
-            storageAnalysis = cached
+            storageAnalysis = mergeFolderListing(cached, into: storageAnalysis)
+            return
         }
-        scanStorageAnalysis()
+        storageAnalysisTask?.cancel()
+        isStorageAnalyzing = true
+        currentScanCategory = url.lastPathComponent
+        status = L10n.string("Reading directory occupancy...")
+        storageAnalysisTask = Task {
+            let overview = await fileAnalyzer.directoryOverview(
+                root: url,
+                volumeURL: URL(fileURLWithPath: "/", isDirectory: true)
+            )
+            guard !Task.isCancelled else { return }
+            storageCache[url.path] = overview
+            storageAnalysis = mergeFolderListing(overview, into: storageAnalysis)
+            isStorageAnalyzing = false
+            storageAnalysisTask = nil
+            if mode == .files {
+                status = L10n.format(
+                    "Read %lld items occupying %@.",
+                    Int64(overview.directories.count),
+                    ByteCountFormatter.string(fromByteCount: overview.scannedBytes, countStyle: .file)
+                )
+            }
+        }
     }
 
     func navigateStorage(to url: URL) {
         openStorageDirectory(url)
+    }
+
+    private func mergeFolderListing(_ overview: StorageAnalysis, into existing: StorageAnalysis?) -> StorageAnalysis {
+        guard let existing, !existing.categories.isEmpty || !existing.largeFiles.isEmpty else {
+            return overview
+        }
+        return StorageAnalysis(
+            totalCapacity: existing.totalCapacity > 0 ? existing.totalCapacity : overview.totalCapacity,
+            availableCapacity: existing.availableCapacity > 0 ? existing.availableCapacity : overview.availableCapacity,
+            scannedBytes: existing.scannedBytes,
+            scannedFileCount: existing.scannedFileCount,
+            inaccessibleItemCount: existing.inaccessibleItemCount,
+            categories: existing.categories,
+            largeFiles: existing.largeFiles,
+            analyzedRoots: existing.analyzedRoots,
+            directories: overview.directories
+        )
     }
 
     private func breadcrumbPath(to url: URL) -> [URL] {
@@ -552,13 +610,29 @@ final class CleanerViewModel: ObservableObject {
         let explanation: String
     }
 
+    private struct StoredCategory: Codable {
+        let category: String
+        let bytes: Int64
+        let fileCount: Int
+    }
+
+    private struct StoredLargeFile: Codable {
+        let path: String
+        let bytes: Int64
+        let modifiedAt: Date?
+    }
+
     private struct StoredStorageSnapshot: Codable {
         let rootPath: String
         let totalCapacity: Int64
         let availableCapacity: Int64
         let scannedBytes: Int64
+        let scannedFileCount: Int?
+        let inaccessibleItemCount: Int?
         let savedAt: Date
         let directories: [StoredDirectory]
+        let categories: [StoredCategory]?
+        let largeFiles: [StoredLargeFile]?
     }
 
     private func persistStorageSnapshot(_ analysis: StorageAnalysis) {
@@ -568,8 +642,18 @@ final class CleanerViewModel: ObservableObject {
             totalCapacity: analysis.totalCapacity,
             availableCapacity: analysis.availableCapacity,
             scannedBytes: analysis.scannedBytes,
+            scannedFileCount: analysis.scannedFileCount,
+            inaccessibleItemCount: analysis.inaccessibleItemCount,
             savedAt: lastScanAt ?? Date(),
-            directories: analysis.directories.map { StoredDirectory(path: $0.url.path, bytes: $0.bytes, explanation: $0.explanation) }
+            directories: analysis.directories.map {
+                StoredDirectory(path: $0.url.path, bytes: $0.bytes, explanation: $0.explanation)
+            },
+            categories: analysis.categories.map {
+                StoredCategory(category: $0.category.rawValue, bytes: $0.bytes, fileCount: $0.fileCount)
+            },
+            largeFiles: Array(analysis.largeFiles.prefix(80)).map {
+                StoredLargeFile(path: $0.url.path, bytes: $0.bytes, modifiedAt: $0.modifiedAt)
+            }
         )
         if let data = try? JSONEncoder().encode(snapshot) {
             UserDefaults.standard.set(data, forKey: Self.storageSnapshotKey)
@@ -580,21 +664,46 @@ final class CleanerViewModel: ObservableObject {
         guard let data = UserDefaults.standard.data(forKey: Self.storageSnapshotKey),
               let snapshot = try? JSONDecoder().decode(StoredStorageSnapshot.self, from: data) else { return }
         let root = URL(fileURLWithPath: snapshot.rootPath, isDirectory: true)
+        let largeFileRule = ScanRule(
+            id: "large-file",
+            title: "Large Files",
+            relativePath: ".",
+            minimumAgeDays: 0,
+            risk: .review,
+            explanation: "Large files do not mean garbage, they are only used to understand the space occupied."
+        )
+        let categories = (snapshot.categories ?? []).compactMap { stored -> StorageCategoryUsage? in
+            guard let kind = StorageCategoryKind(rawValue: stored.category) else { return nil }
+            return StorageCategoryUsage(category: kind, bytes: stored.bytes, fileCount: stored.fileCount)
+        }
+        let largeFiles = (snapshot.largeFiles ?? []).map {
+            ScanItem(
+                url: URL(fileURLWithPath: $0.path),
+                bytes: $0.bytes,
+                modifiedAt: $0.modifiedAt,
+                rule: largeFileRule
+            )
+        }
         let analysis = StorageAnalysis(
             totalCapacity: snapshot.totalCapacity,
             availableCapacity: snapshot.availableCapacity,
             scannedBytes: snapshot.scannedBytes,
-            scannedFileCount: snapshot.directories.count,
-            inaccessibleItemCount: 0,
-            categories: [],
-            largeFiles: [],
+            scannedFileCount: snapshot.scannedFileCount ?? snapshot.directories.count,
+            inaccessibleItemCount: snapshot.inaccessibleItemCount ?? 0,
+            categories: categories,
+            largeFiles: largeFiles,
             analyzedRoots: [root],
             directories: snapshot.directories.map {
-                StorageDirectoryUsage(url: URL(fileURLWithPath: $0.path, isDirectory: true), bytes: $0.bytes, explanation: $0.explanation)
+                StorageDirectoryUsage(
+                    url: URL(fileURLWithPath: $0.path, isDirectory: true),
+                    bytes: $0.bytes,
+                    explanation: $0.explanation
+                )
             }
         )
         storageAnalysis = analysis
         storageCache[root.path] = analysis
+        storageDeepRoot = root
         storagePath = breadcrumbPath(to: root)
         lastUpdatedAt[.files] = snapshot.savedAt
         lastScanAt = snapshot.savedAt
