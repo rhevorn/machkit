@@ -161,6 +161,7 @@ private struct BundledWebView: NSViewRepresentable {
         private let hostsBridge = HostsWebBridge.shared
         private let connectionTraceBridge = ConnectionTraceWebBridge.shared
         private let portScanBridge = PortScanWebBridge.shared
+        private let curlLabBridge = CurlLabWebBridge.shared
         var localeIdentifier = "en"
         var appearance = AppAppearance.system.rawValue
 
@@ -299,6 +300,30 @@ private struct BundledWebView: NSViewRepresentable {
                 }
                 UserDefaults.standard.set(value, forKey: storageDefaultsKey(key))
                 replyHandler(["ok": true], nil)
+            case "files.pick":
+                guard capabilities.contains(.files) else {
+                    replyHandler(nil, "File picking is not available to this tool.")
+                    return
+                }
+                let panel = NSOpenPanel()
+                panel.canChooseFiles = true
+                panel.canChooseDirectories = false
+                panel.allowsMultipleSelection = false
+                panel.resolvesAliases = true
+                panel.treatsFilePackagesAsDirectories = false
+                if let prompt = parameters["prompt"] as? String, !prompt.isEmpty {
+                    panel.prompt = prompt
+                }
+                let response = panel.runModal()
+                if response == .OK, let url = panel.url {
+                    replyHandler([
+                        "canceled": false,
+                        "path": url.path,
+                        "name": url.lastPathComponent
+                    ], nil)
+                } else {
+                    replyHandler(["canceled": true], nil)
+                }
             case let method where method.hasPrefix("hosts."):
                 guard capabilities.contains(.hosts) else {
                     replyHandler(nil, "Hosts access is not available to this tool.")
@@ -359,6 +384,26 @@ private struct BundledWebView: NSViewRepresentable {
                         replyHandler(nil, response["error"] as? String ?? "Port scan failed.")
                     }
                 }
+            case let method where method.hasPrefix("curlLab."):
+                guard capabilities.contains(.curlLab) else {
+                    replyHandler(nil, "cURL Lab execution is not available to this tool.")
+                    return
+                }
+                var payload = parameters
+                payload["action"] = String(method.dropFirst("curlLab.".count))
+                payload["requestID"] = "bridge-reply"
+                Task { @MainActor [weak self] in
+                    guard let self else {
+                        replyHandler(nil, "The tool bridge is no longer available.")
+                        return
+                    }
+                    let response = await curlLabBridge.handle(payload)
+                    if response["ok"] as? Bool == true {
+                        replyHandler(response["result"], nil)
+                    } else {
+                        replyHandler(nil, response["error"] as? String ?? "cURL Lab run failed.")
+                    }
+                }
             default:
                 replyHandler(nil, "Unsupported bridge method: \(method)")
             }
@@ -403,7 +448,7 @@ private struct BundledWebView: NSViewRepresentable {
                   let window = webView.window,
                   let screen = window.screen ?? NSScreen.main else { return }
 
-            let minimumHeight = max(window.contentMinSize.height, WebToolWidthClass.minimumHeight)
+            let minimumHeight = max(window.contentMinSize.height, 1)
             let titlebarHeight = max(0, window.frame.height - window.contentLayoutRect.height)
             // Cap growth to most of the visible screen; user can still drag taller manually.
             let screenCap = screen.visibleFrame.height - titlebarHeight

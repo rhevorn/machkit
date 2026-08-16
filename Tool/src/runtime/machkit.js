@@ -190,6 +190,51 @@ export const machkit = Object.freeze({
     });
   },
 
+  curlLab(action, payload = {}, options = {}) {
+    if (!/^(run)$/.test(action)) {
+      return Promise.reject(new Error(`Unsupported cURL Lab operation: ${action}`));
+    }
+    return this.request(`curlLab.${action}`, payload, {
+      timeout: options.timeout ?? 45_000,
+    });
+  },
+
+  /**
+   * Opens a native/browser file picker.
+   * @returns {Promise<{ path: string, name: string } | null>}
+   */
+  async pickFile(options = {}) {
+    if (this.isEmbedded) {
+      const result = await this.request("files.pick", {
+        prompt: typeof options.prompt === "string" ? options.prompt : undefined,
+      });
+      if (!result || result.canceled) return null;
+      const path = typeof result.path === "string" ? result.path : "";
+      const name = typeof result.name === "string" ? result.name : path.split("/").pop() || "";
+      if (!path) return null;
+      return { path, name };
+    }
+
+    return new Promise((resolve) => {
+      const input = document.createElement("input");
+      input.type = "file";
+      if (typeof options.accept === "string" && options.accept) {
+        input.accept = options.accept;
+      }
+      input.addEventListener("change", () => {
+        const file = input.files?.[0];
+        if (!file) {
+          resolve(null);
+          return;
+        }
+        // Browsers hide the real path; keep the name so the form still works.
+        resolve({ path: file.name, name: file.name });
+      });
+      input.addEventListener("cancel", () => resolve(null));
+      input.click();
+    });
+  },
+
   async getItem(key) {
     const storageKey = String(key ?? "");
     if (this.isEmbedded) {

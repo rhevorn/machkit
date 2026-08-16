@@ -12,22 +12,32 @@ enum DeveloperToolCapability: String, Hashable {
     case storage
     case connectionTrace
     case portScan
+    case files
+    case curlLab
 }
 
-/// Shared web-tool window widths. Height always starts compact and grows with content.
+/// Shared web-tool window size presets (width + default/minimum height).
 enum WebToolWidthClass: String, Equatable {
     case compact
     case regular
     case wide
 
     /// Bump to invalidate remembered frames after sizing policy changes.
-    static let frameEpoch = 6
+    static let frameEpoch = 8
 
     var width: CGFloat {
         switch self {
         case .compact: 720
         case .regular: 840
         case .wide: 1040
+        }
+    }
+
+    var height: CGFloat {
+        switch self {
+        case .compact: 560
+        case .regular: 640
+        case .wide: 720
         }
     }
 
@@ -39,9 +49,16 @@ enum WebToolWidthClass: String, Equatable {
         }
     }
 
-    /// Initial content height before the page measures itself.
-    static let initialHeight: CGFloat = 520
-    static let minimumHeight: CGFloat = 420
+    var minimumHeight: CGFloat {
+        switch self {
+        case .compact: 480
+        case .regular: 520
+        case .wide: 580
+        }
+    }
+
+    var defaultSize: CGSize { CGSize(width: width, height: height) }
+    var minimumSize: CGSize { CGSize(width: minimumWidth, height: minimumHeight) }
 }
 
 struct DeveloperTool: Identifiable, Equatable {
@@ -57,13 +74,8 @@ struct DeveloperTool: Identifiable, Equatable {
     var localizedTitle: String { title.localized }
     var localizedDescription: String { description.localized }
 
-    var defaultWindowSize: CGSize {
-        CGSize(width: widthClass.width, height: WebToolWidthClass.initialHeight)
-    }
-
-    var minimumWindowSize: CGSize {
-        CGSize(width: widthClass.minimumWidth, height: WebToolWidthClass.minimumHeight)
-    }
+    var defaultWindowSize: CGSize { widthClass.defaultSize }
+    var minimumWindowSize: CGSize { widthClass.minimumSize }
 
     func matches(_ query: String) -> Bool {
         let query = query.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -352,7 +364,7 @@ enum DeveloperToolRegistry {
             ],
             icon: "network",
             widthClass: .wide,
-            capabilities: [.clipboard],
+            capabilities: [.clipboard, .files, .curlLab],
             presentation: .bundledWeb(entryFile: "WebTools/tools/curl-lab/index.html")
         ),
         DeveloperTool(

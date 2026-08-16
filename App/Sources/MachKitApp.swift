@@ -201,7 +201,7 @@ struct MachKitApp: App {
         .windowToolbarStyle(.unifiedCompact)
         .defaultSize(
             width: WebToolWidthClass.compact.width,
-            height: WebToolWidthClass.initialHeight
+            height: WebToolWidthClass.compact.height
         )
 
         MenuBarExtra(

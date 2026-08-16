@@ -1,6 +1,26 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { buildCurl, buildFetch, parseCurl } from "./curl.js";
+import { buildCurl, buildFetch, formatRawBody, parseCurl } from "./curl.js";
+
+test("formats raw JSON body", () => {
+  const result = formatRawBody('{"ok":true,"n":1}');
+  assert.equal(result.ok, true);
+  assert.equal(result.kind, "json");
+  assert.match(result.text, /\{\n {2}"ok": true,\n {2}"n": 1\n\}\n/);
+});
+
+test("formats raw XML body", () => {
+  const result = formatRawBody("<root><a>1</a></root>");
+  assert.equal(result.ok, true);
+  assert.equal(result.kind, "xml");
+  assert.match(result.text, /<root>/);
+});
+
+test("rejects unsupported raw body formatting", () => {
+  const result = formatRawBody("plain text");
+  assert.equal(result.ok, false);
+  assert.equal(result.error, "unsupported");
+});
 
 test("parses a common curl command", () => {
   const input =

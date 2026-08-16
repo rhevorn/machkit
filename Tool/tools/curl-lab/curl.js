@@ -1,3 +1,5 @@
+import { formatXML } from "../xml-plist/xml.js";
+
 export const maxCurlInput = 100_000;
 export const httpMethods = Object.freeze(["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]);
 export const bodyModes = Object.freeze(["none", "raw", "urlencoded", "formdata"]);
@@ -448,4 +450,29 @@ export function buildFetch(request) {
   }
 
   return lines.join("\n");
+}
+
+/** Pretty-print raw body as JSON when possible, otherwise best-effort XML. */
+export function formatRawBody(input) {
+  const source = String(input ?? "");
+  const trimmed = source.trim();
+  if (!trimmed) return { ok: false, error: "empty", text: source };
+
+  try {
+    const parsed = JSON.parse(trimmed);
+    return { ok: true, text: `${JSON.stringify(parsed, null, 2)}\n`, kind: "json" };
+  } catch {
+    // not JSON
+  }
+
+  if (trimmed.startsWith("<")) {
+    const formatted = formatXML(trimmed);
+    if (formatted.ok) {
+      const text = formatted.text.endsWith("\n") ? formatted.text : `${formatted.text}\n`;
+      return { ok: true, text, kind: "xml" };
+    }
+    return { ok: false, error: formatted.error || "invalid-xml", text: source };
+  }
+
+  return { ok: false, error: "unsupported", text: source };
 }
