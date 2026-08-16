@@ -98,6 +98,72 @@
           }
         }
       }
+    },
+    "NSScreenCaptureUsageDescription" : {
+      "comment" : "Privacy - Screen Capture Usage Description",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MachKit benötigt Bildschirmaufnahmezugriff, um Screenshots zu erstellen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MachKit needs screen recording access to capture screenshots."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MachKit necesita acceso a la grabación de pantalla para capturar capturas de pantalla."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MachKit a besoin d’accéder à l’enregistrement d’écran pour capturer des captures d’écran."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MachKitがスクリーンショットを撮影するには、画面収録へのアクセスが必要です。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MachKit가 스크린샷을 찍으려면 화면 기록 접근 권한이 필요합니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O MachKit precisa de acesso à gravação da tela para capturar capturas de tela."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MachKit требуется доступ к записи экрана для создания снимков экрана."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MachKit 需要屏幕录制权限以截取屏幕。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MachKit 需要螢幕錄製權限以擷取螢幕畫面。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

@@ -1,5 +1,5 @@
 import AppKit
-import CoreGraphics
+import ScreenCaptureKit
 
 enum ScreenshotCaptureError: LocalizedError {
     case captureFailed
@@ -38,26 +38,44 @@ struct ScreenshotDesktopSnapshot {
 enum ScreenshotCapture {
     /// Captures what is currently behind the selector windows. Call this only
     /// after the overlays are on-screen so any capture-side flicker stays hidden.
-    static func captureDesktop(below windows: [NSWindow]) throws -> ScreenshotDesktopSnapshot {
+    static func captureDesktop(below windows: [NSWindow]) async throws -> ScreenshotDesktopSnapshot {
+        let content = try await SCShareableContent.excludingDesktopWindows(
+            false,
+            onScreenWindowsOnly: true
+        )
+        let overlayIDs = Set(windows.map { CGWindowID($0.windowNumber) })
+        let excludedWindows = content.windows.filter { overlayIDs.contains($0.windowID) }
+
         var displays: [ScreenshotDisplayBackdrop] = []
+        var capturedDisplayIDs = Set<CGDirectDisplayID>()
         for window in windows {
             guard let screen = window.screen,
                   let displayID = screen.displayID,
-                  let image = CGWindowListCreateImage(
-                    .null,
-                    .optionOnScreenBelowWindow,
-                    CGWindowID(window.windowNumber),
-                    [.bestResolution, .boundsIgnoreFraming]
-                  ),
-                  image.width > 0,
-                  image.height > 0
+                  !capturedDisplayIDs.contains(displayID),
+                  let scDisplay = content.displays.first(where: { $0.displayID == displayID })
             else {
                 continue
             }
+
+            let filter = SCContentFilter(display: scDisplay, excludingWindows: excludedWindows)
+            let configuration = SCStreamConfiguration()
+            let scale = CGFloat(filter.pointPixelScale)
+            configuration.width = max(1, Int((filter.contentRect.width * scale).rounded()))
+            configuration.height = max(1, Int((filter.contentRect.height * scale).rounded()))
+            configuration.showsCursor = false
+            configuration.captureResolution = .best
+
+            let image = try await SCScreenshotManager.captureImage(
+                contentFilter: filter,
+                configuration: configuration
+            )
+            guard image.width > 0, image.height > 0 else { continue }
             displays.append(
                 ScreenshotDisplayBackdrop(displayID: displayID, frame: screen.frame, image: image)
             )
+            capturedDisplayIDs.insert(displayID)
         }
+
         guard !displays.isEmpty else { throw ScreenshotCaptureError.captureFailed }
         return ScreenshotDesktopSnapshot(displays: displays)
     }

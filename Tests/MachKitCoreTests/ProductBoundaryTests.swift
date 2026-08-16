@@ -67,18 +67,27 @@ private func formatPlaceholders(in value: String) -> [String] {
     let plist = try #require(
         PropertyListSerialization.propertyList(from: plistData, format: nil) as? [String: Any]
     )
-    let fallback = try #require(plist["NSAppleEventsUsageDescription"] as? String)
-    #expect(fallback == "MachKit needs access to System Events to read and remove login items configured in macOS.")
-
+    let expectedFallbacks = [
+        "NSAppleEventsUsageDescription":
+            "MachKit needs access to System Events to read and remove login items configured in macOS.",
+        "NSScreenCaptureUsageDescription":
+            "MachKit needs screen recording access to capture screenshots.",
+    ]
     let catalogData = try Data(contentsOf: repositoryRoot.appending(path: "Resources/InfoPlist.xcstrings"))
     let catalog = try #require(JSONSerialization.jsonObject(with: catalogData) as? [String: Any])
     let strings = try #require(catalog["strings"] as? [String: Any])
-    let entry = try #require(strings["NSAppleEventsUsageDescription"] as? [String: Any])
-    let localizations = try #require(entry["localizations"] as? [String: Any])
     let expectedLocales: Set<String> = [
         "de", "en", "es", "fr", "ja", "ko", "pt-BR", "ru", "zh-Hans", "zh-Hant"
     ]
-    #expect(expectedLocales.isSubset(of: Set(localizations.keys)))
+
+    for (key, expectedFallback) in expectedFallbacks {
+        let fallback = try #require(plist[key] as? String)
+        #expect(fallback == expectedFallback)
+
+        let entry = try #require(strings[key] as? [String: Any])
+        let localizations = try #require(entry["localizations"] as? [String: Any])
+        #expect(expectedLocales.isSubset(of: Set(localizations.keys)))
+    }
 }
 
 @Test func developerRulesDoNotTargetInstalledDependencies() {

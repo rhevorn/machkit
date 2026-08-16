@@ -26,6 +26,8 @@
     <string>$(MACOSX_DEPLOYMENT_TARGET)</string>
     <key>NSAppleEventsUsageDescription</key>
     <string>MachKit needs access to System Events to read and remove login items configured in macOS.</string>
+    <key>NSScreenCaptureUsageDescription</key>
+    <string>MachKit needs screen recording access to capture screenshots.</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>

@@ -64,8 +64,12 @@ final class ScreenshotSelectionSession {
     }
 
     func prepareForCapture() {
+        setInteractionEnabled(false)
+    }
+
+    func setInteractionEnabled(_ enabled: Bool) {
         for window in windows {
-            window.ignoresMouseEvents = true
+            window.ignoresMouseEvents = !enabled
         }
     }
 

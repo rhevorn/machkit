@@ -36,16 +36,25 @@ final class ScreenshotController: ObservableObject {
         )
         selectionSession = session
         session.present()
+        session.setInteractionEnabled(false)
 
-        do {
-            let snapshot = try ScreenshotCapture.captureDesktop(below: session.overlayWindows)
-            desktopSnapshot = snapshot
-            session.applySnapshot(snapshot)
-        } catch {
-            selectionSession?.dismiss()
-            selectionSession = nil
-            presentError(error)
-            finish()
+        captureTask = Task { [weak self] in
+            guard let self else { return }
+            do {
+                let snapshot = try await ScreenshotCapture.captureDesktop(below: session.overlayWindows)
+                try Task.checkCancellation()
+                desktopSnapshot = snapshot
+                session.applySnapshot(snapshot)
+                session.setInteractionEnabled(true)
+                captureTask = nil
+            } catch is CancellationError {
+                finish()
+            } catch {
+                selectionSession?.dismiss()
+                selectionSession = nil
+                presentError(error)
+                finish()
+            }
         }
     }
 
