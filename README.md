@@ -62,7 +62,7 @@ MachKit has no analytics service or cloud backend. Scans read local file metadat
 
 ## Install
 
-Official MachKit releases are signed with Developer ID and notarized by Apple. Source builds use your local Xcode signing configuration.
+When the maintainers configure Apple release credentials, MachKit releases are signed with Developer ID and notarized by Apple. Otherwise, the release workflow publishes an ad-hoc signed, non-notarized build and labels it clearly in the release notes. Source builds use your local Xcode signing configuration.
 
 1. Download `MachKit-*-macOS.zip` from [GitHub Releases](https://github.com/rhevorn/machkit/releases/latest).
 2. Unzip it, then move `MachKit.app` into `/Applications`.
@@ -108,7 +108,7 @@ Debug builds can load tools from the local Vite server with HMR; Release builds 
 
 ## Releases
 
-Local builds use `dev`. Release tags are the source of truth for shipped versions: pushing a tag such as `v0.9.0` overrides the app version with `CFBundleShortVersionString=0.9.0`, while the GitHub Actions run number becomes `CFBundleVersion`. The workflow verifies both values, signs with Developer ID, submits the app for notarization, staples the ticket, and only then publishes the ZIP. Maintainers must configure the signing and notarization secrets documented in the release workflow.
+Local builds use `dev`. Release tags are the source of truth for shipped versions: pushing a tag such as `v0.9.0` overrides the app version with `CFBundleShortVersionString=0.9.0`, while the GitHub Actions run number becomes `CFBundleVersion`. The workflow verifies both values, then selects one of two explicit release modes: all documented Apple secrets produce a Developer ID signed, notarized, and stapled ZIP; no Apple secrets produce an ad-hoc signed, non-notarized ZIP. A partially configured secret set fails instead of silently downgrading. Existing tags can also be rebuilt from the workflow’s manual dispatch input.
 
 ```bash
 git tag v0.9.0

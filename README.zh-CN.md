@@ -62,7 +62,7 @@ MachKit 不使用分析服务或云端后台。扫描只读取本机文件元数
 
 ## 安装
 
-MachKit 官方发布包使用 Developer ID 签名，并经过 Apple 公证。源码构建使用本机 Xcode 的签名配置。
+维护者配置 Apple 发布凭据后，MachKit 发布包会使用 Developer ID 签名并经过 Apple 公证；没有配置凭据时，发布工作流会生成 ad-hoc 签名、未经公证的构建，并在 Release Notes 中明确标注。源码构建使用本机 Xcode 的签名配置。
 
 1. 从 [GitHub Releases](https://github.com/rhevorn/machkit/releases/latest) 下载 `MachKit-*-macOS.zip`。
 2. 解压后，将 `MachKit.app` 移到「应用程序」文件夹（`/Applications`）。
@@ -108,7 +108,7 @@ Debug 构建可从本地 Vite 服务热更新加载工具；Release 构建始终
 
 ## 发布
 
-本地构建统一使用 `dev`。正式发布以 Git tag 作为版本唯一来源：推送 `v0.9.0` 后，工作流会将 App 版本覆盖为 `CFBundleShortVersionString=0.9.0`，GitHub Actions 运行编号作为 `CFBundleVersion`。工作流会校验版本、使用 Developer ID 签名、提交 Apple 公证并装订公证票据，最后才发布 ZIP。维护者需要在仓库中配置发布工作流所列的签名与公证 secrets。
+本地构建统一使用 `dev`。正式发布以 Git tag 作为版本唯一来源：推送 `v0.9.0` 后，工作流会将 App 版本覆盖为 `CFBundleShortVersionString=0.9.0`，GitHub Actions 运行编号作为 `CFBundleVersion`。工作流会校验版本，再明确选择两种模式之一：签名与公证 secrets 全部配置时，生成 Developer ID 签名、经过公证并装订票据的 ZIP；完全没有配置时，生成 ad-hoc 签名、未经公证的 ZIP。如果只配置一部分 secrets，工作流会失败而不是静默降级。已有 tag 也可以通过工作流的手动输入重新构建。
 
 ```bash
 git tag v0.9.0

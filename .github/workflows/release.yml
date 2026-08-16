@@ -4,12 +4,18 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to build (for example, v2.2.0)
+        required: true
+        type: string
 
 permissions:
   contents: write
 
 concurrency:
-  group: release-${{ github.ref }}
+  group: release-${{ inputs.tag || github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -19,14 +25,16 @@ jobs:
       - name: Checkout complete history
         uses: actions/checkout@v6
         with:
+          ref: ${{ inputs.tag || github.ref }}
           fetch-depth: 0
           fetch-tags: true
 
-      # Required repository secrets:
+      # Optional Developer ID release secrets (configure all or none):
       # DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64, DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD,
       # DEVELOPER_ID_APPLICATION_IDENTITY, SIGNING_KEYCHAIN_PASSWORD,
       # APPLE_ID, APPLE_APP_SPECIFIC_PASSWORD, and APPLE_TEAM_ID.
-      - name: Validate signing and notarization secrets
+      - name: Select release signing mode
+        id: signing_mode
         shell: bash
         env:
           CERTIFICATE_BASE64: ${{ secrets.DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64 }}
@@ -38,14 +46,34 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
           set -euo pipefail
-          for variable in CERTIFICATE_BASE64 CERTIFICATE_PASSWORD SIGNING_IDENTITY KEYCHAIN_PASSWORD APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID; do
-            if [[ -z "${!variable}" ]]; then
-              echo "Required release secret is missing: $variable" >&2
-              exit 1
+          variables=(CERTIFICATE_BASE64 CERTIFICATE_PASSWORD SIGNING_IDENTITY KEYCHAIN_PASSWORD APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID)
+          configured=0
+          missing=()
+          for variable in "${variables[@]}"; do
+            if [[ -n "${!variable}" ]]; then
+              configured=$((configured + 1))
+            else
+              missing+=("$variable")
             fi
           done
 
+          if (( configured == 0 )); then
+            mode="ad-hoc"
+            echo "::warning::Developer ID secrets are not configured. Publishing an ad-hoc signed build without notarization."
+          elif (( configured == ${#variables[@]} )); then
+            mode="developer-id"
+            echo "::notice::All signing secrets are configured. Publishing a Developer ID signed and notarized build."
+          else
+            echo "Developer ID configuration is incomplete. Configure all documented release secrets or remove all of them to use ad-hoc signing." >&2
+            printf 'Missing secret alias: %s\n' "${missing[@]}" >&2
+            exit 1
+          fi
+
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+          echo "### Signing mode: $mode" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Import Developer ID certificate
+        if: steps.signing_mode.outputs.mode == 'developer-id'
         id: signing
         shell: bash
         env:
@@ -79,9 +107,10 @@ jobs:
         shell: bash
         env:
           RUN_NUMBER: ${{ github.run_number }}
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
         run: |
           set -euo pipefail
-          version="$(Scripts/validate_release_version.sh "$GITHUB_REF_NAME")"
+          version="$(Scripts/validate_release_version.sh "$RELEASE_TAG")"
           # CFBundleVersion starts at 1000+ (run 1 → 1001, run 2 → 1002, …).
           build_number=$((1000 + RUN_NUMBER))
           echo "version=$version" >> "$GITHUB_OUTPUT"
@@ -180,6 +209,7 @@ jobs:
           fi
 
       - name: Sign and verify with Developer ID
+        if: steps.signing_mode.outputs.mode == 'developer-id'
         shell: bash
         env:
           APP_PATH: ${{ steps.app.outputs.path }}
@@ -195,7 +225,24 @@ jobs:
             "$APP_PATH"
           codesign --verify --deep --strict --verbose=2 "$APP_PATH"
 
+      - name: Sign and verify ad-hoc build
+        if: steps.signing_mode.outputs.mode == 'ad-hoc'
+        shell: bash
+        env:
+          APP_PATH: ${{ steps.app.outputs.path }}
+        run: |
+          set -euo pipefail
+          codesign \
+            --force \
+            --deep \
+            --options runtime \
+            --entitlements App/MachKit.entitlements \
+            --sign - \
+            "$APP_PATH"
+          codesign --verify --deep --strict --verbose=2 "$APP_PATH"
+
       - name: Notarize and staple app
+        if: steps.signing_mode.outputs.mode == 'developer-id'
         shell: bash
         env:
           APP_PATH: ${{ steps.app.outputs.path }}
@@ -239,10 +286,16 @@ jobs:
       - name: Generate Release Notes
         id: notes
         shell: bash
+        env:
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+          SIGNING_MODE: ${{ steps.signing_mode.outputs.mode }}
         run: |
           set -euo pipefail
           notes_path="$GITHUB_WORKSPACE/build/release/release-notes.md"
-          Scripts/generate_release_notes.sh "$GITHUB_REF_NAME" "$notes_path"
+          Scripts/generate_release_notes.sh "$RELEASE_TAG" "$notes_path"
+          if [[ "$SIGNING_MODE" == "ad-hoc" ]]; then
+            printf '\n## Signing\n\nThis build uses ad-hoc code signing and is not notarized by Apple. macOS may require Control-clicking MachKit and choosing Open on first launch.\n' >> "$notes_path"
+          fi
           test -s "$notes_path"
           echo "path=$notes_path" >> "$GITHUB_OUTPUT"
 
@@ -252,15 +305,16 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           ARCHIVE_PATH: ${{ steps.package.outputs.path }}
           NOTES_PATH: ${{ steps.notes.outputs.path }}
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
         run: |
           set -euo pipefail
-          gh release create "$GITHUB_REF_NAME" "$ARCHIVE_PATH" \
+          gh release create "$RELEASE_TAG" "$ARCHIVE_PATH" \
             --verify-tag \
-            --title "MachKit $GITHUB_REF_NAME" \
+            --title "MachKit $RELEASE_TAG" \
             --notes-file "$NOTES_PATH"
 
       - name: Remove temporary signing keychain
-        if: always()
+        if: always() && steps.signing_mode.outputs.mode == 'developer-id'
         shell: bash
         env:
           KEYCHAIN_PATH: ${{ steps.signing.outputs.keychain_path }}
