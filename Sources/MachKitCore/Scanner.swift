@@ -170,7 +170,6 @@ public actor Scanner {
         tracker: RuleProgressTracker
     ) async -> RuleScanResult {
         var stats = RuleScanStats()
-        var results: [ScanItem] = []
         let keys: Set<URLResourceKey> = [
             .isRegularFileKey,
             .isSymbolicLinkKey,
@@ -182,8 +181,19 @@ public actor Scanner {
         let cutoff = Calendar(identifier: .gregorian)
             .date(byAdding: .day, value: -rule.minimumAgeDays, to: Date()) ?? .distantPast
 
+        /// First-level child under each rule target — never one row per nested file.
+        struct FolderBucket {
+            var url: URL
+            var totalBytes: Int64 = 0
+            var totalFiles: Int = 0
+            var matchedFiles: Int = 0
+            var newestMatched: Date?
+        }
+        var buckets: [String: FolderBucket] = [:]
+
         for target in targets {
             guard !Task.isCancelled else { break }
+            let targetPath = target.standardizedFileURL.path
             guard let enumerator = fileManager.value.enumerator(
                 at: target,
                 includingPropertiesForKeys: Array(keys),
@@ -213,26 +223,67 @@ public actor Scanner {
                 }
                 guard let values = try? fileURL.resourceValues(forKeys: keys),
                       values.isRegularFile == true,
-                      values.isSymbolicLink != true,
-                      let modified = values.contentModificationDate,
-                      modified < cutoff else { continue }
+                      values.isSymbolicLink != true else { continue }
 
+                guard let bucketURL = aggregationFolder(for: fileURL, under: target, targetPath: targetPath) else {
+                    continue
+                }
+                let bucketKey = bucketURL.standardizedFileURL.path
+                let size = Int64(values.fileSize ?? 0)
+                var bucket = buckets[bucketKey] ?? FolderBucket(url: bucketURL)
+                bucket.totalBytes += size
+                bucket.totalFiles += 1
+
+                let modified = values.contentModificationDate ?? .distantPast
                 let ext = fileURL.pathExtension.lowercased()
-                guard rule.allowedExtensions.isEmpty || rule.allowedExtensions.contains(ext) else { continue }
-                let item = ScanItem(
-                    url: fileURL,
-                    bytes: Int64(values.fileSize ?? 0),
-                    modifiedAt: modified,
-                    rule: rule
-                )
-                results.append(item)
-                stats.matchedFiles += 1
-                stats.matchedBytes += item.bytes
+                let extensionOK = rule.allowedExtensions.isEmpty || rule.allowedExtensions.contains(ext)
+                if extensionOK, modified < cutoff {
+                    bucket.matchedFiles += 1
+                    if let newest = bucket.newestMatched {
+                        bucket.newestMatched = max(newest, modified)
+                    } else {
+                        bucket.newestMatched = modified
+                    }
+                }
+                buckets[bucketKey] = bucket
             }
         }
 
+        let results: [ScanItem] = buckets.values.compactMap { bucket in
+            guard bucket.matchedFiles > 0 else { return nil }
+            return ScanItem(
+                url: bucket.url,
+                bytes: bucket.totalBytes,
+                fileCount: max(1, bucket.totalFiles),
+                modifiedAt: bucket.newestMatched,
+                rule: rule
+            )
+        }.sorted { $0.bytes > $1.bytes }
+
+        stats.matchedFiles = results.reduce(0) { $0 + $1.fileCount }
+        stats.matchedBytes = results.reduce(into: Int64(0)) { $0 += $1.bytes }
         await tracker.completed(rule: rule, stats: stats)
         return RuleScanResult(ruleIndex: ruleIndex, items: results)
+    }
+
+    /// Maps a nested file to the first-level entry under `target`
+    /// (e.g. `Library/Caches/Homebrew/foo` → `Library/Caches/Homebrew`).
+    private nonisolated static func aggregationFolder(
+        for fileURL: URL,
+        under target: URL,
+        targetPath: String
+    ) -> URL? {
+        let path = fileURL.standardizedFileURL.path
+        let prefix = targetPath.hasSuffix("/") ? targetPath : targetPath + "/"
+        guard path.hasPrefix(prefix) else {
+            // File is the target itself (rare).
+            return fileURL.standardizedFileURL == target.standardizedFileURL ? fileURL : nil
+        }
+        let relative = String(path.dropFirst(prefix.count))
+        guard let first = relative.split(separator: "/", maxSplits: 1, omittingEmptySubsequences: true).first else {
+            return nil
+        }
+        return target.appending(path: String(first))
     }
 
     private nonisolated static func scanTopLevelEntries(
@@ -277,9 +328,15 @@ public actor Scanner {
                     guard modified < cutoff else { continue }
                 }
 
-                let bytes = await allocatedBytes(at: child)
-                guard bytes > 0 || values.isDirectory == true || values.isRegularFile == true else { continue }
-                let item = ScanItem(url: child, bytes: bytes, modifiedAt: values.contentModificationDate, rule: rule)
+                let summary = await entrySummary(at: child, isDirectory: values.isDirectory == true)
+                guard summary.bytes > 0 || values.isDirectory == true || values.isRegularFile == true else { continue }
+                let item = ScanItem(
+                    url: child,
+                    bytes: summary.bytes,
+                    fileCount: summary.fileCount,
+                    modifiedAt: values.contentModificationDate,
+                    rule: rule
+                )
                 results.append(item)
                 stats.matchedFiles += 1
                 stats.matchedBytes += item.bytes
@@ -321,8 +378,14 @@ public actor Scanner {
                   isDirectory.boolValue else { continue }
 
             let modified = try? deviceURL.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate
-            let bytes = await allocatedBytes(at: deviceURL)
-            let item = ScanItem(url: deviceURL, bytes: bytes, modifiedAt: modified, rule: rule)
+            let summary = await entrySummary(at: deviceURL, isDirectory: true)
+            let item = ScanItem(
+                url: deviceURL,
+                bytes: summary.bytes,
+                fileCount: summary.fileCount,
+                modifiedAt: modified,
+                rule: rule
+            )
             results.append(item)
             stats.matchedFiles += 1
             stats.matchedBytes += item.bytes
@@ -364,27 +427,48 @@ public actor Scanner {
         return ids
     }
 
-    private nonisolated static func allocatedBytes(at url: URL) async -> Int64 {
+    private struct EntrySummary: Sendable {
+        let bytes: Int64
+        let fileCount: Int
+    }
+
+    private nonisolated static func entrySummary(at url: URL, isDirectory: Bool) async -> EntrySummary {
         await Task.detached(priority: .utility) {
-            let keys: Set<URLResourceKey> = [.isRegularFileKey, .fileSizeKey, .fileAllocatedSizeKey]
-            if let values = try? url.resourceValues(forKeys: keys), values.isRegularFile == true {
-                return Int64(values.fileAllocatedSize ?? values.fileSize ?? 0)
-            }
-            do {
-                let output = try SystemCommandRunner.run(
-                    executable: "/usr/bin/du",
-                    arguments: ["-sk", url.path],
-                    timeout: 30
+            let keys: Set<URLResourceKey> = [
+                .isRegularFileKey,
+                .isDirectoryKey,
+                .fileSizeKey,
+                .fileAllocatedSizeKey
+            ]
+            if !isDirectory,
+               let values = try? url.resourceValues(forKeys: keys),
+               values.isRegularFile == true {
+                return EntrySummary(
+                    bytes: Int64(values.fileAllocatedSize ?? values.fileSize ?? 0),
+                    fileCount: 1
                 )
-                guard output.status == 0,
-                      let token = output.text.split(whereSeparator: \.isWhitespace).first,
-                      let kilobytes = Int64(token) else {
-                    return 0
-                }
-                return kilobytes * 1_024
-            } catch {
-                return 0
             }
+            // Shallow estimate only — recursive `du` / totalFileAllocatedSize freezes UI.
+            guard let children = try? FileManager.default.contentsOfDirectory(
+                at: url,
+                includingPropertiesForKeys: Array(keys),
+                options: [.skipsHiddenFiles]
+            ) else {
+                return EntrySummary(bytes: 0, fileCount: 1)
+            }
+            var total: Int64 = 0
+            var files = 0
+            for child in children.prefix(250) {
+                guard let values = try? child.resourceValues(forKeys: keys) else { continue }
+                if values.isRegularFile == true {
+                    total += Int64(values.fileAllocatedSize ?? values.fileSize ?? 0)
+                    files += 1
+                } else if values.isDirectory == true {
+                    total += 4_096
+                    files += 1
+                }
+            }
+            return EntrySummary(bytes: total, fileCount: max(1, files))
         }.value
     }
 }

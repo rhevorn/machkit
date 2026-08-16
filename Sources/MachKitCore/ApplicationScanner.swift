@@ -82,21 +82,55 @@ public actor ApplicationScanner {
 
     /// Reads app identifiers without calculating bundle sizes. Cleanup uses this
     /// lightweight inventory so large apps such as Xcode cannot stall the final rule.
-    public func installedBundleIdentifiers(in roots: [URL]) -> Set<String> {
+    public func installedBundleIdentifiers(in roots: [URL]) async -> Set<String> {
+        let roots = roots
+        return await Task.detached(priority: .utility) {
+            Self.collectInstalledBundleIdentifiers(in: roots)
+        }.value
+    }
+
+    private nonisolated static func collectInstalledBundleIdentifiers(in roots: [URL]) -> Set<String> {
         var identifiers = Set<String>()
+        let fileManager = FileManager.default
         for root in roots {
-            guard let enumerator = fileManager.enumerator(
-                at: root,
-                includingPropertiesForKeys: [.isApplicationKey],
-                options: [.skipsHiddenFiles, .skipsPackageDescendants]
-            ) else { continue }
-            while let url = enumerator.nextObject() as? URL {
-                guard url.pathExtension.lowercased() == "app",
-                      let identifier = Bundle(url: url)?.bundleIdentifier else { continue }
-                identifiers.insert(identifier)
-            }
+            collectAppIdentifiers(in: root, depth: 0, limit: 2, fileManager: fileManager, into: &identifiers)
         }
         return identifiers
+    }
+
+    /// Shallow walk only — never descend into `.app` packages or deep trees under Applications.
+    private nonisolated static func collectAppIdentifiers(
+        in root: URL,
+        depth: Int,
+        limit: Int,
+        fileManager: FileManager,
+        into identifiers: inout Set<String>
+    ) {
+        guard depth <= limit else { return }
+        guard let children = try? fileManager.contentsOfDirectory(
+            at: root,
+            includingPropertiesForKeys: [.isDirectoryKey],
+            options: [.skipsHiddenFiles]
+        ) else { return }
+
+        for child in children {
+            if child.pathExtension.lowercased() == "app" {
+                if let identifier = Bundle(url: child)?.bundleIdentifier {
+                    identifiers.insert(identifier)
+                }
+                continue
+            }
+            let isDirectory = (try? child.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true
+            if isDirectory {
+                collectAppIdentifiers(
+                    in: child,
+                    depth: depth + 1,
+                    limit: limit,
+                    fileManager: fileManager,
+                    into: &identifiers
+                )
+            }
+        }
     }
 
     public func commandLineTools(home: URL) -> [CommandLineTool] {
@@ -253,9 +287,10 @@ public actor ApplicationScanner {
             guard unique.count >= 2 || hasStrongEvidence else { return nil }
             return (identifier, unique)
         }
-        // Discovery is shallow (top-level paths only). Sizing must stay cheap:
-        // never request totalFileAllocatedSizeKey or spawn `du` — both can freeze
-        // on large Containers and block the cooperative thread pool.
+        // Discovery is shallow (top-level paths only). Never enumerate inside
+        // candidate directories for sizing — Containers / Application Support can
+        // have tens of thousands of children and `contentsOfDirectory` with
+        // resource keys blocks the cooperative pool long enough to freeze the app.
         let workItems = qualifiedCandidates.flatMap { identifier, evidence in
             evidence.map { ResidueSizeWorkItem(identifier: identifier, url: $0.url, kind: $0.kind) }
         }.sorted { lhs, rhs in
@@ -270,14 +305,12 @@ public actor ApplicationScanner {
         }
 
         var residuesByIdentifier: [String: [ApplicationResidue]] = [:]
-        for (index, work) in workItems.enumerated() {
+        for work in workItems {
             guard !Task.isCancelled else { break }
             if let (identifier, residue) = await Self.measureResidue(work, tracker: tracker) {
                 residuesByIdentifier[identifier, default: []].append(residue)
             }
-            if index.isMultiple(of: 8) {
-                await Task.yield()
-            }
+            await Task.yield()
         }
 
         return residuesByIdentifier.map { identifier, residues in
@@ -350,7 +383,12 @@ public actor ApplicationScanner {
         tracker: ResidueProgressTracker
     ) async -> (String, ApplicationResidue)? {
         guard !Task.isCancelled else { return nil }
-        let bytes = Self.quickAllocatedBytes(at: work.url)
+        // Keep FileManager off the cooperative pool — sync I/O there stalls UI tasks.
+        let bytes: Int64 = await withCheckedContinuation { continuation in
+            DispatchQueue.global(qos: .utility).async {
+                continuation.resume(returning: Self.quickAllocatedBytes(at: work.url))
+            }
+        }
         guard !Task.isCancelled else { return nil }
         await tracker.completed()
         return (work.identifier, ApplicationResidue(
@@ -361,8 +399,8 @@ public actor ApplicationScanner {
         ))
     }
 
-    /// Fast size probe for leftovers. Avoids recursive filesystem keys and `du`,
-    /// which both stall hard on large Containers.
+    /// Instant size probe for leftovers. Regular files get a single metadata read;
+    /// directories always return 0 — never list children (Containers freeze otherwise).
     private nonisolated static func quickAllocatedBytes(at url: URL) -> Int64 {
         let keys: Set<URLResourceKey> = [
             .isRegularFileKey,
@@ -370,31 +408,11 @@ public actor ApplicationScanner {
             .fileAllocatedSizeKey,
             .fileSizeKey
         ]
-        if let values = try? url.resourceValues(forKeys: keys), values.isRegularFile == true {
+        guard let values = try? url.resourceValues(forKeys: keys) else { return 0 }
+        if values.isRegularFile == true {
             return Int64(values.fileAllocatedSize ?? values.fileSize ?? 0)
         }
-        return shallowAllocatedBytes(at: url)
-    }
-
-    /// One-level estimate for directories — enough to rank leftovers without freezing.
-    private nonisolated static func shallowAllocatedBytes(at url: URL) -> Int64 {
-        let keys: Set<URLResourceKey> = [.isRegularFileKey, .fileAllocatedSizeKey, .fileSizeKey, .isDirectoryKey]
-        guard let children = try? FileManager.default.contentsOfDirectory(
-            at: url,
-            includingPropertiesForKeys: Array(keys),
-            options: [.skipsHiddenFiles]
-        ) else { return 0 }
-
-        var total: Int64 = 0
-        for child in children.prefix(250) {
-            guard let values = try? child.resourceValues(forKeys: keys) else { continue }
-            if values.isRegularFile == true {
-                total += Int64(values.fileAllocatedSize ?? values.fileSize ?? 0)
-            } else if values.isDirectory == true {
-                total += 4_096
-            }
-        }
-        return total
+        return 0
     }
 
     private func looksLikeThirdPartyBundleIdentifier(_ value: String) -> Bool {

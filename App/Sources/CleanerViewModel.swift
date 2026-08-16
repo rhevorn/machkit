@@ -56,8 +56,13 @@ final class CleanerViewModel: ObservableObject {
     @Published var selectedIDs: Set<UUID> = []
     @Published private(set) var selectedBytes: Int64 = 0
     @Published private(set) var totalBytes: Int64 = 0
+    @Published private(set) var safeCleanableBytes: Int64 = 0
+    @Published private(set) var reviewCleanableBytes: Int64 = 0
+    @Published private(set) var safeItemCount = 0
+    @Published private(set) var reviewItemCount = 0
     @Published var isScanning = false
     @Published private(set) var isCleanupScanning = false
+    @Published private(set) var isPreparingCleanupResults = false
     @Published private(set) var isStorageAnalyzing = false
     @Published private(set) var loadingModes: Set<FeatureMode> = []
     @Published var showCleanConfirmation = false
@@ -67,14 +72,32 @@ final class CleanerViewModel: ObservableObject {
     @Published var currentScanCategory = ""
     @Published private(set) var completedCleanupPhases: Set<String> = []
     @Published private(set) var activeCleanupPhaseID: String?
+    @Published private(set) var activeCleanupPhaseProgress = 0.0
     @Published private(set) var showsLeftoverScanPhase = true
 
-    struct CleanupScanPhase: Identifiable, Hashable {
+    struct CleanupScanPhase: Identifiable, Hashable, Sendable {
         let id: String
         let title: String
         let icon: String
         let summary: String
-        let ruleTitles: Set<String>
+        let ruleIDs: [String]
+        let scansLeftovers: Bool
+
+        init(
+            id: String,
+            title: String,
+            icon: String,
+            summary: String,
+            ruleIDs: [String] = [],
+            scansLeftovers: Bool = false
+        ) {
+            self.id = id
+            self.title = title
+            self.icon = icon
+            self.summary = summary
+            self.ruleIDs = ruleIDs
+            self.scansLeftovers = scansLeftovers
+        }
     }
 
     var visibleCleanupScanPhases: [CleanupScanPhase] {
@@ -87,7 +110,6 @@ final class CleanerViewModel: ObservableObject {
     @Published var discoveredBytes: Int64 = 0
     @Published var status = L10n.string("Choose your user folder or a test folder.")
 
-    private let scanner = MachKitCore.Scanner()
     private let cleaner = Cleaner()
     private let applicationScanner = ApplicationScanner()
     private let systemInventoryScanner = SystemInventoryScanner()
@@ -112,11 +134,8 @@ final class CleanerViewModel: ObservableObject {
     private var hasScannedExtensions = false
     private var selectedCountByGroup: [String: Int] = [:]
     private var itemByID: [UUID: ScanItem] = [:]
+    private var itemIDsByRuleID: [String: [UUID]] = [:]
     private var cleanupRoot = FileManager.default.homeDirectoryForCurrentUser
-    private var standardCleanupProgress = 0.0
-    private var residueCleanupProgress = 0.0
-    private var standardCleanupInspectedFiles = 0
-    private var residueCleanupInspectedFiles = 0
     private var cleanupIncludesResidues = false
     var selectedCount: Int { selectedIDs.count }
     var lastScanText: String {
@@ -213,53 +232,248 @@ final class CleanerViewModel: ObservableObject {
         scanTask?.cancel()
         isCleanupScanning = true
         scanProgress = 0
-        standardCleanupProgress = 0
-        residueCleanupProgress = 0
-        standardCleanupInspectedFiles = 0
-        residueCleanupInspectedFiles = 0
         cleanupIncludesResidues = selectedRoot.resolvingSymlinksInPath()
             == FileManager.default.homeDirectoryForCurrentUser.standardizedFileURL.resolvingSymlinksInPath()
         showsLeftoverScanPhase = cleanupIncludesResidues
         completedCleanupPhases = []
         activeCleanupPhaseID = nil
-        rememberedCompletedRuleTitles = []
+        activeCleanupPhaseProgress = 0
         currentScanCategory = L10n.string("Getting ready…")
         inspectedFileCount = 0
         discoveredFileCount = 0
         discoveredBytes = 0
         status = L10n.string("Scanning…")
-        scanTask = Task {
-            switch scanMode {
-            case .home:
-                let found = await scanJunk(root: selectedRoot)
-                guard !Task.isCancelled else { return }
-                items = found
-                selectedIDs = Set(found.filter { $0.rule.risk == .safe }.map(\.id))
-                rebuildJunkGroups()
-                cleanableBytes = selectedBytes
-                status = L10n.format("Scan complete. %lld candidate files found.", Int64(found.count))
-            case .junk:
-                let found = await scanJunk(root: selectedRoot)
-                guard !Task.isCancelled else { return }
-                items = found
-                selectedIDs = Set(found.filter { $0.rule.risk == .safe }.map(\.id))
-                rebuildJunkGroups()
-                cleanableBytes = selectedBytes
-                status = L10n.format("%lld candidate files found. Items marked ‘Review’ are not selected by default.", Int64(found.count))
-            case .uninstall:
-                break
-            case .files:
-                break
-            case .performance, .network, .tools, .loginItems, .backgroundActivity, .extensions, .settings:
-                break
+        let includeResidues = cleanupIncludesResidues
+        let phases = Self.cleanupScanPhases.filter { $0.id != "leftovers" || includeResidues }
+        scanTask = Task { [scanMode] in
+            let (stream, continuation) = AsyncStream.makeStream(of: CleanupScanProgressEvent.self)
+            let worker = Task.detached(priority: .userInitiated) {
+                let items = await CleanerViewModel.runCleanupScan(
+                    root: selectedRoot,
+                    includeResidues: includeResidues,
+                    phases: phases
+                ) { event in
+                    continuation.yield(event)
+                }
+                continuation.finish()
+                return items
             }
+
+            for await event in stream {
+                guard !Task.isCancelled else {
+                    worker.cancel()
+                    break
+                }
+                applyCleanupProgress(event)
+            }
+
+            let found = await worker.value
+            guard !Task.isCancelled else {
+                isCleanupScanning = false
+                isPreparingCleanupResults = false
+                scanTask = nil
+                currentScanCategory = L10n.string("Scan canceled")
+                return
+            }
+
+            currentScanCategory = L10n.string("Preparing results…")
+            isPreparingCleanupResults = true
+            let prepared = await Task.detached(priority: .userInitiated) {
+                CleanerViewModel.prepareCleanupResults(from: found)
+            }.value
+            guard !Task.isCancelled else {
+                isCleanupScanning = false
+                isPreparingCleanupResults = false
+                scanTask = nil
+                currentScanCategory = L10n.string("Scan canceled")
+                return
+            }
+
+            applyPreparedCleanupResults(prepared)
             lastScanAt = Date()
             lastUpdatedAt[scanMode] = lastScanAt
-            currentScanCategory = L10n.string(Task.isCancelled ? "Scan canceled" : "Wrapping up…")
-            if !Task.isCancelled { scanProgress = 1 }
+            scanProgress = 1
+            activeCleanupPhaseProgress = 1
+            completedCleanupPhases = Set(phases.map(\.id))
+            activeCleanupPhaseID = nil
+            currentScanCategory = L10n.string("Wrapping up…")
+            isPreparingCleanupResults = false
             isCleanupScanning = false
             scanTask = nil
+            switch scanMode {
+            case .home:
+                status = L10n.format("Scan complete. %lld candidate files found.", Int64(found.count))
+            case .junk:
+                status = L10n.format(
+                    "%lld candidate files found. Items marked ‘Review’ are not selected by default.",
+                    Int64(found.count)
+                )
+            default:
+                break
+            }
         }
+    }
+
+    /// Background cleanup orchestration — never touches UI state directly.
+    private nonisolated static func runCleanupScan(
+        root: URL,
+        includeResidues: Bool,
+        phases: [CleanupScanPhase],
+        onProgress: @escaping @Sendable (CleanupScanProgressEvent) -> Void
+    ) async -> [ScanItem] {
+        let rulesByID = Dictionary(uniqueKeysWithValues: DefaultRules.conservative.map { ($0.id, $0) })
+        let categories: [CleanupCategorySpec] = phases.map { phase in
+            if phase.scansLeftovers {
+                return CleanupCategorySpec(id: phase.id, scansLeftovers: true)
+            }
+            let rules = phase.ruleIDs.compactMap { rulesByID[$0] }
+            return CleanupCategorySpec(id: phase.id, rules: rules)
+        }
+        let home = FileManager.default.homeDirectoryForCurrentUser
+            .standardizedFileURL
+            .resolvingSymlinksInPath()
+        let engine = CleanupScanEngine()
+        let found = await engine.scan(
+            root: root,
+            home: home,
+            categories: categories,
+            onProgress: onProgress
+        )
+        guard includeResidues else { return found }
+
+        let leftoverRootSet = Set(
+            found
+                .filter { $0.rule.id == DefaultRules.uninstallLeftovers.id }
+                .map { $0.url.standardizedFileURL.path }
+        )
+        guard !leftoverRootSet.isEmpty else { return found }
+
+        return found.filter { item in
+            if item.rule.id == DefaultRules.uninstallLeftovers.id { return true }
+            return !Self.path(item.url.standardizedFileURL.path, isCoveredBy: leftoverRootSet)
+        }
+    }
+
+    /// True when `path` equals a leftover root or sits under one (ancestor walk, O(depth)).
+    private nonisolated static func path(_ path: String, isCoveredBy roots: Set<String>) -> Bool {
+        if roots.contains(path) { return true }
+        var prefix = path
+        while let slash = prefix.lastIndex(of: "/") {
+            prefix = String(prefix[..<slash])
+            if prefix.isEmpty { break }
+            if roots.contains(prefix) { return true }
+        }
+        return false
+    }
+
+    private struct PreparedCleanupResults: Sendable {
+        let items: [ScanItem]
+        let selectedIDs: Set<UUID>
+        let junkGroups: [JunkScanGroup]
+        let itemByID: [UUID: ScanItem]
+        let itemIDsByRuleID: [String: [UUID]]
+        let totalBytes: Int64
+        let selectedBytes: Int64
+        let selectedCountByGroup: [String: Int]
+        let safeCleanableBytes: Int64
+        let reviewCleanableBytes: Int64
+        let safeItemCount: Int
+        let reviewItemCount: Int
+    }
+
+    private nonisolated static func prepareCleanupResults(from found: [ScanItem]) -> PreparedCleanupResults {
+        let itemByID = Dictionary(uniqueKeysWithValues: found.map { ($0.id, $0) })
+        let totalBytes = found.reduce(into: Int64(0)) { $0 += $1.bytes }
+        var safeBytes: Int64 = 0
+        var reviewBytes: Int64 = 0
+        var safeCount = 0
+        var reviewCount = 0
+        var selectedIDs = Set<UUID>()
+        var itemIDsByRuleID: [String: [UUID]] = [:]
+
+        for item in found {
+            itemIDsByRuleID[item.rule.id, default: []].append(item.id)
+            switch item.rule.risk {
+            case .safe:
+                safeBytes += item.bytes
+                safeCount += 1
+                selectedIDs.insert(item.id)
+            case .review:
+                reviewBytes += item.bytes
+                reviewCount += 1
+            case .blocked:
+                break
+            }
+        }
+
+        var ruleOrder = Dictionary(uniqueKeysWithValues: DefaultRules.conservative.enumerated().map { ($0.element.id, $0.offset + 1) })
+        ruleOrder[DefaultRules.uninstallLeftovers.id] = 0
+        let grouped = Dictionary(grouping: found, by: \.rule.id)
+        let junkGroups: [JunkScanGroup] = grouped.values.compactMap { groupItems in
+            guard let first = groupItems.first else { return nil }
+            let sorted = groupItems.sorted { $0.bytes > $1.bytes }
+            return JunkScanGroup(
+                id: first.rule.id,
+                title: first.rule.title,
+                explanation: first.rule.explanation,
+                risk: first.rule.risk,
+                items: sorted,
+                totalCount: sorted.count,
+                bytes: sorted.reduce(into: Int64(0)) { $0 += $1.bytes }
+            )
+        }.sorted {
+            (ruleOrder[$0.id] ?? .max) < (ruleOrder[$1.id] ?? .max)
+        }
+
+        let selectedCountByGroup = Dictionary(
+            grouping: selectedIDs.compactMap { itemByID[$0]?.rule.id },
+            by: { $0 }
+        ).mapValues(\.count)
+        let selectedBytes = selectedIDs.reduce(into: Int64(0)) { partial, id in
+            partial += itemByID[id]?.bytes ?? 0
+        }
+
+        return PreparedCleanupResults(
+            items: found,
+            selectedIDs: selectedIDs,
+            junkGroups: junkGroups,
+            itemByID: itemByID,
+            itemIDsByRuleID: itemIDsByRuleID,
+            totalBytes: totalBytes,
+            selectedBytes: selectedBytes,
+            selectedCountByGroup: selectedCountByGroup,
+            safeCleanableBytes: safeBytes,
+            reviewCleanableBytes: reviewBytes,
+            safeItemCount: safeCount,
+            reviewItemCount: reviewCount
+        )
+    }
+
+    private func applyPreparedCleanupResults(_ prepared: PreparedCleanupResults) {
+        items = prepared.items
+        selectedIDs = prepared.selectedIDs
+        junkGroups = prepared.junkGroups
+        itemByID = prepared.itemByID
+        itemIDsByRuleID = prepared.itemIDsByRuleID
+        totalBytes = prepared.totalBytes
+        selectedBytes = prepared.selectedBytes
+        selectedCountByGroup = prepared.selectedCountByGroup
+        safeCleanableBytes = prepared.safeCleanableBytes
+        reviewCleanableBytes = prepared.reviewCleanableBytes
+        safeItemCount = prepared.safeItemCount
+        reviewItemCount = prepared.reviewItemCount
+        cleanableBytes = prepared.selectedBytes
+    }
+
+    private func applyCleanupProgress(_ event: CleanupScanProgressEvent) {
+        activeCleanupPhaseID = event.categoryID
+        activeCleanupPhaseProgress = event.categoryFraction
+        completedCleanupPhases = Set(event.completedCategoryIDs)
+        scanProgress = event.overallFraction
+        inspectedFileCount = event.inspectedFiles
+        discoveredFileCount = event.matchedFiles
+        discoveredBytes = event.matchedBytes
+        currentScanCategory = Self.friendlyCleanupPhase(forPhaseID: event.categoryID)
     }
 
     func scanStorageAnalysis() {
@@ -438,6 +652,7 @@ final class CleanerViewModel: ObservableObject {
         scanTask?.cancel()
         scanTask = nil
         isCleanupScanning = false
+        isPreparingCleanupResults = false
         currentScanCategory = L10n.string("Scan canceled")
         status = L10n.string("Scan canceled.")
     }
@@ -678,160 +893,25 @@ final class CleanerViewModel: ObservableObject {
         }
     }
 
-    private func scanJunk(root: URL) async -> [ScanItem] {
-        guard cleanupIncludesResidues else { return await scanRegularJunk(root: root) }
-        let home = FileManager.default.homeDirectoryForCurrentUser.standardizedFileURL.resolvingSymlinksInPath()
-
-        let regularItems = await scanRegularJunk(root: root)
-        guard !Task.isCancelled else { return [] }
-        let residueGroups = await scanCleanupResidues(home: home)
-        guard !Task.isCancelled else { return [] }
-
-        let residueItems = residueGroups.flatMap(\.residues).map { residue in
-            let modifiedAt = try? residue.url.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate
-            return ScanItem(
-                url: residue.url,
-                bytes: residue.bytes,
-                modifiedAt: modifiedAt,
-                rule: DefaultRules.uninstallLeftovers
-            )
-        }
-        let residueRoots = residueItems.map { $0.url.standardizedFileURL.path }
-        let deduplicatedRegularItems = regularItems.filter { item in
-            let path = item.url.standardizedFileURL.path
-            return !residueRoots.contains { root in
-                path == root || path.hasPrefix(root + "/")
-            }
-        }
-        let combined = deduplicatedRegularItems + residueItems
-        scanProgress = 1
-        discoveredFileCount = combined.count
-        discoveredBytes = combined.reduce(0) { $0 + $1.bytes }
-        return combined
-    }
-
-    private func scanRegularJunk(root: URL) async -> [ScanItem] {
-        await scanner.scan(root: root, rules: DefaultRules.conservative) { [weak self] progress in
-            Task { @MainActor [weak self] in
-                guard let self else { return }
-                self.standardCleanupProgress = progress.fractionCompleted
-                self.standardCleanupInspectedFiles = progress.inspectedFiles
-                self.publishCleanupProgress()
-                self.updateCleanupPhases(
-                    completedRuleTitles: progress.completedRuleTitles,
-                    currentRuleTitle: progress.currentRuleTitle
-                )
-                self.discoveredFileCount = progress.matchedFiles
-                self.discoveredBytes = progress.matchedBytes
-            }
-        }
-    }
-
-    private func scanCleanupResidues(home: URL) async -> [ApplicationResidueGroup] {
-        let installedIdentifiers = await applicationScanner.installedBundleIdentifiers(in: [
-            URL(fileURLWithPath: "/Applications", isDirectory: true),
-            home.appending(path: "Applications", directoryHint: .isDirectory)
-        ])
-        guard !Task.isCancelled else { return [] }
-        let residueGroups = await applicationScanner.orphanedResidues(
-            installedBundleIdentifiers: installedIdentifiers,
-            home: home
-        ) { [weak self] progress in
-            Task { @MainActor [weak self] in
-                guard let self else { return }
-                self.residueCleanupProgress = progress.fractionCompleted
-                self.residueCleanupInspectedFiles = progress.inspectedFiles
-                self.publishCleanupProgress()
-                if self.activeCleanupPhaseID != "leftovers" {
-                    self.updateCleanupPhases(
-                        completedRuleTitles: [],
-                        currentRuleTitle: DefaultRules.uninstallLeftovers.title
-                    )
-                }
-            }
-        }
-        guard !Task.isCancelled else { return [] }
-        residueCleanupProgress = 1
-        publishCleanupProgress()
-        updateCleanupPhases(
-            completedRuleTitles: [DefaultRules.uninstallLeftovers.title],
-            currentRuleTitle: nil
-        )
-        return residueGroups
-    }
-
-    private func publishCleanupProgress() {
-        inspectedFileCount = standardCleanupInspectedFiles + residueCleanupInspectedFiles
-        guard cleanupIncludesResidues else {
-            scanProgress = standardCleanupProgress
-            return
-        }
-        let totalRuleCount = Double(DefaultRules.conservative.count + 1)
-        let standardWeight = Double(DefaultRules.conservative.count) / totalRuleCount
-        scanProgress = standardCleanupProgress * standardWeight
-            + residueCleanupProgress / totalRuleCount
-    }
-
-    private var rememberedCompletedRuleTitles = Set<String>()
-
-    private func updateCleanupPhases(
-        completedRuleTitles: [String],
-        currentRuleTitle: String?
-    ) {
-        rememberedCompletedRuleTitles.formUnion(completedRuleTitles)
-        if residueCleanupProgress >= 1 {
-            rememberedCompletedRuleTitles.insert(DefaultRules.uninstallLeftovers.title)
-        }
-
-        let completedTitles = rememberedCompletedRuleTitles
-        var done = Set<String>()
-        for phase in Self.cleanupScanPhases where phase.ruleTitles.isSubset(of: completedTitles) {
-            done.insert(phase.id)
-        }
-        completedCleanupPhases = done
-
-        if cleanupIncludesResidues,
-           residueCleanupProgress < 1,
-           standardCleanupProgress >= 1 {
-            activeCleanupPhaseID = "leftovers"
-            currentScanCategory = Self.friendlyCleanupPhase(forPhaseID: "leftovers")
-            return
-        }
-
-        if let currentRuleTitle,
-           let phaseID = Self.phaseID(forRuleTitle: currentRuleTitle),
-           !done.contains(phaseID) {
-            activeCleanupPhaseID = phaseID
-            currentScanCategory = Self.friendlyCleanupPhase(forPhaseID: phaseID)
-        } else if let pending = Self.cleanupScanPhases.first(where: {
-            !done.contains($0.id) && ($0.id != "leftovers" || cleanupIncludesResidues)
-        }) {
-            activeCleanupPhaseID = pending.id
-            currentScanCategory = Self.friendlyCleanupPhase(forPhaseID: pending.id)
-        } else {
-            activeCleanupPhaseID = nil
-        }
-    }
-
     private static let cleanupScanPhases: [CleanupScanPhase] = [
         .init(
             id: "trash",
             title: "Trash",
             icon: "trash",
             summary: "Items already in Trash that can be emptied permanently.",
-            ruleTitles: ["Trash"]
+            ruleIDs: ["trash"]
         ),
         .init(
             id: "caches",
             title: "Caches",
             icon: "internaldrive",
             summary: "App caches, browser website caches, shared tool caches, temporary files, and language modeling caches.",
-            ruleTitles: [
-                "User Caches",
-                "Browser Caches",
-                "Shared Tool Caches",
-                "Temporary Files",
-                "Language Support Caches",
+            ruleIDs: [
+                "user-caches",
+                "browser-caches",
+                "xdg-caches",
+                "temporary-files",
+                "language-support-caches",
             ]
         ),
         .init(
@@ -839,9 +919,9 @@ final class CleanerViewModel: ObservableObject {
             title: "Downloads & mail",
             icon: "tray.and.arrow.down",
             summary: "Old installers and archives in Downloads, plus Mail attachment downloads.",
-            ruleTitles: [
-                "Old installation packages and compressed packages",
-                "Mail Downloads",
+            ruleIDs: [
+                "downloads-archives",
+                "mail-downloads",
             ]
         ),
         .init(
@@ -849,19 +929,19 @@ final class CleanerViewModel: ObservableObject {
             title: "Device backups",
             icon: "iphone",
             summary: "Local iPhone and iPad backups stored on this Mac.",
-            ruleTitles: ["Device Backups"]
+            ruleIDs: ["device-backups"]
         ),
         .init(
             id: "developer",
             title: "Developer files",
             icon: "hammer",
             summary: "Developer logs, package-manager caches, Xcode build artifacts, and unavailable simulator devices.",
-            ruleTitles: [
-                "Old Logs",
-                "Developer Home Caches",
-                "Xcode Artifacts",
-                "Apple Simulator Cache",
-                "Unavailable Simulator Devices",
+            ruleIDs: [
+                "user-logs",
+                "developer-home-caches",
+                "xcode-artifacts",
+                "simulator-cache",
+                "unavailable-simulator-devices",
             ]
         ),
         .init(
@@ -869,13 +949,9 @@ final class CleanerViewModel: ObservableObject {
             title: "Leftover apps",
             icon: "app.badge",
             summary: "Preferences, containers, and support files left behind after apps were uninstalled.",
-            ruleTitles: ["Uninstall Leftovers"]
+            scansLeftovers: true
         ),
     ]
-
-    private static func phaseID(forRuleTitle ruleTitle: String) -> String? {
-        cleanupScanPhases.first { $0.ruleTitles.contains(ruleTitle) }?.id
-    }
 
     /// Human-friendly scan phases — never expose rule numbers, paths, or technical titles.
     private static func friendlyCleanupPhase(forPhaseID phaseID: String) -> String {
@@ -1415,7 +1491,7 @@ final class CleanerViewModel: ObservableObject {
     }
 
     func isGroupSelected(_ group: JunkScanGroup) -> Bool {
-        !group.items.isEmpty && selectedCountByGroup[group.id] == group.items.count
+        group.totalCount > 0 && selectedCountByGroup[group.id] == group.totalCount
     }
 
     func selectAllJunkItems() {
@@ -1431,7 +1507,7 @@ final class CleanerViewModel: ObservableObject {
     }
 
     func setGroup(_ group: JunkScanGroup, selected: Bool) {
-        let ids = group.items.map(\.id)
+        let ids = itemIDsByRuleID[group.id] ?? items.lazy.filter { $0.rule.id == group.id }.map(\.id)
         if selected { selectedIDs.formUnion(ids) }
         else { selectedIDs.subtract(ids) }
         recalculateSelectionSummary()
@@ -1455,26 +1531,13 @@ final class CleanerViewModel: ObservableObject {
     }
 
     private func rebuildJunkGroups() {
-        itemByID = Dictionary(uniqueKeysWithValues: items.map { ($0.id, $0) })
-        totalBytes = items.reduce(0) { $0 + $1.bytes }
-        var ruleOrder = Dictionary(uniqueKeysWithValues: DefaultRules.conservative.enumerated().map { ($0.element.id, $0.offset + 1) })
-        ruleOrder[DefaultRules.uninstallLeftovers.id] = 0
-        let grouped = Dictionary(grouping: items, by: { $0.rule.id })
-        junkGroups = grouped.values.compactMap { groupItems in
-            guard let first = groupItems.first else { return nil }
-            let sorted = groupItems.sorted { $0.bytes > $1.bytes }
-            return JunkScanGroup(
-                id: first.rule.id,
-                title: first.rule.title,
-                explanation: first.rule.explanation,
-                risk: first.rule.risk,
-                items: sorted,
-                bytes: sorted.reduce(0) { $0 + $1.bytes }
-            )
-        }.sorted {
-            (ruleOrder[$0.id] ?? .max) < (ruleOrder[$1.id] ?? .max)
-        }
+        let prepared = Self.prepareCleanupResults(from: items)
+        // Preserve current selection when rebuilding after a clean.
+        let preservedSelection = selectedIDs
+        applyPreparedCleanupResults(prepared)
+        selectedIDs = preservedSelection.intersection(Set(prepared.items.map(\.id)))
         recalculateSelectionSummary()
+        cleanableBytes = selectedBytes
     }
 
     private func rebuildApplicationGroups() {

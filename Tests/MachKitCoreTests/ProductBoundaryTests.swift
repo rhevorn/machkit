@@ -179,14 +179,99 @@ private func formatPlaceholders(in value: String) -> [String] {
 }
 
 
-@Test func browserCachesAreCarvedOutOfUserCaches() {
-    let browserRoots = Set(BrowserCachesRule.rootsRelativeToLibraryCaches)
-    #expect(UserCachesRule.rule.excludedRelativePaths.isSuperset(of: browserRoots))
-    #expect(BrowserCachesRule.rule.relativePaths.allSatisfy { $0.hasPrefix("Library/Caches/") })
-    #expect(
-        DefaultRules.conservative.contains { $0.id == "browser-caches" && $0.risk == .safe }
+@Test func agedFileScanAggregatesToFirstLevelFolders() async throws {
+    let root = FileManager.default.temporaryDirectory
+        .appending(path: "machkit-aggregate-\(UUID().uuidString)", directoryHint: .isDirectory)
+    defer { try? FileManager.default.removeItem(at: root) }
+
+    let homebrewA = root.appending(path: "Library/Caches/Homebrew/downloads/a.bin")
+    let homebrewB = root.appending(path: "Library/Caches/Homebrew/downloads/b.bin")
+    let npmA = root.appending(path: "Library/Caches/npm/_cacache/x")
+    try FileManager.default.createDirectory(at: homebrewA.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try FileManager.default.createDirectory(at: npmA.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try Data(repeating: 1, count: 40).write(to: homebrewA)
+    try Data(repeating: 2, count: 60).write(to: homebrewB)
+    try Data(repeating: 3, count: 20).write(to: npmA)
+    let oldDate = Date(timeIntervalSinceNow: -40 * 24 * 60 * 60)
+    for path in [homebrewA.path, homebrewB.path, npmA.path] {
+        try FileManager.default.setAttributes([.modificationDate: oldDate], ofItemAtPath: path)
+    }
+
+    let items = await Scanner().scan(
+        root: root,
+        rules: [
+            ScanRule(
+                id: "caches",
+                title: "Caches",
+                relativePath: "Library/Caches",
+                minimumAgeDays: 30,
+                risk: .safe,
+                explanation: ""
+            )
+        ]
     )
+
+    #expect(items.count == 2)
+    #expect(Set(items.map(\.url.lastPathComponent)) == Set(["Homebrew", "npm"]))
+    let homebrew = try #require(items.first { $0.url.lastPathComponent == "Homebrew" })
+    #expect(homebrew.fileCount == 2)
+    #expect(homebrew.bytes == 100)
 }
+
+@Test func cleanupScanEngineAdvancesCategoriesSerially() async throws {
+    let root = FileManager.default.temporaryDirectory
+        .appending(path: "machkit-cleanup-engine-\(UUID().uuidString)", directoryHint: .isDirectory)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let first = root.appending(path: "Alpha/old.one")
+    let second = root.appending(path: "Beta/old.two")
+    try FileManager.default.createDirectory(at: first.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try FileManager.default.createDirectory(at: second.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try Data("one".utf8).write(to: first)
+    try Data("two".utf8).write(to: second)
+    let oldDate = Date(timeIntervalSinceNow: -3 * 24 * 60 * 60)
+    try FileManager.default.setAttributes([.modificationDate: oldDate], ofItemAtPath: first.path)
+    try FileManager.default.setAttributes([.modificationDate: oldDate], ofItemAtPath: second.path)
+
+    let categories = [
+        CleanupCategorySpec(
+            id: "a",
+            rules: [ScanRule(id: "first", title: "First", relativePath: "Alpha", minimumAgeDays: 1, risk: .safe, explanation: "")]
+        ),
+        CleanupCategorySpec(
+            id: "b",
+            rules: [ScanRule(id: "second", title: "Second", relativePath: "Beta", minimumAgeDays: 1, risk: .safe, explanation: "")]
+        )
+    ]
+
+    let progress = LockedCleanupProgress()
+    let items = await CleanupScanEngine().scan(
+        root: root,
+        home: root,
+        categories: categories
+    ) { event in
+        progress.observe(event)
+    }
+
+    #expect(progress.categoryIDs == ["a", "b"])
+    #expect(items.count == 2)
+    #expect(progress.maxOverall >= 0.99)
+}
+
+private final class LockedCleanupProgress: @unchecked Sendable {
+    private let lock = NSLock()
+    private(set) var categoryIDs: [String] = []
+    private(set) var maxOverall = 0.0
+
+    func observe(_ event: CleanupScanProgressEvent) {
+        lock.lock()
+        defer { lock.unlock() }
+        if categoryIDs.last != event.categoryID {
+            categoryIDs.append(event.categoryID)
+        }
+        maxOverall = max(maxOverall, event.overallFraction)
+    }
+}
+
 
 @Test func scannerCombinesMultipleRelativePathsForOneRule() async throws {
     let root = FileManager.default.temporaryDirectory
@@ -908,4 +993,39 @@ private func formatPlaceholders(in value: String) -> [String] {
     #expect(!groups.contains { $0.identifier == "com.example.lonely" })
     #expect(!groups.contains { $0.identifier.hasPrefix("com.apple.") })
     #expect(groups.flatMap(\.residues).allSatisfy { $0.risk == .review })
+}
+
+@Test func orphanedResidueSizingSkipsDirectoryEnumeration() async throws {
+    let home = FileManager.default.temporaryDirectory
+        .appending(path: "machkit-residue-size-\(UUID().uuidString)", directoryHint: .isDirectory)
+    defer { try? FileManager.default.removeItem(at: home) }
+
+    let container = home.appending(path: "Library/Containers/com.example.huge", directoryHint: .isDirectory)
+    try FileManager.default.createDirectory(at: container, withIntermediateDirectories: true)
+    // A dense child tree that would hang if sizing enumerated Contents.
+    for index in 0..<400 {
+        let child = container.appending(path: "child-\(index)", directoryHint: .isDirectory)
+        try FileManager.default.createDirectory(at: child, withIntermediateDirectories: true)
+        try Data("x".utf8).write(to: child.appending(path: "file.txt"))
+    }
+    try FileManager.default.createDirectory(
+        at: home.appending(path: "Library/Preferences", directoryHint: .isDirectory),
+        withIntermediateDirectories: true
+    )
+    try Data("settings".utf8).write(
+        to: home.appending(path: "Library/Preferences/com.example.huge.plist")
+    )
+
+    let started = Date()
+    let groups = await ApplicationScanner().orphanedResidues(
+        installedBundleIdentifiers: [],
+        home: home
+    )
+    let elapsed = Date().timeIntervalSince(started)
+
+    let residues = groups.first { $0.identifier == "com.example.huge" }?.residues ?? []
+    #expect(residues.contains { $0.kind == .container })
+    #expect(residues.contains { $0.kind == .preferences && $0.bytes > 0 })
+    #expect(residues.first { $0.kind == .container }?.bytes == 0)
+    #expect(elapsed < 2.0)
 }

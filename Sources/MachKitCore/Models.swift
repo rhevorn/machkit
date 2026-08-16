@@ -538,13 +538,23 @@ public struct ScanItem: Identifiable, Sendable, Hashable {
     public let id: UUID
     public let url: URL
     public let bytes: Int64
+    /// Matched files represented by this row (1 for a single file entry).
+    public let fileCount: Int
     public let modifiedAt: Date?
     public let rule: ScanRule
 
-    public init(id: UUID = UUID(), url: URL, bytes: Int64, modifiedAt: Date?, rule: ScanRule) {
+    public init(
+        id: UUID = UUID(),
+        url: URL,
+        bytes: Int64,
+        fileCount: Int = 1,
+        modifiedAt: Date?,
+        rule: ScanRule
+    ) {
         self.id = id
         self.url = url
         self.bytes = bytes
+        self.fileCount = max(1, fileCount)
         self.modifiedAt = modifiedAt
         self.rule = rule
     }

@@ -776,126 +776,246 @@ struct ContentView: View {
 
     private var scanningView: some View {
         let phases = model.visibleCleanupScanPhases
-        let completedCount = phases.filter { model.completedCleanupPhases.contains($0.id) }.count
-        return VStack(spacing: 0) {
-            Spacer(minLength: 40)
 
-            Text(model.currentScanCategory)
-                .font(.system(size: 20, weight: .semibold, design: .rounded))
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: 440)
-                .contentTransition(.opacity)
+        return ZStack {
+            scanningAmbientBackground
 
-            Text("Reads file metadata only; contents are never read or uploaded")
-                .font(.system(size: 12))
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.top, 6)
+            VStack(spacing: 0) {
+                Spacer(minLength: 28)
 
-            Text(L10n.format(
-                "%@ found · %lld/%lld steps",
-                formatted(model.discoveredBytes),
-                Int64(completedCount),
-                Int64(phases.count)
-            ))
-            .font(.system(size: 12, weight: .medium))
-            .foregroundStyle(.secondary)
-            .padding(.top, 10)
-
-            scanningPhaseAxis(phases: phases)
-                .padding(.horizontal, 36)
-                .padding(.top, 36)
-                .animation(.easeInOut(duration: 0.25), value: model.completedCleanupPhases)
-                .animation(.easeInOut(duration: 0.25), value: model.activeCleanupPhaseID)
-
-            if let helpPhase = phases.first(where: { $0.id == cleanupPhaseHelpID }) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(helpPhase.title.localized)
-                        .font(.system(size: 12, weight: .semibold))
-                    Text(helpPhase.summary.localized)
-                        .font(.system(size: 12))
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
+                ZStack {
+                    scanningWaterGauge(progress: model.scanProgress)
+                    VStack(spacing: 3) {
+                        Text(formatted(model.discoveredBytes))
+                            .font(.system(size: 22, weight: .semibold, design: .rounded))
+                            .monospacedDigit()
+                            .contentTransition(.numericText())
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                        Text("Found".localized)
+                            .font(.system(size: 11, weight: .medium, design: .rounded))
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(width: 88)
                 }
-                .frame(maxWidth: 520, alignment: .leading)
-                .padding(12)
-                .background(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(Color(nsColor: .controlBackgroundColor))
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
-                )
-                .padding(.top, 14)
-                .transition(.opacity.combined(with: .move(edge: .top)))
-            }
+                .animation(.easeInOut(duration: 0.35), value: model.scanProgress)
+                .animation(.easeInOut(duration: 0.2), value: model.discoveredBytes)
 
-            Button("Cancel Scan", role: .cancel, action: model.cancelScan)
-                .padding(.top, 28)
-            Spacer(minLength: 48)
+                Text(model.currentScanCategory)
+                    .font(.system(size: 18, weight: .semibold, design: .rounded))
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: 440)
+                    .padding(.top, 18)
+                    .contentTransition(.opacity)
+
+                Text("Reads file metadata only; contents are never read or uploaded")
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 6)
+
+                scanningPhaseAxis(phases: phases)
+                    .padding(.horizontal, 36)
+                    .padding(.top, 28)
+                    .animation(.easeInOut(duration: 0.2), value: model.completedCleanupPhases)
+                    .animation(.easeInOut(duration: 0.2), value: model.activeCleanupPhaseID)
+                    .animation(.easeInOut(duration: 0.15), value: model.activeCleanupPhaseProgress)
+                    .animation(.easeInOut(duration: 0.15), value: model.scanProgress)
+
+                scanningCancelButton
+                    .padding(.top, 32)
+
+                Spacer(minLength: 40)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .animation(.easeInOut(duration: 0.2), value: model.currentScanCategory)
-        .animation(.easeInOut(duration: 0.18), value: cleanupPhaseHelpID)
+        .animation(.easeInOut(duration: 0.22), value: model.currentScanCategory)
+        .animation(.easeInOut(duration: 0.16), value: cleanupPhaseHelpID)
+    }
+
+    private func scanningWaterGauge(progress: Double) -> some View {
+        let fill = max(0, min(1, progress))
+        return TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: false)) { context in
+            let t = context.date.timeIntervalSinceReferenceDate
+            ZStack {
+                Circle()
+                    .stroke(Color.accentColor.opacity(0.14), lineWidth: 1.5)
+                    .frame(width: 118, height: 118)
+
+                Circle()
+                    .fill(Color.accentColor.opacity(0.06))
+                    .frame(width: 110, height: 110)
+
+                Canvas { canvas, size in
+                    let level = size.height * (1 - fill)
+                    var wave = Path()
+                    wave.move(to: CGPoint(x: 0, y: size.height))
+                    wave.addLine(to: CGPoint(x: 0, y: level))
+                    let steps = 24
+                    for i in 0...steps {
+                        let x = size.width * CGFloat(i) / CGFloat(steps)
+                        let y = level
+                            + sin((CGFloat(i) / 3.2) + t * 2.6) * 3.2
+                            + sin((CGFloat(i) / 1.7) + t * 1.5) * 1.6
+                        wave.addLine(to: CGPoint(x: x, y: y))
+                    }
+                    wave.addLine(to: CGPoint(x: size.width, y: size.height))
+                    wave.closeSubpath()
+                    canvas.fill(
+                        wave,
+                        with: .linearGradient(
+                            Gradient(colors: [
+                                Color.accentColor.opacity(0.35),
+                                Color.accentColor.opacity(0.72),
+                            ]),
+                            startPoint: CGPoint(x: size.width / 2, y: level),
+                            endPoint: CGPoint(x: size.width / 2, y: size.height)
+                        )
+                    )
+                }
+                .frame(width: 110, height: 110)
+                .clipShape(Circle())
+
+                Circle()
+                    .stroke(
+                        LinearGradient(
+                            colors: [
+                                Color.accentColor.opacity(0.55),
+                                Color.accentColor.opacity(0.18),
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        ),
+                        lineWidth: 1.5
+                    )
+                    .frame(width: 110, height: 110)
+                    .shadow(color: Color.accentColor.opacity(0.22), radius: 10, y: 0)
+            }
+            .frame(width: 118, height: 118)
+        }
+    }
+
+    private var scanningAmbientBackground: some View {
+        TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: false)) { context in
+            let t = context.date.timeIntervalSinceReferenceDate
+            let pulse = 0.5 + 0.5 * sin(t * 1.4)
+            ZStack {
+                RadialGradient(
+                    colors: [
+                        Color.accentColor.opacity(0.10 + 0.04 * pulse),
+                        Color.accentColor.opacity(0.03),
+                        Color.clear,
+                    ],
+                    center: .center,
+                    startRadius: 20,
+                    endRadius: 280
+                )
+                .blur(radius: 8)
+
+                Canvas { context, size in
+                    let step: CGFloat = 28
+                    for x in stride(from: 0, through: size.width, by: step) {
+                        for y in stride(from: 0, through: size.height, by: step) {
+                            let rect = CGRect(x: x, y: y, width: 1.2, height: 1.2)
+                            context.fill(Path(ellipseIn: rect), with: .color(.primary.opacity(0.045)))
+                        }
+                    }
+                }
+                .opacity(0.7)
+            }
+        }
+        .allowsHitTesting(false)
+    }
+
+    private var scanningCancelButton: some View {
+        Button(action: model.cancelScan) {
+            HStack(spacing: 7) {
+                Image(systemName: "stop.fill")
+                    .font(.system(size: 9, weight: .bold))
+                Text("Cancel Scan")
+                    .font(.system(size: 13, weight: .semibold))
+            }
+            .foregroundStyle(Color.primary.opacity(0.78))
+            .padding(.horizontal, 18)
+            .padding(.vertical, 9)
+            .background(
+                Capsule(style: .continuous)
+                    .fill(.ultraThinMaterial)
+                    .overlay(
+                        Capsule(style: .continuous)
+                            .strokeBorder(
+                                LinearGradient(
+                                    colors: [
+                                        Color.accentColor.opacity(0.45),
+                                        Color.primary.opacity(0.12),
+                                        Color.accentColor.opacity(0.28),
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1
+                            )
+                    )
+                    .shadow(color: Color.accentColor.opacity(0.12), radius: 8, y: 2)
+            )
+        }
+        .buttonStyle(.plain)
+        .help("Cancel Scan".localized)
     }
 
     private func scanningPhaseAxis(phases: [CleanerViewModel.CleanupScanPhase]) -> some View {
-        HStack(alignment: .top, spacing: 0) {
-            ForEach(Array(phases.enumerated()), id: \.element.id) { index, phase in
-                let isDone = model.completedCleanupPhases.contains(phase.id)
-                let isActive = !isDone && model.activeCleanupPhaseID == phase.id
-                let reached = isDone || isActive
-                let leftLit = index > 0 && (
-                    model.completedCleanupPhases.contains(phases[index - 1].id)
-                        || model.activeCleanupPhaseID == phases[index - 1].id
-                        || isDone
-                )
-                let rightLit = isDone
-                let helpShown = cleanupPhaseHelpID == phase.id
+        let overallFill = max(0, min(1, model.scanProgress))
+        let activeProgress = max(0, min(1, model.activeCleanupPhaseProgress))
+        let phaseCount = max(phases.count, 1)
 
-                VStack(spacing: 10) {
-                    HStack(spacing: 0) {
-                        Capsule(style: .continuous)
-                            .fill(
-                                index == 0
-                                    ? Color.clear
-                                    : (leftLit ? Color.accentColor.opacity(0.85) : Color.secondary.opacity(0.18))
+        return VStack(spacing: 12) {
+            ZStack {
+                GeometryReader { geo in
+                    let inset = geo.size.width / CGFloat(phaseCount * 2)
+                    let trackWidth = max(0, geo.size.width - inset * 2)
+                    Capsule(style: .continuous)
+                        .fill(Color.secondary.opacity(0.16))
+                        .frame(width: trackWidth, height: 2)
+                        .position(x: geo.size.width / 2, y: geo.size.height / 2)
+                    Capsule(style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color.accentColor.opacity(0.55),
+                                    Color.accentColor,
+                                ],
+                                startPoint: .leading,
+                                endPoint: .trailing
                             )
-                            .frame(height: 2)
-                            .frame(maxWidth: .infinity)
+                        )
+                        .frame(width: trackWidth * overallFill, height: 2)
+                        .position(
+                            x: inset + trackWidth * overallFill / 2,
+                            y: geo.size.height / 2
+                        )
+                        .shadow(color: Color.accentColor.opacity(0.45), radius: 4, y: 0)
+                }
 
-                        ZStack {
-                            Circle()
-                                .fill(Color(nsColor: .controlBackgroundColor))
-                                .frame(width: 16, height: 16)
-                            Circle()
-                                .strokeBorder(
-                                    reached ? Color.accentColor : Color.secondary.opacity(0.35),
-                                    lineWidth: isActive ? 2.5 : 1.5
-                                )
-                                .frame(width: 16, height: 16)
-                            if isDone {
-                                Circle()
-                                    .fill(Color.accentColor)
-                                    .frame(width: 8, height: 8)
-                            } else if isActive {
-                                Circle()
-                                    .fill(Color.accentColor)
-                                    .frame(width: 7, height: 7)
-                            }
-                        }
-                        .frame(width: 20, height: 20)
-
-                        Capsule(style: .continuous)
-                            .fill(
-                                index == phases.count - 1
-                                    ? Color.clear
-                                    : (rightLit ? Color.accentColor.opacity(0.85) : Color.secondary.opacity(0.18))
-                            )
-                            .frame(height: 2)
+                HStack(spacing: 0) {
+                    ForEach(Array(phases.enumerated()), id: \.element.id) { _, phase in
+                        let isDone = model.completedCleanupPhases.contains(phase.id)
+                        let isActive = !isDone && model.activeCleanupPhaseID == phase.id
+                        let phaseProgress = isDone
+                            ? 1.0
+                            : (isActive ? activeProgress : 0)
+                        axisNode(isDone: isDone, isActive: isActive, progress: phaseProgress)
                             .frame(maxWidth: .infinity)
                     }
+                }
+            }
+            .frame(height: 28)
+
+            HStack(alignment: .top, spacing: 0) {
+                ForEach(phases) { phase in
+                    let isDone = model.completedCleanupPhases.contains(phase.id)
+                    let isActive = !isDone && model.activeCleanupPhaseID == phase.id
+                    let reached = isDone || isActive
+                    let helpShown = cleanupPhaseHelpID == phase.id
 
                     HStack(spacing: 3) {
                         Text(phase.title.localized)
@@ -903,48 +1023,134 @@ struct ContentView: View {
                             .foregroundStyle(reached ? Color.primary : Color.secondary)
                             .lineLimit(2)
                             .multilineTextAlignment(.center)
-                        Button {
-                            cleanupPhaseHelpID = helpShown ? nil : phase.id
-                        } label: {
-                            Image(systemName: "questionmark.circle")
-                                .font(.system(size: 11, weight: .regular))
-                                .foregroundStyle(helpShown ? Color.accentColor : Color.secondary.opacity(0.85))
-                                .frame(width: 16, height: 16)
-                                .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                        .onHover { hovering in
-                            if hovering {
-                                cleanupPhaseHelpID = phase.id
-                            } else if cleanupPhaseHelpID == phase.id {
-                                // Keep the tip visible briefly so the cursor can move into it;
-                                // click pins/unpins more deliberately.
-                            }
-                        }
-                        .help(phase.summary.localized)
-                        .accessibilityLabel(phase.summary.localized)
+                        phaseHelpButton(phase: phase, helpShown: helpShown)
                     }
                     .frame(maxWidth: .infinity)
-                    .onHover { hovering in
-                        if hovering {
-                            cleanupPhaseHelpID = phase.id
-                        }
-                    }
+                    .zIndex(helpShown ? 20 : 0)
                 }
-                .frame(maxWidth: .infinity)
             }
         }
-        .padding(.horizontal, 10)
+        .padding(.horizontal, 12)
         .padding(.top, 18)
         .padding(.bottom, 14)
         .background(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(Color(nsColor: .controlBackgroundColor).opacity(0.72))
+                .fill(Color(nsColor: .controlBackgroundColor).opacity(0.78))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: [
+                                    Color.accentColor.opacity(0.22),
+                                    Color.primary.opacity(0.05),
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
+                )
+                .shadow(color: Color.accentColor.opacity(0.08), radius: 16, y: 4)
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
-        )
+        // Leave room so hover tips can sit above labels without feeling clipped.
+        .padding(.top, 4)
+    }
+
+    private func phaseHelpButton(phase: CleanerViewModel.CleanupScanPhase, helpShown: Bool) -> some View {
+        Button {
+            cleanupPhaseHelpID = helpShown ? nil : phase.id
+        } label: {
+            Image(systemName: "questionmark.circle")
+                .font(.system(size: 11, weight: .regular))
+                .foregroundStyle(helpShown ? Color.accentColor : Color.secondary.opacity(0.85))
+                .frame(width: 16, height: 16)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(phase.summary.localized)
+        .overlay {
+            if helpShown {
+                phaseHelpTooltip(phase)
+                    .fixedSize(horizontal: true, vertical: false)
+                    .offset(y: -36)
+                    .transition(
+                        .opacity.combined(with: .scale(scale: 0.94, anchor: .bottom))
+                    )
+            }
+        }
+        .onHover { hovering in
+            withAnimation(.easeOut(duration: 0.14)) {
+                if hovering {
+                    cleanupPhaseHelpID = phase.id
+                } else if cleanupPhaseHelpID == phase.id {
+                    cleanupPhaseHelpID = nil
+                }
+            }
+        }
+        .zIndex(helpShown ? 30 : 0)
+    }
+
+    private func phaseHelpTooltip(_ phase: CleanerViewModel.CleanupScanPhase) -> some View {
+        Text(phase.summary.localized)
+            .font(.system(size: 11))
+            .foregroundStyle(.primary)
+            .multilineTextAlignment(.leading)
+            .lineLimit(4)
+            .frame(maxWidth: 220, alignment: .leading)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(.ultraThinMaterial)
+                    .shadow(color: .black.opacity(0.18), radius: 10, y: 3)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .strokeBorder(Color.accentColor.opacity(0.28), lineWidth: 1)
+            )
+            .allowsHitTesting(false)
+    }
+
+    private func axisNode(isDone: Bool, isActive: Bool, progress: Double) -> some View {
+        TimelineView(.animation(minimumInterval: isActive ? 1.0 / 24.0 : 120, paused: !isActive)) { context in
+            let pulse = isActive
+                ? 0.55 + 0.45 * sin(context.date.timeIntervalSinceReferenceDate * 3.2)
+                : 1.0
+            ZStack {
+                if isActive {
+                    Circle()
+                        .fill(Color.accentColor.opacity(0.16 * pulse))
+                        .frame(width: 28, height: 28)
+                        .scaleEffect(0.9 + 0.18 * pulse)
+                }
+                Circle()
+                    .stroke(Color.secondary.opacity(0.16), lineWidth: 2.5)
+                    .frame(width: 22, height: 22)
+                Circle()
+                    .trim(from: 0, to: max(isActive || isDone ? 0.04 : 0, progress))
+                    .stroke(
+                        Color.accentColor,
+                        style: StrokeStyle(lineWidth: 2.5, lineCap: .round)
+                    )
+                    .rotationEffect(.degrees(-90))
+                    .frame(width: 22, height: 22)
+                    .shadow(color: isActive ? Color.accentColor.opacity(0.45) : .clear, radius: 4)
+                Circle()
+                    .fill(Color(nsColor: .controlBackgroundColor))
+                    .frame(width: 12, height: 12)
+                if isDone {
+                    Circle()
+                        .fill(Color.accentColor)
+                        .frame(width: 7, height: 7)
+                } else if isActive {
+                    Circle()
+                        .fill(Color.accentColor.opacity(0.95))
+                        .frame(width: 6, height: 6)
+                        .scaleEffect(0.85 + 0.2 * pulse)
+                }
+            }
+            .frame(width: 28, height: 28)
+        }
     }
 
     private var junkDetailList: some View {
@@ -962,7 +1168,11 @@ struct ContentView: View {
                                 .frame(width: 22)
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(group.title.localized).font(.system(size: 14, weight: .semibold))
-                                Text("\(group.items.count) files · \(group.explanation.localized)")
+                                Text(L10n.format(
+                                    "%lld locations · %@",
+                                    Int64(group.totalCount),
+                                    group.explanation.localized
+                                ))
                                     .font(.caption).foregroundStyle(.secondary).lineLimit(1)
                             }
                             Spacer()
@@ -1010,27 +1220,25 @@ struct ContentView: View {
     }
 
     private var cleanupResultOverview: some View {
-        let safeItems = model.items.filter { $0.rule.risk == .safe }
-        let reviewItems = model.items.filter { $0.rule.risk == .review }
         return HStack(spacing: 10) {
             cleanupSummaryMetric(
                 title: "Found",
                 value: formatted(model.totalBytes),
-                detail: L10n.format("%lld files", Int64(model.items.count)),
+                detail: L10n.format("%lld locations", Int64(model.items.count)),
                 icon: "sparkles.rectangle.stack",
                 color: .blue
             )
             cleanupSummaryMetric(
                 title: "Safe to Clean",
-                value: formatted(safeItems.reduce(0) { $0 + $1.bytes }),
-                detail: L10n.format("%lld selected by default", Int64(safeItems.count)),
+                value: formatted(model.safeCleanableBytes),
+                detail: L10n.format("%lld selected by default", Int64(model.safeItemCount)),
                 icon: "checkmark.shield.fill",
                 color: .green
             )
             cleanupSummaryMetric(
                 title: "Review",
-                value: formatted(reviewItems.reduce(0) { $0 + $1.bytes }),
-                detail: L10n.format("%lld not selected", Int64(reviewItems.count)),
+                value: formatted(model.reviewCleanableBytes),
+                detail: L10n.format("%lld not selected", Int64(model.reviewItemCount)),
                 icon: "exclamationmark.triangle.fill",
                 color: .orange
             )
@@ -1063,32 +1271,29 @@ struct ContentView: View {
     }
 
     private func groupDetails(_ group: JunkScanGroup) -> some View {
-        let visibleItems = Array(group.items.prefix(100))
-        return VStack(spacing: 0) {
+        VStack(spacing: 0) {
             Divider().padding(.leading, 44)
-            ForEach(visibleItems) { item in
+            ForEach(group.items) { item in
                 junkFileRow(item)
-                if item.id != visibleItems.last?.id { Divider().padding(.leading, 72) }
-            }
-            if group.items.count > visibleItems.count {
-                HStack {
-                    Image(systemName: "info.circle")
-                    Text("For performance, only the 100 largest items are shown; selecting the group still includes all \(group.items.count) items.")
-                    Spacer()
-                }
-                .font(.caption).foregroundStyle(.secondary).padding(.top, 10)
+                if item.id != group.items.last?.id { Divider().padding(.leading, 72) }
             }
         }
     }
 
     private func junkFileRow(_ item: ScanItem) -> some View {
-        HStack(spacing: 10) {
+        let isDirectory = item.fileCount > 1 || item.url.pathExtension.isEmpty
+        return HStack(spacing: 10) {
             Toggle(isOn: selectionBinding(item)) { EmptyView() }.labelsHidden()
-            Image(systemName: "doc").foregroundStyle(.secondary).frame(width: 20)
+            Image(systemName: isDirectory ? "folder.fill" : "doc")
+                .foregroundStyle(isDirectory ? Color.accentColor.opacity(0.85) : .secondary)
+                .frame(width: 20)
             VStack(alignment: .leading, spacing: 2) {
                 Text(item.url.lastPathComponent).lineLimit(1)
-                Text(item.url.deletingLastPathComponent().path)
+                Text(item.url.path)
                     .font(.caption2).foregroundStyle(.tertiary).lineLimit(1)
+                Text(L10n.format("%lld files", Int64(item.fileCount)))
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
             }
             Spacer()
             if let date = item.modifiedAt {
