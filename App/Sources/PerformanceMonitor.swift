@@ -249,7 +249,8 @@ final class PerformanceMonitor {
         guard sysctlbyname(name, nil, &size, nil, 0) == 0, size > 1 else { return "" }
         var buffer = [CChar](repeating: 0, count: size)
         guard sysctlbyname(name, &buffer, &size, nil, 0) == 0 else { return "" }
-        return String(cString: buffer)
+        let utf8 = buffer.prefix { $0 != 0 }.map { UInt8(bitPattern: $0) }
+        return String(decoding: utf8, as: UTF8.self)
     }
 
     private func sampleCPUPercent() -> Double {

@@ -88,11 +88,11 @@ final class PortScanWebBridge {
                     ) { [weak self] result in
                         await self?.record(result, scanID: scanID)
                     }
-                    await self?.finish(summary, scanID: scanID)
+                    self?.finish(summary, scanID: scanID)
                 } catch let error as TCPPortScanError {
-                    await self?.fail(scanID: scanID, message: error.localizedDescription, code: error.code)
+                    self?.fail(scanID: scanID, message: error.localizedDescription, code: error.code)
                 } catch {
-                    await self?.fail(scanID: scanID, message: error.localizedDescription, code: "failed")
+                    self?.fail(scanID: scanID, message: error.localizedDescription, code: "failed")
                 }
             }
             jobs[scanID]?.task = task

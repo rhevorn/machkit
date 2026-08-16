@@ -508,6 +508,7 @@ final class ToolShortcutStore: ObservableObject {
     private let defaults: UserDefaults
     private let storageKey = "developerToolShortcutsV1"
     private let toolListDefaultKey = "developerToolListShortcutDefaultV1"
+    private let screenshotDefaultsKey = "screenshotShortcutDefaultsV4"
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -517,6 +518,12 @@ final class ToolShortcutStore: ObservableObject {
             loadedShortcuts = saved.filter { $0.value.isValid }
         } else {
             loadedShortcuts = [:]
+        }
+        let previousRegionShortcut = loadedShortcuts.removeValue(forKey: "__screenshot-region")
+        loadedShortcuts.removeValue(forKey: "__screenshot-window")
+        if loadedShortcuts[ScreenshotAction.capture.rawValue] == nil,
+           let previousRegionShortcut {
+            loadedShortcuts[ScreenshotAction.capture.rawValue] = previousRegionShortcut
         }
         if !defaults.bool(forKey: toolListDefaultKey) {
             let defaultShortcut = ToolShortcut(
@@ -534,8 +541,30 @@ final class ToolShortcutStore: ObservableObject {
             }
             defaults.set(true, forKey: toolListDefaultKey)
         }
+        if !defaults.bool(forKey: screenshotDefaultsKey) {
+            Self.installScreenshotDefaults(into: &loadedShortcuts)
+            defaults.set(true, forKey: screenshotDefaultsKey)
+        }
         shortcuts = loadedShortcuts
         persist()
+    }
+
+    private static func installScreenshotDefaults(
+        into shortcuts: inout [String: ToolShortcut]
+    ) {
+        let action = ScreenshotAction.capture
+        let previousDefault = ToolShortcut(key: "4", command: true, option: true)
+        let shortcut = ToolShortcut(key: "a", command: true, shift: true)
+        let current = shortcuts[action.rawValue]
+        guard current == nil || current == previousDefault else { return }
+        let isAlreadyUsed = shortcuts.contains { id, existing in
+            id != action.rawValue
+                && existing.normalizedKey == shortcut.normalizedKey
+                && existing.modifiers == shortcut.modifiers
+        }
+        if !isAlreadyUsed {
+            shortcuts[action.rawValue] = shortcut
+        }
     }
 
     func shortcut(for toolID: String) -> ToolShortcut? {
@@ -551,6 +580,9 @@ final class ToolShortcutStore: ObservableObject {
 
     func targetName(for targetID: String) -> String {
         if targetID == Self.toolListID { return "Tools".localized }
+        if let action = ScreenshotAction(rawValue: targetID) {
+            return action.localizedTitle
+        }
         return DeveloperToolRegistry.tool(id: targetID)?.localizedTitle ?? targetID
     }
 

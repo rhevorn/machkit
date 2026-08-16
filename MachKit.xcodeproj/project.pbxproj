@@ -30,6 +30,11 @@
 		A1000000000000000000001D /* ConnectionTraceWebBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000025 /* ConnectionTraceWebBridge.swift */; };
 		A1000000000000000000001E /* PortScanWebBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000026 /* PortScanWebBridge.swift */; };
 		A1000000000000000000001F /* CurlLabWebBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000027 /* CurlLabWebBridge.swift */; };
+		A10000000000000000000020 /* ScreenshotAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000028 /* ScreenshotAction.swift */; };
+		A10000000000000000000021 /* ScreenshotCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000029 /* ScreenshotCapture.swift */; };
+		A10000000000000000000022 /* ScreenshotSelectionSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000002A /* ScreenshotSelectionSession.swift */; };
+		A10000000000000000000023 /* ScreenshotController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000002B /* ScreenshotController.swift */; };
+		A10000000000000000000024 /* ScreenshotEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000002C /* ScreenshotEditor.swift */; };
 		A10000000000000000000017 /* ToolsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000019 /* ToolsView.swift */; };
 		A10000000000000000000019 /* DeveloperTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000021 /* DeveloperTools.swift */; };
 		A1000000000000000000001A /* WebToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000022 /* WebToolView.swift */; };
@@ -62,6 +67,11 @@
 		A20000000000000000000025 /* ConnectionTraceWebBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionTraceWebBridge.swift; sourceTree = "<group>"; };
 		A20000000000000000000026 /* PortScanWebBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortScanWebBridge.swift; sourceTree = "<group>"; };
 		A20000000000000000000027 /* CurlLabWebBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurlLabWebBridge.swift; sourceTree = "<group>"; };
+		A20000000000000000000028 /* ScreenshotAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotAction.swift; sourceTree = "<group>"; };
+		A20000000000000000000029 /* ScreenshotCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotCapture.swift; sourceTree = "<group>"; };
+		A2000000000000000000002A /* ScreenshotSelectionSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotSelectionSession.swift; sourceTree = "<group>"; };
+		A2000000000000000000002B /* ScreenshotController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotController.swift; sourceTree = "<group>"; };
+		A2000000000000000000002C /* ScreenshotEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotEditor.swift; sourceTree = "<group>"; };
 		A20000000000000000000019 /* ToolsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsView.swift; sourceTree = "<group>"; };
 		A20000000000000000000021 /* DeveloperTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperTools.swift; sourceTree = "<group>"; };
 		A20000000000000000000022 /* WebToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebToolView.swift; sourceTree = "<group>"; };
@@ -124,9 +134,22 @@
 				A20000000000000000000016 /* FeatureModels.swift */,
 				A20000000000000000000017 /* StatusBar.swift */,
 				A20000000000000000000019 /* ToolsView.swift */,
+				A40000000000000000000008 /* Screenshot */,
 				A40000000000000000000007 /* WebView */,
 			);
 			path = App/Sources;
+			sourceTree = "<group>";
+		};
+		A40000000000000000000008 /* Screenshot */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000028 /* ScreenshotAction.swift */,
+				A20000000000000000000029 /* ScreenshotCapture.swift */,
+				A2000000000000000000002A /* ScreenshotSelectionSession.swift */,
+				A2000000000000000000002B /* ScreenshotController.swift */,
+				A2000000000000000000002C /* ScreenshotEditor.swift */,
+			);
+			path = Screenshot;
 			sourceTree = "<group>";
 		};
 		A40000000000000000000007 /* WebView */ = {
@@ -322,6 +345,11 @@
 				A1000000000000000000001D /* ConnectionTraceWebBridge.swift in Sources */,
 				A1000000000000000000001E /* PortScanWebBridge.swift in Sources */,
 				A1000000000000000000001F /* CurlLabWebBridge.swift in Sources */,
+				A10000000000000000000020 /* ScreenshotAction.swift in Sources */,
+				A10000000000000000000021 /* ScreenshotCapture.swift in Sources */,
+				A10000000000000000000022 /* ScreenshotSelectionSession.swift in Sources */,
+				A10000000000000000000023 /* ScreenshotController.swift in Sources */,
+				A10000000000000000000024 /* ScreenshotEditor.swift in Sources */,
 				A10000000000000000000017 /* ToolsView.swift in Sources */,
 				A10000000000000000000019 /* DeveloperTools.swift in Sources */,
 				A1000000000000000000001A /* WebToolView.swift in Sources */,
@@ -382,10 +410,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App/MachKit.entitlements;
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 0;
 				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = 8V6ZAZTB4J;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -409,10 +438,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App/MachKit.entitlements;
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 0;
 				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = 8V6ZAZTB4J;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;

@@ -49,7 +49,9 @@ private struct GlobalShortcutBridge: View {
             .frame(width: 0, height: 0)
             .onAppear {
                 GlobalHotKeyManager.shared.configure { targetID in
-                    if targetID == ToolShortcutStore.toolListID {
+                    if ScreenshotAction.allIDs.contains(targetID) {
+                        ScreenshotController.shared.handleHotKey(targetID)
+                    } else if targetID == ToolShortcutStore.toolListID {
                         model.changeMode(.tools)
                         MachKitAppLifecycle.showInForeground()
                         openWindow(id: "main")
@@ -119,7 +121,8 @@ final class MachKitAppDelegate: NSObject, NSApplicationDelegate {
             forName: NSWindow.willCloseNotification,
             object: nil,
             queue: .main
-        ) { _ in
+        ) { notification in
+            guard !(notification.object is ScreenshotOverlayWindowMarker) else { return }
             Task { @MainActor in
                 MachKitAppLifecycle.moveToBackgroundIfNeeded()
             }

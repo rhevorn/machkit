@@ -8,6 +8,7 @@ struct AppSettingsView: View {
     @AppStorage(AppPreferenceKey.showMenuBar) private var showMenuBar = true
     @ObservedObject private var shortcutStore = ToolShortcutStore.shared
     @State private var showingToolsShortcut = false
+    @State private var editingScreenshotAction: ScreenshotAction?
     @State private var showingClearDataConfirmation = false
     @State private var clearDataError: String?
 
@@ -123,6 +124,41 @@ struct AppSettingsView: View {
                         .stroke(Color(nsColor: .separatorColor).opacity(0.45), lineWidth: 0.5)
                 }
 
+                Text("Screenshot".localized)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(.secondary)
+                    .padding(.leading, 4)
+                    .padding(.top, 18)
+
+                VStack(spacing: 0) {
+                    ForEach(ScreenshotAction.allCases) { action in
+                        settingRow(
+                            icon: action.icon,
+                            color: .pink,
+                            title: action.title,
+                            detail: action.detail
+                        ) {
+                            HStack(spacing: 8) {
+                                Button("Capture".localized) {
+                                    ScreenshotController.shared.start()
+                                }
+                                .buttonStyle(.bordered)
+                                .help(action.localizedTitle)
+
+                                shortcutButton(
+                                    targetID: action.rawValue,
+                                    action: { editingScreenshotAction = action }
+                                )
+                            }
+                        }
+                    }
+                }
+                .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 12))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color(nsColor: .separatorColor).opacity(0.45), lineWidth: 0.5)
+                }
+
                 Label("Changes are applied immediately.".localized, systemImage: "info.circle")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -164,6 +200,13 @@ struct AppSettingsView: View {
                 store: shortcutStore
             )
         }
+        .sheet(item: $editingScreenshotAction) { action in
+            ToolShortcutEditor(
+                targetID: action.rawValue,
+                title: action.localizedTitle,
+                store: shortcutStore
+            )
+        }
         .alert("Clear All App Data?".localized, isPresented: $showingClearDataConfirmation) {
             Button("Cancel".localized, role: .cancel) {}
             Button("Clear and Quit".localized, role: .destructive) { clearAppData() }
@@ -187,6 +230,24 @@ struct AppSettingsView: View {
         } catch {
             clearDataError = error.localizedDescription
         }
+    }
+
+    private func shortcutButton(
+        targetID: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            if let shortcut = shortcutStore.shortcut(for: targetID) {
+                Text(shortcut.displayText)
+                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .padding(.horizontal, 9)
+                    .frame(minWidth: 34, minHeight: 27)
+                    .background(.quaternary.opacity(0.7), in: RoundedRectangle(cornerRadius: 6))
+            } else {
+                Text("Set Shortcut".localized)
+            }
+        }
+        .buttonStyle(.plain)
     }
 
     private func settingRow<Control: View>(
