@@ -2,6 +2,89 @@ import AppKit
 import MachKitCore
 import SwiftUI
 
+enum ScreenshotTextLayout {
+    private static let drawingOptions: NSString.DrawingOptions = [
+        .usesLineFragmentOrigin,
+        .usesFontLeading,
+    ]
+
+    static func fontSize(lineWidth: CGFloat, scale: CGFloat = 1) -> CGFloat {
+        ScreenshotGeometry.textFontSize(lineWidth: lineWidth, scale: scale)
+    }
+
+    static func font(lineWidth: CGFloat, scale: CGFloat = 1) -> NSFont {
+        NSFont.systemFont(
+            ofSize: fontSize(lineWidth: lineWidth, scale: scale),
+            weight: .semibold
+        )
+    }
+
+    static func bounds(
+        for value: String,
+        at origin: CGPoint = .zero,
+        lineWidth: CGFloat,
+        scale: CGFloat = 1
+    ) -> CGRect {
+        let attributed = attributedString(
+            value,
+            lineWidth: lineWidth,
+            scale: scale,
+            color: .labelColor
+        )
+        let measured = attributed.boundingRect(
+            with: CGSize(
+                width: CGFloat.greatestFiniteMagnitude,
+                height: CGFloat.greatestFiniteMagnitude
+            ),
+            options: drawingOptions
+        )
+        return CGRect(
+            x: origin.x,
+            y: origin.y,
+            width: max(1, ceil(measured.width)),
+            height: max(1, ceil(measured.height))
+        )
+    }
+
+    static func lineHeight(lineWidth: CGFloat, scale: CGFloat = 1) -> CGFloat {
+        ceil(font(lineWidth: lineWidth, scale: scale).boundingRectForFont.height)
+    }
+
+    static func draw(
+        _ value: String,
+        at origin: CGPoint,
+        lineWidth: CGFloat,
+        scale: CGFloat = 1,
+        color: NSColor
+    ) {
+        let attributed = attributedString(
+            value,
+            lineWidth: lineWidth,
+            scale: scale,
+            color: color
+        )
+        attributed.draw(
+            with: bounds(for: value, at: origin, lineWidth: lineWidth, scale: scale),
+            options: drawingOptions
+        )
+    }
+
+    private static func attributedString(
+        _ value: String,
+        lineWidth: CGFloat,
+        scale: CGFloat,
+        color: NSColor
+    ) -> NSAttributedString {
+        NSAttributedString(
+            string: value,
+            attributes: [
+                .font: font(lineWidth: lineWidth, scale: scale),
+                .foregroundColor: color,
+            ]
+        )
+    }
+}
+
 /// Shared stroke drawing for canvas preview and PNG export.
 /// Point space is top-left origin (Y down), matching the editor model and SwiftUI Canvas.
 enum ScreenshotStrokeRenderer {
@@ -61,17 +144,12 @@ enum ScreenshotStrokeRenderer {
 
         case .text(let value):
             guard let point = points.first else { return }
-            let fontSize = ScreenshotGeometry.textFontSize(lineWidth: stroke.lineWidth, scale: scale)
-            let attributes: [NSAttributedString.Key: Any] = [
-                .font: NSFont.systemFont(ofSize: fontSize, weight: .semibold),
-                .foregroundColor: color,
-            ]
-            let size = (value as NSString).size(withAttributes: attributes)
-            let rect = CGRect(x: point.x, y: point.y, width: ceil(size.width), height: ceil(size.height))
-            (value as NSString).draw(
-                with: rect,
-                options: [.usesLineFragmentOrigin, .usesFontLeading],
-                attributes: attributes
+            ScreenshotTextLayout.draw(
+                value,
+                at: point,
+                lineWidth: stroke.lineWidth,
+                scale: scale,
+                color: color
             )
 
         case .mosaic:
@@ -83,7 +161,9 @@ enum ScreenshotStrokeRenderer {
         _ stroke: ScreenshotStroke,
         in context: inout GraphicsContext,
         imageSize: CGSize,
-        fit: CGSize
+        fit: CGSize,
+        showsMosaicSelection: Bool = false,
+        mosaicPreviewImage: NSImage? = nil
     ) {
         let scaleX = fit.width / max(imageSize.width, 1)
         let scaleY = fit.height / max(imageSize.height, 1)
@@ -95,25 +175,67 @@ enum ScreenshotStrokeRenderer {
         let points = stroke.points.map(map)
 
         switch stroke.kind {
-        case .pen, .highlight, .mosaic:
+        case .pen, .highlight:
             guard let first = points.first else { return }
             var path = Path()
             path.move(to: first)
             points.dropFirst().forEach { path.addLine(to: $0) }
-            let isMosaic = stroke.kind == .mosaic
             context.stroke(
                 path,
-                with: .color(
-                    isMosaic
-                        ? .black.opacity(0.22)
-                        : stroke.ink.color.opacity(stroke.kind == .highlight ? 0.35 : 1)
-                ),
+                with: .color(stroke.ink.color.opacity(stroke.kind == .highlight ? 0.35 : 1)),
                 style: StrokeStyle(
                     lineWidth: lineWidth,
-                    lineCap: isMosaic && stroke.mosaicShape == .square ? .square : .round,
-                    lineJoin: isMosaic && stroke.mosaicShape == .square ? .bevel : .round
+                    lineCap: .round,
+                    lineJoin: .round
                 )
             )
+
+        case .mosaic:
+            guard let first = points.first else { return }
+            if stroke.mosaicMode == .rectangle, points.count >= 2 {
+                guard showsMosaicSelection else { return }
+                let rect = CGRect(
+                    x: min(first.x, points[1].x),
+                    y: min(first.y, points[1].y),
+                    width: abs(first.x - points[1].x),
+                    height: abs(first.y - points[1].y)
+                )
+                context.stroke(
+                    Path(rect),
+                    with: .color(.accentColor),
+                    style: StrokeStyle(lineWidth: 1, dash: [4, 3])
+                )
+            } else {
+                let brushStyle = StrokeStyle(
+                    lineWidth: lineWidth,
+                    lineCap: stroke.mosaicShape == .square ? .square : .round,
+                    lineJoin: stroke.mosaicShape == .square ? .bevel : .round
+                )
+                let brushRegion: Path
+                if points.count == 1 {
+                    let brushRect = CGRect(
+                        x: first.x - lineWidth / 2,
+                        y: first.y - lineWidth / 2,
+                        width: lineWidth,
+                        height: lineWidth
+                    )
+                    brushRegion = stroke.mosaicShape == .circle
+                        ? Path(ellipseIn: brushRect)
+                        : Path(brushRect)
+                } else {
+                    var centerline = Path()
+                    centerline.move(to: first)
+                    points.dropFirst().forEach { centerline.addLine(to: $0) }
+                    brushRegion = centerline.strokedPath(brushStyle)
+                }
+                guard let mosaicPreviewImage else { return }
+                var previewContext = context
+                previewContext.clip(to: brushRegion)
+                previewContext.draw(
+                    Image(nsImage: mosaicPreviewImage),
+                    in: CGRect(origin: .zero, size: fit)
+                )
+            }
 
         case .rectangle, .ellipse:
             guard points.count >= 2 else { return }
@@ -155,14 +277,21 @@ enum ScreenshotStrokeRenderer {
 
         case .text(let value):
             guard let point = points.first else { return }
-            let fontSize = ScreenshotGeometry.textFontSize(lineWidth: stroke.lineWidth, scale: scale)
-            context.draw(
-                Text(value)
-                    .font(.system(size: fontSize, weight: .semibold))
-                    .foregroundStyle(stroke.ink.color),
-                at: point,
-                anchor: .topLeading
-            )
+            context.withCGContext { cgContext in
+                NSGraphicsContext.saveGraphicsState()
+                NSGraphicsContext.current = NSGraphicsContext(
+                    cgContext: cgContext,
+                    flipped: true
+                )
+                ScreenshotTextLayout.draw(
+                    value,
+                    at: point,
+                    lineWidth: stroke.lineWidth,
+                    scale: scale,
+                    color: stroke.ink.nsColor
+                )
+                NSGraphicsContext.restoreGraphicsState()
+            }
         }
     }
 }
