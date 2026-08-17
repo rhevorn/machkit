@@ -1,5 +1,3 @@
-import { fetchLatestRelease } from "./release.js";
-
 const themeKey = "machkit-website-theme";
 const themeButton = document.querySelector("[data-theme-toggle]");
 
@@ -14,14 +12,3 @@ themeButton?.addEventListener("click", () => {
   );
   window.localStorage.setItem(themeKey, next);
 });
-
-const controller = new AbortController();
-fetchLatestRelease({ signal: controller.signal })
-  .then((release) => {
-    for (const link of document.querySelectorAll("[data-release-download]")) {
-      link.href = release.downloadURL;
-    }
-  })
-  .catch((error) => {
-    if (error?.name !== "AbortError") console.warn("Unable to load the latest GitHub release.", error);
-  });

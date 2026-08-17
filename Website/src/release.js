@@ -1,31 +1,48 @@
 export const REPOSITORY_URL = "https://github.com/rhevorn/machkit";
 export const RELEASES_API_URL = "https://api.github.com/repos/rhevorn/machkit/releases?per_page=2";
 
-/** Last-resort hardcoded download when GitHub is unreachable. */
-export const fallbackRelease = Object.freeze({
-  tag: "v2.0.0",
-  version: "2.0.0",
-  downloadURL: `${REPOSITORY_URL}/releases/download/v2.0.0/MachKit-2.0.0-macOS.zip`,
-});
+/** Used only when CI does not bake VITE_RELEASE_TAG into the build. */
+const DEFAULT_RELEASE_TAG = "v2.2.2";
+
+export function releaseFromTag(tag, repositoryURL = REPOSITORY_URL) {
+  const normalized = typeof tag === "string" ? tag.trim() : "";
+  const version = normalized.replace(/^v/i, "");
+  if (!normalized || !version) return null;
+
+  const releaseTag = /^v/i.test(normalized) ? normalized : `v${version}`;
+  const assetName = `MachKit-${version}-macOS.zip`;
+  return Object.freeze({
+    tag: releaseTag,
+    version,
+    downloadURL: `${repositoryURL}/releases/download/${encodeURIComponent(releaseTag)}/${encodeURIComponent(assetName)}`,
+  });
+}
+
+function bakedReleaseTag() {
+  const tag = import.meta.env?.VITE_RELEASE_TAG;
+  return typeof tag === "string" ? tag.trim() : "";
+}
+
+/** Build-time download target. Prefer VITE_RELEASE_TAG from CI over the local default. */
+export const fallbackRelease = Object.freeze(
+  releaseFromTag(bakedReleaseTag() || DEFAULT_RELEASE_TAG),
+);
 
 export function resolveReleaseDownload(release, fallback = fallbackRelease) {
-  const tag = typeof release?.tag_name === "string" ? release.tag_name.trim() : "";
-  const version = tag.replace(/^v/i, "");
-  if (!tag || !version) return fallback;
+  const resolved = releaseFromTag(release?.tag_name);
+  if (!resolved) return fallback;
 
   const assets = Array.isArray(release.assets) ? release.assets : [];
-  const assetName = `MachKit-${version}-macOS.zip`;
+  const assetName = `MachKit-${resolved.version}-macOS.zip`;
   const asset = assets.find((candidate) => candidate?.name === assetName);
-
   const assetURL = typeof asset?.browser_download_url === "string"
     ? asset.browser_download_url
     : "";
-  const constructedURL = `${REPOSITORY_URL}/releases/download/${encodeURIComponent(tag)}/${encodeURIComponent(assetName)}`;
 
   return {
-    tag,
-    version,
-    downloadURL: assetURL || constructedURL,
+    tag: resolved.tag,
+    version: resolved.version,
+    downloadURL: assetURL || resolved.downloadURL,
   };
 }
 
