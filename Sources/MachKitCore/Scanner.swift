@@ -396,11 +396,15 @@ public actor Scanner {
     }
 
     private nonisolated static func unavailableSimulatorDeviceIDs() -> Set<String> {
+        // Call simctl directly. Going through /usr/bin/xcrun prompts macOS to install
+        // Command Line Tools on machines that do not have Xcode.
+        guard let simctl = simulatorControlExecutable() else { return [] }
+
         let output: SystemCommandOutput
         do {
             output = try SystemCommandRunner.run(
-                executable: "/usr/bin/xcrun",
-                arguments: ["simctl", "list", "devices", "-j"],
+                executable: simctl,
+                arguments: ["list", "devices", "-j"],
                 timeout: 20
             )
         } catch {
@@ -425,6 +429,27 @@ public actor Scanner {
             }
         }
         return ids
+    }
+
+    /// Prefer a real `simctl` binary so we never invoke the `xcrun` stub that triggers
+    /// Apple's "install developer tools" dialog for end users without Xcode.
+    private nonisolated static func simulatorControlExecutable() -> String? {
+        var candidates = [
+            "/Applications/Xcode.app/Contents/Developer/usr/bin/simctl",
+            "/Applications/Xcode-beta.app/Contents/Developer/usr/bin/simctl",
+        ]
+
+        // Active developer directory selected via xcode-select (symlink, no prompt).
+        if let developerDir = try? FileManager.default.destinationOfSymbolicLink(
+            atPath: "/var/db/xcode_select_link"
+        ) {
+            candidates.insert(
+                (developerDir as NSString).appendingPathComponent("usr/bin/simctl"),
+                at: 0
+            )
+        }
+
+        return candidates.first { FileManager.default.isExecutableFile(atPath: $0) }
     }
 
     private struct EntrySummary: Sendable {
