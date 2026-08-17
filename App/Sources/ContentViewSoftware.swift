@@ -294,7 +294,10 @@ extension ContentView {
                 Label("Recoverable from Trash", systemImage: "arrow.uturn.backward.circle")
                     .font(.caption).foregroundStyle(.secondary)
                 Spacer()
-                Button("Close") { model.uninstallCandidate = nil }
+                Button("Close") {
+                    model.showAppRemovalConfirmation = false
+                    model.uninstallCandidate = nil
+                }
                 if !model.isSystemApplication(app) {
                     Button("Uninstall App…", role: .destructive) { model.showAppRemovalConfirmation = true }
                         .buttonStyle(.borderedProminent)

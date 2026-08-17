@@ -109,6 +109,12 @@ struct ContentView: View {
         }
         .sheet(item: $model.uninstallCandidate) { app in
             applicationDetails(app)
+                .confirmationDialog("Uninstall this app?", isPresented: $model.showAppRemovalConfirmation) {
+                    Button("Move to Trash", role: .destructive, action: model.uninstallConfirmed)
+                    Button("Cancel", role: .cancel) {}
+                } message: {
+                    Text("The app and selected related files will be moved to Trash.")
+                }
         }
         .sheet(item: $selectedCommandLineTool) { tool in
             commandLineToolDetails(tool)
@@ -118,12 +124,6 @@ struct ContentView: View {
         }
         .sheet(item: $model.operationReport) { report in
             OperationResultView(report: report) { model.operationReport = nil }
-        }
-        .confirmationDialog("Uninstall this app?", isPresented: $model.showAppRemovalConfirmation) {
-            Button("Move to Trash", role: .destructive, action: model.uninstallConfirmed)
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("The app and selected related files will be moved to Trash.")
         }
         .confirmationDialog("Remove this login item?", isPresented: $model.showLoginApplicationRemovalConfirmation) {
             Button("Remove", role: .destructive, action: model.removeLoginApplicationConfirmed)

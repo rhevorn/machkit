@@ -1482,6 +1482,7 @@ final class CleanerViewModel: ObservableObject {
 
     func prepareUninstall(_ app: InstalledApplication) {
         isPreparingUninstall = true
+        showAppRemovalConfirmation = false
         status = L10n.format("Finding files related to %@…", app.name)
         Task {
             let found = await applicationScanner.residues(
