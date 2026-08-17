@@ -3,11 +3,27 @@ import SwiftUI
 
 @MainActor
 enum MachKitAppLifecycle {
+    static let mainWindowSceneID = "main"
+    static let mainWindowInterfaceID = NSUserInterfaceItemIdentifier("MachKit.MainWindow")
+    static let mainWindowAutosaveName = "MachKit.MainWindow.v4"
+
+    private static weak var registeredMainWindow: NSWindow?
+    private static var mainWindowVisibilityHandler: ((Bool) -> Void)?
+
     static func showInForeground() {
         if NSApp.activationPolicy() != .regular {
             NSApp.setActivationPolicy(.regular)
         }
         NSApp.activate(ignoringOtherApps: true)
+    }
+
+    static func registerMainWindow(_ window: NSWindow) {
+        window.identifier = mainWindowInterfaceID
+        registeredMainWindow = window
+    }
+
+    static func setMainWindowVisibilityHandler(_ handler: @escaping (Bool) -> Void) {
+        mainWindowVisibilityHandler = handler
     }
 
     static func bringWindowToFront(titled title: String) {
@@ -28,9 +44,11 @@ enum MachKitAppLifecycle {
     }
 
     static func machKitMainWindow() -> NSWindow? {
-        NSApp.windows.first { window in
-            window.title == "MachKit"
-                && window.canBecomeMain
+        if let registeredMainWindow {
+            return registeredMainWindow
+        }
+        return NSApp.windows.first { window in
+            window.identifier == mainWindowInterfaceID
                 && !(window is ScreenshotOverlayWindowMarker)
         }
     }
@@ -47,7 +65,39 @@ enum MachKitAppLifecycle {
     static func hideMachKitMainWindow() {
         guard let window = machKitMainWindow() else { return }
         window.orderOut(nil)
+        // Don't wait for occlusion notifications before pausing dashboard work.
+        mainWindowVisibilityHandler?(false)
         moveToBackgroundIfNeeded()
+    }
+
+    static func bringMainWindowToFront() {
+        showInForeground()
+        Task { @MainActor in
+            for _ in 0..<12 {
+                await Task.yield()
+                showInForeground()
+                if let window = machKitMainWindow(), window.canBecomeKey {
+                    window.makeKeyAndOrderFront(nil)
+                    return
+                }
+                try? await Task.sleep(for: .milliseconds(50))
+            }
+        }
+    }
+
+    static func toggleToolList(
+        isShowingTools: Bool,
+        showTools: () -> Void,
+        openMainWindow: () -> Void
+    ) {
+        if isShowingTools, isMachKitMainWindowFrontmost() {
+            hideMachKitMainWindow()
+            return
+        }
+        showTools()
+        showInForeground()
+        openMainWindow()
+        bringMainWindowToFront()
     }
 
     static func moveToBackgroundIfNeeded() {
@@ -75,7 +125,11 @@ private struct GlobalShortcutBridge: View {
                     if ScreenshotAction.allIDs.contains(targetID) {
                         ScreenshotController.shared.handleHotKey(targetID)
                     } else if targetID == ToolShortcutStore.toolListID {
-                        toggleToolList()
+                        MachKitAppLifecycle.toggleToolList(
+                            isShowingTools: model.mode == .tools,
+                            showTools: { model.changeMode(.tools) },
+                            openMainWindow: { openWindow(id: MachKitAppLifecycle.mainWindowSceneID) }
+                        )
                     } else if let tool = DeveloperToolRegistry.tool(id: targetID) {
                         MachKitAppLifecycle.showInForeground()
                         openWindow(id: "web-tool", value: tool.id)
@@ -83,17 +137,6 @@ private struct GlobalShortcutBridge: View {
                     }
                 }
             }
-    }
-
-    private func toggleToolList() {
-        if model.mode == .tools, MachKitAppLifecycle.isMachKitMainWindowFrontmost() {
-            MachKitAppLifecycle.hideMachKitMainWindow()
-            return
-        }
-        model.changeMode(.tools)
-        MachKitAppLifecycle.showInForeground()
-        openWindow(id: "main")
-        MachKitAppLifecycle.bringWindowToFront(titled: "MachKit")
     }
 }
 
@@ -110,6 +153,7 @@ private struct MainWindowConfigurator: NSViewRepresentable {
 
     func updateNSView(_ view: NSView, context: Context) {
         context.coordinator.onVisibilityChange = onVisibilityChange
+        MachKitAppLifecycle.setMainWindowVisibilityHandler(onVisibilityChange)
         DispatchQueue.main.async { configure(window: view.window, context: context) }
     }
 
@@ -119,16 +163,20 @@ private struct MainWindowConfigurator: NSViewRepresentable {
             context.coordinator.tearDown()
             context.coordinator.configuredWindow = window
             context.coordinator.onVisibilityChange = onVisibilityChange
+            MachKitAppLifecycle.setMainWindowVisibilityHandler(onVisibilityChange)
+            MachKitAppLifecycle.registerMainWindow(window)
             context.coordinator.installObservers(on: window)
             window.contentMinSize = minimumSize
 
-            let autosaveName = "MachKit.MainWindow.v4"
+            let autosaveName = MachKitAppLifecycle.mainWindowAutosaveName
             let restoredPreviousFrame = window.setFrameUsingName(autosaveName)
             window.setFrameAutosaveName(autosaveName)
             if !restoredPreviousFrame {
                 window.setContentSize(defaultSize)
                 window.center()
             }
+        } else {
+            MachKitAppLifecycle.registerMainWindow(window)
         }
         context.coordinator.publishVisibility()
     }
@@ -253,7 +301,7 @@ struct MachKitApp: App {
     }
 
     var body: some Scene {
-        Window("MachKit", id: "main") {
+        Window("MachKit", id: MachKitAppLifecycle.mainWindowSceneID) {
             ContentView(model: model)
                 .frame(minWidth: 740, minHeight: 680)
                 .background(GlobalShortcutBridge(model: model))

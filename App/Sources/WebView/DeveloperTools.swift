@@ -758,13 +758,10 @@ struct DeveloperToolCommands: Commands {
     }
 
     private func openToolList() {
-        if model.mode == .tools, MachKitAppLifecycle.isMachKitMainWindowFrontmost() {
-            MachKitAppLifecycle.hideMachKitMainWindow()
-            return
-        }
-        model.changeMode(.tools)
-        MachKitAppLifecycle.showInForeground()
-        openWindow(id: "main")
-        MachKitAppLifecycle.bringWindowToFront(titled: "MachKit")
+        MachKitAppLifecycle.toggleToolList(
+            isShowingTools: model.mode == .tools,
+            showTools: { model.changeMode(.tools) },
+            openMainWindow: { openWindow(id: MachKitAppLifecycle.mainWindowSceneID) }
+        )
     }
 }

@@ -251,7 +251,7 @@ struct StatusBarMenuView: View {
 
     private func openMachKit() {
         MachKitAppLifecycle.showInForeground()
-        openWindow(id: "main")
+        openWindow(id: MachKitAppLifecycle.mainWindowSceneID)
         MachKitAppLifecycle.bringWindowToFront(titled: "MachKit")
     }
 }
@@ -310,7 +310,7 @@ struct MachKitCommands: Commands {
             Button("Settings") {
                 model.changeMode(.settings)
                 MachKitAppLifecycle.showInForeground()
-                openWindow(id: "main")
+                openWindow(id: MachKitAppLifecycle.mainWindowSceneID)
                 MachKitAppLifecycle.bringWindowToFront(titled: "MachKit")
             }
             .keyboardShortcut(",", modifiers: .command)
