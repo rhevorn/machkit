@@ -16,7 +16,6 @@ import {
 import { messages } from "./i18n.js";
 import {
   fallbackRelease,
-  fetchLatestRelease,
   REPOSITORY_URL,
 } from "./release.js";
 
@@ -88,7 +87,7 @@ export function App({
   const copy = messages[locale];
   const [theme, setTheme] = useState(() => initialTheme || preferredTheme());
   const [selectedScreen, setSelectedScreen] = useState("overview");
-  const [release, setRelease] = useState(fallbackRelease);
+  const release = fallbackRelease;
 
   const languageURL = locale === "en" ? "./zh-CN/" : "../";
   const languageLabel = locale === "en" ? "中文" : "English";
@@ -109,16 +108,6 @@ export function App({
       theme === "dark" ? "#101214" : "#f4f5f7",
     );
   }, [theme]);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    fetchLatestRelease({ signal: controller.signal })
-      .then(setRelease)
-      .catch((error) => {
-        if (error?.name !== "AbortError") console.warn("Unable to load the latest GitHub release.", error);
-      });
-    return () => controller.abort();
-  }, []);
 
   const toggleTheme = () => {
     setTheme((current) => {

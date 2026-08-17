@@ -29,6 +29,20 @@ jobs:
           cache: npm
           cache-dependency-path: Website/package-lock.json
 
+      - name: Resolve latest release tag
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="$(gh api "repos/${GITHUB_REPOSITORY}/releases/latest" --jq .tag_name)"
+          if [[ -z "$tag" || "$tag" == "null" ]]; then
+            echo "Unable to resolve the latest GitHub release tag." >&2
+            exit 1
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "Resolved release tag: \`$tag\`" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Install dependencies
         working-directory: Website
         run: npm ci
@@ -37,6 +51,7 @@ jobs:
         working-directory: Website
         env:
           VITE_REPOSITORY_URL: https://github.com/${{ github.repository }}
+          VITE_RELEASE_TAG: ${{ steps.release.outputs.tag }}
         run: npm run build
 
       - name: Configure GitHub Pages

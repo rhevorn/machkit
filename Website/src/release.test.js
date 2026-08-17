@@ -41,6 +41,7 @@ test("ignores assets that do not use the MachKit package name", () => {
 
 test("uses the known direct download when release metadata is invalid", () => {
   assert.deepEqual(resolveReleaseDownload(null), fallbackRelease);
+  assert.equal(fallbackRelease.tag, "v2.2.2");
 });
 
 test("picks latest and previous releases from the API list", () => {
