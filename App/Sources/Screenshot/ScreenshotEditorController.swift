@@ -1,4 +1,5 @@
 import AppKit
+import MachKitCore
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -8,10 +9,13 @@ final class ScreenshotEditorController: NSWindowController, NSWindowDelegate {
     private var onFinish: (() -> Void)?
     private var isClosing = false
     private var hostingController: NSHostingController<ScreenshotAnnotatorView>?
+    private var savePanel: NSSavePanel?
+    private var errorAlert: NSAlert?
 
     init(
         image: CGImage,
         selectionRect: CGRect,
+        displayID: CGDirectDisplayID,
         backdrop: ScreenshotDesktopSnapshot,
         onFinish: @escaping () -> Void
     ) {
@@ -23,21 +27,24 @@ final class ScreenshotEditorController: NSWindowController, NSWindowDelegate {
         )
         self.onFinish = onFinish
 
-        let screens = NSScreen.screens
-        let desktopFrame = screens.reduce(CGRect.null) { $0.union($1.frame) }
-        let localCanvasRect = CGRect(
-            x: selectionRect.minX - desktopFrame.minX,
-            y: desktopFrame.maxY - selectionRect.maxY,
-            width: selectionRect.width,
-            height: selectionRect.height
+        let selectedDisplay = backdrop.displays.first { $0.displayID == displayID }
+            ?? backdrop.displays.first
+        let displayFrame = selectedDisplay?.frame
+            ?? NSScreen.screens.first { $0.displayID == displayID }?.frame
+            ?? selectionRect
+        let localCanvasRect = ScreenshotGeometry.editorCanvasRect(
+            selection: selectionRect,
+            displayFrame: displayFrame
         )
+        let editorModel = model
+        let localDisplayRect = CGRect(origin: .zero, size: displayFrame.size)
         let window = ScreenshotEditorWindow(
-            contentRect: desktopFrame,
+            contentRect: displayFrame,
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
         )
-        window.setFrame(desktopFrame, display: false)
+        window.setFrame(displayFrame, display: false)
         window.isOpaque = true
         window.backgroundColor = .black
         window.hasShadow = false
@@ -51,12 +58,12 @@ final class ScreenshotEditorController: NSWindowController, NSWindowDelegate {
         super.init(window: window)
         window.delegate = self
 
-        let rootView = NSView(frame: CGRect(origin: .zero, size: desktopFrame.size))
+        let rootView = NSView(frame: localDisplayRect)
         rootView.wantsLayer = true
 
         let backdropView = ScreenshotEditorBackdropView(
-            desktopFrame: desktopFrame,
-            displays: backdrop.displays
+            editorFrame: displayFrame,
+            displays: selectedDisplay.map { [$0] } ?? []
         )
         backdropView.frame = rootView.bounds
         backdropView.autoresizingMask = [.width, .height]
@@ -66,6 +73,27 @@ final class ScreenshotEditorController: NSWindowController, NSWindowDelegate {
             rootView: ScreenshotAnnotatorView(
                 model: model,
                 canvasRect: localCanvasRect,
+                toolbarBounds: localDisplayRect,
+                onMoveCanvas: { localRect in
+                    let screenRect = CGRect(
+                        x: displayFrame.minX + localRect.minX,
+                        y: displayFrame.maxY - localRect.maxY,
+                        width: localRect.width,
+                        height: localRect.height
+                    )
+                    let movedSelection = ScreenshotSelection(
+                        rect: screenRect,
+                        displayID: displayID
+                    )
+                    guard let result = try? ScreenshotCapture.crop(
+                        movedSelection,
+                        from: backdrop
+                    ) else {
+                        return false
+                    }
+                    editorModel.replaceBaseImage(result.image)
+                    return true
+                },
                 onConfirm: { [weak self] in self?.confirmAndCopy() },
                 onCancel: { [weak self] in self?.closeSession() },
                 onSave: { [weak self] in self?.save() }
@@ -79,7 +107,7 @@ final class ScreenshotEditorController: NSWindowController, NSWindowDelegate {
         self.hostingController = hostingController
 
         window.contentView = rootView
-        window.setFrame(desktopFrame, display: false)
+        window.setFrame(displayFrame, display: false)
     }
 
     @available(*, unavailable)
@@ -113,37 +141,52 @@ final class ScreenshotEditorController: NSWindowController, NSWindowDelegate {
     }
 
     private func save() {
-        guard let image = model.exportImage() else {
-            showEditorError(ScreenshotCaptureError.encodeFailed)
+        if let savePanel {
+            savePanel.makeKeyAndOrderFront(nil)
             return
         }
+        guard let editorWindow = window else { return }
+
         let panel = NSSavePanel()
         panel.allowedContentTypes = [.png]
         panel.nameFieldStringValue = "MachKit Screenshot.png".localized
-        guard panel.runModal() == .OK, let url = panel.url else { return }
-        let representation = NSBitmapImageRep(cgImage: image)
-        do {
-            guard let data = representation.representation(using: .png, properties: [:]) else {
-                throw ScreenshotCaptureError.encodeFailed
+        savePanel = panel
+        panel.beginSheetModal(for: editorWindow) { [weak self, weak panel] response in
+            guard let self else { return }
+            savePanel = nil
+            guard response == .OK, let url = panel?.url else { return }
+            do {
+                guard let image = model.exportImage() else {
+                    throw ScreenshotCaptureError.encodeFailed
+                }
+                let representation = NSBitmapImageRep(cgImage: image)
+                guard let data = representation.representation(using: .png, properties: [:]) else {
+                    throw ScreenshotCaptureError.encodeFailed
+                }
+                try data.write(to: url, options: .atomic)
+            } catch {
+                showEditorError(error)
             }
-            try data.write(to: url, options: .atomic)
-        } catch {
-            showEditorError(error)
         }
     }
 
     private func showEditorError(_ error: Error) {
+        guard errorAlert == nil, let editorWindow = window else { return }
         let alert = NSAlert()
         alert.alertStyle = .warning
         alert.messageText = "Screenshot".localized
         alert.informativeText = error.localizedDescription
         alert.addButton(withTitle: "OK".localized)
-        alert.runModal()
+        errorAlert = alert
+        alert.beginSheetModal(for: editorWindow) { [weak self] _ in
+            self?.errorAlert = nil
+        }
     }
 
     private func closeSession() {
         guard !isClosing else { return }
         isClosing = true
+        dismissPresentedSheets()
         let finish = onFinish
         onFinish = nil
         window?.orderOut(nil)
@@ -154,9 +197,23 @@ final class ScreenshotEditorController: NSWindowController, NSWindowDelegate {
     func windowWillClose(_ notification: Notification) {
         guard !isClosing else { return }
         isClosing = true
+        dismissPresentedSheets()
         let finish = onFinish
         onFinish = nil
         finish?()
+    }
+
+    private func dismissPresentedSheets() {
+        if let savePanel {
+            window?.endSheet(savePanel, returnCode: .cancel)
+            savePanel.orderOut(nil)
+            self.savePanel = nil
+        }
+        if let errorAlert {
+            window?.endSheet(errorAlert.window, returnCode: .cancel)
+            errorAlert.window.orderOut(nil)
+            self.errorAlert = nil
+        }
     }
 }
 
@@ -171,11 +228,11 @@ private final class ScreenshotEditorWindow: NSPanel, ScreenshotOverlayWindowMark
 private final class ScreenshotEditorBackdropView: NSView {
     private let layers: [(frame: CGRect, image: NSImage)]
 
-    init(desktopFrame: CGRect, displays: [ScreenshotDisplayBackdrop]) {
+    init(editorFrame: CGRect, displays: [ScreenshotDisplayBackdrop]) {
         self.layers = displays.map { display in
             let local = CGRect(
-                x: display.frame.minX - desktopFrame.minX,
-                y: display.frame.minY - desktopFrame.minY,
+                x: display.frame.minX - editorFrame.minX,
+                y: display.frame.minY - editorFrame.minY,
                 width: display.frame.width,
                 height: display.frame.height
             )
