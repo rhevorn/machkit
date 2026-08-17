@@ -4,8 +4,10 @@ import SwiftUI
 enum ScreenshotInk: String, CaseIterable, Identifiable {
     case red
     case yellow
-    case green
     case blue
+    case green
+    case black
+    case gray
     case white
 
     var id: String { rawValue }
@@ -14,8 +16,10 @@ enum ScreenshotInk: String, CaseIterable, Identifiable {
         switch self {
         case .red: Color(red: 1, green: 0.23, blue: 0.19)
         case .yellow: Color(red: 1, green: 0.8, blue: 0)
-        case .green: Color(red: 0.2, green: 0.78, blue: 0.35)
         case .blue: Color(red: 0.04, green: 0.52, blue: 1)
+        case .green: Color(red: 0.2, green: 0.78, blue: 0.35)
+        case .black: Color(red: 0.08, green: 0.08, blue: 0.1)
+        case .gray: Color(red: 0.56, green: 0.56, blue: 0.58)
         case .white: .white
         }
     }
@@ -24,8 +28,10 @@ enum ScreenshotInk: String, CaseIterable, Identifiable {
         switch self {
         case .red: NSColor(red: 1, green: 0.23, blue: 0.19, alpha: 1)
         case .yellow: NSColor(red: 1, green: 0.8, blue: 0, alpha: 1)
-        case .green: NSColor(red: 0.2, green: 0.78, blue: 0.35, alpha: 1)
         case .blue: NSColor(red: 0.04, green: 0.52, blue: 1, alpha: 1)
+        case .green: NSColor(red: 0.2, green: 0.78, blue: 0.35, alpha: 1)
+        case .black: NSColor(red: 0.08, green: 0.08, blue: 0.1, alpha: 1)
+        case .gray: NSColor(red: 0.56, green: 0.56, blue: 0.58, alpha: 1)
         case .white: .white
         }
     }
@@ -84,6 +90,20 @@ enum ScreenshotMosaicBrushShape: String, CaseIterable, Identifiable {
         switch self {
         case .circle: "circle.fill"
         case .square: "square.fill"
+        }
+    }
+}
+
+enum ScreenshotMosaicMode: String, CaseIterable, Identifiable {
+    case brush
+    case rectangle
+
+    var id: String { rawValue }
+
+    var icon: String {
+        switch self {
+        case .brush: "paintbrush.pointed.fill"
+        case .rectangle: "rectangle.dashed"
         }
     }
 }

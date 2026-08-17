@@ -18,6 +18,7 @@ struct ScreenshotStroke: Identifiable, Equatable {
     var ink: ScreenshotInk
     var lineWidth: CGFloat
     var mosaicShape: ScreenshotMosaicBrushShape
+    var mosaicMode: ScreenshotMosaicMode
 
     init(
         id: UUID = UUID(),
@@ -25,7 +26,8 @@ struct ScreenshotStroke: Identifiable, Equatable {
         points: [CGPoint],
         ink: ScreenshotInk,
         lineWidth: CGFloat,
-        mosaicShape: ScreenshotMosaicBrushShape = .square
+        mosaicShape: ScreenshotMosaicBrushShape = .square,
+        mosaicMode: ScreenshotMosaicMode = .brush
     ) {
         self.id = id
         self.kind = kind
@@ -33,5 +35,6 @@ struct ScreenshotStroke: Identifiable, Equatable {
         self.ink = ink
         self.lineWidth = lineWidth
         self.mosaicShape = mosaicShape
+        self.mosaicMode = mosaicMode
     }
 }
