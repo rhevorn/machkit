@@ -844,7 +844,7 @@ extension ContentView {
         VStack(spacing: 0) {
             header(
                 title: "Performance",
-                subtitle: "Monitor CPU, memory pressure, and top apps locally",
+                subtitle: "Monitor CPU, GPU, memory, disk, network, and top apps locally",
                 trailing: AnyView(
                     HStack(spacing: 10) {
                         autoUpdateIndicator(
@@ -897,10 +897,20 @@ extension ContentView {
                         memoryMetricCard(snapshot)
                     }
                 }
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 12) {
+                        gpuMetricCard(snapshot)
+                        systemActivityCard(snapshot)
+                    }
+                    VStack(spacing: 12) {
+                        gpuMetricCard(snapshot)
+                        systemActivityCard(snapshot)
+                    }
+                }
                 computeHardwareCard(snapshot.computeHardware)
                 performanceTrendCard
                 resourceApplicationList(snapshot)
-                Text("Data updates locally every 2 seconds. Sampling stops when you leave this page or pause it. App rankings include identifiable graphical app processes only.")
+                Text("Data updates locally every 2 seconds. GPU metrics depend on statistics exposed by the macOS graphics driver. Sampling stops when you leave this page or pause it. App rankings include identifiable graphical app processes only.")
                     .font(.caption).foregroundStyle(.secondary)
             }
             .padding(.horizontal, 18)
@@ -926,6 +936,12 @@ extension ContentView {
                 Label(thermalStateText(snapshot.thermalState), systemImage: "thermometer.medium")
                     .font(.caption).foregroundStyle(.secondary)
             }
+            HStack(spacing: 12) {
+                Text(L10n.format("User %@", percentText(snapshot.cpuUserPercent)))
+                Text(L10n.format("System %@", percentText(snapshot.cpuSystemPercent)))
+                Spacer()
+            }
+            .font(.caption).foregroundStyle(.secondary).monospacedDigit()
             if snapshot.cpuCores.isEmpty {
                 ProgressView(value: snapshot.cpuPercent, total: 100)
                     .tint(snapshot.cpuPercent > 85 ? Color.orange : Color.accentColor)
@@ -1060,6 +1076,7 @@ extension ContentView {
             ProgressView(value: snapshot.memoryPressure, total: 1).tint(color)
             HStack(spacing: 9) {
                 Text("Cached \(formatted(snapshot.cachedMemory))")
+                Text("Compressed \(formatted(snapshot.compressedMemory))")
                 Text("Swap \(formatted(snapshot.swapUsed))")
                 Spacer(minLength: 4)
                 Button(action: model.optimizeMemory) {
@@ -1080,6 +1097,142 @@ extension ContentView {
         .padding(15)
         .frame(maxWidth: .infinity, minHeight: 154)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+    }
+
+    func gpuMetricCard(_ snapshot: PerformanceSnapshot) -> some View {
+        VStack(alignment: .leading, spacing: 13) {
+            HStack {
+                Label("GPU", systemImage: "display").font(.system(size: 14, weight: .semibold))
+                Spacer()
+                Text((snapshot.gpuPercent == nil ? "Unavailable" : "Live").localized)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(snapshot.gpuPercent == nil ? Color.secondary : Color.blue)
+            }
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text(snapshot.gpuPercent.map { $0.formatted(.number.precision(.fractionLength(0))) } ?? "—")
+                    .font(.system(size: 32, weight: .semibold, design: .rounded)).monospacedDigit()
+                if snapshot.gpuPercent != nil {
+                    Text("%").font(.system(size: 15, weight: .medium)).foregroundStyle(.secondary)
+                }
+                Spacer()
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text(snapshot.computeHardware.gpuName).lineLimit(1)
+                    if let coreCount = snapshot.computeHardware.gpuCoreCount {
+                        Text(L10n.format("%lld GPU cores", Int64(coreCount)))
+                            .foregroundStyle(Color.blue)
+                    }
+                }
+                .font(.caption).foregroundStyle(.secondary)
+            }
+            if let gpuPercent = snapshot.gpuPercent {
+                ProgressView(value: gpuPercent, total: 100)
+                    .tint(gpuPercent > 85 ? Color.orange : Color.blue)
+            } else {
+                Text("The graphics driver does not expose live utilization on this Mac.")
+                    .font(.caption).foregroundStyle(.secondary).lineLimit(2)
+            }
+            HStack(spacing: 18) {
+                compactMetric("Renderer", value: optionalPercentText(snapshot.gpuRendererPercent))
+                compactMetric("Tiler", value: optionalPercentText(snapshot.gpuTilerPercent))
+                compactMetric("GPU Memory", value: snapshot.gpuMemoryBytes > 0 ? formatted(snapshot.gpuMemoryBytes) : "—")
+                Spacer(minLength: 0)
+            }
+        }
+        .padding(15)
+        .frame(maxWidth: .infinity, minHeight: 170, alignment: .topLeading)
+        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+    }
+
+    func systemActivityCard(_ snapshot: PerformanceSnapshot) -> some View {
+        VStack(alignment: .leading, spacing: 13) {
+            Label("System Activity", systemImage: "waveform.path.ecg")
+                .font(.system(size: 14, weight: .semibold))
+            HStack(spacing: 18) {
+                activityGroup(
+                    title: "Disk I/O",
+                    icon: "internaldrive",
+                    firstLabel: "Read",
+                    firstValue: formatNetworkRate(snapshot.diskReadBytesPerSecond),
+                    secondLabel: "Write",
+                    secondValue: formatNetworkRate(snapshot.diskWriteBytesPerSecond),
+                    color: .orange
+                )
+                activityGroup(
+                    title: "Network",
+                    icon: "network",
+                    firstLabel: "Down",
+                    firstValue: formatNetworkRate(snapshot.networkDownloadBytesPerSecond),
+                    secondLabel: "Up",
+                    secondValue: formatNetworkRate(snapshot.networkUploadBytesPerSecond),
+                    color: .green
+                )
+            }
+            Divider()
+            HStack(spacing: 18) {
+                compactMetric("Load Average", value: loadAverageText(snapshot.loadAverages))
+                compactMetric("Processes", value: snapshot.processCount.formatted())
+                compactMetric("Uptime", value: uptimeText(snapshot.systemUptime))
+                Spacer(minLength: 0)
+            }
+        }
+        .padding(15)
+        .frame(maxWidth: .infinity, minHeight: 170, alignment: .topLeading)
+        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+    }
+
+    func activityGroup(
+        title: String,
+        icon: String,
+        firstLabel: String,
+        firstValue: String,
+        secondLabel: String,
+        secondValue: String,
+        color: Color
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 7) {
+            Label(title.localized, systemImage: icon).foregroundStyle(color)
+                .font(.caption.weight(.semibold))
+            HStack(spacing: 6) {
+                Text(firstLabel.localized).foregroundStyle(.secondary)
+                Text(firstValue).monospacedDigit()
+            }
+            HStack(spacing: 6) {
+                Text(secondLabel.localized).foregroundStyle(.secondary)
+                Text(secondValue).monospacedDigit()
+            }
+        }
+        .font(.caption)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    func compactMetric(_ title: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(title.localized).font(.caption2).foregroundStyle(.secondary)
+            Text(value).font(.caption.weight(.semibold)).monospacedDigit().lineLimit(1)
+        }
+    }
+
+    func percentText(_ value: Double) -> String {
+        "\(value.formatted(.number.precision(.fractionLength(0))))%"
+    }
+
+    func optionalPercentText(_ value: Double?) -> String {
+        value.map(percentText) ?? "—"
+    }
+
+    func loadAverageText(_ values: [Double]) -> String {
+        guard !values.isEmpty else { return "—" }
+        return values.map { $0.formatted(.number.precision(.fractionLength(2))) }.joined(separator: " / ")
+    }
+
+    func uptimeText(_ interval: TimeInterval) -> String {
+        let totalMinutes = max(0, Int(interval) / 60)
+        let days = totalMinutes / (24 * 60)
+        let hours = totalMinutes / 60 % 24
+        let minutes = totalMinutes % 60
+        if days > 0 { return L10n.format("%lldd %lldh", days, hours) }
+        if hours > 0 { return L10n.format("%lldh %lldm", hours, minutes) }
+        return L10n.format("%lldm", minutes)
     }
 
     func computeHardwareCard(_ hardware: ComputeHardwareInfo) -> some View {
@@ -1162,7 +1315,8 @@ extension ContentView {
             HStack {
                 Text("Last 60 Seconds").font(.system(size: 14, weight: .semibold))
                 Spacer()
-                Label("CPU", systemImage: "circle.fill").foregroundStyle(Color.accentColor)
+                Label("CPU", systemImage: "circle.fill").foregroundStyle(Color.orange)
+                Label("GPU", systemImage: "circle.fill").foregroundStyle(Color.blue)
                 Label("Memory Usage", systemImage: "circle.fill").foregroundStyle(Color.purple)
             }
             .font(.caption)
@@ -1172,8 +1326,17 @@ extension ContentView {
                     y: .value("CPU", point.cpuPercent),
                     series: .value("Metric", "CPU")
                 )
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(Color.orange)
                 .interpolationMethod(.catmullRom)
+                if let gpuPercent = point.gpuPercent {
+                    LineMark(
+                        x: .value("Time", point.sampledAt),
+                        y: .value("GPU", gpuPercent),
+                        series: .value("Metric", "GPU")
+                    )
+                    .foregroundStyle(Color.blue)
+                    .interpolationMethod(.catmullRom)
+                }
                 LineMark(
                     x: .value("Time", point.sampledAt),
                     y: .value("Memory Usage", point.memoryPressurePercent),

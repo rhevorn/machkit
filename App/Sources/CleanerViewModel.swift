@@ -129,9 +129,12 @@ final class CleanerViewModel: ObservableObject {
     private var networkMonitoringTask: Task<Void, Never>?
     private var routeLookupTask: Task<Void, Never>?
     private var homeMonitoringTask: Task<Void, Never>?
+    private var isMainWindowVisible = false
     private var hasScannedApplications = false
     private var hasAnalyzedStorage = false
     private var storageCache: [String: StorageAnalysis] = [:]
+    private var storageCacheOrder: [String] = []
+    private static let storageCacheLimit = 12
     private var hasScannedLoginApplications = false
     private var hasScannedBackgroundItems = false
     private var hasScannedExtensions = false
@@ -166,8 +169,6 @@ final class CleanerViewModel: ObservableObject {
         restoreStorageSnapshot()
         restoreInventorySnapshot()
         refreshSystemStorage()
-        refreshPerformanceSnapshot()
-        startHomeMonitoring()
     }
 
     // MARK: - Root selection
@@ -532,7 +533,7 @@ final class CleanerViewModel: ObservableObject {
             guard !Task.isCancelled,
                   storageAnalysisGeneration == generation else { return }
             storageAnalysis = analysis
-            storageCache[selectedRoot.path] = analysis
+            cacheStorageAnalysis(analysis, for: selectedRoot.path)
             storagePath = breadcrumbPath(to: selectedRoot)
             items = []
             selectedIDs = []
@@ -559,7 +560,7 @@ final class CleanerViewModel: ObservableObject {
         let url = url.standardizedFileURL
         root = url
         storagePath = breadcrumbPath(to: url)
-        if let cached = storageCache[url.path] {
+        if let cached = cachedStorageAnalysis(for: url.path) {
             storageAnalysis = mergeFolderListing(cached, into: storageAnalysis)
             return
         }
@@ -576,7 +577,7 @@ final class CleanerViewModel: ObservableObject {
             )
             guard !Task.isCancelled,
                   storageAnalysisGeneration == generation else { return }
-            storageCache[url.path] = overview
+            cacheStorageAnalysis(overview, for: url.path)
             storageAnalysis = mergeFolderListing(overview, into: storageAnalysis)
             isStorageAnalyzing = false
             storageAnalysisTask = nil
@@ -630,12 +631,29 @@ final class CleanerViewModel: ObservableObject {
         snapshotStore.saveStorage(analysis, savedAt: lastScanAt ?? Date())
     }
 
+    private func cachedStorageAnalysis(for path: String) -> StorageAnalysis? {
+        guard let analysis = storageCache[path] else { return nil }
+        storageCacheOrder.removeAll { $0 == path }
+        storageCacheOrder.append(path)
+        return analysis
+    }
+
+    private func cacheStorageAnalysis(_ analysis: StorageAnalysis, for path: String) {
+        storageCache[path] = analysis
+        storageCacheOrder.removeAll { $0 == path }
+        storageCacheOrder.append(path)
+        while storageCacheOrder.count > Self.storageCacheLimit {
+            let evictedPath = storageCacheOrder.removeFirst()
+            storageCache.removeValue(forKey: evictedPath)
+        }
+    }
+
     private func restoreStorageSnapshot() {
         guard let snapshot = snapshotStore.loadStorage(),
               let root = snapshot.analysis.analyzedRoots.first else { return }
         let analysis = snapshot.analysis
         storageAnalysis = analysis
-        storageCache[root.path] = analysis
+        cacheStorageAnalysis(analysis, for: root.path)
         storageDeepRoot = root
         storagePath = breadcrumbPath(to: root)
         lastUpdatedAt[.files] = snapshot.savedAt
@@ -690,25 +708,39 @@ final class CleanerViewModel: ObservableObject {
     // MARK: - Performance monitoring
 
     func startPerformanceMonitoring() {
+        guard isMainWindowVisible, mode == .performance else { return }
         performanceTask?.cancel()
         isPerformanceMonitoring = true
-        status = L10n.string("Monitoring CPU and memory…")
+        status = L10n.string("Monitoring system performance…")
         performanceTask = Task { [weak self] in
             guard let self else { return }
-            while !Task.isCancelled, mode == .performance {
-                let snapshot = performanceMonitor.sample()
+            while !Task.isCancelled, mode == .performance, isMainWindowVisible {
+                if !NSApp.isActive {
+                    do {
+                        try await Task.sleep(for: .seconds(30))
+                    } catch {
+                        return
+                    }
+                    continue
+                }
+                let snapshot = await performanceMonitor.sample()
+                guard !Task.isCancelled, mode == .performance, isMainWindowVisible else {
+                    return
+                }
                 performanceSnapshot = snapshot
                 performanceHistory.append(PerformanceHistoryPoint(
                     sampledAt: snapshot.sampledAt,
                     cpuPercent: snapshot.cpuPercent,
+                    gpuPercent: snapshot.gpuPercent,
                     memoryPressurePercent: snapshot.memoryPressure * 100
                 ))
                 if performanceHistory.count > 30 {
                     performanceHistory.removeFirst(performanceHistory.count - 30)
                 }
                 status = L10n.format(
-                    "CPU %lld%% · Memory pressure: %@",
+                    "CPU %lld%% · GPU %@ · Memory pressure: %@",
                     Int64(snapshot.cpuPercent.rounded()),
+                    snapshot.gpuPercent.map { "\(Int($0.rounded()))%" } ?? "—",
                     snapshot.memoryPressureLevel.rawValue.localized
                 )
                 try? await Task.sleep(for: .seconds(2))
@@ -734,18 +766,20 @@ final class CleanerViewModel: ObservableObject {
                 malloc_zone_pressure_relief(nil, 0)
             }.value
             try? await Task.sleep(for: .milliseconds(800))
-            refreshPerformanceSnapshot()
+            await refreshPerformanceSnapshot()
             isOptimizingMemory = false
             status = L10n.string("Smart release complete; idle background apps were handled and MachKit returned its own reclaimable memory.")
         }
     }
 
-    private func refreshPerformanceSnapshot() {
-        let snapshot = performanceMonitor.sample()
+    private func refreshPerformanceSnapshot() async {
+        let snapshot = await performanceMonitor.sample()
+        guard !Task.isCancelled else { return }
         performanceSnapshot = snapshot
         performanceHistory.append(PerformanceHistoryPoint(
             sampledAt: snapshot.sampledAt,
             cpuPercent: snapshot.cpuPercent,
+            gpuPercent: snapshot.gpuPercent,
             memoryPressurePercent: snapshot.memoryPressure * 100
         ))
         if performanceHistory.count > 30 {
@@ -780,27 +814,27 @@ final class CleanerViewModel: ObservableObject {
     }
 
     private func startHomeMonitoring() {
+        guard isMainWindowVisible, mode == .home else { return }
         homeMonitoringTask?.cancel()
         refreshSystemStorage()
         homeMonitoringTask = Task { [weak self] in
-            do {
-                try await Task.sleep(for: .seconds(1))
-            } catch {
-                return
-            }
-
             while !Task.isCancelled {
-                guard let self, self.mode == .home else { return }
+                guard let self, self.mode == .home, self.isMainWindowVisible else { return }
                 if NSApp.isActive {
                     self.refreshSystemStorage()
-                    self.refreshPerformanceSnapshot()
+                    await self.refreshPerformanceSnapshot()
                     let transferRate = await self.networkScanner.sampleTransferRate()
-                    guard !Task.isCancelled, self.mode == .home else { return }
+                    guard !Task.isCancelled,
+                          self.mode == .home,
+                          self.isMainWindowVisible
+                    else { return }
                     self.networkTransferRate = transferRate
                 }
 
                 do {
-                    try await Task.sleep(for: .seconds(3))
+                    try await Task.sleep(
+                        for: NSApp.isActive ? .seconds(3) : .seconds(30)
+                    )
                 } catch {
                     return
                 }
@@ -877,16 +911,22 @@ final class CleanerViewModel: ObservableObject {
     }
 
     private func startNetworkMonitoring() {
+        guard isMainWindowVisible, mode == .network else { return }
         networkMonitoringTask?.cancel()
         scanNetwork()
         networkMonitoringTask = Task { [weak self] in
             while !Task.isCancelled {
                 do {
-                    try await Task.sleep(for: .seconds(5))
+                    try await Task.sleep(
+                        for: NSApp.isActive ? .seconds(5) : .seconds(30)
+                    )
                 } catch {
                     return
                 }
-                guard let self, self.mode == .network else { return }
+                guard let self,
+                      self.mode == .network,
+                      self.isMainWindowVisible
+                else { return }
                 if NSApp.isActive, !self.isLoading(.network), !self.showPortTerminationConfirmation {
                     self.scanNetwork()
                 }
@@ -1009,6 +1049,44 @@ final class CleanerViewModel: ObservableObject {
 
     // MARK: - Feature lifecycle
 
+    func setMainWindowVisible(_ visible: Bool) {
+        guard isMainWindowVisible != visible else { return }
+        isMainWindowVisible = visible
+        if visible {
+            resumeMonitoringForCurrentMode()
+        } else {
+            suspendDashboardMonitoring()
+        }
+    }
+
+    func applicationDidBecomeActive() {
+        guard isMainWindowVisible else { return }
+        resumeMonitoringForCurrentMode()
+    }
+
+    private func resumeMonitoringForCurrentMode() {
+        switch mode {
+        case .home:
+            startHomeMonitoring()
+        case .performance:
+            startPerformanceMonitoring()
+        case .network:
+            startNetworkMonitoring()
+        default:
+            break
+        }
+    }
+
+    private func suspendDashboardMonitoring() {
+        performanceTask?.cancel()
+        performanceTask = nil
+        networkMonitoringTask?.cancel()
+        networkMonitoringTask = nil
+        homeMonitoringTask?.cancel()
+        homeMonitoringTask = nil
+        isPerformanceMonitoring = false
+    }
+
     func changeMode(_ newMode: FeatureMode) {
         guard newMode != mode else { return }
         performanceTask?.cancel()
@@ -1026,7 +1104,7 @@ final class CleanerViewModel: ObservableObject {
         switch newMode {
         case .home:
             status = L10n.string("Check storage and quickly access common tools.")
-            startHomeMonitoring()
+            if isMainWindowVisible { startHomeMonitoring() }
         case .junk:
             root = cleanupRoot
             status = isCleanupScanning
@@ -1054,10 +1132,10 @@ final class CleanerViewModel: ObservableObject {
                 status = L10n.string("Start a system storage analysis, or choose a folder to analyze separately.")
             }
         case .performance:
-            status = L10n.string("Monitoring CPU and memory…")
-            startPerformanceMonitoring()
+            status = L10n.string("Monitoring system performance…")
+            if isMainWindowVisible { startPerformanceMonitoring() }
         case .network:
-            startNetworkMonitoring()
+            if isMainWindowVisible { startNetworkMonitoring() }
         case .tools:
             status = L10n.string("Manage developer tools and local environments.")
         case .loginItems:
@@ -1107,7 +1185,7 @@ final class CleanerViewModel: ObservableObject {
             case .files:
                 status = L10n.string("Measuring file usage…")
             case .performance:
-                status = L10n.string("Monitoring CPU and memory…")
+                status = L10n.string("Monitoring system performance…")
             case .network:
                 status = L10n.string("Reading network activity, routes, and proxy settings…")
             case .tools:
@@ -1148,7 +1226,7 @@ final class CleanerViewModel: ObservableObject {
             }
         case .performance:
             status = isPerformanceMonitoring
-                ? L10n.string("Monitoring CPU and memory…")
+                ? L10n.string("Monitoring system performance…")
                 : L10n.string("Performance monitoring paused.")
         case .network:
             status = L10n.format("%lld connections cached; refresh to scan again.", Int64(networkSnapshot?.connections.count ?? 0))

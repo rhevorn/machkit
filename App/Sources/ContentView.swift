@@ -170,6 +170,7 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
             DispatchQueue.main.async {
                 permissions.refresh()
+                model.applicationDidBecomeActive()
             }
         }
         .onChange(of: languageRawValue) { _, _ in

@@ -69,6 +69,7 @@ private struct GlobalShortcutBridge: View {
 private struct MainWindowConfigurator: NSViewRepresentable {
     let defaultSize: CGSize
     let minimumSize: CGSize
+    let onVisibilityChange: (Bool) -> Void
 
     func makeNSView(context: Context) -> NSView {
         let view = NSView(frame: .zero)
@@ -77,27 +78,90 @@ private struct MainWindowConfigurator: NSViewRepresentable {
     }
 
     func updateNSView(_ view: NSView, context: Context) {
+        context.coordinator.onVisibilityChange = onVisibilityChange
         DispatchQueue.main.async { configure(window: view.window, context: context) }
     }
 
     private func configure(window: NSWindow?, context: Context) {
-        guard let window, context.coordinator.configuredWindow !== window else { return }
-        context.coordinator.configuredWindow = window
-        window.contentMinSize = minimumSize
+        guard let window else { return }
+        if context.coordinator.configuredWindow !== window {
+            context.coordinator.tearDown()
+            context.coordinator.configuredWindow = window
+            context.coordinator.onVisibilityChange = onVisibilityChange
+            context.coordinator.installObservers(on: window)
+            window.contentMinSize = minimumSize
 
-        let autosaveName = "MachKit.MainWindow.v4"
-        let restoredPreviousFrame = window.setFrameUsingName(autosaveName)
-        window.setFrameAutosaveName(autosaveName)
-        if !restoredPreviousFrame {
-            window.setContentSize(defaultSize)
-            window.center()
+            let autosaveName = "MachKit.MainWindow.v4"
+            let restoredPreviousFrame = window.setFrameUsingName(autosaveName)
+            window.setFrameAutosaveName(autosaveName)
+            if !restoredPreviousFrame {
+                window.setContentSize(defaultSize)
+                window.center()
+            }
         }
+        context.coordinator.publishVisibility()
     }
 
     func makeCoordinator() -> Coordinator { Coordinator() }
 
     final class Coordinator {
         weak var configuredWindow: NSWindow?
+        var onVisibilityChange: ((Bool) -> Void)?
+        private var observers: [NSObjectProtocol] = []
+        private var lastPublishedVisibility: Bool?
+
+        func installObservers(on window: NSWindow) {
+            let center = NotificationCenter.default
+            let names: [Notification.Name] = [
+                NSWindow.didBecomeKeyNotification,
+                NSWindow.didResignKeyNotification,
+                NSWindow.didMiniaturizeNotification,
+                NSWindow.didDeminiaturizeNotification,
+                NSWindow.didChangeOcclusionStateNotification,
+                NSWindow.willCloseNotification,
+            ]
+            for name in names {
+                observers.append(
+                    center.addObserver(forName: name, object: window, queue: .main) { [weak self] _ in
+                        self?.publishVisibility()
+                    }
+                )
+            }
+        }
+
+        func publishVisibility() {
+            guard let window = configuredWindow else {
+                publish(false)
+                return
+            }
+            let visible = window.isVisible
+                && !window.isMiniaturized
+                && window.occlusionState.contains(.visible)
+            publish(visible)
+        }
+
+        private func publish(_ visible: Bool) {
+            guard lastPublishedVisibility != visible else { return }
+            lastPublishedVisibility = visible
+            onVisibilityChange?(visible)
+        }
+
+        func tearDown() {
+            let center = NotificationCenter.default
+            for observer in observers {
+                center.removeObserver(observer)
+            }
+            observers.removeAll()
+            configuredWindow = nil
+            lastPublishedVisibility = nil
+        }
+
+        deinit {
+            let center = NotificationCenter.default
+            for observer in observers {
+                center.removeObserver(observer)
+            }
+        }
     }
 }
 
@@ -165,7 +229,8 @@ struct MachKitApp: App {
                 .background(
                     MainWindowConfigurator(
                         defaultSize: CGSize(width: 880, height: 680),
-                        minimumSize: CGSize(width: 740, height: 680)
+                        minimumSize: CGSize(width: 740, height: 680),
+                        onVisibilityChange: { model.setMainWindowVisible($0) }
                     )
                 )
                 .environment(\.locale, language.locale)

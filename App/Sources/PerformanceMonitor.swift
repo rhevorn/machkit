@@ -1,6 +1,7 @@
 import AppKit
 import Darwin
 import Foundation
+import IOKit
 import Metal
 #if canImport(FoundationModels)
 import FoundationModels
@@ -13,6 +14,7 @@ struct ComputeHardwareInfo: Sendable {
     let performanceCores: Int
     let efficiencyCores: Int
     let gpuName: String
+    let gpuCoreCount: Int?
     let hasUnifiedMemory: Bool
     let recommendedGPUWorkingSet: Int64
     let appleIntelligence: AppleIntelligenceStatus
@@ -82,7 +84,13 @@ struct CPUCoreUsage: Identifiable, Sendable {
 struct PerformanceSnapshot: Sendable {
     let sampledAt: Date
     let cpuPercent: Double
+    let cpuUserPercent: Double
+    let cpuSystemPercent: Double
     let cpuCores: [CPUCoreUsage]
+    let gpuPercent: Double?
+    let gpuRendererPercent: Double?
+    let gpuTilerPercent: Double?
+    let gpuMemoryBytes: Int64
     let physicalMemory: Int64
     let usedMemory: Int64
     let cachedMemory: Int64
@@ -90,6 +98,13 @@ struct PerformanceSnapshot: Sendable {
     let swapUsed: Int64
     let memoryPressure: Double
     let memoryPressureLevel: MemoryPressureLevel
+    let diskReadBytesPerSecond: Double
+    let diskWriteBytesPerSecond: Double
+    let networkDownloadBytesPerSecond: Double
+    let networkUploadBytesPerSecond: Double
+    let loadAverages: [Double]
+    let processCount: Int
+    let systemUptime: TimeInterval
     let thermalState: ProcessInfo.ThermalState
     let computeHardware: ComputeHardwareInfo
     let applications: [ApplicationResourceUsage]
@@ -105,10 +120,39 @@ struct PerformanceHistoryPoint: Identifiable, Sendable {
     let id = UUID()
     let sampledAt: Date
     let cpuPercent: Double
+    let gpuPercent: Double?
     let memoryPressurePercent: Double
 }
 
-final class PerformanceMonitor {
+/// Serializes mutable counter baselines off the main actor. Sampling walks
+/// IOKit and the process list, so it must never block SwiftUI or screenshot
+/// gesture delivery.
+actor PerformanceMonitor {
+    private struct CPULoad {
+        let total: Double
+        let user: Double
+        let system: Double
+    }
+
+    private struct CounterSample {
+        let first: UInt64
+        let second: UInt64
+        let sampledAt: Date
+    }
+
+    private struct TransferRate {
+        let first: Double
+        let second: Double
+    }
+
+    private struct GPUUsage {
+        let device: Double?
+        let renderer: Double?
+        let tiler: Double?
+        let memoryBytes: Int64
+        let coreCount: Int?
+    }
+
     private struct ProcessSample {
         let cpuTime: UInt64
         let sampledAt: Date
@@ -127,6 +171,8 @@ final class PerformanceMonitor {
     private var previousCPUTicks: [UInt64]?
     private var previousPerCoreTicks: [[UInt64]]?
     private var previousProcessSamples: [pid_t: ProcessSample] = [:]
+    private var previousDiskSample: CounterSample?
+    private var previousNetworkSample: CounterSample?
     private lazy var cpuInfo: CachedCPUInfo = Self.readCPUInfo()
     private lazy var gpuInfo: (name: String, unifiedMemory: Bool, workingSet: Int64) = {
         guard let device = MTLCreateSystemDefaultDevice() else { return ("Metal GPU not detected", false, 0) }
@@ -136,7 +182,7 @@ final class PerformanceMonitor {
     func sampleSystemSummary() -> SystemPerformanceSummary {
         let memory = sampleMemory()
         return SystemPerformanceSummary(
-            cpuPercent: sampleCPUPercent(),
+            cpuPercent: sampleCPU().total,
             physicalMemory: memory.total,
             usedMemory: memory.used
         )
@@ -144,16 +190,25 @@ final class PerformanceMonitor {
 
     func sample() -> PerformanceSnapshot {
         let now = Date()
-        let cpuPercent = sampleCPUPercent()
+        let cpu = sampleCPU()
         let cpuCores = sampleCPUCores()
+        let gpuUsage = sampleGPUUsage()
         let memory = sampleMemory()
+        let disk = sampleDiskTransfer(at: now)
+        let network = sampleNetworkTransfer(at: now)
         let applications = sampleApplications(at: now)
-        let cpu = cpuInfo
+        let cpuInfo = cpuInfo
         let gpu = gpuInfo
         return PerformanceSnapshot(
             sampledAt: now,
-            cpuPercent: cpuPercent,
+            cpuPercent: cpu.total,
+            cpuUserPercent: cpu.user,
+            cpuSystemPercent: cpu.system,
             cpuCores: cpuCores,
+            gpuPercent: gpuUsage.device,
+            gpuRendererPercent: gpuUsage.renderer,
+            gpuTilerPercent: gpuUsage.tiler,
+            gpuMemoryBytes: gpuUsage.memoryBytes,
             physicalMemory: memory.total,
             usedMemory: memory.used,
             cachedMemory: memory.cached,
@@ -161,14 +216,22 @@ final class PerformanceMonitor {
             swapUsed: sampleSwapUsed(),
             memoryPressure: memory.pressure,
             memoryPressureLevel: memory.level,
+            diskReadBytesPerSecond: disk.first,
+            diskWriteBytesPerSecond: disk.second,
+            networkDownloadBytesPerSecond: network.first,
+            networkUploadBytesPerSecond: network.second,
+            loadAverages: sampleLoadAverages(),
+            processCount: sampleProcessCount(),
+            systemUptime: ProcessInfo.processInfo.systemUptime,
             thermalState: ProcessInfo.processInfo.thermalState,
             computeHardware: ComputeHardwareInfo(
-                cpuName: cpu.name.isEmpty ? gpu.name : cpu.name,
-                physicalCores: cpu.physicalCores,
-                logicalCores: cpu.logicalCores,
-                performanceCores: cpu.performanceCores,
-                efficiencyCores: cpu.efficiencyCores,
+                cpuName: cpuInfo.name.isEmpty ? gpu.name : cpuInfo.name,
+                physicalCores: cpuInfo.physicalCores,
+                logicalCores: cpuInfo.logicalCores,
+                performanceCores: cpuInfo.performanceCores,
+                efficiencyCores: cpuInfo.efficiencyCores,
                 gpuName: gpu.name,
+                gpuCoreCount: gpuUsage.coreCount,
                 hasUnifiedMemory: gpu.unifiedMemory,
                 recommendedGPUWorkingSet: gpu.workingSet,
                 appleIntelligence: Self.appleIntelligenceStatus(hasUnifiedMemory: gpu.unifiedMemory)
@@ -253,7 +316,7 @@ final class PerformanceMonitor {
         return String(decoding: utf8, as: UTF8.self)
     }
 
-    private func sampleCPUPercent() -> Double {
+    private func sampleCPU() -> CPULoad {
         var info = host_cpu_load_info_data_t()
         var count = mach_msg_type_number_t(MemoryLayout<host_cpu_load_info_data_t>.stride / MemoryLayout<integer_t>.stride)
         let result = withUnsafeMutablePointer(to: &info) { pointer in
@@ -261,19 +324,32 @@ final class PerformanceMonitor {
                 host_statistics(mach_host_self(), HOST_CPU_LOAD_INFO, $0, &count)
             }
         }
-        guard result == KERN_SUCCESS else { return 0 }
+        guard result == KERN_SUCCESS else { return CPULoad(total: 0, user: 0, system: 0) }
         let ticks = withUnsafeBytes(of: info.cpu_ticks) {
             Array($0.bindMemory(to: natural_t.self)).map(UInt64.init)
         }
-        guard ticks.count >= Int(CPU_STATE_MAX) else { return 0 }
+        guard ticks.count >= Int(CPU_STATE_MAX) else { return CPULoad(total: 0, user: 0, system: 0) }
         defer { previousCPUTicks = ticks }
-        guard let previousCPUTicks, previousCPUTicks.count == ticks.count else { return 0 }
+        guard let previousCPUTicks, previousCPUTicks.count == ticks.count else {
+            return CPULoad(total: 0, user: 0, system: 0)
+        }
 
         let deltas = zip(ticks, previousCPUTicks).map { current, previous in current >= previous ? current - previous : 0 }
         let total = deltas.reduce(0, +)
-        guard total > 0 else { return 0 }
+        guard total > 0 else { return CPULoad(total: 0, user: 0, system: 0) }
         let idle = deltas[Int(CPU_STATE_IDLE)]
-        return min(100, max(0, Double(total - idle) / Double(total) * 100))
+        let user = deltas[Int(CPU_STATE_USER)] + deltas[Int(CPU_STATE_NICE)]
+        let system = deltas[Int(CPU_STATE_SYSTEM)]
+        return CPULoad(
+            total: Self.percentage(total - idle, of: total),
+            user: Self.percentage(user, of: total),
+            system: Self.percentage(system, of: total)
+        )
+    }
+
+    private static func percentage(_ value: UInt64, of total: UInt64) -> Double {
+        guard total > 0 else { return 0 }
+        return min(100, max(0, Double(value) / Double(total) * 100))
     }
 
     private func sampleCPUCores() -> [CPUCoreUsage] {
@@ -374,6 +450,145 @@ final class PerformanceMonitor {
         var size = MemoryLayout<xsw_usage>.size
         let result = sysctlbyname("vm.swapusage", &usage, &size, nil, 0)
         return result == 0 ? Int64(usage.xsu_used) : 0
+    }
+
+    private func sampleGPUUsage() -> GPUUsage {
+        let statistics = registryDictionaries(matching: "IOAccelerator", property: "PerformanceStatistics")
+        let coreCount = registryNumbers(matching: "IOAccelerator", property: "gpu-core-count")
+            .map(\.intValue)
+            .filter { $0 > 0 }
+            .max()
+        let device = maximumNumber(in: statistics, keys: ["Device Utilization %", "GPU Activity(%)"])
+        let renderer = maximumNumber(in: statistics, keys: ["Renderer Utilization %"])
+        let tiler = maximumNumber(in: statistics, keys: ["Tiler Utilization %"])
+        let memory = statistics.reduce(Int64(0)) { partial, dictionary in
+            let inUse = Self.int64Value(dictionary["In use system memory"])
+            let driver = Self.int64Value(dictionary["In use system memory (driver)"])
+            return partial + max(0, inUse) + max(0, driver)
+        }
+        return GPUUsage(
+            device: device.map(Self.clampedPercentage),
+            renderer: renderer.map(Self.clampedPercentage),
+            tiler: tiler.map(Self.clampedPercentage),
+            memoryBytes: memory,
+            coreCount: coreCount
+        )
+    }
+
+    private func sampleDiskTransfer(at now: Date) -> TransferRate {
+        let statistics = registryDictionaries(matching: "IOBlockStorageDriver", property: "Statistics")
+        let read = statistics.reduce(UInt64(0)) { partial, dictionary in
+            partial &+ Self.uint64Value(dictionary["Bytes (Read)"])
+        }
+        let written = statistics.reduce(UInt64(0)) { partial, dictionary in
+            partial &+ Self.uint64Value(dictionary["Bytes (Write)"])
+        }
+        let current = CounterSample(first: read, second: written, sampledAt: now)
+        defer { previousDiskSample = current }
+        return Self.transferRate(current: current, previous: previousDiskSample)
+    }
+
+    private func sampleNetworkTransfer(at now: Date) -> TransferRate {
+        var pointer: UnsafeMutablePointer<ifaddrs>?
+        guard getifaddrs(&pointer) == 0, let first = pointer else {
+            return TransferRate(first: 0, second: 0)
+        }
+        defer { freeifaddrs(pointer) }
+
+        var received: UInt64 = 0
+        var sent: UInt64 = 0
+        var current: UnsafeMutablePointer<ifaddrs>? = first
+        while let item = current {
+            let interface = item.pointee
+            if let address = interface.ifa_addr,
+               Int32(address.pointee.sa_family) == AF_LINK,
+               interface.ifa_flags & UInt32(IFF_UP) != 0,
+               interface.ifa_flags & UInt32(IFF_LOOPBACK) == 0,
+               let data = interface.ifa_data?.assumingMemoryBound(to: if_data.self).pointee {
+                received &+= UInt64(data.ifi_ibytes)
+                sent &+= UInt64(data.ifi_obytes)
+            }
+            current = interface.ifa_next
+        }
+
+        let sample = CounterSample(first: received, second: sent, sampledAt: now)
+        defer { previousNetworkSample = sample }
+        return Self.transferRate(current: sample, previous: previousNetworkSample)
+    }
+
+    private func registryDictionaries(matching className: String, property: String) -> [[String: Any]] {
+        registryValues(matching: className, property: property).compactMap { $0 as? [String: Any] }
+    }
+
+    private func registryNumbers(matching className: String, property: String) -> [NSNumber] {
+        registryValues(matching: className, property: property).compactMap { $0 as? NSNumber }
+    }
+
+    private func registryValues(matching className: String, property: String) -> [Any] {
+        guard let matching = IOServiceMatching(className) else { return [] }
+        var iterator: io_iterator_t = 0
+        guard IOServiceGetMatchingServices(kIOMainPortDefault, matching, &iterator) == KERN_SUCCESS else {
+            return []
+        }
+        defer { IOObjectRelease(iterator) }
+
+        var result: [Any] = []
+        var service = IOIteratorNext(iterator)
+        while service != 0 {
+            if let value = IORegistryEntryCreateCFProperty(
+                service,
+                property as CFString,
+                kCFAllocatorDefault,
+                0
+            )?.takeRetainedValue() {
+                result.append(value)
+            }
+            IOObjectRelease(service)
+            service = IOIteratorNext(iterator)
+        }
+        return result
+    }
+
+    private func maximumNumber(in dictionaries: [[String: Any]], keys: [String]) -> Double? {
+        dictionaries.lazy.compactMap { dictionary in
+            keys.lazy.compactMap { key in
+                (dictionary[key] as? NSNumber)?.doubleValue
+            }.first
+        }.max()
+    }
+
+    private static func transferRate(current: CounterSample, previous: CounterSample?) -> TransferRate {
+        guard let previous else { return TransferRate(first: 0, second: 0) }
+        let elapsed = current.sampledAt.timeIntervalSince(previous.sampledAt)
+        guard elapsed > 0 else { return TransferRate(first: 0, second: 0) }
+        let first = current.first >= previous.first ? current.first - previous.first : 0
+        let second = current.second >= previous.second ? current.second - previous.second : 0
+        return TransferRate(first: Double(first) / elapsed, second: Double(second) / elapsed)
+    }
+
+    private static func clampedPercentage(_ value: Double) -> Double {
+        min(100, max(0, value))
+    }
+
+    private static func uint64Value(_ value: Any?) -> UInt64 {
+        guard let number = value as? NSNumber else { return 0 }
+        return number.uint64Value
+    }
+
+    private static func int64Value(_ value: Any?) -> Int64 {
+        guard let number = value as? NSNumber else { return 0 }
+        return number.int64Value
+    }
+
+    private func sampleLoadAverages() -> [Double] {
+        var values = [Double](repeating: 0, count: 3)
+        let count = getloadavg(&values, Int32(values.count))
+        guard count > 0 else { return [] }
+        return Array(values.prefix(Int(count)))
+    }
+
+    private func sampleProcessCount() -> Int {
+        max(0, Int(proc_listallpids(nil, 0)))
     }
 
     private func sampleApplications(at now: Date) -> [ApplicationResourceUsage] {

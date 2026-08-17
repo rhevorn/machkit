@@ -24,6 +24,8 @@ final class StatusBarMonitor: ObservableObject {
     private let performanceMonitor = PerformanceMonitor()
     private let networkScanner = NetworkScanner()
     private var monitoringTask: Task<Void, Never>?
+    private var isEnabled = false
+    private var isPresented = false
 
     var cpuPercent: Double { snapshot.cpuPercent }
 
@@ -40,7 +42,17 @@ final class StatusBarMonitor: ObservableObject {
     var uploadText: String { Self.formatRate(snapshot.uploadBytesPerSecond) }
 
     func setEnabled(_ enabled: Bool) {
-        enabled ? start() : stop()
+        isEnabled = enabled
+        updateMonitoringState()
+    }
+
+    func setPresented(_ presented: Bool) {
+        isPresented = presented
+        updateMonitoringState()
+    }
+
+    private func updateMonitoringState() {
+        isEnabled && isPresented ? start() : stop()
     }
 
     private func start() {
@@ -48,7 +60,7 @@ final class StatusBarMonitor: ObservableObject {
         monitoringTask = Task { [weak self] in
             while !Task.isCancelled {
                 guard let self else { return }
-                let performance = performanceMonitor.sampleSystemSummary()
+                let performance = await performanceMonitor.sampleSystemSummary()
                 let network = await networkScanner.sampleTransferRate()
                 guard !Task.isCancelled else { return }
                 snapshot = StatusBarSnapshot(
@@ -126,6 +138,8 @@ struct StatusBarMenuView: View {
         }
         .padding(14)
         .frame(width: 340)
+        .onAppear { monitor.setPresented(true) }
+        .onDisappear { monitor.setPresented(false) }
     }
 
     private var header: some View {
