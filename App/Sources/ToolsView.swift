@@ -173,7 +173,7 @@ struct ToolsView: View {
     private func open(_ tool: DeveloperTool) {
         MachKitAppLifecycle.showInForeground()
         openWindow(id: "web-tool", value: tool.id)
-        MachKitAppLifecycle.bringWindowToFront(titled: tool.localizedTitle)
+        MachKitAppLifecycle.bringToolWindowToFront(toolID: tool.id, titled: tool.localizedTitle)
     }
 }
 

@@ -100,6 +100,66 @@ enum MachKitAppLifecycle {
         bringMainWindowToFront()
     }
 
+    static func toolWindowInterfaceID(for toolID: String) -> NSUserInterfaceItemIdentifier {
+        NSUserInterfaceItemIdentifier("MachKit.WebTool.\(toolID)")
+    }
+
+    static func toolWindow(for toolID: String) -> NSWindow? {
+        let interfaceID = toolWindowInterfaceID(for: toolID)
+        return NSApp.windows.first { $0.identifier == interfaceID }
+    }
+
+    static func isToolWindowFrontmost(toolID: String) -> Bool {
+        guard let window = toolWindow(for: toolID) else { return false }
+        return window.isVisible
+            && !window.isMiniaturized
+            && window.occlusionState.contains(.visible)
+            && (window.isKeyWindow || window.isMainWindow)
+            && NSApp.isActive
+    }
+
+    static func hideToolWindow(toolID: String) {
+        guard let window = toolWindow(for: toolID) else { return }
+        window.orderOut(nil)
+        moveToBackgroundIfNeeded()
+    }
+
+    static func bringToolWindowToFront(toolID: String, titled title: String) {
+        showInForeground()
+        Task { @MainActor in
+            let interfaceID = toolWindowInterfaceID(for: toolID)
+            for _ in 0..<12 {
+                await Task.yield()
+                showInForeground()
+                if let target = NSApp.windows.first(where: {
+                    $0.identifier == interfaceID && $0.canBecomeKey
+                }) ?? NSApp.windows.first(where: {
+                    $0.isVisible && $0.canBecomeKey && $0.title == title
+                }) {
+                    if target.isMiniaturized {
+                        target.deminiaturize(nil)
+                    }
+                    target.makeKeyAndOrderFront(nil)
+                    return
+                }
+                try? await Task.sleep(for: .milliseconds(50))
+            }
+        }
+    }
+
+    static func toggleTool(
+        toolID: String,
+        titled title: String,
+        open: () -> Void
+    ) {
+        if isToolWindowFrontmost(toolID: toolID) {
+            hideToolWindow(toolID: toolID)
+            return
+        }
+        open()
+        bringToolWindowToFront(toolID: toolID, titled: title)
+    }
+
     static func moveToBackgroundIfNeeded() {
         guard UserDefaults.standard.bool(forKey: AppPreferenceKey.showMenuBar),
               !hasVisibleAppWindow else { return }
@@ -131,9 +191,13 @@ private struct GlobalShortcutBridge: View {
                             openMainWindow: { openWindow(id: MachKitAppLifecycle.mainWindowSceneID) }
                         )
                     } else if let tool = DeveloperToolRegistry.tool(id: targetID) {
-                        MachKitAppLifecycle.showInForeground()
-                        openWindow(id: "web-tool", value: tool.id)
-                        MachKitAppLifecycle.bringWindowToFront(titled: tool.localizedTitle)
+                        MachKitAppLifecycle.toggleTool(
+                            toolID: tool.id,
+                            titled: tool.localizedTitle
+                        ) {
+                            MachKitAppLifecycle.showInForeground()
+                            openWindow(id: "web-tool", value: tool.id)
+                        }
                     }
                 }
             }

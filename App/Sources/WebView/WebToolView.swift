@@ -53,7 +53,9 @@ private struct ToolWindowConfigurator: NSViewRepresentable {
     }
 
     private func configure(window: NSWindow?, context: Context) {
-        guard let window, context.coordinator.configuredWindow !== window else { return }
+        guard let window else { return }
+        window.identifier = MachKitAppLifecycle.toolWindowInterfaceID(for: toolID)
+        guard context.coordinator.configuredWindow !== window else { return }
         context.coordinator.configuredWindow = window
         window.titlebarSeparatorStyle = .none
         window.contentMinSize = minimumSize
