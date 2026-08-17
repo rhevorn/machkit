@@ -27,6 +27,29 @@ enum MachKitAppLifecycle {
         }
     }
 
+    static func machKitMainWindow() -> NSWindow? {
+        NSApp.windows.first { window in
+            window.title == "MachKit"
+                && window.canBecomeMain
+                && !(window is ScreenshotOverlayWindowMarker)
+        }
+    }
+
+    static func isMachKitMainWindowFrontmost() -> Bool {
+        guard let window = machKitMainWindow() else { return false }
+        return window.isVisible
+            && !window.isMiniaturized
+            && window.occlusionState.contains(.visible)
+            && (window.isKeyWindow || window.isMainWindow)
+            && NSApp.isActive
+    }
+
+    static func hideMachKitMainWindow() {
+        guard let window = machKitMainWindow() else { return }
+        window.orderOut(nil)
+        moveToBackgroundIfNeeded()
+    }
+
     static func moveToBackgroundIfNeeded() {
         guard UserDefaults.standard.bool(forKey: AppPreferenceKey.showMenuBar),
               !hasVisibleAppWindow else { return }
@@ -52,10 +75,7 @@ private struct GlobalShortcutBridge: View {
                     if ScreenshotAction.allIDs.contains(targetID) {
                         ScreenshotController.shared.handleHotKey(targetID)
                     } else if targetID == ToolShortcutStore.toolListID {
-                        model.changeMode(.tools)
-                        MachKitAppLifecycle.showInForeground()
-                        openWindow(id: "main")
-                        MachKitAppLifecycle.bringWindowToFront(titled: "MachKit")
+                        toggleToolList()
                     } else if let tool = DeveloperToolRegistry.tool(id: targetID) {
                         MachKitAppLifecycle.showInForeground()
                         openWindow(id: "web-tool", value: tool.id)
@@ -63,6 +83,17 @@ private struct GlobalShortcutBridge: View {
                     }
                 }
             }
+    }
+
+    private func toggleToolList() {
+        if model.mode == .tools, MachKitAppLifecycle.isMachKitMainWindowFrontmost() {
+            MachKitAppLifecycle.hideMachKitMainWindow()
+            return
+        }
+        model.changeMode(.tools)
+        MachKitAppLifecycle.showInForeground()
+        openWindow(id: "main")
+        MachKitAppLifecycle.bringWindowToFront(titled: "MachKit")
     }
 }
 
