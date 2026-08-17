@@ -32,6 +32,14 @@ final class ScreenshotSelectionSession {
                 onCancel: { [weak self] in self?.cancel() }
             )
         }
+        bringToFront()
+        // Force the dim layer on-screen before any capture runs beneath it.
+        for window in windows {
+            window.displayIfNeeded()
+        }
+    }
+
+    func bringToFront() {
         for window in windows {
             window.alphaValue = 1
             window.orderFrontRegardless()
@@ -39,10 +47,6 @@ final class ScreenshotSelectionSession {
         let pointer = NSEvent.mouseLocation
         let keyWindow = windows.first { $0.frame.contains(pointer) } ?? windows.first
         keyWindow?.makeKeyAndOrderFront(nil)
-        // Force the dim layer on-screen before any capture runs beneath it.
-        for window in windows {
-            window.displayIfNeeded()
-        }
     }
 
     func applySnapshot(_ snapshot: ScreenshotDesktopSnapshot) {

@@ -37,6 +37,7 @@ struct ScreenshotSelection {
 struct ScreenshotCaptureResult {
     let image: CGImage
     let selectionRect: CGRect
+    let displayID: CGDirectDisplayID
 }
 
 struct ScreenshotDisplayBackdrop: Identifiable {
@@ -50,7 +51,16 @@ struct ScreenshotDesktopSnapshot {
     let displays: [ScreenshotDisplayBackdrop]
 
     func image(for displayID: CGDirectDisplayID) -> CGImage? {
-        displays.first { $0.displayID == displayID }?.image
+        display(for: displayID)?.image
+    }
+
+    func display(for displayID: CGDirectDisplayID) -> ScreenshotDisplayBackdrop? {
+        displays.first { $0.displayID == displayID }
+    }
+
+    func retainingDisplay(_ displayID: CGDirectDisplayID) -> ScreenshotDesktopSnapshot? {
+        guard let display = display(for: displayID) else { return nil }
+        return ScreenshotDesktopSnapshot(displays: [display])
     }
 }
 
@@ -194,7 +204,7 @@ enum ScreenshotCapture {
         guard let display = snapshot.displays.first(where: { $0.displayID == selection.displayID }) else {
             throw ScreenshotCaptureError.captureFailed
         }
-        let selectedRect = selection.rect.intersection(display.frame).integral
+        let selectedRect = selection.rect.standardized.intersection(display.frame.standardized)
         guard let pixelRect = ScreenshotGeometry.pixelRect(
             selection: selectedRect,
             displayFrame: display.frame,
@@ -204,7 +214,11 @@ enum ScreenshotCapture {
         else {
             throw ScreenshotCaptureError.emptySelection
         }
-        return ScreenshotCaptureResult(image: image, selectionRect: selectedRect)
+        return ScreenshotCaptureResult(
+            image: image,
+            selectionRect: selectedRect,
+            displayID: selection.displayID
+        )
     }
 
     static func copyToPasteboard(_ image: CGImage) throws {

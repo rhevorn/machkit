@@ -11,6 +11,7 @@ final class ScreenshotController: ObservableObject {
     private var selectionSession: ScreenshotSelectionSession?
     private var editorController: ScreenshotEditorController?
     private var previousApplication: NSRunningApplication?
+    private var activeSessionID: UUID?
 
     private init() {}
 
@@ -20,7 +21,10 @@ final class ScreenshotController: ObservableObject {
     }
 
     func start() {
-        guard !isBusy else { return }
+        guard !isBusy else {
+            restoreActiveSession()
+            return
+        }
 
         if !ScreenshotPermission.hasScreenCaptureAccess(promptIfNeeded: false) {
             let granted = ScreenshotPermission.hasScreenCaptureAccess(promptIfNeeded: true)
@@ -31,6 +35,8 @@ final class ScreenshotController: ObservableObject {
         }
 
         isBusy = true
+        let sessionID = UUID()
+        activeSessionID = sessionID
 
         let currentPID = ProcessInfo.processInfo.processIdentifier
         if let frontmost = NSWorkspace.shared.frontmostApplication,
@@ -40,8 +46,12 @@ final class ScreenshotController: ObservableObject {
 
         // Show the dim overlay first. Any capture flicker stays hidden underneath.
         let session = ScreenshotSelectionSession(
-            onSelect: { [weak self] selection in self?.capture(selection) },
-            onCancel: { [weak self] in self?.cancelSelection() }
+            onSelect: { [weak self] selection in
+                self?.capture(selection, sessionID: sessionID)
+            },
+            onCancel: { [weak self] in
+                self?.cancelSelection(sessionID: sessionID)
+            }
         )
         selectionSession = session
         session.present()
@@ -58,83 +68,110 @@ final class ScreenshotController: ObservableObject {
                     below: session.overlayWindows
                 )
                 try Task.checkCancellation()
+                guard activeSessionID == sessionID else { return }
                 desktopSnapshot = snapshot
                 session.applySnapshot(snapshot)
                 session.setInteractionEnabled(true)
                 captureTask = nil
             } catch is CancellationError {
-                finish()
+                finish(sessionID: sessionID)
             } catch let error as ScreenshotCaptureError where error == .permissionDenied {
+                guard activeSessionID == sessionID else { return }
                 selectionSession?.dismiss()
                 selectionSession = nil
                 presentPermissionError()
-                finish()
+                finish(sessionID: sessionID)
             } catch {
+                guard activeSessionID == sessionID else { return }
                 selectionSession?.dismiss()
                 selectionSession = nil
                 presentError(error)
-                finish()
+                finish(sessionID: sessionID)
             }
         }
     }
 
-    private func capture(_ selection: ScreenshotSelection) {
+    private func capture(_ selection: ScreenshotSelection, sessionID: UUID) {
+        guard activeSessionID == sessionID else { return }
         selectionSession?.prepareForCapture()
 
         captureTask = Task { [weak self] in
             guard let self else { return }
             do {
+                guard activeSessionID == sessionID else { return }
                 guard let desktopSnapshot else { throw ScreenshotCaptureError.captureFailed }
                 let result = try ScreenshotCapture.crop(selection, from: desktopSnapshot)
+                guard let editorBackdrop = desktopSnapshot.retainingDisplay(result.displayID) else {
+                    throw ScreenshotCaptureError.captureFailed
+                }
                 try Task.checkCancellation()
+                guard activeSessionID == sessionID else { return }
                 captureTask = nil
                 presentEditor(
                     result.image,
                     selectionRect: result.selectionRect,
-                    backdrop: desktopSnapshot
+                    displayID: result.displayID,
+                    backdrop: editorBackdrop,
+                    sessionID: sessionID
                 )
                 // Release the full-desktop freeze as soon as the editor owns its backdrop.
                 self.desktopSnapshot = nil
                 selectionSession?.dismiss()
                 selectionSession = nil
             } catch is CancellationError {
-                finish()
+                finish(sessionID: sessionID)
             } catch {
+                guard activeSessionID == sessionID else { return }
                 selectionSession?.dismiss()
                 selectionSession = nil
                 presentError(error)
-                finish()
+                finish(sessionID: sessionID)
             }
         }
     }
 
-    private func cancelSelection() {
+    private func cancelSelection(sessionID: UUID) {
+        guard activeSessionID == sessionID else { return }
         selectionSession?.dismiss()
         selectionSession = nil
         captureTask?.cancel()
-        finish()
+        finish(sessionID: sessionID)
+    }
+
+    private func restoreActiveSession() {
+        if let editorController {
+            editorController.present()
+        } else {
+            selectionSession?.bringToFront()
+        }
     }
 
     private func presentEditor(
         _ image: CGImage,
         selectionRect: CGRect,
-        backdrop: ScreenshotDesktopSnapshot
+        displayID: CGDirectDisplayID,
+        backdrop: ScreenshotDesktopSnapshot,
+        sessionID: UUID
     ) {
         let editor = ScreenshotEditorController(
             image: image,
             selectionRect: selectionRect,
+            displayID: displayID,
             backdrop: backdrop,
             onFinish: { [weak self] in
                 guard let self else { return }
+                guard activeSessionID == sessionID else { return }
                 editorController = nil
-                finish()
+                finish(sessionID: sessionID)
             }
         )
         editorController = editor
         editor.present()
     }
 
-    private func finish() {
+    private func finish(sessionID: UUID) {
+        guard activeSessionID == sessionID else { return }
+        activeSessionID = nil
         selectionSession?.dismiss()
         selectionSession = nil
         desktopSnapshot = nil
