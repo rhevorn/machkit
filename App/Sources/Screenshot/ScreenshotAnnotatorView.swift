@@ -631,8 +631,8 @@ struct ScreenshotAnnotatorView: View {
             }
     }
 
-    private func publishModelUpdate(_ update: @escaping () -> Void) {
-        DispatchQueue.main.async(execute: update)
+    private func publishModelUpdate(_ update: @MainActor @escaping () -> Void) {
+        Task { @MainActor in update() }
     }
 
     private func imagePoint(_ location: CGPoint, canvasSize: CGSize) -> CGPoint {
