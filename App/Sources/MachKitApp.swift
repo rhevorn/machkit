@@ -247,10 +247,14 @@ private struct MainWindowConfigurator: NSViewRepresentable {
 
     func makeCoordinator() -> Coordinator { Coordinator() }
 
+    @MainActor
     final class Coordinator {
         weak var configuredWindow: NSWindow?
         var onVisibilityChange: ((Bool) -> Void)?
-        private var observers: [NSObjectProtocol] = []
+        /// Mutated only on the main actor (installObservers / tearDown); deinit
+        /// reads it to unregister tokens, and NotificationCenter.removeObserver
+        /// is safe to call from any thread.
+        nonisolated(unsafe) private var observers: [NSObjectProtocol] = []
         private var lastPublishedVisibility: Bool?
 
         func installObservers(on window: NSWindow) {
@@ -266,7 +270,11 @@ private struct MainWindowConfigurator: NSViewRepresentable {
             for name in names {
                 observers.append(
                     center.addObserver(forName: name, object: window, queue: .main) { [weak self] _ in
-                        self?.publishVisibility()
+                        // addObserver's closure is nonisolated; hop back so the
+                        // MainActor Coordinator and NSWindow state are read safely.
+                        Task { @MainActor [weak self] in
+                            self?.publishVisibility()
+                        }
                     }
                 )
             }
