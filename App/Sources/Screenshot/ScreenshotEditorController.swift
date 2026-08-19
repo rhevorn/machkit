@@ -121,22 +121,36 @@ final class ScreenshotEditorController: NSWindowController, NSWindowDelegate {
     }
 
     private func confirmAndCopy() {
-        guard copyRenderedImage() else { return }
-        NSSound(named: "Tink")?.play()
-        closeSession()
-    }
-
-    private func copyRenderedImage() -> Bool {
-        guard let image = model.exportImage() else {
+        guard let source = model.exportSource() else {
             showEditorError(ScreenshotCaptureError.encodeFailed)
-            return false
+            return
         }
-        do {
-            try ScreenshotCapture.copyToPasteboard(image)
-            return true
-        } catch {
-            showEditorError(error)
-            return false
+        // Rendering and PNG/TIFF encoding are the slowest step of the editor;
+        // run them off the main thread so a large capture doesn't freeze here.
+        Task { @MainActor in
+            let data: (png: Data, tiff: Data?)
+            do {
+                data = try await Task.detached(priority: .userInitiated) {
+                    guard let image = ScreenshotEditorModel.renderExport(source) else {
+                        throw ScreenshotCaptureError.encodeFailed
+                    }
+                    return (
+                        png: try ScreenshotCapture.encodePNG(image),
+                        tiff: ScreenshotCapture.encodeTIFF(image)
+                    )
+                }.value
+            } catch {
+                showEditorError(error)
+                return
+            }
+            do {
+                try ScreenshotCapture.copyToPasteboard(png: data.png, tiff: data.tiff)
+            } catch {
+                showEditorError(error)
+                return
+            }
+            NSSound(named: "Tink")?.play()
+            closeSession()
         }
     }
 
@@ -155,17 +169,24 @@ final class ScreenshotEditorController: NSWindowController, NSWindowDelegate {
             guard let self else { return }
             savePanel = nil
             guard response == .OK, let url = panel?.url else { return }
-            do {
-                guard let image = model.exportImage() else {
-                    throw ScreenshotCaptureError.encodeFailed
+            guard let source = model.exportSource() else {
+                showEditorError(ScreenshotCaptureError.encodeFailed)
+                return
+            }
+            // Same off-main pipeline as confirmAndCopy: render + encode in the
+            // background, then write on the main thread.
+            Task { @MainActor in
+                do {
+                    let data = try await Task.detached(priority: .userInitiated) {
+                        guard let image = ScreenshotEditorModel.renderExport(source) else {
+                            throw ScreenshotCaptureError.encodeFailed
+                        }
+                        return try ScreenshotCapture.encodePNG(image)
+                    }.value
+                    try data.write(to: url, options: .atomic)
+                } catch {
+                    showEditorError(error)
                 }
-                let representation = NSBitmapImageRep(cgImage: image)
-                guard let data = representation.representation(using: .png, properties: [:]) else {
-                    throw ScreenshotCaptureError.encodeFailed
-                }
-                try data.write(to: url, options: .atomic)
-            } catch {
-                showEditorError(error)
             }
         }
     }

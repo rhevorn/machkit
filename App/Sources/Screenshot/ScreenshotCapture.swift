@@ -266,18 +266,29 @@ enum ScreenshotCapture {
         )
     }
 
-    static func copyToPasteboard(_ image: CGImage) throws {
+    /// PNG encoding is proportional to pixel count, so for large captures it is
+    /// significant — call it off the main thread and hand the data to
+    /// `copyToPasteboard(png:tiff:)`. Pure CoreGraphics work, so it is not
+    /// bound to the main actor.
+    nonisolated static func encodePNG(_ image: CGImage) throws -> Data {
         let representation = NSBitmapImageRep(cgImage: image)
         guard let png = representation.representation(using: .png, properties: [:]) else {
             throw ScreenshotCaptureError.encodeFailed
         }
+        return png
+    }
 
+    nonisolated static func encodeTIFF(_ image: CGImage) -> Data? {
+        NSBitmapImageRep(cgImage: image).representation(using: .tiff, properties: [:])
+    }
+
+    static func copyToPasteboard(png: Data, tiff: Data? = nil) throws {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         guard pasteboard.setData(png, forType: .png) else {
             throw ScreenshotCaptureError.pasteboardFailed
         }
-        if let tiff = representation.representation(using: .tiff, properties: [:]) {
+        if let tiff {
             _ = pasteboard.setData(tiff, forType: .tiff)
         }
     }

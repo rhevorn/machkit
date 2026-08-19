@@ -2,6 +2,15 @@ import AppKit
 import MachKitCore
 import SwiftUI
 
+/// Immutable snapshot handed to the off-main export renderer. Marked Sendable
+/// because `CGImage` is an immutable, thread-safe CoreGraphics object; the
+/// stroke array is all value types.
+struct ScreenshotExportSource: @unchecked Sendable {
+    let cgImage: CGImage
+    let size: CGSize
+    let strokes: [ScreenshotStroke]
+}
+
 @MainActor
 final class ScreenshotEditorModel: ObservableObject {
     @Published var image: NSImage
@@ -263,7 +272,10 @@ final class ScreenshotEditorModel: ObservableObject {
         redoHistory.removeAll()
     }
 
-    func exportImage() -> CGImage? {
+    /// Snapshot of everything the off-main renderer needs. `CGImage` is an
+    /// immutable, thread-safe CoreGraphics object, so crossing a task boundary
+    /// with the snapshot is safe.
+    func exportSource() -> ScreenshotExportSource? {
         commitInlineTextIfNeeded()
         let size = image.size
         guard let source = image.cgImage(forProposedRect: nil, context: nil, hints: nil),
@@ -271,16 +283,22 @@ final class ScreenshotEditorModel: ObservableObject {
               size.width.isFinite, size.height.isFinite,
               source.width <= 16_000, source.height <= 16_000
         else { return nil }
+        return ScreenshotExportSource(cgImage: source, size: size, strokes: strokes)
+    }
 
-        if strokes.allSatisfy({ $0.kind == .mosaic }) {
-            return source
+    /// Full-resolution render of the exported image. Pure and side-effect free,
+    /// so it can run off the main thread; the annotated CGImage stays exactly
+    /// source-sized and in its native orientation.
+    nonisolated static func renderExport(_ source: ScreenshotExportSource) -> CGImage? {
+        if source.strokes.allSatisfy({ $0.kind == .mosaic }) {
+            return source.cgImage
         }
 
         return autoreleasepool {
-            let width = source.width
-            let height = source.height
-            let scaleX = CGFloat(width) / size.width
-            let scaleY = CGFloat(height) / size.height
+            let width = source.cgImage.width
+            let height = source.cgImage.height
+            let scaleX = CGFloat(width) / source.size.width
+            let scaleY = CGFloat(height) / source.size.height
             let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB()
             guard let context = CGContext(
                 data: nil,
@@ -294,7 +312,7 @@ final class ScreenshotEditorModel: ObservableObject {
 
             let outputRect = CGRect(x: 0, y: 0, width: width, height: height)
             context.interpolationQuality = .none
-            context.draw(source, in: outputRect)
+            context.draw(source.cgImage, in: outputRect)
 
             // Strokes use the editor's top-left coordinate system. Flip only
             // the annotation pass; the captured CGImage stays in its native
@@ -304,7 +322,7 @@ final class ScreenshotEditorModel: ObservableObject {
             context.scaleBy(x: 1, y: -1)
             NSGraphicsContext.saveGraphicsState()
             NSGraphicsContext.current = NSGraphicsContext(cgContext: context, flipped: true)
-            for stroke in self.strokes where stroke.kind != .mosaic {
+            for stroke in source.strokes where stroke.kind != .mosaic {
                 var scaled = stroke
                 scaled.points = stroke.points.map {
                     CGPoint(x: $0.x * scaleX, y: $0.y * scaleY)
