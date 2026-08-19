@@ -27,11 +27,41 @@ final class ScreenshotController: ObservableObject {
         }
 
         if !ScreenshotPermission.hasScreenCaptureAccess(promptIfNeeded: false) {
-            let granted = ScreenshotPermission.hasScreenCaptureAccess(promptIfNeeded: true)
-            if !granted {
+            requestScreenCaptureAccessAndBegin()
+            return
+        }
+        beginSession()
+    }
+
+    /// First-time screen-recording authorization is applied asynchronously, so
+    /// `CGRequestScreenCaptureAccess()` returns false even right after a grant.
+    /// Re-check with the preflight API after a short pause, and only then fall
+    /// back to the settings alert, so a fresh grant isn't misread as denied.
+    private func requestScreenCaptureAccessAndBegin() {
+        isBusy = true
+        _ = ScreenshotPermission.hasScreenCaptureAccess(promptIfNeeded: true)
+        Task { @MainActor in
+            do {
+                try await Task.sleep(for: .milliseconds(750))
+                try Task.checkCancellation()
+            } catch {
+                isBusy = false
+                return
+            }
+            guard ScreenshotPermission.hasScreenCaptureAccess(promptIfNeeded: false) else {
+                isBusy = false
                 presentPermissionError()
                 return
             }
+            isBusy = false
+            beginSession()
+        }
+    }
+
+    private func beginSession() {
+        guard !isBusy else {
+            restoreActiveSession()
+            return
         }
 
         isBusy = true
