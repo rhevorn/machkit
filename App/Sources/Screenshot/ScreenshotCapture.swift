@@ -40,7 +40,9 @@ struct ScreenshotCaptureResult {
     let displayID: CGDirectDisplayID
 }
 
-struct ScreenshotDisplayBackdrop: Identifiable {
+/// `CGImage` is an immutable, thread-safe CoreGraphics object, so a backdrop
+/// captured on one task can be handed back to the group collector safely.
+struct ScreenshotDisplayBackdrop: Identifiable, @unchecked Sendable {
     var id: CGDirectDisplayID { displayID }
     let displayID: CGDirectDisplayID
     let frame: CGRect
@@ -71,7 +73,7 @@ enum ScreenshotCapture {
     /// `SCShareableContent` snapshot; wait briefly instead of failing outright.
     private static let overlayResolveTimeout: Duration = .milliseconds(1200)
     private static let overlayResolvePoll: Duration = .milliseconds(40)
-    private static let imageCaptureAttempts = 3
+    nonisolated private static let imageCaptureAttempts = 3
 
     /// Captures what is currently behind the selector windows. Call this only
     /// after the overlays are on-screen so any capture-side flicker stays hidden.
@@ -86,8 +88,19 @@ enum ScreenshotCapture {
 
         let (content, excludedWindows) = try await resolveOverlayWindows(overlayIDs)
 
-        var displays: [ScreenshotDisplayBackdrop] = []
-        var capturedDisplayIDs = Set<CGDirectDisplayID>()
+        // Build one capture target per display, deduplicating overlay windows.
+        // SCContentFilter and SCStreamConfiguration are effectively immutable
+        // after construction, so handing them to concurrent capture tasks is
+        // safe despite not being marked Sendable by the framework.
+        struct DisplayTarget: @unchecked Sendable {
+            let displayID: CGDirectDisplayID
+            let frame: CGRect
+            let filter: SCContentFilter
+            let configuration: SCStreamConfiguration
+        }
+
+        var seen = Set<CGDirectDisplayID>()
+        var targets: [DisplayTarget] = []
         for window in windows {
             try Task.checkCancellation()
             let displayID: CGDirectDisplayID
@@ -101,11 +114,12 @@ enum ScreenshotCapture {
             } else {
                 continue
             }
-            guard !capturedDisplayIDs.contains(displayID),
+            guard !seen.contains(displayID),
                   let scDisplay = content.displays.first(where: { $0.displayID == displayID })
             else {
                 continue
             }
+            seen.insert(displayID)
 
             let filter = SCContentFilter(display: scDisplay, excludingWindows: excludedWindows)
             let configuration = SCStreamConfiguration()
@@ -115,15 +129,44 @@ enum ScreenshotCapture {
             configuration.showsCursor = false
             configuration.captureResolution = .best
 
-            let image = try await captureImageWithRetry(
-                contentFilter: filter,
-                configuration: configuration
+            targets.append(
+                DisplayTarget(
+                    displayID: displayID,
+                    frame: frame,
+                    filter: filter,
+                    configuration: configuration
+                )
             )
-            guard image.width > 0, image.height > 0 else { continue }
-            displays.append(
-                ScreenshotDisplayBackdrop(displayID: displayID, frame: frame, image: image)
-            )
-            capturedDisplayIDs.insert(displayID)
+        }
+
+        guard !targets.isEmpty else { throw ScreenshotCaptureError.captureFailed }
+
+        // Capture each display concurrently; the freeze's critical path becomes
+        // the slowest display instead of the sum of all of them. A capture
+        // failure aborts the whole snapshot (matching the sequential behavior);
+        // an empty frame just skips that display.
+        let displays = try await withThrowingTaskGroup(of: ScreenshotDisplayBackdrop?.self) { group in
+            for target in targets {
+                // Each display captures independently; ScreenCaptureKit is
+                // thread-safe, so the child tasks run off the main thread.
+                group.addTask {
+                    let image = try await captureImageWithRetry(
+                        contentFilter: target.filter,
+                        configuration: target.configuration
+                    )
+                    guard image.width > 0, image.height > 0 else { return nil }
+                    return ScreenshotDisplayBackdrop(
+                        displayID: target.displayID,
+                        frame: target.frame,
+                        image: image
+                    )
+                }
+            }
+            var backdrops: [ScreenshotDisplayBackdrop] = []
+            for try await backdrop in group {
+                if let backdrop { backdrops.append(backdrop) }
+            }
+            return backdrops
         }
 
         guard !displays.isEmpty else { throw ScreenshotCaptureError.captureFailed }
@@ -176,7 +219,9 @@ enum ScreenshotCapture {
         throw ScreenshotCaptureError.captureFailed
     }
 
-    private static func captureImageWithRetry(
+    /// Pure ScreenCaptureKit work, safe off the main thread — the parallel
+    /// per-display capture tasks call this directly.
+    nonisolated private static func captureImageWithRetry(
         contentFilter: SCContentFilter,
         configuration: SCStreamConfiguration
     ) async throws -> CGImage {
