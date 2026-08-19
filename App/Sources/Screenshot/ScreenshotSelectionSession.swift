@@ -10,6 +10,7 @@ final class ScreenshotSelectionSession {
     private let onCancel: () -> Void
     private var windows: [ScreenshotSelectionWindow] = []
     private var isFinished = false
+    private(set) var isInteractive = false
 
     init(
         onSelect: @escaping (ScreenshotSelection) -> Void,
@@ -44,6 +45,17 @@ final class ScreenshotSelectionSession {
             window.alphaValue = 1
             window.orderFrontRegardless()
         }
+        // Deliberately stop short of becoming key. Taking key window status
+        // resigns key from any open context menu (Finder, status bar, …) and
+        // dismisses it before it can be captured. Keyboard focus is taken by
+        // makeKeyForInteraction() once the frozen snapshot is on screen.
+    }
+
+    /// Gives keyboard focus to the overlay under the pointer so Esc and drag
+    /// selection work. Call this only after the frozen snapshot is visible:
+    /// becoming key lets any open context menu close, but its pixels are
+    /// already preserved in the frozen image, so it appears to stay open.
+    func makeKeyForInteraction() {
         let pointer = NSEvent.mouseLocation
         let keyWindow = windows.first { $0.frame.contains(pointer) } ?? windows.first
         keyWindow?.makeKeyAndOrderFront(nil)
@@ -73,6 +85,7 @@ final class ScreenshotSelectionSession {
     }
 
     func setInteractionEnabled(_ enabled: Bool) {
+        isInteractive = enabled
         for window in windows {
             window.ignoresMouseEvents = !enabled
         }

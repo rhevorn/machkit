@@ -71,6 +71,10 @@ final class ScreenshotController: ObservableObject {
                 guard activeSessionID == sessionID else { return }
                 desktopSnapshot = snapshot
                 session.applySnapshot(snapshot)
+                // The frozen desktop is on screen now, so keyboard focus can
+                // be taken safely: an open context menu closes at this point,
+                // but its pixels are already preserved in the frozen image.
+                session.makeKeyForInteraction()
                 session.setInteractionEnabled(true)
                 captureTask = nil
             } catch is CancellationError {
@@ -141,8 +145,13 @@ final class ScreenshotController: ObservableObject {
     private func restoreActiveSession() {
         if let editorController {
             editorController.present()
-        } else {
-            selectionSession?.bringToFront()
+        } else if let selectionSession {
+            selectionSession.bringToFront()
+            // Re-taking key is only safe once the frozen snapshot is up;
+            // before that it would dismiss an open menu before it is captured.
+            if selectionSession.isInteractive {
+                selectionSession.makeKeyForInteraction()
+            }
         }
     }
 
