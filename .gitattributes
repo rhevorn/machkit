@@ -1,0 +1,12 @@
+# GitHub language stats (github-linguist)
+# https://github.com/github-linguist/linguist/blob/master/docs/overrides.md
+
+# Embedded H5 tools bundled into the macOS app — not the primary language.
+Tool/** linguist-vendored
+
+# Marketing / docs site — exclude from code language breakdown.
+Website/** linguist-documentation
+
+# Large localization catalog skews JSON stats.
+Resources/Localizable.xcstrings linguist-generated
+Resources/InfoPlist.xcstrings linguist-generated
