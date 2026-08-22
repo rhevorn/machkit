@@ -486,10 +486,14 @@ public actor NetworkScanner {
     private static func rates(current: ByteSample, previous: ByteSample?) -> (received: Double, sent: Double) {
         guard let previous else { return (0, 0) }
         let elapsed = current.sampledAt.timeIntervalSince(previous.sampledAt)
-        guard elapsed > 0 else { return (0, 0) }
-        let received = current.received >= previous.received ? current.received - previous.received : 0
-        let sent = current.sent >= previous.sent ? current.sent - previous.sent : 0
-        return (Double(received) / elapsed, Double(sent) / elapsed)
+        let rates = PerformanceSamplingMath.transferRate(
+            currentFirst: current.received,
+            currentSecond: current.sent,
+            previousFirst: previous.received,
+            previousSecond: previous.sent,
+            elapsed: elapsed
+        )
+        return (rates.first, rates.second)
     }
 
     private static func fallbackDisplayName(for name: String) -> String {
