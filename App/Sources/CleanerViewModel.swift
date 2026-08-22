@@ -11,12 +11,12 @@ final class CleanerViewModel: ObservableObject {
     @Published private(set) var storageAnalysis: StorageAnalysis?
     @Published private(set) var storagePath: [URL] = []
     @Published private(set) var performanceSnapshot: PerformanceSnapshot?
+    @Published private(set) var dashboardMetrics: DashboardMetricsSnapshot?
     @Published private(set) var performanceHistory: [PerformanceHistoryPoint] = []
     @Published private(set) var systemStorage = SystemStorageSnapshot.empty
     @Published private(set) var cleanableBytes: Int64?
     @Published private(set) var networkTransferRate: NetworkTransferRate?
     @Published private(set) var hasLoadedPortSnapshot = false
-    @Published private(set) var isPerformanceMonitoring = false
     @Published private(set) var isOptimizingMemory = false
     @Published private(set) var listeningPorts: [ListeningPort] = []
     @Published private(set) var portScanError: String?
@@ -63,6 +63,10 @@ final class CleanerViewModel: ObservableObject {
     @Published var isScanning = false
     @Published private(set) var isCleanupScanning = false
     @Published private(set) var isPreparingCleanupResults = false
+    @Published private(set) var isCleaning = false
+    @Published private(set) var cleaningProcessedCount = 0
+    @Published private(set) var cleaningTotalCount = 0
+    @Published private(set) var lastCleanupFreedBytes: Int64?
     @Published private(set) var isStorageAnalyzing = false
     @Published private(set) var storageInspectedFiles = 0
     @Published private(set) var storageScannedBytes: Int64 = 0
@@ -118,12 +122,12 @@ final class CleanerViewModel: ObservableObject {
     private let applicationScanner = ApplicationScanner()
     private let systemInventoryScanner = SystemInventoryScanner()
     private let fileAnalyzer: any StorageAnalysisService
-    private let performanceMonitor = PerformanceMonitor()
+    private let systemMonitor: SystemMonitorService
     private let portScanner = PortScanner()
-    private let networkScanner = NetworkScanner()
     private var scanTask: Task<Void, Never>?
     private var storageAnalysisTask: Task<Void, Never>?
     private var storageAnalysisGeneration = UUID()
+    private var cleanupScanGeneration = UUID()
     private var featureTasks: [FeatureMode: Task<Void, Never>] = [:]
     private var performanceTask: Task<Void, Never>?
     private var networkMonitoringTask: Task<Void, Never>?
@@ -154,6 +158,11 @@ final class CleanerViewModel: ObservableObject {
         return L10n.format("Updated on %@", date.formatted(date: .omitted, time: .shortened))
     }
 
+    var lastJunkScanText: String? {
+        guard let date = lastUpdatedAt[.junk] else { return nil }
+        return date.formatted(date: .abbreviated, time: .shortened)
+    }
+
     func isLoading(_ mode: FeatureMode) -> Bool {
         mode == .files ? isStorageAnalyzing : loadingModes.contains(mode)
     }
@@ -161,11 +170,13 @@ final class CleanerViewModel: ObservableObject {
     init(
         cleaner: any CleaningService = LiveCleaningService(),
         fileAnalyzer: any StorageAnalysisService = LiveStorageAnalysisService(),
-        snapshotStore: any AppSnapshotStoring = UserDefaultsAppSnapshotStore()
+        snapshotStore: any AppSnapshotStoring = UserDefaultsAppSnapshotStore(),
+        systemMonitor: SystemMonitorService = .shared
     ) {
         self.cleaner = cleaner
         self.fileAnalyzer = fileAnalyzer
         self.snapshotStore = snapshotStore
+        self.systemMonitor = systemMonitor
         restoreStorageSnapshot()
         restoreInventorySnapshot()
         refreshSystemStorage()
@@ -247,7 +258,10 @@ final class CleanerViewModel: ObservableObject {
         let selectedRoot = cleanupRoot.standardizedFileURL
         root = selectedRoot
         scanTask?.cancel()
+        let generation = UUID()
+        cleanupScanGeneration = generation
         isCleanupScanning = true
+        isPreparingCleanupResults = false
         scanProgress = 0
         cleanupIncludesResidues = selectedRoot.resolvingSymlinksInPath()
             == FileManager.default.homeDirectoryForCurrentUser.standardizedFileURL.resolvingSymlinksInPath()
@@ -262,7 +276,7 @@ final class CleanerViewModel: ObservableObject {
         status = L10n.string("Scanning…")
         let includeResidues = cleanupIncludesResidues
         let phases = Self.cleanupScanPhases.filter { $0.id != "leftovers" || includeResidues }
-        scanTask = Task { [scanMode] in
+        scanTask = Task { [scanMode, generation] in
             let (stream, continuation) = AsyncStream.makeStream(of: CleanupScanProgressEvent.self)
             let worker = Task.detached(priority: .userInitiated) {
                 let items = await CleanerViewModel.runCleanupScan(
@@ -277,34 +291,31 @@ final class CleanerViewModel: ObservableObject {
             }
 
             for await event in stream {
+                guard cleanupScanGeneration == generation else {
+                    worker.cancel()
+                    return
+                }
                 guard !Task.isCancelled else {
                     worker.cancel()
-                    break
+                    return
                 }
-                applyCleanupProgress(event)
+                applyCleanupProgress(event, generation: generation)
+            }
+
+            guard cleanupScanGeneration == generation else {
+                worker.cancel()
+                return
             }
 
             let found = await worker.value
-            guard !Task.isCancelled else {
-                isCleanupScanning = false
-                isPreparingCleanupResults = false
-                scanTask = nil
-                currentScanCategory = L10n.string("Scan canceled")
-                return
-            }
+            guard cleanupScanGeneration == generation, !Task.isCancelled else { return }
 
             currentScanCategory = L10n.string("Preparing results…")
             isPreparingCleanupResults = true
             let prepared = await Task.detached(priority: .userInitiated) {
                 CleanerViewModel.prepareCleanupResults(from: found)
             }.value
-            guard !Task.isCancelled else {
-                isCleanupScanning = false
-                isPreparingCleanupResults = false
-                scanTask = nil
-                currentScanCategory = L10n.string("Scan canceled")
-                return
-            }
+            guard cleanupScanGeneration == generation, !Task.isCancelled else { return }
 
             applyPreparedCleanupResults(prepared)
             lastScanAt = Date()
@@ -398,6 +409,8 @@ final class CleanerViewModel: ObservableObject {
         let reviewItemCount: Int
     }
 
+    private nonisolated static let maxJunkItemsPerGroup = 50
+
     private nonisolated static func prepareCleanupResults(from found: [ScanItem]) -> PreparedCleanupResults {
         let itemByID = Dictionary(uniqueKeysWithValues: found.map { ($0.id, $0) })
         let totalBytes = found.reduce(into: Int64(0)) { $0 += $1.bytes }
@@ -434,7 +447,7 @@ final class CleanerViewModel: ObservableObject {
                 title: first.rule.title,
                 explanation: first.rule.explanation,
                 risk: first.rule.risk,
-                items: sorted,
+                items: Array(sorted.prefix(maxJunkItemsPerGroup)),
                 totalCount: sorted.count,
                 bytes: sorted.reduce(into: Int64(0)) { $0 += $1.bytes }
             )
@@ -482,7 +495,8 @@ final class CleanerViewModel: ObservableObject {
         cleanableBytes = prepared.selectedBytes
     }
 
-    private func applyCleanupProgress(_ event: CleanupScanProgressEvent) {
+    private func applyCleanupProgress(_ event: CleanupScanProgressEvent, generation: UUID) {
+        guard cleanupScanGeneration == generation else { return }
         activeCleanupPhaseID = event.categoryID
         activeCleanupPhaseProgress = event.categoryFraction
         completedCleanupPhases = Set(event.completedCategoryIDs)
@@ -697,6 +711,7 @@ final class CleanerViewModel: ObservableObject {
             status = L10n.string("Analysis canceled.")
             return
         }
+        cleanupScanGeneration = UUID()
         scanTask?.cancel()
         scanTask = nil
         isCleanupScanning = false
@@ -710,7 +725,6 @@ final class CleanerViewModel: ObservableObject {
     func startPerformanceMonitoring() {
         guard isMainWindowVisible, mode == .performance else { return }
         performanceTask?.cancel()
-        isPerformanceMonitoring = true
         status = L10n.string("Monitoring system performance…")
         performanceTask = Task { [weak self] in
             guard let self else { return }
@@ -723,7 +737,7 @@ final class CleanerViewModel: ObservableObject {
                     }
                     continue
                 }
-                let snapshot = await performanceMonitor.sample()
+                let snapshot = await self.systemMonitor.samplePerformanceSnapshot()
                 guard !Task.isCancelled, mode == .performance, isMainWindowVisible else {
                     return
                 }
@@ -751,8 +765,7 @@ final class CleanerViewModel: ObservableObject {
     func stopPerformanceMonitoring() {
         performanceTask?.cancel()
         performanceTask = nil
-        isPerformanceMonitoring = false
-        status = L10n.string("Performance monitoring paused.")
+        status = L10n.string("Performance monitoring stopped.")
     }
 
     func optimizeMemory() {
@@ -773,7 +786,7 @@ final class CleanerViewModel: ObservableObject {
     }
 
     private func refreshPerformanceSnapshot() async {
-        let snapshot = await performanceMonitor.sample()
+        let snapshot = await systemMonitor.samplePerformanceSnapshot()
         guard !Task.isCancelled else { return }
         performanceSnapshot = snapshot
         performanceHistory.append(PerformanceHistoryPoint(
@@ -822,12 +835,13 @@ final class CleanerViewModel: ObservableObject {
                 guard let self, self.mode == .home, self.isMainWindowVisible else { return }
                 if NSApp.isActive {
                     self.refreshSystemStorage()
-                    await self.refreshPerformanceSnapshot()
-                    let transferRate = await self.networkScanner.sampleTransferRate()
+                    let metrics = await self.systemMonitor.sampleDashboardMetrics()
+                    let transferRate = await self.systemMonitor.sampleTransferRate()
                     guard !Task.isCancelled,
                           self.mode == .home,
                           self.isMainWindowVisible
                     else { return }
+                    self.dashboardMetrics = metrics
                     self.networkTransferRate = transferRate
                 }
 
@@ -875,7 +889,7 @@ final class CleanerViewModel: ObservableObject {
         portScanError = nil
         status = L10n.string("Reading network activity, routes, and proxy settings…")
         featureTasks[.network] = Task {
-            async let snapshotTask = networkScanner.scan()
+            async let snapshotTask = systemMonitor.scanNetwork()
             async let portsTask = portScanner.scan()
             let (snapshot, ports) = await (snapshotTask, portsTask)
             guard !Task.isCancelled else { return }
@@ -902,7 +916,7 @@ final class CleanerViewModel: ObservableObject {
         isLookingUpRoute = true
         routeLookupTask = Task { [weak self] in
             guard let self else { return }
-            let result = await networkScanner.route(to: query)
+            let result = await systemMonitor.route(to: query)
             guard !Task.isCancelled else { return }
             routeLookup = result
             isLookingUpRoute = false
@@ -1084,7 +1098,6 @@ final class CleanerViewModel: ObservableObject {
         networkMonitoringTask = nil
         homeMonitoringTask?.cancel()
         homeMonitoringTask = nil
-        isPerformanceMonitoring = false
     }
 
     func changeMode(_ newMode: FeatureMode) {
@@ -1098,7 +1111,6 @@ final class CleanerViewModel: ObservableObject {
         isLookingUpRoute = false
         homeMonitoringTask?.cancel()
         homeMonitoringTask = nil
-        isPerformanceMonitoring = false
         isScanning = !loadingModes.isEmpty
         mode = newMode
         switch newMode {
@@ -1225,9 +1237,7 @@ final class CleanerViewModel: ObservableObject {
                 status = L10n.string("Start a system storage analysis, or choose a folder to analyze separately.")
             }
         case .performance:
-            status = isPerformanceMonitoring
-                ? L10n.string("Monitoring system performance…")
-                : L10n.string("Performance monitoring paused.")
+            status = L10n.string("Monitoring system performance…")
         case .network:
             status = L10n.format("%lld connections cached; refresh to scan again.", Int64(networkSnapshot?.connections.count ?? 0))
         case .tools:
@@ -1549,8 +1559,17 @@ final class CleanerViewModel: ObservableObject {
     // MARK: - Cleanup actions and selection
 
     func requestClean() {
-        guard !selectedIDs.isEmpty else { return }
+        guard !selectedIDs.isEmpty, !isCleaning else { return }
         showCleanConfirmation = true
+    }
+
+    func clearJunkResults() {
+        if totalBytes > 0 {
+            cleanableBytes = totalBytes
+        }
+        items = []
+        selectedIDs = []
+        applyPreparedCleanupResults(Self.prepareCleanupResults(from: []))
     }
 
     var selectedIncludesTrashContents: Bool {
@@ -1569,22 +1588,53 @@ final class CleanerViewModel: ObservableObject {
 
     func cleanConfirmed() {
         let selected = items.filter { selectedIDs.contains($0.id) }
-        guard !selected.isEmpty else { return }
+        guard !selected.isEmpty, !isCleaning else { return }
+        let freedBytes = selected.reduce(into: Int64(0)) { $0 += $1.bytes }
+        isCleaning = true
+        cleaningProcessedCount = 0
+        cleaningTotalCount = selected.count
         Task {
-            let result = await cleaner.moveToTrash(items: selected, selectedRoot: cleanupRoot)
-            let removed = Set(result.movedToTrash + result.permanentlyDeleted)
+            var moved: [URL] = []
+            var permanentlyDeleted: [URL] = []
+            var failures: [CleanFailure] = []
+            let batchSize = 25
+            var start = selected.startIndex
+            while start < selected.endIndex {
+                let end = selected.index(start, offsetBy: batchSize, limitedBy: selected.endIndex) ?? selected.endIndex
+                let batch = Array(selected[start..<end])
+                let result = await cleaner.moveToTrash(items: batch, selectedRoot: cleanupRoot)
+                moved.append(contentsOf: result.movedToTrash)
+                permanentlyDeleted.append(contentsOf: result.permanentlyDeleted)
+                failures.append(contentsOf: result.failures)
+                cleaningProcessedCount += batch.count
+                start = end
+            }
+
+            let removed = Set(moved + permanentlyDeleted)
             items.removeAll { removed.contains($0.url) }
             selectedIDs.subtract(selected.map(\.id))
             rebuildJunkGroups()
-            cleanableBytes = selectedBytes
-            status = Self.cleanupResultSummary(result)
+            cleanableBytes = items.isEmpty ? 0 : selectedBytes
+            status = Self.cleanupResultSummary(
+                CleanResult(
+                    movedToTrash: moved,
+                    permanentlyDeleted: permanentlyDeleted,
+                    failures: failures
+                )
+            )
+            isCleaning = false
+            cleaningProcessedCount = 0
+            cleaningTotalCount = 0
             operationReport = RemovalOperationReport(
                 title: L10n.string("Clean results"),
                 summary: status,
-                movedToTrash: result.movedToTrash,
-                permanentlyDeleted: result.permanentlyDeleted,
-                failures: result.failures
+                movedToTrash: moved,
+                permanentlyDeleted: permanentlyDeleted,
+                failures: failures
             )
+            if items.isEmpty {
+                lastCleanupFreedBytes = freedBytes
+            }
         }
     }
 

@@ -21,11 +21,14 @@ final class StatusBarMonitor: ObservableObject {
     @Published private var snapshot = StatusBarSnapshot()
     @Published fileprivate private(set) var transferHistory: [TransferHistoryPoint] = []
 
-    private let performanceMonitor = PerformanceMonitor()
-    private let networkScanner = NetworkScanner()
+    private let systemMonitor: SystemMonitorService
     private var monitoringTask: Task<Void, Never>?
     private var isEnabled = false
     private var isPresented = false
+
+    init(systemMonitor: SystemMonitorService = .shared) {
+        self.systemMonitor = systemMonitor
+    }
 
     var cpuPercent: Double { snapshot.cpuPercent }
 
@@ -60,8 +63,8 @@ final class StatusBarMonitor: ObservableObject {
         monitoringTask = Task { [weak self] in
             while !Task.isCancelled {
                 guard let self else { return }
-                let performance = await performanceMonitor.sampleSystemSummary()
-                let network = await networkScanner.sampleTransferRate()
+                let performance = await systemMonitor.sampleSystemSummary()
+                let network = await systemMonitor.sampleTransferRate()
                 guard !Task.isCancelled else { return }
                 snapshot = StatusBarSnapshot(
                     cpuPercent: performance.cpuPercent,

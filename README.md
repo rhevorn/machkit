@@ -21,7 +21,7 @@ MachKit has no analytics service or cloud backend. Scans read local file metadat
 - **Cleanup** — Find caches, logs, leftovers, and developer files; risky items stay unchecked
 - **Apps** — Browse apps and command-line tools, then uninstall with related support files
 - **Storage** — Understand disk usage and large folders
-- **Monitor** — Follow CPU, memory pressure, thermal state, and busy apps
+- **Monitor** — Follow CPU, memory pressure, thermal state, and busy apps ([monitoring details](docs/monitoring.md))
 - **Network** — Inspect traffic, connections, listening ports, routes, VPN/TUN, and proxies
 - **System** — Review login items, background activity, and extensions
 - **Menu bar** — Keep a lightweight monitor for CPU, memory, network speed, and quick actions

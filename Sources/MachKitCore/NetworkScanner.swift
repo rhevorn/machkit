@@ -39,6 +39,30 @@ public actor NetworkScanner {
         )
     }
 
+    public func sampleProcessTrafficRates() -> [Int32: (download: Double, upload: Double)] {
+        let now = Date()
+        do {
+            let output = try run(
+                executable: "/usr/bin/nettop",
+                arguments: ["-P", "-L", "1", "-n", "-x", "-J", "bytes_in,bytes_out"]
+            )
+            guard output.status == 0 || !output.text.isEmpty else { return [:] }
+            let records = Self.parseProcessTrafficOutput(output.text)
+            var nextSamples: [Int32: ByteSample] = [:]
+            var rates: [Int32: (download: Double, upload: Double)] = [:]
+            for record in records {
+                let sample = ByteSample(received: record.received, sent: record.sent, sampledAt: now)
+                nextSamples[record.processIdentifier] = sample
+                let delta = Self.rates(current: sample, previous: previousProcesses[record.processIdentifier])
+                rates[record.processIdentifier] = (delta.received, delta.sent)
+            }
+            previousProcesses = nextSamples
+            return rates
+        } catch {
+            return [:]
+        }
+    }
+
     public func scan() -> NetworkSnapshot {
         let now = Date()
         let hardwareNames = loadHardwareNames()
@@ -462,10 +486,14 @@ public actor NetworkScanner {
     private static func rates(current: ByteSample, previous: ByteSample?) -> (received: Double, sent: Double) {
         guard let previous else { return (0, 0) }
         let elapsed = current.sampledAt.timeIntervalSince(previous.sampledAt)
-        guard elapsed > 0 else { return (0, 0) }
-        let received = current.received >= previous.received ? current.received - previous.received : 0
-        let sent = current.sent >= previous.sent ? current.sent - previous.sent : 0
-        return (Double(received) / elapsed, Double(sent) / elapsed)
+        let rates = PerformanceSamplingMath.transferRate(
+            currentFirst: current.received,
+            currentSecond: current.sent,
+            previousFirst: previous.received,
+            previousSecond: previous.sent,
+            elapsed: elapsed
+        )
+        return (rates.first, rates.second)
     }
 
     private static func fallbackDisplayName(for name: String) -> String {

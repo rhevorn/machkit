@@ -670,9 +670,16 @@ extension ContentView {
 
     func scanHome() { model.mode = .home; model.selectHomeAndScan() }
     func scanJunk() { model.mode = .junk; if model.root == nil { model.selectHomeAndScan() } else { model.scan() } }
+    func returnToJunkHome() {
+        expandedGroups = []
+        model.clearJunkResults()
+    }
     func performQuickAction() {
-        if model.items.isEmpty || model.selectedCount == 0 { scanHome() }
-        else { model.requestClean() }
+        if model.items.isEmpty || model.selectedCount == 0 {
+            scanHome()
+        } else {
+            model.changeMode(.junk)
+        }
     }
     func selectionBinding(_ item: ScanItem) -> Binding<Bool> {
         Binding(

@@ -844,28 +844,7 @@ extension ContentView {
         VStack(spacing: 0) {
             header(
                 title: "Performance",
-                subtitle: "Monitor CPU, GPU, memory, disk, network, and top apps locally",
-                trailing: AnyView(
-                    HStack(spacing: 10) {
-                        autoUpdateIndicator(
-                            active: model.isPerformanceMonitoring,
-                            detail: model.isPerformanceMonitoring ? "every 2 seconds" : "Paused"
-                        )
-                        Button {
-                            if model.isPerformanceMonitoring {
-                                model.stopPerformanceMonitoring()
-                            } else {
-                                model.startPerformanceMonitoring()
-                            }
-                        } label: {
-                            Label(
-                                (model.isPerformanceMonitoring ? "Pause" : "Continue").localized,
-                                systemImage: model.isPerformanceMonitoring ? "pause.fill" : "play.fill"
-                            )
-                        }
-                        .buttonStyle(.borderless)
-                    }
-                )
+                subtitle: "Monitor CPU, GPU, memory, disk, network, and top apps locally"
             )
             .padding(18)
 
@@ -888,29 +867,21 @@ extension ContentView {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 14) {
                 ViewThatFits(in: .horizontal) {
-                    HStack(spacing: 12) {
+                    HStack(alignment: .top, spacing: 12) {
                         cpuMetricCard(snapshot)
-                        memoryMetricCard(snapshot)
+                        gpuMetricCard(snapshot)
                     }
                     VStack(spacing: 12) {
                         cpuMetricCard(snapshot)
-                        memoryMetricCard(snapshot)
+                        gpuMetricCard(snapshot)
                     }
                 }
-                ViewThatFits(in: .horizontal) {
-                    HStack(spacing: 12) {
-                        gpuMetricCard(snapshot)
-                        systemActivityCard(snapshot)
-                    }
-                    VStack(spacing: 12) {
-                        gpuMetricCard(snapshot)
-                        systemActivityCard(snapshot)
-                    }
-                }
+                neuralEngineAndMemoryMetricCard(snapshot)
+                systemActivityCard(snapshot)
                 computeHardwareCard(snapshot.computeHardware)
                 performanceTrendCard
                 resourceApplicationList(snapshot)
-                Text("Data updates locally every 2 seconds. GPU metrics depend on statistics exposed by the macOS graphics driver. Sampling stops when you leave this page or pause it. App rankings include identifiable graphical app processes only.")
+                Text("Data updates locally every 2 seconds. GPU and Neural Engine metrics use SoCMetrics (IOReport) on Apple Silicon; per-GPU-core bars reflect chip-level active residency because macOS does not expose per-core utilization. Neural Engine percentage is estimated from power draw, not a system utilization counter. App CPU is shown as a share of total system capacity; network rates aggregate helper processes into their parent app. Sampling stops when you leave this page. App rankings include identifiable graphical app processes only.")
                     .font(.caption).foregroundStyle(.secondary)
             }
             .padding(.horizontal, 18)
@@ -918,132 +889,82 @@ extension ContentView {
         }
     }
 
-    func cpuMetricCard(_ snapshot: PerformanceSnapshot) -> some View {
-        VStack(alignment: .leading, spacing: 13) {
-            HStack {
-                Label("CPU", systemImage: "cpu.fill").font(.system(size: 14, weight: .semibold))
-                Spacer()
-                Circle().fill(model.isPerformanceMonitoring ? Color.green : Color.secondary)
-                    .frame(width: 7, height: 7)
-                Text((model.isPerformanceMonitoring ? "Live" : "Paused").localized)
-                    .font(.caption).foregroundStyle(.secondary)
-            }
-            HStack(alignment: .firstTextBaseline, spacing: 4) {
-                Text(snapshot.cpuPercent.formatted(.number.precision(.fractionLength(0))))
-                    .font(.system(size: 32, weight: .semibold, design: .rounded)).monospacedDigit()
-                Text("%").font(.system(size: 15, weight: .medium)).foregroundStyle(.secondary)
-                Spacer(minLength: 8)
-                Label(thermalStateText(snapshot.thermalState), systemImage: "thermometer.medium")
-                    .font(.caption).foregroundStyle(.secondary)
-            }
-            HStack(spacing: 12) {
-                Text(L10n.format("User %@", percentText(snapshot.cpuUserPercent)))
-                Text(L10n.format("System %@", percentText(snapshot.cpuSystemPercent)))
-                Spacer()
-            }
-            .font(.caption).foregroundStyle(.secondary).monospacedDigit()
-            if snapshot.cpuCores.isEmpty {
-                ProgressView(value: snapshot.cpuPercent, total: 100)
-                    .tint(snapshot.cpuPercent > 85 ? Color.orange : Color.accentColor)
-                Text("Total System Usage")
-                    .font(.caption).foregroundStyle(.secondary)
-            } else {
-                cpuCoreBars(snapshot.cpuCores)
-                HStack(spacing: 10) {
-                    Text("Per-core usage")
-                    Spacer(minLength: 4)
-                    if snapshot.cpuCores.contains(where: { $0.kind == .performance }) {
-                        Label("P-core", systemImage: "circle.fill")
-                            .foregroundStyle(Color.accentColor)
-                    }
-                    if snapshot.cpuCores.contains(where: { $0.kind == .efficiency }) {
-                        Label("E-core", systemImage: "circle.fill")
-                            .foregroundStyle(Color.teal)
-                    }
-                    if snapshot.cpuCores.contains(where: { $0.kind == .standard }) {
-                        Label("Core", systemImage: "circle.fill")
-                            .foregroundStyle(Color.accentColor)
-                    }
-                }
-                .font(.caption).foregroundStyle(.secondary)
-            }
-        }
-        .padding(15)
-        .frame(maxWidth: .infinity, minHeight: 154)
-        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
-    }
-
-    func cpuCoreBars(_ cores: [CPUCoreUsage]) -> some View {
-        let performanceCount = cores.filter { $0.kind == .performance }.count
-        return GeometryReader { geometry in
-            let spacing: CGFloat = cores.count > 12 ? 2 : 3
-            let barWidth = max(
-                4,
-                (geometry.size.width - spacing * CGFloat(max(cores.count - 1, 0))) / CGFloat(max(cores.count, 1))
-            )
-            HStack(alignment: .bottom, spacing: spacing) {
-                ForEach(cores) { core in
-                    VStack(spacing: 3) {
-                        Capsule()
-                            .fill(coreBarColor(core).opacity(0.18))
-                            .frame(width: barWidth, height: geometry.size.height - 14)
-                            .overlay(alignment: .bottom) {
-                                Capsule()
-                                    .fill(coreBarColor(core))
-                                    .frame(
-                                        width: barWidth,
-                                        height: max(2, (geometry.size.height - 14) * core.percent / 100)
-                                    )
-                            }
-                        Text(coreBarLabel(core, performanceCount: performanceCount, compact: cores.count > 16))
-                            .font(.system(size: 8, weight: .medium, design: .rounded))
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
-                            .frame(width: barWidth)
-                    }
-                    .help(L10n.format(
-                        "Core %lld · %lld%%",
-                        core.index + 1,
-                        Int64(core.percent.rounded())
-                    ))
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-        }
-        .frame(height: 78)
-        .accessibilityElement(children: .contain)
-    }
-
-    func coreBarColor(_ core: CPUCoreUsage) -> Color {
-        switch core.kind {
-        case .performance, .standard:
-            return core.percent > 85 ? .orange : Color.accentColor
-        case .efficiency:
-            return core.percent > 85 ? .orange : .teal
-        }
-    }
-
-    func coreBarLabel(_ core: CPUCoreUsage, performanceCount: Int, compact: Bool) -> String {
-        if compact { return "\(core.index + 1)" }
-        switch core.kind {
-        case .performance:
-            return "P\(core.index + 1)"
-        case .efficiency:
-            return "E\(max(1, core.index - performanceCount + 1))"
-        case .standard:
-            return "\(core.index + 1)"
-        }
-    }
-
-    func memoryMetricCard(_ snapshot: PerformanceSnapshot) -> some View {
-        let color = memoryPressureColor(snapshot.memoryPressureLevel)
-        return VStack(alignment: .leading, spacing: 13) {
+    private func compactMetricProgressRow<Trailing: View>(
+        title: String,
+        icon: String,
+        progress: Double?,
+        tint: Color,
+        valueText: String,
+        detail: String?,
+        @ViewBuilder trailing: () -> Trailing
+    ) -> some View {
+        let clamped = min(1, max(0, progress ?? 0))
+        let barTint = clamped >= 0.85 ? Color.orange : tint
+        return VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 6) {
-                Label("Memory Usage", systemImage: "memorychip.fill").font(.system(size: 14, weight: .semibold))
+                Label(title, systemImage: icon)
+                    .font(.system(size: 13, weight: .semibold))
+                trailing()
+                Spacer(minLength: 4)
+                Text(valueText)
+                    .font(.caption.weight(.semibold))
+                    .monospacedDigit()
+                    .foregroundStyle(progress == nil ? .secondary : .primary)
+            }
+            if progress != nil {
+                ProgressView(value: clamped, total: 1)
+                    .tint(barTint)
+            } else {
+                ProgressView(value: 0, total: 1)
+                    .tint(Color.secondary.opacity(0.25))
+            }
+            if let detail {
+                Text(detail)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.85)
+            }
+        }
+    }
+
+    func neuralEngineAndMemoryMetricCard(_ snapshot: PerformanceSnapshot) -> some View {
+        let memoryColor = memoryPressureColor(snapshot.memoryPressureLevel)
+        let pressurePercent = snapshot.memoryPressure * 100
+        let hasNE = snapshot.hasNeuralEngine
+        let nePercent = snapshot.neuralEnginePercent
+        return VStack(alignment: .leading, spacing: 12) {
+            if hasNE {
+                compactMetricProgressRow(
+                    title: "Neural Engine",
+                    icon: "brain.head.profile",
+                    progress: nePercent.map { $0 / 100 },
+                    tint: .purple,
+                    valueText: nePercent.map { "\($0.formatted(.number.precision(.fractionLength(0))))%" } ?? "—",
+                    detail: nePercent != nil
+                        ? "\(L10n.string("Estimated")) · \(snapshot.neuralEnginePowerWatts.map { L10n.format("%.2f W", $0) } ?? "—")"
+                        : "Neural Engine power counters are unavailable on this Mac."
+                ) {
+                    if nePercent != nil {
+                        performanceStatusBadge("Live", color: .purple)
+                    } else {
+                        performanceStatusBadge("Unavailable", color: .secondary)
+                    }
+                }
+            }
+
+            compactMetricProgressRow(
+                title: "Memory Usage",
+                icon: "memorychip.fill",
+                progress: snapshot.memoryPressure,
+                tint: memoryColor,
+                valueText: "\(pressurePercent.formatted(.number.precision(.fractionLength(0))))%",
+                detail: "\(formatted(snapshot.usedMemory)) / \(formatted(snapshot.physicalMemory))"
+            ) {
                 Button { showingMemoryHelp.toggle() } label: {
                     Image(systemName: "questionmark.circle")
-                        .font(.system(size: 12, weight: .semibold)).foregroundStyle(.secondary)
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
                 .help("Understand macOS memory management")
@@ -1061,20 +982,10 @@ extension ContentView {
                     .frame(width: 340, alignment: .leading)
                     .fixedSize(horizontal: false, vertical: true)
                 }
-                Spacer()
-                Text(snapshot.memoryPressureLevel.rawValue.localized)
-                    .font(.caption.weight(.semibold)).foregroundStyle(color)
-                    .padding(.horizontal, 8).padding(.vertical, 3)
-                    .background(color.opacity(0.12), in: Capsule())
+                performanceStatusBadge(snapshot.memoryPressureLevel.rawValue, color: memoryColor)
             }
-            HStack(alignment: .firstTextBaseline, spacing: 5) {
-                Text(formatted(snapshot.usedMemory))
-                    .font(.system(size: 27, weight: .semibold, design: .rounded)).monospacedDigit()
-                Text("/ \(formatted(snapshot.physicalMemory))")
-                    .font(.system(size: 12)).foregroundStyle(.secondary).monospacedDigit()
-            }
-            ProgressView(value: snapshot.memoryPressure, total: 1).tint(color)
-            HStack(spacing: 9) {
+
+            HStack(spacing: 10) {
                 Text("Cached \(formatted(snapshot.cachedMemory))")
                 Text("Compressed \(formatted(snapshot.compressedMemory))")
                 Text("Swap \(formatted(snapshot.swapUsed))")
@@ -1086,61 +997,250 @@ extension ContentView {
                         Label("Smart Release", systemImage: "wand.and.sparkles")
                     }
                 }
-                .frame(minWidth: 76)
                 .fixedSize(horizontal: true, vertical: false)
                 .buttonStyle(.bordered)
                 .controlSize(.small)
                 .disabled(model.isOptimizingMemory)
             }
-            .font(.caption).foregroundStyle(.secondary).monospacedDigit()
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .monospacedDigit()
         }
         .padding(15)
-        .frame(maxWidth: .infinity, minHeight: 154)
+        .frame(maxWidth: .infinity, alignment: .topLeading)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
     }
 
-    func gpuMetricCard(_ snapshot: PerformanceSnapshot) -> some View {
-        VStack(alignment: .leading, spacing: 13) {
-            HStack {
-                Label("GPU", systemImage: "display").font(.system(size: 14, weight: .semibold))
-                Spacer()
-                Text((snapshot.gpuPercent == nil ? "Unavailable" : "Live").localized)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(snapshot.gpuPercent == nil ? Color.secondary : Color.blue)
+    private func performanceStatusBadge(_ text: String, color: Color) -> some View {
+        Text(text.localized)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(color)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .background(color.opacity(0.12), in: Capsule())
+    }
+
+    func cpuMetricCard(_ snapshot: PerformanceSnapshot) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .center, spacing: 8) {
+                Label("CPU", systemImage: "cpu.fill").font(.system(size: 14, weight: .semibold))
+                Spacer(minLength: 8)
+                Label(thermalStateText(snapshot.thermalState), systemImage: "thermometer.medium")
+                    .font(.caption).foregroundStyle(.secondary)
             }
+            .frame(height: 20, alignment: .leading)
+
             HStack(alignment: .firstTextBaseline, spacing: 4) {
-                Text(snapshot.gpuPercent.map { $0.formatted(.number.precision(.fractionLength(0))) } ?? "—")
+                Text(snapshot.cpuPercent.formatted(.number.precision(.fractionLength(0))))
                     .font(.system(size: 32, weight: .semibold, design: .rounded)).monospacedDigit()
-                if snapshot.gpuPercent != nil {
-                    Text("%").font(.system(size: 15, weight: .medium)).foregroundStyle(.secondary)
-                }
-                Spacer()
-                VStack(alignment: .trailing, spacing: 2) {
-                    Text(snapshot.computeHardware.gpuName).lineLimit(1)
-                    if let coreCount = snapshot.computeHardware.gpuCoreCount {
-                        Text(L10n.format("%lld GPU cores", Int64(coreCount)))
-                            .foregroundStyle(Color.blue)
+                Text("%").font(.system(size: 15, weight: .medium)).foregroundStyle(.secondary)
+                Spacer(minLength: 0)
+            }
+            .frame(height: 38, alignment: .leading)
+
+            if snapshot.cpuCores.isEmpty {
+                ProgressView(value: snapshot.cpuPercent, total: 100)
+                    .tint(snapshot.cpuPercent > 85 ? Color.orange : Color.accentColor)
+                Text("Total System Usage")
+                    .font(.caption).foregroundStyle(.secondary)
+            } else {
+                usageCoreBars(cpuCoreBarItems(snapshot.cpuCores))
+                HStack(spacing: 10) {
+                    Text("Per-core usage")
+                    Spacer(minLength: 4)
+                    ForEach(cpuClusterLegend(snapshot), id: \.self) { name in
+                        Label(PerformanceMonitor.localizedClusterName(name), systemImage: "circle.fill")
+                            .foregroundStyle(cpuClusterLegendColor(name))
+                    }
+                    if snapshot.cpuCores.contains(where: { $0.kind == .standard }) {
+                        Label("Core", systemImage: "circle.fill")
+                            .foregroundStyle(Color.accentColor)
                     }
                 }
                 .font(.caption).foregroundStyle(.secondary)
             }
-            if let gpuPercent = snapshot.gpuPercent {
-                ProgressView(value: gpuPercent, total: 100)
-                    .tint(gpuPercent > 85 ? Color.orange : Color.blue)
+
+            HStack(spacing: 12) {
+                Text(L10n.format("User %@", percentText(snapshot.cpuUserPercent)))
+                Text(L10n.format("System %@", percentText(snapshot.cpuSystemPercent)))
+                Spacer(minLength: 0)
+            }
+            .font(.caption).foregroundStyle(.secondary).monospacedDigit()
+        }
+        .padding(15)
+        .frame(maxWidth: .infinity, alignment: .topLeading)
+        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+    }
+
+    private struct CoreBarItem: Identifiable {
+        let index: Int
+        let percent: Double
+        let label: String
+        let color: Color
+        let helpText: String
+        var id: Int { index }
+    }
+
+    private func cpuCoreBarItems(_ cores: [CPUCoreUsage]) -> [CoreBarItem] {
+        cores.map { core in
+            CoreBarItem(
+                index: core.index,
+                percent: core.percent,
+                label: coreBarLabel(core, compact: cores.count > 16),
+                color: coreBarColor(core),
+                helpText: L10n.format("Core %lld · %lld%%", core.index + 1, Int64(core.percent.rounded()))
+            )
+        }
+    }
+
+    private func usageCoreBars(_ bars: [CoreBarItem]) -> some View {
+        GeometryReader { geometry in
+            let spacing: CGFloat = bars.count > 12 ? 2 : 3
+            let barWidth = max(
+                4,
+                (geometry.size.width - spacing * CGFloat(max(bars.count - 1, 0))) / CGFloat(max(bars.count, 1))
+            )
+            HStack(alignment: .bottom, spacing: spacing) {
+                ForEach(bars) { bar in
+                    VStack(spacing: 3) {
+                        Capsule()
+                            .fill(bar.color.opacity(0.18))
+                            .frame(width: barWidth, height: geometry.size.height - 14)
+                            .overlay(alignment: .bottom) {
+                                Capsule()
+                                    .fill(bar.color)
+                                    .frame(
+                                        width: barWidth,
+                                        height: max(2, (geometry.size.height - 14) * bar.percent / 100)
+                                    )
+                            }
+                        Text(bar.label)
+                            .font(.system(size: 8, weight: .medium, design: .rounded))
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                            .frame(width: barWidth)
+                    }
+                    .help(bar.helpText)
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+        }
+        .frame(height: 78)
+        .accessibilityElement(children: .contain)
+    }
+
+    func cpuCoreBars(_ cores: [CPUCoreUsage]) -> some View {
+        usageCoreBars(cpuCoreBarItems(cores))
+    }
+
+    func coreBarColor(_ core: CPUCoreUsage) -> Color {
+        let base = cpuClusterLegendColor(core.clusterName)
+        return core.percent > 85 ? .orange : base
+    }
+
+    func cpuClusterLegend(_ snapshot: PerformanceSnapshot) -> [String] {
+        if !snapshot.computeHardware.cpuClusters.isEmpty {
+            return snapshot.computeHardware.cpuClusters
+                .filter { cluster in snapshot.cpuCores.contains { $0.clusterName == cluster.name } }
+                .map(\.name)
+        }
+        var seen = Set<String>()
+        return snapshot.cpuCores.compactMap { core in
+            guard seen.insert(core.clusterName).inserted else { return nil }
+            return core.clusterName
+        }
+    }
+
+    func cpuClusterLegendColor(_ clusterName: String) -> Color {
+        switch clusterName.lowercased() {
+        case "super":
+            return .purple
+        case "performance":
+            return Color.accentColor
+        case "efficiency":
+            return .teal
+        default:
+            return Color.accentColor
+        }
+    }
+
+    func coreBarLabel(_ core: CPUCoreUsage, compact: Bool) -> String {
+        if compact { return "\(core.index + 1)" }
+        return "\(coreBarPrefix(core.clusterName))\(core.clusterIndex + 1)"
+    }
+
+    func coreBarPrefix(_ clusterName: String) -> String {
+        switch clusterName.lowercased() {
+        case "super":
+            return "S"
+        case "performance":
+            return "P"
+        case "efficiency":
+            return "E"
+        default:
+            return "C"
+        }
+    }
+
+    func gpuMetricCard(_ snapshot: PerformanceSnapshot) -> some View {
+        let gpuLive = snapshot.gpuPercent != nil
+        return VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .center, spacing: 8) {
+                Label("GPU", systemImage: "display").font(.system(size: 14, weight: .semibold))
+                Spacer(minLength: 8)
+                Text((gpuLive ? "Live" : "Unavailable").localized)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(gpuLive ? Color.blue : Color.secondary)
+            }
+            .frame(height: 20, alignment: .leading)
+
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text(snapshot.gpuPercent.map { $0.formatted(.number.precision(.fractionLength(0))) } ?? "—")
+                    .font(.system(size: 32, weight: .semibold, design: .rounded)).monospacedDigit()
+                if gpuLive {
+                    Text("%").font(.system(size: 15, weight: .medium)).foregroundStyle(.secondary)
+                }
+                Spacer(minLength: 0)
+            }
+            .frame(height: 38, alignment: .leading)
+
+            if snapshot.gpuCores.isEmpty {
+                if let gpuPercent = snapshot.gpuPercent {
+                    ProgressView(value: gpuPercent, total: 100)
+                        .tint(gpuPercent > 85 ? Color.orange : Color.blue)
+                } else {
+                    Text("The graphics driver does not expose live utilization on this Mac.")
+                        .font(.caption).foregroundStyle(.secondary).lineLimit(2)
+                }
             } else {
-                Text("The graphics driver does not expose live utilization on this Mac.")
-                    .font(.caption).foregroundStyle(.secondary).lineLimit(2)
+                usageCoreBars(gpuCoreBarItems(snapshot.gpuCores))
             }
             HStack(spacing: 18) {
                 compactMetric("Renderer", value: optionalPercentText(snapshot.gpuRendererPercent))
                 compactMetric("Tiler", value: optionalPercentText(snapshot.gpuTilerPercent))
+                if let frequency = snapshot.gpuFrequencyMHz {
+                    compactMetric("Frequency", value: L10n.format("%lld MHz", Int64(frequency.rounded())))
+                }
                 compactMetric("GPU Memory", value: snapshot.gpuMemoryBytes > 0 ? formatted(snapshot.gpuMemoryBytes) : "—")
                 Spacer(minLength: 0)
             }
         }
         .padding(15)
-        .frame(maxWidth: .infinity, minHeight: 170, alignment: .topLeading)
+        .frame(maxWidth: .infinity, alignment: .topLeading)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func gpuCoreBarItems(_ cores: [GPUCoreUsage]) -> [CoreBarItem] {
+        cores.map { core in
+            CoreBarItem(
+                index: core.index,
+                percent: core.percent,
+                label: "\(core.index + 1)",
+                color: core.percent > 85 ? .orange : .blue,
+                helpText: L10n.format("GPU core %lld · %lld%%", core.index + 1, Int64(core.percent.rounded()))
+            )
+        }
     }
 
     func systemActivityCard(_ snapshot: PerformanceSnapshot) -> some View {
@@ -1272,6 +1372,20 @@ extension ContentView {
     }
 
     func cpuCoreSummary(_ hardware: ComputeHardwareInfo) -> String {
+        if hardware.cpuClusters.count > 1 {
+            let parts = hardware.cpuClusters.map {
+                L10n.format(
+                    "%lld %@",
+                    Int64($0.physicalCores),
+                    PerformanceMonitor.localizedClusterName($0.name)
+                )
+            }
+            return L10n.format(
+                "%lld cores (%@)",
+                hardware.physicalCores,
+                parts.joined(separator: " + ")
+            )
+        }
         if hardware.performanceCores > 0, hardware.efficiencyCores > 0 {
             return L10n.format(
                 "%lld cores (%lldP + %lldE)",
@@ -1361,7 +1475,14 @@ extension ContentView {
 
     func resourceApplicationList(_ snapshot: PerformanceSnapshot) -> some View {
         let applications = snapshot.applications.sorted { lhs, rhs in
-            performanceSort == .cpu ? lhs.cpuPercent > rhs.cpuPercent : lhs.memoryBytes > rhs.memoryBytes
+            switch performanceSort {
+            case .cpu:
+                lhs.cpuPercentOfSystem > rhs.cpuPercentOfSystem
+            case .memory:
+                lhs.memoryBytes > rhs.memoryBytes
+            case .network:
+                lhs.networkBytesPerSecond > rhs.networkBytesPerSecond
+            }
         }
         return VStack(alignment: .leading, spacing: 10) {
             HStack {
@@ -1373,13 +1494,14 @@ extension ContentView {
                 .pickerStyle(.segmented)
                 .labelsHidden()
                 .accessibilityLabel("Sort")
-                .frame(width: 150)
+                .frame(width: 220)
             }
             VStack(spacing: 0) {
                 HStack {
                     Text("Apps").frame(maxWidth: .infinity, alignment: .leading)
                     Text("CPU").frame(width: 70, alignment: .trailing)
                     Text("Memory").frame(width: 92, alignment: .trailing)
+                    Text("Network").frame(width: 88, alignment: .trailing)
                 }
                 .font(.caption).foregroundStyle(.secondary)
                 .padding(.horizontal, 13).frame(height: 32)
@@ -1408,10 +1530,14 @@ extension ContentView {
                 Text("PID \(application.processIdentifier)").font(.caption2).foregroundStyle(.tertiary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            Text("\(application.cpuPercent.formatted(.number.precision(.fractionLength(1))))%")
+            Text("\(application.cpuPercentOfSystem.formatted(.number.precision(.fractionLength(1))))%")
                 .font(.system(size: 12)).monospacedDigit().frame(width: 70, alignment: .trailing)
+                .help(L10n.string("Share of total CPU capacity across all cores."))
             Text(formatted(application.memoryBytes))
                 .font(.system(size: 12)).monospacedDigit().frame(width: 92, alignment: .trailing)
+            Text(formatNetworkRate(application.networkBytesPerSecond))
+                .font(.system(size: 12)).monospacedDigit().frame(width: 88, alignment: .trailing)
+                .foregroundStyle(application.networkBytesPerSecond > 0 ? Color.blue : .secondary)
         }
         .padding(.horizontal, 13).frame(minHeight: 48)
         .contextMenu {

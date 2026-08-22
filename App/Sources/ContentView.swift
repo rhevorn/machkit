@@ -16,6 +16,7 @@ enum SoftwareTab: String, CaseIterable, Identifiable {
 enum PerformanceSort: String, CaseIterable, Identifiable {
     case cpu = "CPU"
     case memory = "Memory"
+    case network = "Network"
     var id: String { rawValue }
 }
 
@@ -26,6 +27,14 @@ enum StorageBrowseTab: String, CaseIterable, Identifiable {
     case folders = "Folders"
 
     var id: String { rawValue }
+}
+
+struct JunkScanPreview: Identifiable {
+    let id: String
+    let title: String
+    let icon: String
+    let detail: String
+    let color: Color
 }
 
 enum PortFilter: String, CaseIterable, Identifiable {
@@ -69,8 +78,8 @@ struct ContentView: View {
     @State var inventorySearch = ""
     @State var performanceSort: PerformanceSort = .cpu
     @State var storageTab: StorageBrowseTab = .overview
+    @State var junkScrollTarget: String?
     @State var showingMemoryHelp = false
-    @State var cleanupPhaseHelpID: String?
     @State var portSearch = ""
     @State var portFilter: PortFilter = .all
     @State var selectedPort: ListeningPort?
@@ -381,7 +390,7 @@ struct ContentView: View {
                     Text(storage.totalCapacity > 0 ? "\(percent)%" : "—")
                         .font(.system(size: 19, weight: .semibold, design: .rounded))
                         .monospacedDigit()
-                    Text("Used").font(.system(size: 9)).foregroundStyle(.secondary)
+                    Text("Used".localized).font(.system(size: 9)).foregroundStyle(.secondary)
                 }
             }
             .frame(width: 86, height: 86)
@@ -425,30 +434,30 @@ struct ContentView: View {
     }
 
     var homeMetrics: some View {
-        let snapshot = model.performanceSnapshot
+        let metrics = model.dashboardMetrics
         let transferRate = model.networkTransferRate
-        let memoryColor = snapshot.map { memoryPressureColor($0.memoryPressureLevel) } ?? .secondary
-        let thermalColor = snapshot.map { thermalStateColor($0.thermalState) } ?? .secondary
+        let memoryColor = metrics.map { memoryPressureColor($0.memoryPressureLevel) } ?? .secondary
+        let thermalColor = metrics.map { thermalStateColor($0.thermalState) } ?? .secondary
         return HStack(spacing: 10) {
             homeMetricCard(
                 title: "CPU",
-                value: snapshot.map { "\(Int($0.cpuPercent.rounded()))%" } ?? "—",
+                value: metrics.map { "\(Int($0.cpuPercent.rounded()))%" } ?? "—",
                 detail: "System Usage",
                 icon: "cpu",
                 color: .blue
             )
             homeMetricCard(
                 title: "Memory",
-                value: snapshot.map { "\(Int(($0.memoryPressure * 100).rounded()))%" } ?? "—",
-                detail: snapshot.map { $0.memoryPressureLevel.rawValue } ?? "Loading",
+                value: metrics.map { "\(Int(($0.memoryPressure * 100).rounded()))%" } ?? "—",
+                detail: metrics.map { $0.memoryPressureLevel.rawValue } ?? "Loading",
                 icon: "memorychip",
                 color: memoryColor
             )
             homeNetworkMetricCard(transferRate)
             homeMetricCard(
                 title: "Thermal",
-                value: snapshot.map { thermalStateShortText($0.thermalState) } ?? "—",
-                detail: snapshot == nil ? "Loading" : "Live",
+                value: metrics.map { thermalStateShortText($0.thermalState) } ?? "—",
+                detail: metrics == nil ? "Loading" : "Live",
                 icon: "thermometer.medium",
                 color: thermalColor
             )
@@ -581,7 +590,7 @@ struct ContentView: View {
 
     var homeQuickActionButtonTitle: String {
         if model.isCleanupScanning { return "Scanning" }
-        if model.selectedCount > 0 { return "Clean Selected" }
+        if model.selectedCount > 0 { return "Review Cleanup" }
         return model.cleanableBytes == nil ? "Start Scan" : "Scan Again"
     }
 
@@ -649,27 +658,34 @@ struct ContentView: View {
                 trailing: AnyView(
                     Group {
                         if !model.isCleanupScanning, !model.items.isEmpty {
-                            compactScanButton
+                            Button("Back to Cleanup Home".localized, action: returnToJunkHome)
+                                .buttonStyle(.bordered)
+                                .controlSize(.small)
                         }
                     }
                 )
             )
-                .padding(18)
-            if model.isCleanupScanning {
-                scanningView
-            } else if model.items.isEmpty {
-                junkEmptyView
-            } else {
-                junkDetailList
-                Divider()
-                HStack(spacing: 10) {
-                    Text("\(model.selectedCount) items selected, \(formatted(model.selectedBytes))")
-                    junkSelectionControls
-                    Spacer(minLength: 8)
-                    cleanSelectionButton
-                }.padding(12)
+            .padding(18)
+
+            Group {
+                if model.isCleanupScanning {
+                    junkScanningView
+                } else if model.items.isEmpty {
+                    junkEmptyView
+                } else {
+                    VStack(spacing: 0) {
+                        junkDetailList
+                        Divider()
+                        junkActionBar
+                    }
+                }
             }
         }
+    }
+
+    func focusJunkGroup(_ groupID: String) {
+        expandedGroups.insert(groupID)
+        junkScrollTarget = groupID
     }
 
     var junkSelectionControls: some View {
@@ -685,69 +701,270 @@ struct ContentView: View {
         .controlSize(.small)
     }
 
+    var junkActionBar: some View {
+        let selectionFraction = model.totalBytes > 0
+            ? min(1, Double(model.selectedBytes) / Double(model.totalBytes))
+            : 0
+
+        return VStack(spacing: 10) {
+            GeometryReader { geometry in
+                Capsule()
+                    .fill(Color.secondary.opacity(0.10))
+                    .overlay(alignment: .leading) {
+                        Capsule()
+                            .fill(Color.accentColor)
+                            .frame(width: max(4, geometry.size.width * selectionFraction))
+                    }
+            }
+            .frame(height: 4)
+            .animation(.easeOut(duration: 0.22), value: model.selectedBytes)
+
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(L10n.format("%lld items selected", Int64(model.selectedCount)))
+                        .font(.system(size: 12, weight: .semibold))
+                    Text(L10n.format("%@ of %@", formatted(model.selectedBytes), formatted(model.totalBytes)))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .monospacedDigit()
+                }
+                junkSelectionControls
+                Spacer(minLength: 8)
+                Button("Scan Again", action: scanJunk)
+                    .buttonStyle(.bordered)
+                    .controlSize(.regular)
+                    .disabled(model.isCleaning)
+                Button(action: model.requestClean) {
+                    if model.isCleaning {
+                        HStack(spacing: 7) {
+                            ProgressView().controlSize(.small)
+                            Text(cleaningProgressTitle)
+                        }
+                    } else {
+                        Label("Clean Selected", systemImage: "trash")
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.regular)
+                .disabled(model.selectedIDs.isEmpty || model.isCleaning)
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(Color(nsColor: .controlBackgroundColor))
+    }
+
+    var cleaningProgressTitle: String {
+        if model.cleaningTotalCount > 0 {
+            return L10n.format(
+                "Cleaning %lld of %lld…",
+                Int64(model.cleaningProcessedCount),
+                Int64(model.cleaningTotalCount)
+            )
+        }
+        return L10n.string("Cleaning…")
+    }
+
+    var junkPermissionBanner: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "lock.shield")
+                .font(.system(size: 18))
+                .foregroundStyle(Color.orange)
+                .frame(width: 30)
+            VStack(alignment: .leading, spacing: 3) {
+                Text("Full Disk Access Required".localized)
+                    .font(.system(size: 12, weight: .semibold))
+                Text("Some caches may be missed without Full Disk Access. Enable it in System Settings for more complete results.".localized)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 0)
+            Button("Open System Settings".localized, action: permissions.openFullDiskAccessSettings)
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+        }
+        .padding(12)
+        .background(Color.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
+    }
+
+    var junkFreedBanner: some View {
+        Group {
+            if let freed = model.lastCleanupFreedBytes, freed > 0 {
+                HStack(spacing: 10) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                    Text(L10n.format("Released %@ of disk space", formatted(freed)))
+                        .font(.system(size: 12, weight: .semibold))
+                    Spacer()
+                }
+                .padding(12)
+                .background(Color.green.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
+            }
+        }
+    }
+
     var junkEmptyView: some View {
-        VStack(spacing: 0) {
-            Spacer(minLength: 34)
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 16) {
+                junkFreedBanner
+                if !permissions.hasFullDiskAccess {
+                    junkPermissionBanner
+                }
+                junkEmptyHeroCard
+
+                Text("What We Scan".localized).font(.system(size: 14, weight: .semibold))
+
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                    ForEach(junkScanPreviews) { preview in
+                        junkScanPreviewTile(preview)
+                    }
+                }
+
+                junkSafetyBanner
+
+                Button(action: scanJunk) {
+                    Label("Start Scan".localized, systemImage: "magnifyingglass")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .keyboardShortcut(.return, modifiers: [])
+            }
+            .padding(18)
+        }
+    }
+
+    var junkEmptyHeroCard: some View {
+        let storage = model.systemStorage
+        let color = homeStorageColor(storage.usedFraction)
+        let percent = Int((storage.usedFraction * 100).rounded())
+
+        return HStack(spacing: 18) {
             ZStack {
                 Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [Color.accentColor.opacity(0.16), Color.cyan.opacity(0.04)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 150, height: 150)
+                    .stroke(color.opacity(0.12), lineWidth: 9)
                 Circle()
-                    .stroke(Color.accentColor.opacity(0.10), lineWidth: 1)
-                    .frame(width: 124, height: 124)
-                Image(systemName: "sparkles.rectangle.stack.fill")
-                    .symbolRenderingMode(.palette)
-                    .foregroundStyle(Color.accentColor, Color.accentColor.opacity(0.22))
-                    .font(.system(size: 52, weight: .light))
+                    .trim(from: 0, to: storage.totalCapacity > 0 ? max(0.015, storage.usedFraction) : 0)
+                    .stroke(color, style: StrokeStyle(lineWidth: 9, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                VStack(spacing: 1) {
+                    Text(storage.totalCapacity > 0 ? "\(percent)%" : "—")
+                        .font(.system(size: 19, weight: .semibold, design: .rounded))
+                        .monospacedDigit()
+                    Text("Used".localized).font(.system(size: 9)).foregroundStyle(.secondary)
+                }
             }
-            .padding(.bottom, 24)
+            .frame(width: 86, height: 86)
 
-            Text("Give your Mac a light cleanup")
-                .font(.system(size: 24, weight: .semibold, design: .rounded))
-            Text("Scan caches, logs, and developer leftovers; review before cleaning")
-                .font(.system(size: 13))
+            VStack(alignment: .leading, spacing: 7) {
+                HStack(spacing: 7) {
+                    Image(systemName: "paintbrush.fill")
+                        .foregroundStyle(Color.accentColor)
+                    Text("Give your Mac a light cleanup".localized)
+                        .font(.system(size: 17, weight: .semibold))
+                }
+                if let cleanable = model.cleanableBytes, cleanable > 0 {
+                    Text(L10n.format(
+                        "A previous scan found %@ of cleanable content. Run again to refresh results.",
+                        formatted(cleanable)
+                    ))
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                } else {
+                    Text("Scan caches, logs, installers, and developer leftovers. Review each group before cleaning.".localized)
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                HStack(spacing: 14) {
+                    Label(L10n.format("%@ Available", formatted(storage.availableCapacity)), systemImage: "internaldrive.fill")
+                    Label("Local Scan".localized, systemImage: "lock.shield")
+                    if let lastScan = model.lastJunkScanText {
+                        Text("·")
+                            .foregroundStyle(.tertiary)
+                        Text(L10n.format("Last scanned %@", lastScan))
+                    }
+                }
+                .font(.caption)
                 .foregroundStyle(.secondary)
-                .padding(.top, 7)
-
-            HStack(spacing: 18) {
-                scanPromise(icon: "lock.shield", text: "Local Scan")
-                scanPromise(icon: "checkmark.circle", text: "Review Each Item")
-                scanPromise(icon: "arrow.uturn.backward.circle", text: "Recoverable from Trash")
             }
-            .padding(.vertical, 22)
 
-            Button(action: scanJunk) {
-                HStack(spacing: 9) {
-                    Image(systemName: "magnifyingglass")
-                        .font(.system(size: 14, weight: .bold))
-                    Text("Start Scan")
-                        .font(.system(size: 14, weight: .semibold))
-                    Image(systemName: "arrow.right")
-                        .font(.system(size: 12, weight: .bold))
-                }
-                .foregroundStyle(.white)
-                .frame(width: 214, height: 46)
-                .background {
-                    Capsule(style: .continuous)
-                        .fill(LinearGradient(
-                            colors: [Color(red: 0.12, green: 0.43, blue: 0.96), Color(red: 0.18, green: 0.58, blue: 0.98)],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        ))
-                        .shadow(color: Color.accentColor.opacity(0.25), radius: 12, y: 5)
-                }
-            }
-            .buttonStyle(.plain)
-            .keyboardShortcut(.return, modifiers: [])
-            Spacer(minLength: 48)
+            Spacer(minLength: 8)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(18)
+        .background {
+            RoundedRectangle(cornerRadius: 14)
+                .fill(
+                    LinearGradient(
+                        colors: [Color.accentColor.opacity(0.11), Color(nsColor: .controlBackgroundColor)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.accentColor.opacity(0.13), lineWidth: 1)
+        }
+    }
+
+    var junkScanPreviews: [JunkScanPreview] {
+        [
+            .init(id: "trash", title: "Trash", icon: "trash", detail: "Items already in Trash", color: .red),
+            .init(id: "caches", title: "Caches", icon: "internaldrive", detail: "App, browser, and tool caches", color: .blue),
+            .init(id: "downloads", title: "Downloads & Mail", icon: "tray.and.arrow.down", detail: "Old installers and mail attachments", color: .cyan),
+            .init(id: "backups", title: "Device Backups", icon: "iphone", detail: "Local iPhone and iPad backups", color: .purple),
+            .init(id: "developer", title: "Developer Files", icon: "hammer", detail: "Xcode, simulators, and package caches", color: .mint),
+            .init(id: "leftovers", title: "Uninstall Leftovers", icon: "app.badge.minus", detail: "Support files from removed apps", color: .orange),
+        ]
+    }
+
+    func junkScanPreviewTile(_ preview: JunkScanPreview) -> some View {
+        HStack(spacing: 11) {
+            Image(systemName: preview.icon)
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(preview.color)
+                .frame(width: 34, height: 34)
+                .background(preview.color.opacity(0.11), in: RoundedRectangle(cornerRadius: 9))
+            VStack(alignment: .leading, spacing: 3) {
+                Text(preview.title.localized)
+                    .font(.system(size: 13, weight: .semibold))
+                Text(preview.detail.localized)
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)
+        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 11))
+        .overlay {
+            RoundedRectangle(cornerRadius: 11)
+                .stroke(Color.primary.opacity(0.05), lineWidth: 1)
+        }
+    }
+
+    var junkSafetyBanner: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "checkmark.shield.fill")
+                .font(.system(size: 18))
+                .foregroundStyle(.green)
+                .frame(width: 30)
+            VStack(alignment: .leading, spacing: 3) {
+                Text("Review before cleaning".localized).font(.system(size: 12, weight: .semibold))
+                Text("MachKit only reads file metadata locally. Selected items move to Trash unless they are already in Trash.".localized)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(12)
+        .background(Color.green.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
     }
 
     func scanPromise(icon: String, text: String) -> some View {
@@ -756,448 +973,449 @@ struct ContentView: View {
             .foregroundStyle(.secondary)
     }
 
-    var compactScanButton: some View {
-        Button(action: scanJunk) {
-            Label("Scan Again", systemImage: "arrow.clockwise")
-                .font(.system(size: 12, weight: .semibold))
-                .padding(.horizontal, 13)
-                .frame(height: 32)
-                .background(Color.accentColor.opacity(0.10), in: Capsule())
-        }
-        .buttonStyle(.plain)
-        .foregroundStyle(Color.accentColor)
-    }
-
-    var cleanSelectionButton: some View {
-        Button(action: model.requestClean) {
-            HStack(spacing: 7) {
-                Image(systemName: "trash")
-                Text("Clean Selected")
-                Text(formatted(model.selectedBytes))
-                    .foregroundStyle(.white.opacity(0.78))
-            }
-            .font(.system(size: 12, weight: .semibold))
-            .foregroundStyle(.white)
-            .padding(.horizontal, 15)
-            .frame(height: 34)
-            .background(Color.accentColor, in: Capsule())
-        }
-        .buttonStyle(.plain)
-        .disabled(model.selectedIDs.isEmpty)
-        .opacity(model.selectedIDs.isEmpty ? 0.45 : 1)
-    }
-
-    var scanningView: some View {
+    var junkScanningView: some View {
         let phases = model.visibleCleanupScanPhases
+        let progress = max(0, min(1, model.scanProgress))
+        let percent = Int((progress * 100).rounded())
 
-        return ZStack {
-            scanningAmbientBackground
-
-            VStack(spacing: 0) {
-                Spacer(minLength: 28)
-
-                ZStack {
-                    scanningWaterGauge(progress: model.scanProgress)
-                    VStack(spacing: 3) {
-                        Text(formatted(model.discoveredBytes))
-                            .font(.system(size: 22, weight: .semibold, design: .rounded))
-                            .monospacedDigit()
-                            .contentTransition(.numericText())
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
-                        Text("Found".localized)
-                            .font(.system(size: 11, weight: .medium, design: .rounded))
-                            .foregroundStyle(.secondary)
+        return ScrollView {
+            LazyVStack(alignment: .leading, spacing: 16) {
+                HStack(spacing: 18) {
+                    ZStack {
+                        Circle()
+                            .stroke(Color.accentColor.opacity(0.12), lineWidth: 10)
+                        Circle()
+                            .trim(from: 0, to: max(0.02, progress))
+                            .stroke(Color.accentColor, style: StrokeStyle(lineWidth: 10, lineCap: .round))
+                            .rotationEffect(.degrees(-90))
+                        VStack(spacing: 2) {
+                            Text("\(percent)%")
+                                .font(.system(size: 22, weight: .semibold, design: .rounded))
+                                .monospacedDigit()
+                                .contentTransition(.numericText())
+                            Text("Scanning".localized).font(.system(size: 10)).foregroundStyle(.secondary)
+                        }
                     }
-                    .frame(width: 88)
+                    .frame(width: 104, height: 104)
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(model.currentScanCategory.isEmpty
+                             ? L10n.string("Scanning for cleanable files…")
+                             : model.currentScanCategory)
+                            .font(.system(size: 17, weight: .semibold))
+                            .contentTransition(.opacity)
+                        Text("Reads file metadata only; contents are never read or uploaded".localized)
+                            .font(.system(size: 12))
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                        HStack(spacing: 14) {
+                            junkScanInlineStat(
+                                title: "Found",
+                                value: formatted(model.discoveredBytes),
+                                icon: "sparkles",
+                                color: .blue
+                            )
+                            Text("·")
+                                .font(.caption)
+                                .foregroundStyle(.tertiary)
+                            junkScanInlineStat(
+                                title: "Locations",
+                                value: "\(model.discoveredFileCount)",
+                                icon: "folder",
+                                color: .mint
+                            )
+                        }
+                        Button("Cancel Scan".localized, role: .cancel, action: model.cancelScan)
+                            .buttonStyle(.bordered)
+                            .controlSize(.small)
+                            .padding(.top, 4)
+                    }
+
+                    Spacer(minLength: 0)
                 }
-                .animation(.easeInOut(duration: 0.35), value: model.scanProgress)
-                .animation(.easeInOut(duration: 0.2), value: model.discoveredBytes)
+                .padding(18)
+                .background {
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.accentColor.opacity(0.10), Color(nsColor: .controlBackgroundColor)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                }
+                .overlay {
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(Color.accentColor.opacity(0.12), lineWidth: 1)
+                }
 
-                Text(model.currentScanCategory)
-                    .font(.system(size: 18, weight: .semibold, design: .rounded))
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: 440)
-                    .padding(.top, 18)
-                    .contentTransition(.opacity)
-
-                Text("Reads file metadata only; contents are never read or uploaded")
-                    .font(.system(size: 12))
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.top, 6)
-
-                scanningPhaseAxis(phases: phases)
-                    .padding(.horizontal, 36)
-                    .padding(.top, 28)
-                    .animation(.easeInOut(duration: 0.2), value: model.completedCleanupPhases)
-                    .animation(.easeInOut(duration: 0.2), value: model.activeCleanupPhaseID)
-                    .animation(.easeInOut(duration: 0.15), value: model.activeCleanupPhaseProgress)
-                    .animation(.easeInOut(duration: 0.15), value: model.scanProgress)
-
-                scanningCancelButton
-                    .padding(.top, 32)
-
-                Spacer(minLength: 40)
+                Text("Scan Progress".localized).font(.system(size: 14, weight: .semibold))
+                ScrollViewReader { proxy in
+                    junkScanPhaseTimeline(phases: phases)
+                        .onChange(of: model.activeCleanupPhaseID) { _, phaseID in
+                            guard let phaseID else { return }
+                            withAnimation(.easeInOut(duration: 0.22)) {
+                                proxy.scrollTo(phaseID, anchor: .center)
+                            }
+                        }
+                }
             }
+            .padding(18)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .animation(.easeInOut(duration: 0.22), value: model.currentScanCategory)
-        .animation(.easeInOut(duration: 0.16), value: cleanupPhaseHelpID)
+        .animation(.easeInOut(duration: 0.25), value: model.scanProgress)
     }
 
-    func scanningWaterGauge(progress: Double) -> some View {
-        let fill = max(0, min(1, progress))
-        return TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: false)) { context in
-            let t = context.date.timeIntervalSinceReferenceDate
-            ZStack {
-                Circle()
-                    .stroke(Color.accentColor.opacity(0.14), lineWidth: 1.5)
-                    .frame(width: 118, height: 118)
-
-                Circle()
-                    .fill(Color.accentColor.opacity(0.06))
-                    .frame(width: 110, height: 110)
-
-                Canvas { canvas, size in
-                    let level = size.height * (1 - fill)
-                    var wave = Path()
-                    wave.move(to: CGPoint(x: 0, y: size.height))
-                    wave.addLine(to: CGPoint(x: 0, y: level))
-                    let steps = 24
-                    for i in 0...steps {
-                        let x = size.width * CGFloat(i) / CGFloat(steps)
-                        let y = level
-                            + sin((CGFloat(i) / 3.2) + t * 2.6) * 3.2
-                            + sin((CGFloat(i) / 1.7) + t * 1.5) * 1.6
-                        wave.addLine(to: CGPoint(x: x, y: y))
-                    }
-                    wave.addLine(to: CGPoint(x: size.width, y: size.height))
-                    wave.closeSubpath()
-                    canvas.fill(
-                        wave,
-                        with: .linearGradient(
-                            Gradient(colors: [
-                                Color.accentColor.opacity(0.35),
-                                Color.accentColor.opacity(0.72),
-                            ]),
-                            startPoint: CGPoint(x: size.width / 2, y: level),
-                            endPoint: CGPoint(x: size.width / 2, y: size.height)
-                        )
-                    )
-                }
-                .frame(width: 110, height: 110)
-                .clipShape(Circle())
-
-                Circle()
-                    .stroke(
-                        LinearGradient(
-                            colors: [
-                                Color.accentColor.opacity(0.55),
-                                Color.accentColor.opacity(0.18),
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        ),
-                        lineWidth: 1.5
-                    )
-                    .frame(width: 110, height: 110)
-                    .shadow(color: Color.accentColor.opacity(0.22), radius: 10, y: 0)
-            }
-            .frame(width: 118, height: 118)
+    func junkScanInlineStat(title: String, value: String, icon: String, color: Color) -> some View {
+        HStack(spacing: 5) {
+            Image(systemName: icon)
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(color)
+            Text(title.localized)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Text(value)
+                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .monospacedDigit()
         }
     }
 
-    var scanningAmbientBackground: some View {
-        TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: false)) { context in
-            let t = context.date.timeIntervalSinceReferenceDate
-            let pulse = 0.5 + 0.5 * sin(t * 1.4)
-            ZStack {
-                RadialGradient(
-                    colors: [
-                        Color.accentColor.opacity(0.10 + 0.04 * pulse),
-                        Color.accentColor.opacity(0.03),
-                        Color.clear,
-                    ],
-                    center: .center,
-                    startRadius: 20,
-                    endRadius: 280
-                )
-                .blur(radius: 8)
+    func junkScanPhaseTimeline(phases: [CleanerViewModel.CleanupScanPhase]) -> some View {
+        VStack(spacing: 0) {
+            ForEach(Array(phases.enumerated()), id: \.element.id) { index, phase in
+                let isDone = model.completedCleanupPhases.contains(phase.id)
+                let isActive = !isDone && model.activeCleanupPhaseID == phase.id
+                let phaseColor = phaseStripColor(isDone: isDone, isActive: isActive)
 
-                Canvas { context, size in
-                    let step: CGFloat = 28
-                    for x in stride(from: 0, through: size.width, by: step) {
-                        for y in stride(from: 0, through: size.height, by: step) {
-                            let rect = CGRect(x: x, y: y, width: 1.2, height: 1.2)
-                            context.fill(Path(ellipseIn: rect), with: .color(.primary.opacity(0.045)))
+                HStack(alignment: .top, spacing: 12) {
+                    VStack(spacing: 0) {
+                        ZStack {
+                            Circle()
+                                .fill(phaseColor.opacity(0.14))
+                                .frame(width: 30, height: 30)
+                            if isDone {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 11, weight: .bold))
+                                    .foregroundStyle(.green)
+                            } else if isActive {
+                                ProgressView().controlSize(.mini)
+                            } else {
+                                Image(systemName: phase.icon)
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        if index < phases.count - 1 {
+                            Rectangle()
+                                .fill(isDone ? Color.green.opacity(0.35) : Color.secondary.opacity(0.16))
+                                .frame(width: 2, height: 28)
+                                .padding(.vertical, 4)
                         }
                     }
-                }
-                .opacity(0.7)
-            }
-        }
-        .allowsHitTesting(false)
-    }
+                    .frame(width: 30)
 
-    var scanningCancelButton: some View {
-        Button(action: model.cancelScan) {
-            HStack(spacing: 7) {
-                Image(systemName: "stop.fill")
-                    .font(.system(size: 9, weight: .bold))
-                Text("Cancel Scan")
-                    .font(.system(size: 13, weight: .semibold))
-            }
-            .foregroundStyle(Color.primary.opacity(0.78))
-            .padding(.horizontal, 18)
-            .padding(.vertical, 9)
-            .background(
-                Capsule(style: .continuous)
-                    .fill(.ultraThinMaterial)
-                    .overlay(
-                        Capsule(style: .continuous)
-                            .strokeBorder(
-                                LinearGradient(
-                                    colors: [
-                                        Color.accentColor.opacity(0.45),
-                                        Color.primary.opacity(0.12),
-                                        Color.accentColor.opacity(0.28),
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: 1
-                            )
-                    )
-                    .shadow(color: Color.accentColor.opacity(0.12), radius: 8, y: 2)
-            )
-        }
-        .buttonStyle(.plain)
-        .help("Cancel Scan".localized)
-    }
-
-    func scanningPhaseAxis(phases: [CleanerViewModel.CleanupScanPhase]) -> some View {
-        let overallFill = max(0, min(1, model.scanProgress))
-        let activeProgress = max(0, min(1, model.activeCleanupPhaseProgress))
-        let phaseCount = max(phases.count, 1)
-
-        return VStack(spacing: 12) {
-            ZStack {
-                GeometryReader { geo in
-                    let inset = geo.size.width / CGFloat(phaseCount * 2)
-                    let trackWidth = max(0, geo.size.width - inset * 2)
-                    Capsule(style: .continuous)
-                        .fill(Color.secondary.opacity(0.16))
-                        .frame(width: trackWidth, height: 2)
-                        .position(x: geo.size.width / 2, y: geo.size.height / 2)
-                    Capsule(style: .continuous)
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    Color.accentColor.opacity(0.55),
-                                    Color.accentColor,
-                                ],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .frame(width: trackWidth * overallFill, height: 2)
-                        .position(
-                            x: inset + trackWidth * overallFill / 2,
-                            y: geo.size.height / 2
-                        )
-                        .shadow(color: Color.accentColor.opacity(0.45), radius: 4, y: 0)
-                }
-
-                HStack(spacing: 0) {
-                    ForEach(Array(phases.enumerated()), id: \.element.id) { _, phase in
-                        let isDone = model.completedCleanupPhases.contains(phase.id)
-                        let isActive = !isDone && model.activeCleanupPhaseID == phase.id
-                        let phaseProgress = isDone
-                            ? 1.0
-                            : (isActive ? activeProgress : 0)
-                        axisNode(isDone: isDone, isActive: isActive, progress: phaseProgress)
-                            .frame(maxWidth: .infinity)
+                    VStack(alignment: .leading, spacing: 5) {
+                        HStack {
+                            Text(phase.title.localized)
+                                .font(.system(size: 13, weight: isActive ? .semibold : .medium))
+                            Spacer()
+                            if isDone {
+                                Text("Done".localized)
+                                    .font(.caption2.weight(.semibold))
+                                    .foregroundStyle(.green)
+                            } else if isActive {
+                                Text("Scanning".localized)
+                                    .font(.caption2.weight(.semibold))
+                                    .foregroundStyle(Color.accentColor)
+                            }
+                        }
+                        Text(phase.summary.localized)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                        if isActive {
+                            ProgressView(value: model.activeCleanupPhaseProgress, total: 1)
+                                .tint(Color.accentColor)
+                        }
                     }
+                    .padding(.bottom, index < phases.count - 1 ? 14 : 10)
                 }
-            }
-            .frame(height: 28)
-
-            HStack(alignment: .top, spacing: 0) {
-                ForEach(phases) { phase in
-                    let isDone = model.completedCleanupPhases.contains(phase.id)
-                    let isActive = !isDone && model.activeCleanupPhaseID == phase.id
-                    let reached = isDone || isActive
-                    let helpShown = cleanupPhaseHelpID == phase.id
-
-                    HStack(spacing: 3) {
-                        Text(phase.title.localized)
-                            .font(.system(size: 10, weight: isActive ? .semibold : .medium))
-                            .foregroundStyle(reached ? Color.primary : Color.secondary)
-                            .lineLimit(2)
-                            .multilineTextAlignment(.center)
-                        phaseHelpButton(phase: phase, helpShown: helpShown)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .zIndex(helpShown ? 20 : 0)
-                }
+                .padding(.horizontal, 14)
+                .padding(.top, index == 0 ? 12 : 0)
+                .id(phase.id)
             }
         }
-        .padding(.horizontal, 12)
-        .padding(.top, 18)
-        .padding(.bottom, 14)
-        .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(Color(nsColor: .controlBackgroundColor).opacity(0.78))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .strokeBorder(
-                            LinearGradient(
-                                colors: [
-                                    Color.accentColor.opacity(0.22),
-                                    Color.primary.opacity(0.05),
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 1
-                        )
-                )
-                .shadow(color: Color.accentColor.opacity(0.08), radius: 16, y: 4)
-        )
-        // Leave room so hover tips can sit above labels without feeling clipped.
-        .padding(.top, 4)
-    }
-
-    func phaseHelpButton(phase: CleanerViewModel.CleanupScanPhase, helpShown: Bool) -> some View {
-        Button {
-            cleanupPhaseHelpID = helpShown ? nil : phase.id
-        } label: {
-            Image(systemName: "questionmark.circle")
-                .font(.system(size: 11, weight: .regular))
-                .foregroundStyle(helpShown ? Color.accentColor : Color.secondary.opacity(0.85))
-                .frame(width: 16, height: 16)
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(phase.summary.localized)
+        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 11))
         .overlay {
-            if helpShown {
-                phaseHelpTooltip(phase)
-                    .fixedSize(horizontal: true, vertical: false)
-                    .offset(y: -36)
-                    .transition(
-                        .opacity.combined(with: .scale(scale: 0.94, anchor: .bottom))
-                    )
-            }
+            RoundedRectangle(cornerRadius: 11)
+                .stroke(Color.primary.opacity(0.05), lineWidth: 1)
         }
-        .onHover { hovering in
-            withAnimation(.easeOut(duration: 0.14)) {
-                if hovering {
-                    cleanupPhaseHelpID = phase.id
-                } else if cleanupPhaseHelpID == phase.id {
-                    cleanupPhaseHelpID = nil
-                }
-            }
-        }
-        .zIndex(helpShown ? 30 : 0)
     }
 
-    func phaseHelpTooltip(_ phase: CleanerViewModel.CleanupScanPhase) -> some View {
-        Text(phase.summary.localized)
-            .font(.system(size: 11))
-            .foregroundStyle(.primary)
-            .multilineTextAlignment(.leading)
-            .lineLimit(4)
-            .frame(maxWidth: 220, alignment: .leading)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 8)
-            .background(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(.ultraThinMaterial)
-                    .shadow(color: .black.opacity(0.18), radius: 10, y: 3)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .strokeBorder(Color.accentColor.opacity(0.28), lineWidth: 1)
-            )
-            .allowsHitTesting(false)
-    }
-
-    func axisNode(isDone: Bool, isActive: Bool, progress: Double) -> some View {
-        TimelineView(.animation(minimumInterval: isActive ? 1.0 / 24.0 : 120, paused: !isActive)) { context in
-            let pulse = isActive
-                ? 0.55 + 0.45 * sin(context.date.timeIntervalSinceReferenceDate * 3.2)
-                : 1.0
-            ZStack {
-                if isActive {
-                    Circle()
-                        .fill(Color.accentColor.opacity(0.16 * pulse))
-                        .frame(width: 28, height: 28)
-                        .scaleEffect(0.9 + 0.18 * pulse)
-                }
-                Circle()
-                    .stroke(Color.secondary.opacity(0.16), lineWidth: 2.5)
-                    .frame(width: 22, height: 22)
-                Circle()
-                    .trim(from: 0, to: max(isActive || isDone ? 0.04 : 0, progress))
-                    .stroke(
-                        Color.accentColor,
-                        style: StrokeStyle(lineWidth: 2.5, lineCap: .round)
-                    )
-                    .rotationEffect(.degrees(-90))
-                    .frame(width: 22, height: 22)
-                    .shadow(color: isActive ? Color.accentColor.opacity(0.45) : .clear, radius: 4)
-                Circle()
-                    .fill(Color(nsColor: .controlBackgroundColor))
-                    .frame(width: 12, height: 12)
-                if isDone {
-                    Circle()
-                        .fill(Color.accentColor)
-                        .frame(width: 7, height: 7)
-                } else if isActive {
-                    Circle()
-                        .fill(Color.accentColor.opacity(0.95))
-                        .frame(width: 6, height: 6)
-                        .scaleEffect(0.85 + 0.2 * pulse)
-                }
-            }
-            .frame(width: 28, height: 28)
-        }
+    func phaseStripColor(isDone: Bool, isActive: Bool) -> Color {
+        if isDone { return .green }
+        if isActive { return Color.accentColor }
+        return .secondary
     }
 
     var junkDetailList: some View {
-        ScrollView {
-            LazyVStack(spacing: 10) {
-                cleanupResultOverview
-                ForEach(model.junkGroups) { group in
-                    DisclosureGroup(isExpanded: expansionBinding(group.id)) {
-                        groupDetails(group)
-                    } label: {
-                        HStack(spacing: 11) {
-                            Toggle(isOn: groupSelectionBinding(group)) { EmptyView() }.labelsHidden()
-                            Image(systemName: group.risk == .safe ? "checkmark.shield.fill" : "exclamationmark.triangle.fill")
-                                .foregroundStyle(group.risk == .safe ? .green : .orange)
-                                .frame(width: 22)
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text(group.title.localized).font(.system(size: 14, weight: .semibold))
-                                Text(L10n.format(
-                                    "%lld locations · %@",
-                                    Int64(group.totalCount),
-                                    group.explanation.localized
-                                ))
-                                    .font(.caption).foregroundStyle(.secondary).lineLimit(1)
-                            }
-                            Spacer()
-                            Text(formatted(group.bytes)).monospacedDigit()
-                        }
-                        .contentShape(Rectangle())
+        ScrollViewReader { proxy in
+            ScrollView {
+                LazyVStack(spacing: 14) {
+                    if !permissions.hasFullDiskAccess {
+                        junkPermissionBanner
                     }
-                    .padding(14)
-                    .background { RoundedRectangle(cornerRadius: 9).fill(Color(nsColor: .controlBackgroundColor)) }
+                    junkResultHeroCard
+                    junkDistributionBar
+                    ForEach(model.junkGroups) { group in
+                        junkGroupSection(group)
+                            .id(group.id)
+                    }
+                    Text("Selected items move to Trash unless they are already in Trash. Review orange groups before cleaning.".localized)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
-            }.padding(14)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
+            }
+            .onChange(of: junkScrollTarget) { _, target in
+                guard let target else { return }
+                withAnimation(.easeInOut(duration: 0.28)) {
+                    proxy.scrollTo(target, anchor: .center)
+                }
+                junkScrollTarget = nil
+            }
         }
+    }
+
+    var junkResultHeroCard: some View {
+        let selectionFraction = model.totalBytes > 0
+            ? min(1, Double(model.selectedBytes) / Double(model.totalBytes))
+            : 0
+        let percent = Int((selectionFraction * 100).rounded())
+
+        return VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 18) {
+                ZStack {
+                    Circle()
+                        .stroke(Color.accentColor.opacity(0.12), lineWidth: 9)
+                    Circle()
+                        .trim(from: 0, to: max(0.015, selectionFraction))
+                        .stroke(Color.accentColor, style: StrokeStyle(lineWidth: 9, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                        .animation(.easeOut(duration: 0.22), value: model.selectedBytes)
+                    VStack(spacing: 1) {
+                        Text("\(percent)%")
+                            .font(.system(size: 19, weight: .semibold, design: .rounded))
+                            .monospacedDigit()
+                            .contentTransition(.numericText())
+                        Text("Selected".localized).font(.system(size: 9)).foregroundStyle(.secondary)
+                    }
+                }
+                .frame(width: 86, height: 86)
+
+                VStack(alignment: .leading, spacing: 7) {
+                    HStack(spacing: 7) {
+                        Image(systemName: "sparkles")
+                            .foregroundStyle(Color.accentColor)
+                        Text("Ready to clean".localized)
+                            .font(.system(size: 17, weight: .semibold))
+                    }
+                    Text(L10n.format(
+                        "%@ selected of %@ total · %lld locations",
+                        formatted(model.selectedBytes),
+                        formatted(model.totalBytes),
+                        Int64(model.items.count)
+                    ))
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    HStack(spacing: 14) {
+                        Label(L10n.format("%@ safe", formatted(model.safeCleanableBytes)), systemImage: "checkmark.shield")
+                        if model.reviewItemCount > 0 {
+                            Label(L10n.format("%lld to review", Int64(model.reviewItemCount)), systemImage: "exclamationmark.triangle")
+                        }
+                    }
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                }
+
+                Spacer(minLength: 8)
+            }
+
+            GeometryReader { geometry in
+                Capsule()
+                    .fill(Color.secondary.opacity(0.10))
+                    .overlay(alignment: .leading) {
+                        Capsule()
+                            .fill(Color.accentColor)
+                            .frame(width: max(4, geometry.size.width * selectionFraction))
+                            .animation(.easeOut(duration: 0.22), value: model.selectedBytes)
+                    }
+            }
+            .frame(height: 5)
+        }
+        .padding(18)
+        .background {
+            RoundedRectangle(cornerRadius: 14)
+                .fill(
+                    LinearGradient(
+                        colors: [Color.accentColor.opacity(0.11), Color(nsColor: .controlBackgroundColor)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.accentColor.opacity(0.13), lineWidth: 1)
+        }
+    }
+
+    var junkDistributionBar: some View {
+        let groups = model.junkGroups.filter { $0.bytes > 0 }
+        let total = max(Int64(1), groups.reduce(Int64(0)) { $0 + $1.bytes })
+
+        return VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("Size Breakdown".localized).font(.system(size: 13, weight: .semibold))
+                Spacer()
+                Text(L10n.format("%lld groups", Int64(groups.count)))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            GeometryReader { geometry in
+                HStack(spacing: 2) {
+                    ForEach(groups) { group in
+                        let width = max(4, geometry.size.width * CGFloat(Double(group.bytes) / Double(total)))
+                        Button {
+                            focusJunkGroup(group.id)
+                        } label: {
+                            RoundedRectangle(cornerRadius: 3, style: .continuous)
+                                .fill(junkGroupChartColor(group))
+                                .frame(width: width, height: 10)
+                        }
+                        .buttonStyle(.plain)
+                        .help(L10n.format("%@ · %@", group.title.localized, formatted(group.bytes)))
+                    }
+                }
+            }
+            .frame(height: 10)
+
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
+                ForEach(groups.prefix(6)) { group in
+                    Button {
+                        focusJunkGroup(group.id)
+                    } label: {
+                        HStack(spacing: 6) {
+                            Circle()
+                                .fill(junkGroupChartColor(group))
+                                .frame(width: 7, height: 7)
+                            Text(group.title.localized)
+                                .font(.caption)
+                                .lineLimit(1)
+                            Spacer(minLength: 4)
+                            Text(formatted(group.bytes))
+                                .font(.caption.weight(.medium))
+                                .monospacedDigit()
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .padding(14)
+        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 11))
+        .overlay {
+            RoundedRectangle(cornerRadius: 11)
+                .stroke(Color.primary.opacity(0.05), lineWidth: 1)
+        }
+    }
+
+    func junkGroupChartColor(_ group: JunkScanGroup) -> Color {
+        switch group.id {
+        case "trash": .red
+        case "user-caches": .blue
+        case "browser-caches": .cyan
+        case "xdg-caches": .teal
+        case "temporary-files": .mint
+        case "language-support-caches": .indigo
+        case "downloads-archives": .purple
+        case "mail-downloads": .pink
+        case "device-backups": .orange
+        case "user-logs": .brown
+        case "developer-home-caches": .green
+        case "xcode-artifacts": .blue
+        case "simulator-cache": .cyan
+        case "unavailable-simulator-devices": .orange
+        case "uninstall-leftovers": .yellow
+        default: .accentColor
+        }
+    }
+
+    func junkGroupSection(_ group: JunkScanGroup) -> some View {
+        let chartColor = junkGroupChartColor(group)
+
+        return VStack(spacing: 0) {
+            DisclosureGroup(isExpanded: expansionBinding(group.id)) {
+                VStack(spacing: 0) {
+                    ForEach(group.items) { item in
+                        junkFileRow(item)
+                        if item.id != group.items.last?.id {
+                            Divider().padding(.leading, 66)
+                        }
+                    }
+                    if group.totalCount > group.items.count {
+                        HStack {
+                            Spacer()
+                            Text(L10n.format(
+                                "Showing %lld of %lld locations",
+                                Int64(group.items.count),
+                                Int64(group.totalCount)
+                            ))
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 8)
+                        }
+                    }
+                }
+            } label: {
+                HStack(spacing: 12) {
+                    Toggle(isOn: groupSelectionBinding(group)) { EmptyView() }.labelsHidden()
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(chartColor.opacity(0.12))
+                        Image(systemName: group.risk == .safe ? "checkmark.shield.fill" : "exclamationmark.triangle.fill")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(chartColor)
+                    }
+                    .frame(width: 34, height: 34)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(group.title.localized)
+                            .font(.system(size: 13, weight: .semibold))
+                        Text(L10n.format(
+                            "%lld locations · %@",
+                            Int64(group.totalCount),
+                            group.explanation.localized
+                        ))
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                    }
+                    Spacer()
+                    Text(formatted(group.bytes))
+                        .font(.system(size: 13, weight: .semibold))
+                        .monospacedDigit()
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 11)
+                .contentShape(Rectangle())
+            }
+        }
+        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 11))
     }
 
     var cleanConfirmationTitle: String {
@@ -1232,88 +1450,67 @@ struct ContentView: View {
         return totals
     }
 
-    var cleanupResultOverview: some View {
-        return HStack(spacing: 10) {
-            cleanupSummaryMetric(
-                title: "Found",
-                value: formatted(model.totalBytes),
-                detail: L10n.format("%lld locations", Int64(model.items.count)),
-                icon: "sparkles.rectangle.stack",
-                color: .blue
-            )
-            cleanupSummaryMetric(
-                title: "Safe to Clean",
-                value: formatted(model.safeCleanableBytes),
-                detail: L10n.format("%lld selected by default", Int64(model.safeItemCount)),
-                icon: "checkmark.shield.fill",
-                color: .green
-            )
-            cleanupSummaryMetric(
-                title: "Review",
-                value: formatted(model.reviewCleanableBytes),
-                detail: L10n.format("%lld not selected", Int64(model.reviewItemCount)),
-                icon: "exclamationmark.triangle.fill",
-                color: .orange
-            )
-        }
-        .padding(.horizontal, 14).padding(.top, 14)
-    }
-
-    func cleanupSummaryMetric(
-        title: String,
-        value: String,
-        detail: String,
-        icon: String,
-        color: Color
-    ) -> some View {
-        HStack(spacing: 10) {
-            Image(systemName: icon)
-                .font(.system(size: 17, weight: .semibold)).foregroundStyle(color)
-                .frame(width: 34, height: 34)
-                .background(color.opacity(0.10), in: RoundedRectangle(cornerRadius: 9))
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title.localized).font(.caption).foregroundStyle(.secondary)
-                Text(value).font(.system(size: 15, weight: .semibold)).monospacedDigit()
-                Text(detail).font(.caption2).foregroundStyle(.tertiary).lineLimit(1)
-            }
-            Spacer(minLength: 0)
-        }
-        .padding(12)
-        .frame(maxWidth: .infinity, minHeight: 78, alignment: .leading)
-        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
-    }
-
-    func groupDetails(_ group: JunkScanGroup) -> some View {
-        VStack(spacing: 0) {
-            Divider().padding(.leading, 44)
-            ForEach(group.items) { item in
-                junkFileRow(item)
-                if item.id != group.items.last?.id { Divider().padding(.leading, 72) }
-            }
-        }
-    }
-
     func junkFileRow(_ item: ScanItem) -> some View {
         let isDirectory = item.fileCount > 1 || item.url.pathExtension.isEmpty
-        return HStack(spacing: 10) {
+        let isEstimated = item.fileCount > 1
+        return HStack(spacing: 12) {
             Toggle(isOn: selectionBinding(item)) { EmptyView() }.labelsHidden()
-            Image(systemName: isDirectory ? "folder.fill" : "doc")
-                .foregroundStyle(isDirectory ? Color.accentColor.opacity(0.85) : .secondary)
-                .frame(width: 20)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(item.url.lastPathComponent).lineLimit(1)
+            ZStack {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill((isDirectory ? Color.accentColor : Color.secondary).opacity(0.11))
+                Image(systemName: isDirectory ? "folder.fill" : "doc.fill")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(isDirectory ? Color.accentColor : .secondary)
+            }
+            .frame(width: 34, height: 34)
+            VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: 6) {
+                    Text(item.url.lastPathComponent)
+                        .font(.system(size: 12, weight: .medium))
+                        .lineLimit(1)
+                    if isEstimated {
+                        Text("Estimated size".localized)
+                            .font(.system(size: 9, weight: .semibold))
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 2)
+                            .background(Color.secondary.opacity(0.10), in: Capsule())
+                    }
+                }
                 Text(item.url.path)
-                    .font(.caption2).foregroundStyle(.tertiary).lineLimit(1)
-                Text(L10n.format("%lld files", Int64(item.fileCount)))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                Text(L10n.format("%lld files", Int64(item.fileCount)))
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
             }
             Spacer()
             if let date = item.modifiedAt {
-                Text(date, style: .date).font(.caption).foregroundStyle(.secondary)
+                Text(date, style: .date)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
-            Text(formatted(item.bytes)).font(.caption).monospacedDigit().frame(width: 72, alignment: .trailing)
-        }.padding(.vertical, 8).padding(.horizontal, 4)
+            Text(formatted(item.bytes))
+                .font(.system(size: 12, weight: .medium))
+                .monospacedDigit()
+                .frame(width: 72, alignment: .trailing)
+            Image(systemName: "arrow.forward.circle")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 9)
+        .contentShape(Rectangle())
+        .onTapGesture { revealJunkItem(item) }
+        .contextMenu {
+            Button("Show in Finder".localized) { revealJunkItem(item) }
+        }
+    }
+
+    func revealJunkItem(_ item: ScanItem) {
+        let isDirectory = item.fileCount > 1 || item.url.pathExtension.isEmpty
+        reveal(isDirectory ? item.url : item.url.deletingLastPathComponent())
     }
 
     func expansionBinding(_ id: String) -> Binding<Bool> {
