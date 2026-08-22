@@ -12,28 +12,26 @@ enum ScreenshotInk: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var color: Color {
+    /// Single source of truth for ink colors; the SwiftUI and AppKit
+    /// representations both derive from it so they can't drift apart.
+    private var rgb: (red: CGFloat, green: CGFloat, blue: CGFloat) {
         switch self {
-        case .red: Color(red: 1, green: 0.23, blue: 0.19)
-        case .yellow: Color(red: 1, green: 0.8, blue: 0)
-        case .blue: Color(red: 0.04, green: 0.52, blue: 1)
-        case .green: Color(red: 0.2, green: 0.78, blue: 0.35)
-        case .black: Color(red: 0.08, green: 0.08, blue: 0.1)
-        case .gray: Color(red: 0.56, green: 0.56, blue: 0.58)
-        case .white: .white
+        case .red: (1, 0.23, 0.19)
+        case .yellow: (1, 0.8, 0)
+        case .blue: (0.04, 0.52, 1)
+        case .green: (0.2, 0.78, 0.35)
+        case .black: (0.08, 0.08, 0.1)
+        case .gray: (0.56, 0.56, 0.58)
+        case .white: (1, 1, 1)
         }
     }
 
+    var color: Color {
+        Color(red: rgb.red, green: rgb.green, blue: rgb.blue)
+    }
+
     var nsColor: NSColor {
-        switch self {
-        case .red: NSColor(red: 1, green: 0.23, blue: 0.19, alpha: 1)
-        case .yellow: NSColor(red: 1, green: 0.8, blue: 0, alpha: 1)
-        case .blue: NSColor(red: 0.04, green: 0.52, blue: 1, alpha: 1)
-        case .green: NSColor(red: 0.2, green: 0.78, blue: 0.35, alpha: 1)
-        case .black: NSColor(red: 0.08, green: 0.08, blue: 0.1, alpha: 1)
-        case .gray: NSColor(red: 0.56, green: 0.56, blue: 0.58, alpha: 1)
-        case .white: .white
-        }
+        NSColor(red: rgb.red, green: rgb.green, blue: rgb.blue, alpha: 1)
     }
 }
 

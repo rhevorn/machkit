@@ -27,11 +27,41 @@ final class ScreenshotController: ObservableObject {
         }
 
         if !ScreenshotPermission.hasScreenCaptureAccess(promptIfNeeded: false) {
-            let granted = ScreenshotPermission.hasScreenCaptureAccess(promptIfNeeded: true)
-            if !granted {
+            requestScreenCaptureAccessAndBegin()
+            return
+        }
+        beginSession()
+    }
+
+    /// First-time screen-recording authorization is applied asynchronously, so
+    /// `CGRequestScreenCaptureAccess()` returns false even right after a grant.
+    /// Re-check with the preflight API after a short pause, and only then fall
+    /// back to the settings alert, so a fresh grant isn't misread as denied.
+    private func requestScreenCaptureAccessAndBegin() {
+        isBusy = true
+        _ = ScreenshotPermission.hasScreenCaptureAccess(promptIfNeeded: true)
+        Task { @MainActor in
+            do {
+                try await Task.sleep(for: .milliseconds(750))
+                try Task.checkCancellation()
+            } catch {
+                isBusy = false
+                return
+            }
+            guard ScreenshotPermission.hasScreenCaptureAccess(promptIfNeeded: false) else {
+                isBusy = false
                 presentPermissionError()
                 return
             }
+            isBusy = false
+            beginSession()
+        }
+    }
+
+    private func beginSession() {
+        guard !isBusy else {
+            restoreActiveSession()
+            return
         }
 
         isBusy = true
@@ -71,6 +101,10 @@ final class ScreenshotController: ObservableObject {
                 guard activeSessionID == sessionID else { return }
                 desktopSnapshot = snapshot
                 session.applySnapshot(snapshot)
+                // The frozen desktop is on screen now, so keyboard focus can
+                // be taken safely: an open context menu closes at this point,
+                // but its pixels are already preserved in the frozen image.
+                session.makeKeyForInteraction()
                 session.setInteractionEnabled(true)
                 captureTask = nil
             } catch is CancellationError {
@@ -141,8 +175,13 @@ final class ScreenshotController: ObservableObject {
     private func restoreActiveSession() {
         if let editorController {
             editorController.present()
-        } else {
-            selectionSession?.bringToFront()
+        } else if let selectionSession {
+            selectionSession.bringToFront()
+            // Re-taking key is only safe once the frozen snapshot is up;
+            // before that it would dismiss an open menu before it is captured.
+            if selectionSession.isInteractive {
+                selectionSession.makeKeyForInteraction()
+            }
         }
     }
 
