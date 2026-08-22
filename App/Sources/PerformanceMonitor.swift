@@ -3,6 +3,7 @@ import Darwin
 import Foundation
 import IOKit
 import Metal
+import SoCMetrics
 #if canImport(FoundationModels)
 import FoundationModels
 #endif
@@ -13,11 +14,18 @@ struct ComputeHardwareInfo: Sendable {
     let logicalCores: Int
     let performanceCores: Int
     let efficiencyCores: Int
+    let cpuClusters: [CPUClusterInfo]
     let gpuName: String
     let gpuCoreCount: Int?
     let hasUnifiedMemory: Bool
     let recommendedGPUWorkingSet: Int64
     let appleIntelligence: AppleIntelligenceStatus
+}
+
+struct CPUClusterInfo: Sendable {
+    let name: String
+    let physicalCores: Int
+    let logicalCores: Int
 }
 
 enum AppleIntelligenceStatus: String, Sendable {
@@ -63,20 +71,36 @@ struct ApplicationResourceUsage: Identifiable, Sendable {
     let bundleURL: URL?
     let cpuPercent: Double
     let memoryBytes: Int64
+    let networkDownloadBytesPerSecond: Double
+    let networkUploadBytesPerSecond: Double
 
     var id: pid_t { processIdentifier }
+
+    var networkBytesPerSecond: Double {
+        networkDownloadBytesPerSecond + networkUploadBytesPerSecond
+    }
 }
 
 struct CPUCoreUsage: Identifiable, Sendable {
     enum Kind: String, Sendable {
+        case superCore
         case performance
         case efficiency
         case standard
     }
 
     let index: Int
+    let clusterIndex: Int
     let percent: Double
+    let clusterName: String
     let kind: Kind
+
+    var id: Int { index }
+}
+
+struct GPUCoreUsage: Identifiable, Sendable {
+    let index: Int
+    let percent: Double
 
     var id: Int { index }
 }
@@ -90,6 +114,12 @@ struct PerformanceSnapshot: Sendable {
     let gpuPercent: Double?
     let gpuRendererPercent: Double?
     let gpuTilerPercent: Double?
+    let gpuCores: [GPUCoreUsage]
+    let gpuFrequencyMHz: Double?
+    let gpuActiveResidencyPercent: Double?
+    let hasNeuralEngine: Bool
+    let neuralEnginePercent: Double?
+    let neuralEnginePowerWatts: Double?
     let gpuMemoryBytes: Int64
     let physicalMemory: Int64
     let usedMemory: Int64
@@ -162,10 +192,7 @@ actor PerformanceMonitor {
         let name: String
         let physicalCores: Int
         let logicalCores: Int
-        let performanceCores: Int
-        let efficiencyCores: Int
-        let performanceLogicalCores: Int
-        let efficiencyLogicalCores: Int
+        let clusters: [CPUClusterInfo]
     }
 
     private var previousCPUTicks: [UInt64]?
@@ -178,6 +205,7 @@ actor PerformanceMonitor {
         guard let device = MTLCreateSystemDefaultDevice() else { return ("Metal GPU not detected", false, 0) }
         return (device.name, device.hasUnifiedMemory, Int64(device.recommendedMaxWorkingSetSize))
     }()
+    private var socSampler: SoCSampler?
 
     func sampleSystemSummary() -> SystemPerformanceSummary {
         let memory = sampleMemory()
@@ -188,15 +216,19 @@ actor PerformanceMonitor {
         )
     }
 
-    func sample() -> PerformanceSnapshot {
+    func sample(applicationNetworkRates: [pid_t: (download: Double, upload: Double)] = [:]) -> PerformanceSnapshot {
         let now = Date()
         let cpu = sampleCPU()
         let cpuCores = sampleCPUCores()
         let gpuUsage = sampleGPUUsage()
+        let socMetrics = sampleSoCMetrics()
+        let gpuCores = sampleGPUCores(gpuUsage: gpuUsage, socMetrics: socMetrics?.sample)
+        let gpuPercent = Self.preferredGPUPercent(driver: gpuUsage.device, socMetrics: socMetrics?.sample)
+        let neuralEnginePowerWatts = socMetrics?.sample.anePowerWatts
         let memory = sampleMemory()
         let disk = sampleDiskTransfer(at: now)
         let network = sampleNetworkTransfer(at: now)
-        let applications = sampleApplications(at: now)
+        let applications = sampleApplications(at: now, networkRates: applicationNetworkRates)
         let cpuInfo = cpuInfo
         let gpu = gpuInfo
         return PerformanceSnapshot(
@@ -205,9 +237,15 @@ actor PerformanceMonitor {
             cpuUserPercent: cpu.user,
             cpuSystemPercent: cpu.system,
             cpuCores: cpuCores,
-            gpuPercent: gpuUsage.device,
+            gpuPercent: gpuPercent,
             gpuRendererPercent: gpuUsage.renderer,
             gpuTilerPercent: gpuUsage.tiler,
+            gpuCores: gpuCores,
+            gpuFrequencyMHz: socMetrics?.sample.gpuFrequencyMHz,
+            gpuActiveResidencyPercent: socMetrics?.sample.gpuActiveResidency.map { Self.clampedPercentage($0 * 100) },
+            hasNeuralEngine: socMetrics?.available == true,
+            neuralEnginePercent: Self.estimatedNeuralEnginePercent(fromWatts: neuralEnginePowerWatts),
+            neuralEnginePowerWatts: neuralEnginePowerWatts,
             gpuMemoryBytes: gpuUsage.memoryBytes,
             physicalMemory: memory.total,
             usedMemory: memory.used,
@@ -228,8 +266,9 @@ actor PerformanceMonitor {
                 cpuName: cpuInfo.name.isEmpty ? gpu.name : cpuInfo.name,
                 physicalCores: cpuInfo.physicalCores,
                 logicalCores: cpuInfo.logicalCores,
-                performanceCores: cpuInfo.performanceCores,
-                efficiencyCores: cpuInfo.efficiencyCores,
+                performanceCores: Self.performanceCoreCount(in: cpuInfo.clusters),
+                efficiencyCores: Self.efficiencyCoreCount(in: cpuInfo.clusters),
+                cpuClusters: cpuInfo.clusters,
                 gpuName: gpu.name,
                 gpuCoreCount: gpuUsage.coreCount,
                 hasUnifiedMemory: gpu.unifiedMemory,
@@ -238,6 +277,36 @@ actor PerformanceMonitor {
             ),
             applications: applications
         )
+    }
+
+    private func sampleSoCMetrics() -> (sample: SoCSample, available: Bool)? {
+        #if arch(arm64)
+        if socSampler == nil {
+            socSampler = try? SoCSampler()
+        }
+        guard let socSampler else { return nil }
+        return (socSampler.sample(interval: 0.15), true)
+        #else
+        return nil
+        #endif
+    }
+
+    private func sampleGPUCores(gpuUsage: GPUUsage, socMetrics: SoCSample?) -> [GPUCoreUsage] {
+        let coreCount = max(gpuUsage.coreCount ?? 0, 1)
+        let percent = Self.preferredGPUPercent(driver: gpuUsage.device, socMetrics: socMetrics) ?? 0
+        return (0..<coreCount).map { GPUCoreUsage(index: $0, percent: percent) }
+    }
+
+    private static func preferredGPUPercent(driver: Double?, socMetrics: SoCSample?) -> Double? {
+        if let residency = socMetrics?.gpuActiveResidency {
+            return clampedPercentage(residency * 100)
+        }
+        return driver.map(clampedPercentage)
+    }
+
+    static func estimatedNeuralEnginePercent(fromWatts watts: Double?) -> Double? {
+        guard let watts else { return nil }
+        return clampedPercentage(watts / 8.0 * 100)
     }
 
     private static func appleIntelligenceStatus(hasUnifiedMemory: Bool) -> AppleIntelligenceStatus {
@@ -276,10 +345,7 @@ actor PerformanceMonitor {
             .trimmingCharacters(in: .whitespacesAndNewlines)
         let physical = max(1, sysctlInt("hw.physicalcpu") ?? ProcessInfo.processInfo.processorCount)
         let logical = max(physical, sysctlInt("hw.logicalcpu") ?? ProcessInfo.processInfo.processorCount)
-        let performance = sysctlInt("hw.perflevel0.physicalcpu") ?? 0
-        let efficiency = sysctlInt("hw.perflevel1.physicalcpu") ?? 0
-        let performanceLogical = sysctlInt("hw.perflevel0.logicalcpu") ?? performance
-        let efficiencyLogical = sysctlInt("hw.perflevel1.logicalcpu") ?? efficiency
+        let clusters = readCPUClusters()
         let name: String
         if !brand.isEmpty {
             name = brand
@@ -293,11 +359,86 @@ actor PerformanceMonitor {
             name: name,
             physicalCores: physical,
             logicalCores: logical,
-            performanceCores: performance,
-            efficiencyCores: efficiency,
-            performanceLogicalCores: performanceLogical,
-            efficiencyLogicalCores: efficiencyLogical
+            clusters: clusters
         )
+    }
+
+    private static func readCPUClusters() -> [CPUClusterInfo] {
+        let levelCount = sysctlInt("hw.nperflevels") ?? 0
+        if levelCount > 0 {
+            let clusters = (0..<levelCount).compactMap { level -> CPUClusterInfo? in
+                let physicalCores = sysctlInt("hw.perflevel\(level).physicalcpu") ?? 0
+                let logicalCores = sysctlInt("hw.perflevel\(level).logicalcpu") ?? physicalCores
+                guard logicalCores > 0 else { return nil }
+                let name = sysctlString("hw.perflevel\(level).name")
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                return CPUClusterInfo(
+                    name: name.isEmpty ? "Cluster \(level + 1)" : name,
+                    physicalCores: physicalCores,
+                    logicalCores: logicalCores
+                )
+            }
+            if !clusters.isEmpty { return clusters }
+        }
+
+        let performancePhysical = sysctlInt("hw.perflevel0.physicalcpu") ?? 0
+        let efficiencyPhysical = sysctlInt("hw.perflevel1.physicalcpu") ?? 0
+        let performanceLogical = sysctlInt("hw.perflevel0.logicalcpu") ?? performancePhysical
+        let efficiencyLogical = sysctlInt("hw.perflevel1.logicalcpu") ?? efficiencyPhysical
+        var fallback: [CPUClusterInfo] = []
+        if performanceLogical > 0 {
+            let name = sysctlString("hw.perflevel0.name").trimmingCharacters(in: .whitespacesAndNewlines)
+            fallback.append(CPUClusterInfo(
+                name: name.isEmpty ? "Performance" : name,
+                physicalCores: performancePhysical,
+                logicalCores: performanceLogical
+            ))
+        }
+        if efficiencyLogical > 0 {
+            let name = sysctlString("hw.perflevel1.name").trimmingCharacters(in: .whitespacesAndNewlines)
+            fallback.append(CPUClusterInfo(
+                name: name.isEmpty ? "Efficiency" : name,
+                physicalCores: efficiencyPhysical,
+                logicalCores: efficiencyLogical
+            ))
+        }
+        return fallback
+    }
+
+    private static func performanceCoreCount(in clusters: [CPUClusterInfo]) -> Int {
+        clusters.first { $0.name.caseInsensitiveCompare("Performance") == .orderedSame }?.physicalCores
+            ?? clusters.first?.physicalCores
+            ?? 0
+    }
+
+    private static func efficiencyCoreCount(in clusters: [CPUClusterInfo]) -> Int {
+        clusters.first { $0.name.caseInsensitiveCompare("Efficiency") == .orderedSame }?.physicalCores ?? 0
+    }
+
+    static func clusterKind(for name: String) -> CPUCoreUsage.Kind {
+        switch name.lowercased() {
+        case "super":
+            return .superCore
+        case "performance":
+            return .performance
+        case "efficiency":
+            return .efficiency
+        default:
+            return .standard
+        }
+    }
+
+    static func localizedClusterName(_ name: String) -> String {
+        switch name.lowercased() {
+        case "super":
+            return L10n.string("CPU Super Core")
+        case "performance":
+            return L10n.string("CPU Performance Core")
+        case "efficiency":
+            return L10n.string("CPU Efficiency Core")
+        default:
+            return name
+        }
     }
 
     private static func sysctlInt(_ name: String) -> Int? {
@@ -383,15 +524,15 @@ actor PerformanceMonitor {
 
         defer { previousPerCoreTicks = currentTicks }
 
-        let performanceLogical = max(0, cpuInfo.performanceLogicalCores)
-        let hasPESplit = performanceLogical > 0 && performanceLogical < currentTicks.count
-
         guard let previousPerCoreTicks, previousPerCoreTicks.count == currentTicks.count else {
             return currentTicks.indices.map { index in
-                CPUCoreUsage(
+                let assignment = clusterAssignment(for: index)
+                return CPUCoreUsage(
                     index: index,
+                    clusterIndex: assignment.clusterIndex,
                     percent: 0,
-                    kind: coreKind(index: index, performanceLogical: performanceLogical, hasPESplit: hasPESplit)
+                    clusterName: assignment.name,
+                    kind: assignment.kind
                 )
             }
         }
@@ -403,17 +544,33 @@ actor PerformanceMonitor {
             let total = deltas.reduce(0, +)
             let idle = deltas.indices.contains(Int(CPU_STATE_IDLE)) ? deltas[Int(CPU_STATE_IDLE)] : 0
             let percent = total > 0 ? min(100, max(0, Double(total - idle) / Double(total) * 100)) : 0
+            let assignment = clusterAssignment(for: index)
             return CPUCoreUsage(
                 index: index,
+                clusterIndex: assignment.clusterIndex,
                 percent: percent,
-                kind: coreKind(index: index, performanceLogical: performanceLogical, hasPESplit: hasPESplit)
+                clusterName: assignment.name,
+                kind: assignment.kind
             )
         }
     }
 
-    private func coreKind(index: Int, performanceLogical: Int, hasPESplit: Bool) -> CPUCoreUsage.Kind {
-        guard hasPESplit else { return .standard }
-        return index < performanceLogical ? .performance : .efficiency
+    private func clusterAssignment(for index: Int) -> (name: String, kind: CPUCoreUsage.Kind, clusterIndex: Int) {
+        guard !cpuInfo.clusters.isEmpty else {
+            return ("Core", .standard, index)
+        }
+        var offset = 0
+        for cluster in cpuInfo.clusters {
+            if index < offset + cluster.logicalCores {
+                return (
+                    cluster.name,
+                    Self.clusterKind(for: cluster.name),
+                    index - offset
+                )
+            }
+            offset += cluster.logicalCores
+        }
+        return ("Core", .standard, index)
     }
 
     private func sampleMemory() -> (total: Int64, used: Int64, cached: Int64, compressed: Int64, pressure: Double, level: MemoryPressureLevel) {
@@ -591,7 +748,10 @@ actor PerformanceMonitor {
         max(0, Int(proc_listallpids(nil, 0)))
     }
 
-    private func sampleApplications(at now: Date) -> [ApplicationResourceUsage] {
+    private func sampleApplications(
+        at now: Date,
+        networkRates: [pid_t: (download: Double, upload: Double)]
+    ) -> [ApplicationResourceUsage] {
         var nextSamples: [pid_t: ProcessSample] = [:]
         var results: [ApplicationResourceUsage] = []
         for application in NSWorkspace.shared.runningApplications where application.processIdentifier > 0 {
@@ -615,12 +775,15 @@ actor PerformanceMonitor {
             let name = application.localizedName
                 ?? application.bundleURL?.deletingPathExtension().lastPathComponent
                 ?? L10n.format("Process %d", pid)
+            let network = networkRates[pid]
             results.append(ApplicationResourceUsage(
                 processIdentifier: pid,
                 name: name,
                 bundleURL: application.bundleURL,
                 cpuPercent: max(0, cpuPercent),
-                memoryBytes: Int64(taskInfo.pti_resident_size)
+                memoryBytes: Int64(taskInfo.pti_resident_size),
+                networkDownloadBytesPerSecond: max(0, network?.download ?? 0),
+                networkUploadBytesPerSecond: max(0, network?.upload ?? 0)
             ))
         }
         previousProcessSamples = nextSamples

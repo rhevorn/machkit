@@ -16,6 +16,7 @@ enum SoftwareTab: String, CaseIterable, Identifiable {
 enum PerformanceSort: String, CaseIterable, Identifiable {
     case cpu = "CPU"
     case memory = "Memory"
+    case network = "Network"
     var id: String { rawValue }
 }
 

@@ -255,6 +255,7 @@
 			name = "MachKit App";
 			packageProductDependencies = (
 				A90000000000000000000001 /* MachKitCore */,
+				A90000000000000000000003 /* SoCMetrics */,
 			);
 			productName = MachKit;
 			productReference = A20000000000000000000009 /* MachKit.app */;
@@ -318,6 +319,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				A80000000000000000000001 /* XCLocalSwiftPackageReference "." */,
+				B80000000000000000000001 /* XCRemoteSwiftPackageReference "swift-soc-metrics" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A40000000000000000000005 /* Products */;
@@ -577,6 +579,17 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		B80000000000000000000001 /* XCRemoteSwiftPackageReference "swift-soc-metrics" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/GoodOlClint/swift-soc-metrics.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.4.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCLocalSwiftPackageReference section */
 		A80000000000000000000001 /* XCLocalSwiftPackageReference "." */ = {
 			isa = XCLocalSwiftPackageReference;
@@ -594,6 +607,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = A80000000000000000000001 /* XCLocalSwiftPackageReference "." */;
 			productName = MachKitCore;
+		};
+		A90000000000000000000003 /* SoCMetrics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B80000000000000000000001 /* XCRemoteSwiftPackageReference "swift-soc-metrics" */;
+			productName = SoCMetrics;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

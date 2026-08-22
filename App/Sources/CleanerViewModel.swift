@@ -737,7 +737,8 @@ final class CleanerViewModel: ObservableObject {
                     }
                     continue
                 }
-                let snapshot = await performanceMonitor.sample()
+                let networkRates = await self.networkScanner.sampleProcessTrafficRates()
+                let snapshot = await self.performanceMonitor.sample(applicationNetworkRates: networkRates)
                 guard !Task.isCancelled, mode == .performance, isMainWindowVisible else {
                     return
                 }
@@ -787,7 +788,8 @@ final class CleanerViewModel: ObservableObject {
     }
 
     private func refreshPerformanceSnapshot() async {
-        let snapshot = await performanceMonitor.sample()
+        let networkRates = await networkScanner.sampleProcessTrafficRates()
+        let snapshot = await performanceMonitor.sample(applicationNetworkRates: networkRates)
         guard !Task.isCancelled else { return }
         performanceSnapshot = snapshot
         performanceHistory.append(PerformanceHistoryPoint(

@@ -1,0 +1,15 @@
+{
+  "originHash" : "9cc04c9f0bd6a66cc6895594c470351c051e18bb8ef8cd6094e6955caea5faf4",
+  "pins" : [
+    {
+      "identity" : "swift-soc-metrics",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/GoodOlClint/swift-soc-metrics.git",
+      "state" : {
+        "revision" : "e1a5fc4b1d9edd196409e1878da464b036a1584f",
+        "version" : "0.4.0"
+      }
+    }
+  ],
+  "version" : 3
+}

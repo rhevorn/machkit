@@ -354,6 +354,7 @@
       }
     },
     "/ %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -465,6 +466,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%"
+          }
+        }
+      }
+    },
+    "%.2f W" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%.2f W"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%.2f W"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%.2f W"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%.2f W"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%.2f W"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%.2f W"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%.2f Вт"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%.2f W"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%.2f W"
           }
         }
       }
@@ -2719,6 +2779,20 @@
         }
       }
     },
+    "%lld %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "%lld %@" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "%lld %@" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "%lld %@" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%lld %@" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "%lld %@" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "%lld %@" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "%lld %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "%lld %@" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "%lld %@" } }
+      }
+    },
     "%lld active connections found." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3679,6 +3753,20 @@
             "value" : "%lld 核心（%lldP + %lldE）"
           }
         }
+      }
+    },
+    "%lld cores (%@)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "%lld Kerne (%@)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "%lld núcleos (%@)" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "%lld cœurs (%@)" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%lld コア（%@）" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "%lld코어 (%@)" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "%lld núcleos (%@)" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "%lld ядер (%@)" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "%lld 核心（%@）" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "%lld 核心（%@）" } }
       }
     },
     "%lld extensions cached; refresh to scan again." : {
@@ -4975,6 +5063,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "找到 %lld 個登入項目。"
+          }
+        }
+      }
+    },
+    "%lld MHz" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld MHz"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld MHz"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld MHz"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld MHz"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld MHz"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld MHz"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld МГц"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld MHz"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld MHz"
           }
         }
       }
@@ -14147,6 +14294,65 @@
         }
       }
     },
+    "Chip-level active residency per core" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktive Auslastung auf Chip-Ebene pro Kern"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Residencia activa a nivel de chip por núcleo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Résidence active au niveau puce par cœur"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "コアごとのチップ全体のアクティブ使用率"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "코어당 칩 수준 활성 점유율"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Residência ativa no nível do chip por núcleo"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Активная загрузка на уровне чипа для каждого ядра"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "各核心显示芯片级活跃驻留比"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "各核心顯示晶片級活躍駐留比"
+          }
+        }
+      }
+    },
     "chmod Lab" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -18043,6 +18249,201 @@
         }
       }
     },
+    "CPU Efficiency Core" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Effizienzkerne"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Efficiency Core"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Núcleo de eficiencia"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cœur d'efficacité"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "効率コア"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "효율 코어"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Núcleo de eficiência"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Энергоэффективное ядро"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "能效核心"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "能效核心"
+          }
+        }
+      }
+    },
+    "CPU Performance Core" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leistungskerne"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Performance Core"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Núcleo de rendimiento"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cœur de performance"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "パフォーマンスコア"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "퍼포먼스 코어"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Núcleo de desempenho"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Производительное ядро"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "性能核心"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "效能核心"
+          }
+        }
+      }
+    },
+    "CPU Super Core" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Super-Kerne"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Super Core"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Núcleo Super"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cœur Super"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スーパーコア"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "슈퍼 코어"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Núcleo Super"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Суперядро"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "超级核心"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "超級核心"
+          }
+        }
+      }
+    },
     "Create a separate hosts configuration that you can activate when needed." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -19223,7 +19624,81 @@
         }
       }
     },
+    "Data updates locally every 2 seconds. GPU and Neural Engine metrics use SoCMetrics (IOReport) on Apple Silicon; per-GPU-core bars reflect chip-level active residency because macOS does not expose per-core utilization. Sampling stops when you leave this page. App rankings include identifiable graphical app processes only." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Die Daten werden alle 2 Sekunden lokal aktualisiert. GPU- und Neural-Engine-Werte nutzen auf Apple Silicon SoCMetrics (IOReport); GPU-Kernbalken zeigen die aktive Auslastung auf Chip-Ebene, da macOS keine Auslastung pro Kern bereitstellt. Beim Verlassen dieser Seite endet die Erfassung. Die App-Rangliste enthält nur erkennbare grafische App-Prozesse." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Los datos se actualizan localmente cada 2 segundos. En Apple Silicon, las métricas de GPU y Neural Engine usan SoCMetrics (IOReport); las barras por núcleo de GPU reflejan la residencia activa a nivel de chip porque macOS no expone la utilización por núcleo. El muestreo se detiene al salir de esta página. La clasificación solo incluye procesos gráficos identificables." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Les données sont mises à jour localement toutes les 2 secondes. Sur Apple Silicon, les mesures GPU et Neural Engine utilisent SoCMetrics (IOReport) ; les barres par cœur GPU reflètent la résidence active au niveau puce, car macOS n’expose pas l’utilisation par cœur. L’échantillonnage s’arrête lorsque vous quittez cette page. Le classement inclut uniquement les processus d’apps graphiques identifiables." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "データは2秒ごとにローカルで更新されます。Apple SiliconではGPUとNeural Engineの指標にSoCMetrics（IOReport）を使用します。GPUコアごとの棒はmacOSがコア別利用率を公開しないため、チップ全体のアクティブ使用率を示します。このページを離れるとサンプリングは停止します。Appランキングには識別可能なGUI Appプロセスのみが含まれます。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "데이터는 2초마다 로컬에서 업데이트됩니다. Apple Silicon에서는 GPU 및 Neural Engine 지표에 SoCMetrics(IOReport)를 사용합니다. macOS는 코어별 사용률을 제공하지 않으므로 GPU 코어 막대는 칩 수준 활성 점유율을 반영합니다. 이 페이지를 벗어나면 샘플링이 중지됩니다. App 순위에는 식별 가능한 그래픽 App 프로세스만 포함됩니다." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Os dados são atualizados localmente a cada 2 segundos. No Apple Silicon, as métricas de GPU e Neural Engine usam SoCMetrics (IOReport); as barras por núcleo da GPU refletem a residência ativa no nível do chip porque o macOS não expõe utilização por núcleo. A amostragem para ao sair desta página. O ranking inclui apenas processos gráficos identificáveis de apps." } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Данные обновляются локально каждые 2 секунды. На Apple Silicon показатели GPU и Neural Engine используют SoCMetrics (IOReport); столбцы по ядрам GPU отражают активную загрузку на уровне чипа, так как macOS не предоставляет утилизацию по ядрам. Сбор данных прекращается при выходе со страницы. В рейтинг входят только распознаваемые процессы графических приложений." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "数据每 2 秒在本机更新。Apple Silicon 上 GPU 与神经网络引擎指标通过 SoCMetrics（IOReport）获取；各 GPU 核心的柱状图反映芯片级活跃驻留比，因 macOS 不提供逐核利用率。离开此页面后会停止采样。App 排名仅包含可识别的图形应用进程。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "資料每 2 秒在本機更新。Apple Silicon 上 GPU 與神經網路引擎指標透過 SoCMetrics（IOReport）取得；各 GPU 核心的柱狀圖反映晶片級活躍駐留比，因 macOS 不提供逐核利用率。離開此頁面後會停止取樣。App 排名僅包含可識別的圖形應用程式程序。" } }
+      }
+    },
+    "Data updates locally every 2 seconds. GPU and Neural Engine metrics use SoCMetrics (IOReport) on Apple Silicon; per-GPU-core bars reflect chip-level active residency because macOS does not expose per-core utilization. Sampling stops when you leave this page or pause it. App rankings include identifiable graphical app processes only." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Daten werden alle 2 Sekunden lokal aktualisiert. GPU- und Neural-Engine-Werte nutzen auf Apple Silicon SoCMetrics (IOReport); GPU-Kernbalken zeigen die aktive Auslastung auf Chip-Ebene, da macOS keine Auslastung pro Kern bereitstellt. Beim Verlassen oder Pausieren endet die Erfassung. Die App-Rangliste enthält nur erkennbare grafische App-Prozesse."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los datos se actualizan localmente cada 2 segundos. En Apple Silicon, las métricas de GPU y Neural Engine usan SoCMetrics (IOReport); las barras por núcleo de GPU reflejan la residencia activa a nivel de chip porque macOS no expone la utilización por núcleo. El muestreo se detiene al salir de esta página o pausarlo. La clasificación solo incluye procesos gráficos identificables."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les données sont mises à jour localement toutes les 2 secondes. Sur Apple Silicon, les mesures GPU et Neural Engine utilisent SoCMetrics (IOReport) ; les barres par cœur GPU reflètent la résidence active au niveau puce, car macOS n’expose pas l’utilisation par cœur. L’échantillonnage s’arrête lorsque vous quittez cette page ou la mettez en pause. Le classement inclut uniquement les processus d’apps graphiques identifiables."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "データは2秒ごとにローカルで更新されます。Apple SiliconではGPUとNeural Engineの指標にSoCMetrics（IOReport）を使用します。GPUコアごとの棒はmacOSがコア別利用率を公開しないため、チップ全体のアクティブ使用率を示します。このページを離れるか一時停止するとサンプリングは停止します。Appランキングには識別可能なGUI Appプロセスのみが含まれます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "데이터는 2초마다 로컬에서 업데이트됩니다. Apple Silicon에서는 GPU 및 Neural Engine 지표에 SoCMetrics(IOReport)를 사용합니다. macOS는 코어별 사용률을 제공하지 않으므로 GPU 코어 막대는 칩 수준 활성 점유율을 반영합니다. 이 페이지를 벗어나거나 일시 정지하면 샘플링이 중지됩니다. App 순위에는 식별 가능한 그래픽 App 프로세스만 포함됩니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os dados são atualizados localmente a cada 2 segundos. No Apple Silicon, as métricas de GPU e Neural Engine usam SoCMetrics (IOReport); as barras por núcleo da GPU refletem a residência ativa no nível do chip porque o macOS não expõe utilização por núcleo. A amostragem para ao sair desta página ou pausá-la. O ranking inclui apenas processos gráficos identificáveis de apps."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Данные обновляются локально каждые 2 секунды. На Apple Silicon показатели GPU и Neural Engine используют SoCMetrics (IOReport); столбцы по ядрам GPU отражают активную загрузку на уровне чипа, так как macOS не предоставляет утилизацию по ядрам. Сбор данных прекращается при выходе со страницы или паузе. В рейтинг входят только распознаваемые процессы графических приложений."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "数据每 2 秒在本机更新。Apple Silicon 上 GPU 与神经网络引擎指标通过 SoCMetrics（IOReport）获取；各 GPU 核心的柱状图反映芯片级活跃驻留比，因 macOS 不提供逐核利用率。离开此页面或暂停后会停止采样。App 排名仅包含可识别的图形应用进程。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "資料每 2 秒在本機更新。Apple Silicon 上 GPU 與神經網路引擎指標透過 SoCMetrics（IOReport）取得；各 GPU 核心的柱狀圖反映晶片級活躍駐留比，因 macOS 不提供逐核利用率。離開此頁面或暫停後會停止取樣。App 排名僅包含可識別的圖形應用程式程序。"
+          }
+        }
+      }
+    },
     "Data updates locally every 2 seconds. GPU metrics depend on statistics exposed by the macOS graphics driver. Sampling stops when you leave this page or pause it. App rankings include identifiable graphical app processes only." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -22534,6 +23009,65 @@
         }
       }
     },
+    "Estimated" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geschätzt"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estimado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estimé"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "推定"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "추정"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estimado"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оценка"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "估算"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "估算"
+          }
+        }
+      }
+    },
     "Estimated size" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -25419,6 +25953,65 @@
         }
       }
     },
+    "Frequency" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Frequenz"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Frecuencia"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fréquence"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "周波数"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "주파수"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Frequência"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Частота"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "频率"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "頻率"
+          }
+        }
+      }
+    },
     "Full Disk Access granted" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -26474,6 +27067,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "GPU"
+          }
+        }
+      }
+    },
+    "GPU core %lld · %lld%%" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GPU-Kern %lld · %lld%%"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Núcleo GPU %lld · %lld%%"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cœur GPU %lld · %lld%%"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GPUコア %lld · %lld%%"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GPU 코어 %lld · %lld%%"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Núcleo da GPU %lld · %lld%%"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ядро GPU %lld · %lld%%"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GPU 核心 %lld · %lld%%"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GPU 核心 %lld · %lld%%"
           }
         }
       }
@@ -36030,6 +36682,124 @@
         }
       }
     },
+    "Neural Engine" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neural Engine"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neural Engine"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neural Engine"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neural Engine"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neural Engine"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neural Engine"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neural Engine"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "神经网络引擎"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "神經網路引擎"
+          }
+        }
+      }
+    },
+    "Neural Engine power counters are unavailable on this Mac." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neural-Engine-Leistungszähler sind auf diesem Mac nicht verfügbar."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los contadores de potencia de Neural Engine no están disponibles en este Mac."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les compteurs de puissance Neural Engine ne sont pas disponibles sur ce Mac."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この Mac では Neural Engine の電力カウンターが利用できません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 Mac에서는 Neural Engine 전력 카운터를 사용할 수 없습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os contadores de energia do Neural Engine não estão disponíveis neste Mac."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Счётчики мощности Neural Engine недоступны на этом Mac."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此 Mac 无法读取神经网络引擎功耗计数器。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此 Mac 無法讀取神經網路引擎功耗計數器。"
+          }
+        }
+      }
+    },
     "Next.js Development Server" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -42646,6 +43416,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "PostgreSQL 資料庫"
+          }
+        }
+      }
+    },
+    "Power" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leistung"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Potencia"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puissance"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "電力"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "전력"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Energia"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Мощность"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "功耗"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "功耗"
           }
         }
       }
