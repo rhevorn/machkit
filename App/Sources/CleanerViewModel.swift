@@ -11,12 +11,12 @@ final class CleanerViewModel: ObservableObject {
     @Published private(set) var storageAnalysis: StorageAnalysis?
     @Published private(set) var storagePath: [URL] = []
     @Published private(set) var performanceSnapshot: PerformanceSnapshot?
+    @Published private(set) var dashboardMetrics: DashboardMetricsSnapshot?
     @Published private(set) var performanceHistory: [PerformanceHistoryPoint] = []
     @Published private(set) var systemStorage = SystemStorageSnapshot.empty
     @Published private(set) var cleanableBytes: Int64?
     @Published private(set) var networkTransferRate: NetworkTransferRate?
     @Published private(set) var hasLoadedPortSnapshot = false
-    @Published private(set) var isPerformanceMonitoring = false
     @Published private(set) var isOptimizingMemory = false
     @Published private(set) var listeningPorts: [ListeningPort] = []
     @Published private(set) var portScanError: String?
@@ -122,9 +122,8 @@ final class CleanerViewModel: ObservableObject {
     private let applicationScanner = ApplicationScanner()
     private let systemInventoryScanner = SystemInventoryScanner()
     private let fileAnalyzer: any StorageAnalysisService
-    private let performanceMonitor = PerformanceMonitor()
+    private let systemMonitor: SystemMonitorService
     private let portScanner = PortScanner()
-    private let networkScanner = NetworkScanner()
     private var scanTask: Task<Void, Never>?
     private var storageAnalysisTask: Task<Void, Never>?
     private var storageAnalysisGeneration = UUID()
@@ -171,11 +170,13 @@ final class CleanerViewModel: ObservableObject {
     init(
         cleaner: any CleaningService = LiveCleaningService(),
         fileAnalyzer: any StorageAnalysisService = LiveStorageAnalysisService(),
-        snapshotStore: any AppSnapshotStoring = UserDefaultsAppSnapshotStore()
+        snapshotStore: any AppSnapshotStoring = UserDefaultsAppSnapshotStore(),
+        systemMonitor: SystemMonitorService = .shared
     ) {
         self.cleaner = cleaner
         self.fileAnalyzer = fileAnalyzer
         self.snapshotStore = snapshotStore
+        self.systemMonitor = systemMonitor
         restoreStorageSnapshot()
         restoreInventorySnapshot()
         refreshSystemStorage()
@@ -724,7 +725,6 @@ final class CleanerViewModel: ObservableObject {
     func startPerformanceMonitoring() {
         guard isMainWindowVisible, mode == .performance else { return }
         performanceTask?.cancel()
-        isPerformanceMonitoring = true
         status = L10n.string("Monitoring system performance…")
         performanceTask = Task { [weak self] in
             guard let self else { return }
@@ -737,8 +737,7 @@ final class CleanerViewModel: ObservableObject {
                     }
                     continue
                 }
-                let networkRates = await self.networkScanner.sampleProcessTrafficRates()
-                let snapshot = await self.performanceMonitor.sample(applicationNetworkRates: networkRates)
+                let snapshot = await self.systemMonitor.samplePerformanceSnapshot()
                 guard !Task.isCancelled, mode == .performance, isMainWindowVisible else {
                     return
                 }
@@ -766,8 +765,7 @@ final class CleanerViewModel: ObservableObject {
     func stopPerformanceMonitoring() {
         performanceTask?.cancel()
         performanceTask = nil
-        isPerformanceMonitoring = false
-        status = L10n.string("Performance monitoring paused.")
+        status = L10n.string("Performance monitoring stopped.")
     }
 
     func optimizeMemory() {
@@ -788,8 +786,7 @@ final class CleanerViewModel: ObservableObject {
     }
 
     private func refreshPerformanceSnapshot() async {
-        let networkRates = await networkScanner.sampleProcessTrafficRates()
-        let snapshot = await performanceMonitor.sample(applicationNetworkRates: networkRates)
+        let snapshot = await systemMonitor.samplePerformanceSnapshot()
         guard !Task.isCancelled else { return }
         performanceSnapshot = snapshot
         performanceHistory.append(PerformanceHistoryPoint(
@@ -838,12 +835,13 @@ final class CleanerViewModel: ObservableObject {
                 guard let self, self.mode == .home, self.isMainWindowVisible else { return }
                 if NSApp.isActive {
                     self.refreshSystemStorage()
-                    await self.refreshPerformanceSnapshot()
-                    let transferRate = await self.networkScanner.sampleTransferRate()
+                    let metrics = await self.systemMonitor.sampleDashboardMetrics()
+                    let transferRate = await self.systemMonitor.sampleTransferRate()
                     guard !Task.isCancelled,
                           self.mode == .home,
                           self.isMainWindowVisible
                     else { return }
+                    self.dashboardMetrics = metrics
                     self.networkTransferRate = transferRate
                 }
 
@@ -891,7 +889,7 @@ final class CleanerViewModel: ObservableObject {
         portScanError = nil
         status = L10n.string("Reading network activity, routes, and proxy settings…")
         featureTasks[.network] = Task {
-            async let snapshotTask = networkScanner.scan()
+            async let snapshotTask = systemMonitor.scanNetwork()
             async let portsTask = portScanner.scan()
             let (snapshot, ports) = await (snapshotTask, portsTask)
             guard !Task.isCancelled else { return }
@@ -918,7 +916,7 @@ final class CleanerViewModel: ObservableObject {
         isLookingUpRoute = true
         routeLookupTask = Task { [weak self] in
             guard let self else { return }
-            let result = await networkScanner.route(to: query)
+            let result = await systemMonitor.route(to: query)
             guard !Task.isCancelled else { return }
             routeLookup = result
             isLookingUpRoute = false
@@ -1100,7 +1098,6 @@ final class CleanerViewModel: ObservableObject {
         networkMonitoringTask = nil
         homeMonitoringTask?.cancel()
         homeMonitoringTask = nil
-        isPerformanceMonitoring = false
     }
 
     func changeMode(_ newMode: FeatureMode) {
@@ -1114,7 +1111,6 @@ final class CleanerViewModel: ObservableObject {
         isLookingUpRoute = false
         homeMonitoringTask?.cancel()
         homeMonitoringTask = nil
-        isPerformanceMonitoring = false
         isScanning = !loadingModes.isEmpty
         mode = newMode
         switch newMode {
@@ -1241,9 +1237,7 @@ final class CleanerViewModel: ObservableObject {
                 status = L10n.string("Start a system storage analysis, or choose a folder to analyze separately.")
             }
         case .performance:
-            status = isPerformanceMonitoring
-                ? L10n.string("Monitoring system performance…")
-                : L10n.string("Performance monitoring paused.")
+            status = L10n.string("Monitoring system performance…")
         case .network:
             status = L10n.format("%lld connections cached; refresh to scan again.", Int64(networkSnapshot?.connections.count ?? 0))
         case .tools:

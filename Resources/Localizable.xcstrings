@@ -19624,18 +19624,10 @@
         }
       }
     },
-    "Data updates locally every 2 seconds. GPU and Neural Engine metrics use SoCMetrics (IOReport) on Apple Silicon; per-GPU-core bars reflect chip-level active residency because macOS does not expose per-core utilization. Sampling stops when you leave this page. App rankings include identifiable graphical app processes only." : {
+    "Data updates locally every 2 seconds. GPU and Neural Engine metrics use SoCMetrics (IOReport) on Apple Silicon; per-GPU-core bars reflect chip-level active residency because macOS does not expose per-core utilization. Neural Engine percentage is estimated from power draw, not a system utilization counter. App CPU is shown as a share of total system capacity; network rates aggregate helper processes into their parent app. Sampling stops when you leave this page. App rankings include identifiable graphical app processes only." : {
       "extractionState" : "manual",
       "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Die Daten werden alle 2 Sekunden lokal aktualisiert. GPU- und Neural-Engine-Werte nutzen auf Apple Silicon SoCMetrics (IOReport); GPU-Kernbalken zeigen die aktive Auslastung auf Chip-Ebene, da macOS keine Auslastung pro Kern bereitstellt. Beim Verlassen dieser Seite endet die Erfassung. Die App-Rangliste enthält nur erkennbare grafische App-Prozesse." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Los datos se actualizan localmente cada 2 segundos. En Apple Silicon, las métricas de GPU y Neural Engine usan SoCMetrics (IOReport); las barras por núcleo de GPU reflejan la residencia activa a nivel de chip porque macOS no expone la utilización por núcleo. El muestreo se detiene al salir de esta página. La clasificación solo incluye procesos gráficos identificables." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Les données sont mises à jour localement toutes les 2 secondes. Sur Apple Silicon, les mesures GPU et Neural Engine utilisent SoCMetrics (IOReport) ; les barres par cœur GPU reflètent la résidence active au niveau puce, car macOS n’expose pas l’utilisation par cœur. L’échantillonnage s’arrête lorsque vous quittez cette page. Le classement inclut uniquement les processus d’apps graphiques identifiables." } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "データは2秒ごとにローカルで更新されます。Apple SiliconではGPUとNeural Engineの指標にSoCMetrics（IOReport）を使用します。GPUコアごとの棒はmacOSがコア別利用率を公開しないため、チップ全体のアクティブ使用率を示します。このページを離れるとサンプリングは停止します。Appランキングには識別可能なGUI Appプロセスのみが含まれます。" } },
-        "ko" : { "stringUnit" : { "state" : "translated", "value" : "데이터는 2초마다 로컬에서 업데이트됩니다. Apple Silicon에서는 GPU 및 Neural Engine 지표에 SoCMetrics(IOReport)를 사용합니다. macOS는 코어별 사용률을 제공하지 않으므로 GPU 코어 막대는 칩 수준 활성 점유율을 반영합니다. 이 페이지를 벗어나면 샘플링이 중지됩니다. App 순위에는 식별 가능한 그래픽 App 프로세스만 포함됩니다." } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Os dados são atualizados localmente a cada 2 segundos. No Apple Silicon, as métricas de GPU e Neural Engine usam SoCMetrics (IOReport); as barras por núcleo da GPU refletem a residência ativa no nível do chip porque o macOS não expõe utilização por núcleo. A amostragem para ao sair desta página. O ranking inclui apenas processos gráficos identificáveis de apps." } },
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Данные обновляются локально каждые 2 секунды. На Apple Silicon показатели GPU и Neural Engine используют SoCMetrics (IOReport); столбцы по ядрам GPU отражают активную загрузку на уровне чипа, так как macOS не предоставляет утилизацию по ядрам. Сбор данных прекращается при выходе со страницы. В рейтинг входят только распознаваемые процессы графических приложений." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "数据每 2 秒在本机更新。Apple Silicon 上 GPU 与神经网络引擎指标通过 SoCMetrics（IOReport）获取；各 GPU 核心的柱状图反映芯片级活跃驻留比，因 macOS 不提供逐核利用率。离开此页面后会停止采样。App 排名仅包含可识别的图形应用进程。" } },
-        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "資料每 2 秒在本機更新。Apple Silicon 上 GPU 與神經網路引擎指標透過 SoCMetrics（IOReport）取得；各 GPU 核心的柱狀圖反映晶片級活躍駐留比，因 macOS 不提供逐核利用率。離開此頁面後會停止取樣。App 排名僅包含可識別的圖形應用程式程序。" } }
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "数据每 2 秒在本机更新。Apple Silicon 上 GPU 与神经网络引擎指标通过 SoCMetrics（IOReport）获取；各 GPU 核心柱状图反映芯片级活跃驻留比。神经网络引擎百分比由功耗估算，非系统利用率计数器。App CPU 显示为占整机容量的比例；网速会将 Helper 进程合并到父应用。离开此页面后停止采样。排名仅包含可识别的图形应用进程。" } }
       }
     },
     "Data updates locally every 2 seconds. GPU and Neural Engine metrics use SoCMetrics (IOReport) on Apple Silicon; per-GPU-core bars reflect chip-level active residency because macOS does not expose per-core utilization. Sampling stops when you leave this page or pause it. App rankings include identifiable graphical app processes only." : {
@@ -42067,6 +42059,12 @@
         }
       }
     },
+    "Performance monitoring stopped." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "性能监控已停止。" } }
+      }
+    },
     "Performance monitoring paused." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -52954,6 +52952,12 @@
             "value" : "設定"
           }
         }
+      }
+    },
+    "Share of total CPU capacity across all cores." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "占全部逻辑核心的总 CPU 容量比例。" } }
       }
     },
     "Shared" : {

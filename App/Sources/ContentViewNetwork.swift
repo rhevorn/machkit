@@ -881,7 +881,7 @@ extension ContentView {
                 computeHardwareCard(snapshot.computeHardware)
                 performanceTrendCard
                 resourceApplicationList(snapshot)
-                Text("Data updates locally every 2 seconds. GPU and Neural Engine metrics use SoCMetrics (IOReport) on Apple Silicon; per-GPU-core bars reflect chip-level active residency because macOS does not expose per-core utilization. Sampling stops when you leave this page. App rankings include identifiable graphical app processes only.")
+                Text("Data updates locally every 2 seconds. GPU and Neural Engine metrics use SoCMetrics (IOReport) on Apple Silicon; per-GPU-core bars reflect chip-level active residency because macOS does not expose per-core utilization. Neural Engine percentage is estimated from power draw, not a system utilization counter. App CPU is shown as a share of total system capacity; network rates aggregate helper processes into their parent app. Sampling stops when you leave this page. App rankings include identifiable graphical app processes only.")
                     .font(.caption).foregroundStyle(.secondary)
             }
             .padding(.horizontal, 18)
@@ -1477,7 +1477,7 @@ extension ContentView {
         let applications = snapshot.applications.sorted { lhs, rhs in
             switch performanceSort {
             case .cpu:
-                lhs.cpuPercent > rhs.cpuPercent
+                lhs.cpuPercentOfSystem > rhs.cpuPercentOfSystem
             case .memory:
                 lhs.memoryBytes > rhs.memoryBytes
             case .network:
@@ -1530,8 +1530,9 @@ extension ContentView {
                 Text("PID \(application.processIdentifier)").font(.caption2).foregroundStyle(.tertiary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            Text("\(application.cpuPercent.formatted(.number.precision(.fractionLength(1))))%")
+            Text("\(application.cpuPercentOfSystem.formatted(.number.precision(.fractionLength(1))))%")
                 .font(.system(size: 12)).monospacedDigit().frame(width: 70, alignment: .trailing)
+                .help(L10n.string("Share of total CPU capacity across all cores."))
             Text(formatted(application.memoryBytes))
                 .font(.system(size: 12)).monospacedDigit().frame(width: 92, alignment: .trailing)
             Text(formatNetworkRate(application.networkBytesPerSecond))

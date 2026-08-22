@@ -434,30 +434,30 @@ struct ContentView: View {
     }
 
     var homeMetrics: some View {
-        let snapshot = model.performanceSnapshot
+        let metrics = model.dashboardMetrics
         let transferRate = model.networkTransferRate
-        let memoryColor = snapshot.map { memoryPressureColor($0.memoryPressureLevel) } ?? .secondary
-        let thermalColor = snapshot.map { thermalStateColor($0.thermalState) } ?? .secondary
+        let memoryColor = metrics.map { memoryPressureColor($0.memoryPressureLevel) } ?? .secondary
+        let thermalColor = metrics.map { thermalStateColor($0.thermalState) } ?? .secondary
         return HStack(spacing: 10) {
             homeMetricCard(
                 title: "CPU",
-                value: snapshot.map { "\(Int($0.cpuPercent.rounded()))%" } ?? "—",
+                value: metrics.map { "\(Int($0.cpuPercent.rounded()))%" } ?? "—",
                 detail: "System Usage",
                 icon: "cpu",
                 color: .blue
             )
             homeMetricCard(
                 title: "Memory",
-                value: snapshot.map { "\(Int(($0.memoryPressure * 100).rounded()))%" } ?? "—",
-                detail: snapshot.map { $0.memoryPressureLevel.rawValue } ?? "Loading",
+                value: metrics.map { "\(Int(($0.memoryPressure * 100).rounded()))%" } ?? "—",
+                detail: metrics.map { $0.memoryPressureLevel.rawValue } ?? "Loading",
                 icon: "memorychip",
                 color: memoryColor
             )
             homeNetworkMetricCard(transferRate)
             homeMetricCard(
                 title: "Thermal",
-                value: snapshot.map { thermalStateShortText($0.thermalState) } ?? "—",
-                detail: snapshot == nil ? "Loading" : "Live",
+                value: metrics.map { thermalStateShortText($0.thermalState) } ?? "—",
+                detail: metrics == nil ? "Loading" : "Live",
                 icon: "thermometer.medium",
                 color: thermalColor
             )

@@ -26,6 +26,7 @@
 		A10000000000000000000013 /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000015 /* AppPreferences.swift */; };
 		A10000000000000000000014 /* FeatureModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000016 /* FeatureModels.swift */; };
 		A10000000000000000000015 /* StatusBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000017 /* StatusBar.swift */; };
+		A10000000000000000000016 /* SystemMonitorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20000000000000000000001 /* SystemMonitorService.swift */; };
 		A1000000000000000000001C /* HostsWebBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000024 /* HostsWebBridge.swift */; };
 		A1000000000000000000001D /* ConnectionTraceWebBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000025 /* ConnectionTraceWebBridge.swift */; };
 		A1000000000000000000001E /* PortScanWebBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000026 /* PortScanWebBridge.swift */; };
@@ -76,6 +77,7 @@
 		A20000000000000000000012 /* OperationResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationResultView.swift; sourceTree = "<group>"; };
 		A20000000000000000000015 /* AppPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferences.swift; sourceTree = "<group>"; };
 		A20000000000000000000016 /* FeatureModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureModels.swift; sourceTree = "<group>"; };
+		D20000000000000000000001 /* SystemMonitorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMonitorService.swift; sourceTree = "<group>"; };
 		A20000000000000000000017 /* StatusBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBar.swift; sourceTree = "<group>"; };
 		A20000000000000000000024 /* HostsWebBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostsWebBridge.swift; sourceTree = "<group>"; };
 		A20000000000000000000025 /* ConnectionTraceWebBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionTraceWebBridge.swift; sourceTree = "<group>"; };
@@ -157,6 +159,7 @@
 				A20000000000000000000003 /* CleanerViewModel.swift */,
 				C20000000000000000000001 /* AppSnapshotStore.swift */,
 				A20000000000000000000004 /* PerformanceMonitor.swift */,
+				D20000000000000000000001 /* SystemMonitorService.swift */,
 				A20000000000000000000005 /* PermissionManager.swift */,
 				A2000000000000000000000D /* FeatureMode.swift */,
 				A2000000000000000000000E /* Localization.swift */,
@@ -381,6 +384,7 @@
 				A10000000000000000000003 /* CleanerViewModel.swift in Sources */,
 				C10000000000000000000001 /* AppSnapshotStore.swift in Sources */,
 				A10000000000000000000004 /* PerformanceMonitor.swift in Sources */,
+				A10000000000000000000016 /* SystemMonitorService.swift in Sources */,
 				A10000000000000000000005 /* PermissionManager.swift in Sources */,
 				A1000000000000000000000B /* FeatureMode.swift in Sources */,
 				A1000000000000000000000C /* Localization.swift in Sources */,
