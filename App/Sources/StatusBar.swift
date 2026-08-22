@@ -8,6 +8,7 @@ private struct StatusBarSnapshot {
     var physicalMemory: Int64 = 0
     var downloadBytesPerSecond = 0.0
     var uploadBytesPerSecond = 0.0
+    var networkInterfaceName: String?
 }
 
 fileprivate struct TransferHistoryPoint: Identifiable {
@@ -41,6 +42,16 @@ final class StatusBarMonitor: ObservableObject {
         ByteCountFormatter.string(fromByteCount: snapshot.usedMemory, countStyle: .memory)
     }
 
+    var memoryTotalText: String {
+        ByteCountFormatter.string(fromByteCount: snapshot.physicalMemory, countStyle: .memory)
+    }
+
+    var networkInterfaceName: String? { snapshot.networkInterfaceName }
+
+    var totalNetworkBytesPerSecond: Double {
+        snapshot.downloadBytesPerSecond + snapshot.uploadBytesPerSecond
+    }
+
     var downloadText: String { Self.formatRate(snapshot.downloadBytesPerSecond) }
     var uploadText: String { Self.formatRate(snapshot.uploadBytesPerSecond) }
 
@@ -71,7 +82,8 @@ final class StatusBarMonitor: ObservableObject {
                     usedMemory: performance.usedMemory,
                     physicalMemory: performance.physicalMemory,
                     downloadBytesPerSecond: network.downloadBytesPerSecond,
-                    uploadBytesPerSecond: network.uploadBytesPerSecond
+                    uploadBytesPerSecond: network.uploadBytesPerSecond,
+                    networkInterfaceName: network.interfaceName
                 )
                 transferHistory.append(
                     TransferHistoryPoint(
@@ -79,8 +91,8 @@ final class StatusBarMonitor: ObservableObject {
                         upload: network.uploadBytesPerSecond
                     )
                 )
-                if transferHistory.count > 30 {
-                    transferHistory.removeFirst(transferHistory.count - 30)
+                if transferHistory.count > 36 {
+                    transferHistory.removeFirst(transferHistory.count - 36)
                 }
                 do {
                     try await Task.sleep(for: .seconds(2))
@@ -96,7 +108,7 @@ final class StatusBarMonitor: ObservableObject {
         monitoringTask = nil
     }
 
-    private static func formatRate(_ bytes: Double) -> String {
+    fileprivate static func formatRate(_ bytes: Double) -> String {
         let value = max(0, bytes)
         if value < 1_000 { return "\(Int(value.rounded())) B/s" }
         if value < 1_000_000 { return "\(formatNumber(value / 1_000)) KB/s" }
@@ -113,73 +125,104 @@ final class StatusBarMonitor: ObservableObject {
 
 struct StatusBarMenuView: View {
     @ObservedObject var monitor: StatusBarMonitor
+    var model: CleanerViewModel?
     @Environment(\.openWindow) private var openWindow
+    @State private var livePulse = false
+
+    private let panelWidth: CGFloat = 372
 
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 0) {
             header
+                .padding(.horizontal, 16)
+                .padding(.top, 14)
+                .padding(.bottom, 12)
 
-            HStack(spacing: 10) {
-                metricCard(
-                    title: "CPU",
-                    value: "\(Int(monitor.cpuPercent.rounded()))%",
-                    progress: monitor.cpuPercent / 100,
-                    symbol: "cpu",
-                    color: .blue
-                )
-                metricCard(
-                    title: "Memory".localized,
-                    value: "\(Int(monitor.memoryPercent.rounded()))%",
-                    detail: monitor.memoryValueText,
-                    progress: monitor.memoryPercent / 100,
-                    symbol: "memorychip",
-                    color: .purple
-                )
-            }
+            Divider().opacity(0.45)
 
-            networkCard
+            metricsRow
+                .padding(.horizontal, 16)
+                .padding(.vertical, 14)
+
+            networkSection
+                .padding(.horizontal, 16)
+                .padding(.bottom, 14)
+
+            Divider().opacity(0.45)
+
+            actionBar
+                .padding(14)
         }
-        .padding(14)
-        .frame(width: 340)
-        .onAppear { monitor.setPresented(true) }
+        .frame(width: panelWidth)
+        .background(statusBarBackground)
+        .onAppear {
+            monitor.setPresented(true)
+            livePulse = true
+        }
         .onDisappear { monitor.setPresented(false) }
     }
 
+    private var statusBarBackground: some View {
+        ZStack {
+            Color(nsColor: .windowBackgroundColor)
+            LinearGradient(
+                colors: [
+                    Color.accentColor.opacity(0.07),
+                    Color.clear,
+                    Color.purple.opacity(0.04)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
+    }
+
     private var header: some View {
-        HStack(spacing: 9) {
+        HStack(alignment: .center, spacing: 10) {
             Button(action: openMachKit) {
-                HStack(spacing: 8) {
+                HStack(spacing: 10) {
                     Image("BrandMark")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 25, height: 25)
-                    Text("MachKit")
-                        .font(.headline)
-                    Image(systemName: "chevron.right")
-                        .font(.caption2.weight(.semibold))
-                        .foregroundStyle(.tertiary)
+                        .frame(width: 28, height: 28)
+                        .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text("MachKit")
+                            .font(.system(size: 15, weight: .semibold))
+                        Text("System Usage")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
 
-            Spacer()
-            Circle()
-                .fill(.green)
-                .frame(width: 7, height: 7)
-            Text("Live")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            Spacer(minLength: 8)
 
-            Divider()
-                .frame(height: 14)
+            HStack(spacing: 5) {
+                ZStack {
+                    Circle()
+                        .fill(Color.green.opacity(0.22))
+                        .frame(width: 14, height: 14)
+                        .scaleEffect(livePulse ? 1.35 : 0.85)
+                        .opacity(livePulse ? 0 : 0.9)
+                        .animation(.easeOut(duration: 1.4).repeatForever(autoreverses: false), value: livePulse)
+                    Circle()
+                        .fill(Color.green)
+                        .frame(width: 6, height: 6)
+                }
+                Text("Live")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.secondary)
+            }
 
             Button(action: { NSApp.terminate(nil) }) {
                 Image(systemName: "power")
-                    .font(.caption.weight(.medium))
+                    .font(.system(size: 11, weight: .semibold))
                     .foregroundStyle(.secondary)
-                    .frame(width: 20, height: 20)
-                    .contentShape(Rectangle())
+                    .frame(width: 26, height: 26)
+                    .background(Color.primary.opacity(0.05), in: Circle())
             }
             .buttonStyle(.plain)
             .keyboardShortcut("q", modifiers: .command)
@@ -188,67 +231,129 @@ struct StatusBarMenuView: View {
         }
     }
 
-    private func metricCard(
-        title: String,
-        value: String,
-        detail: String? = nil,
-        progress: Double,
-        symbol: String,
-        color: Color
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Image(systemName: symbol)
-                    .foregroundStyle(color)
-                Text(title)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Spacer()
-            }
-            HStack(alignment: .firstTextBaseline, spacing: 5) {
-                Text(value)
-                    .font(.title3.weight(.semibold).monospacedDigit())
-                if let detail {
-                    Text(detail)
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                        .lineLimit(1)
-                }
-            }
-            ProgressView(value: min(max(progress, 0), 1))
-                .tint(color)
+    private var metricsRow: some View {
+        HStack(spacing: 10) {
+            StatusBarRingMetric(
+                title: "CPU",
+                value: "\(Int(monitor.cpuPercent.rounded()))%",
+                progress: monitor.cpuPercent / 100,
+                tint: cpuTint(for: monitor.cpuPercent),
+                footnote: cpuFootnote(for: monitor.cpuPercent)
+            )
+            StatusBarRingMetric(
+                title: "Memory",
+                value: "\(Int(monitor.memoryPercent.rounded()))%",
+                progress: monitor.memoryPercent / 100,
+                tint: memoryTint(for: monitor.memoryPercent),
+                footnote: "\(monitor.memoryValueText) / \(monitor.memoryTotalText)"
+            )
         }
-        .padding(11)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.quaternary.opacity(0.45), in: RoundedRectangle(cornerRadius: 10))
     }
 
-    private var networkCard: some View {
+    private var networkSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Label("Network", systemImage: "arrow.up.arrow.down")
-                    .font(.subheadline.weight(.medium))
-                Spacer()
-                HStack(spacing: 12) {
-                    transferValue(symbol: "arrow.down", value: monitor.downloadText, color: .cyan)
-                    transferValue(symbol: "arrow.up", value: monitor.uploadText, color: .orange)
+            HStack(alignment: .firstTextBaseline) {
+                Label("Network", systemImage: "network")
+                    .font(.system(size: 13, weight: .semibold))
+                if let interface = monitor.networkInterfaceName {
+                    Text(interface)
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.primary.opacity(0.05), in: Capsule())
                 }
+                Spacer(minLength: 4)
+            }
+
+            HStack(spacing: 8) {
+                networkRateTile(
+                    title: "Download",
+                    symbol: "arrow.down",
+                    value: monitor.downloadText,
+                    tint: .cyan
+                )
+                networkRateTile(
+                    title: "Upload",
+                    symbol: "arrow.up",
+                    value: monitor.uploadText,
+                    tint: .orange
+                )
             }
 
             TransferHistoryChart(points: monitor.transferHistory)
-                .frame(height: 76)
+                .frame(height: 88)
         }
-        .padding(11)
-        .background(.quaternary.opacity(0.45), in: RoundedRectangle(cornerRadius: 10))
+        .padding(12)
+        .background(cardBackground)
     }
 
-    private func transferValue(symbol: String, value: String, color: Color) -> some View {
-        HStack(spacing: 3) {
+    private func networkRateTile(title: String, symbol: String, value: String, tint: Color) -> some View {
+        HStack(spacing: 8) {
             Image(systemName: symbol)
-                .font(.caption2.weight(.bold))
-                .foregroundStyle(color)
-            Text(value)
-                .font(.caption.monospacedDigit())
+                .font(.system(size: 10, weight: .bold))
+                .foregroundStyle(tint)
+                .frame(width: 24, height: 24)
+                .background(tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 6))
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title.localized)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                Text(value)
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .monospacedDigit()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.primary.opacity(0.03), in: RoundedRectangle(cornerRadius: 8))
+    }
+
+    private var actionBar: some View {
+        HStack(spacing: 8) {
+            Button(action: openMachKit) {
+                Label("Open MachKit", systemImage: "macwindow")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.regular)
+
+            Button(action: openPerformance) {
+                Label("Performance", systemImage: "gauge.with.dots.needle.67percent")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.regular)
+        }
+    }
+
+    private var cardBackground: some View {
+        RoundedRectangle(cornerRadius: 12)
+            .fill(Color(nsColor: .controlBackgroundColor))
+            .overlay {
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+            }
+    }
+
+    private func cpuTint(for percent: Double) -> Color {
+        percent >= 85 ? .orange : .blue
+    }
+
+    private func memoryTint(for percent: Double) -> Color {
+        percent >= 90 ? .red : (percent >= 75 ? .orange : .purple)
+    }
+
+    private func cpuFootnote(for percent: Double) -> String {
+        switch percent {
+        case 85...: L10n.string("High load")
+        case 50..<85: L10n.string("Moderate load")
+        default: L10n.string("Light load")
         }
     }
 
@@ -257,6 +362,67 @@ struct StatusBarMenuView: View {
         openWindow(id: MachKitAppLifecycle.mainWindowSceneID)
         MachKitAppLifecycle.bringWindowToFront(titled: "MachKit")
     }
+
+    private func openPerformance() {
+        model?.changeMode(.performance)
+        openMachKit()
+    }
+}
+
+private struct StatusBarRingMetric: View {
+    let title: String
+    let value: String
+    let progress: Double
+    let tint: Color
+    let footnote: String?
+
+    var body: some View {
+        VStack(spacing: 8) {
+            ZStack {
+                Circle()
+                    .stroke(tint.opacity(0.14), lineWidth: 7)
+                Circle()
+                    .trim(from: 0, to: min(max(progress, 0), 1))
+                    .stroke(
+                        AngularGradient(
+                            colors: [tint.opacity(0.55), tint],
+                            center: .center
+                        ),
+                        style: StrokeStyle(lineWidth: 7, lineCap: .round)
+                    )
+                    .rotationEffect(.degrees(-90))
+                    .animation(.easeOut(duration: 0.35), value: progress)
+                Text(value)
+                    .font(.system(size: 19, weight: .semibold, design: .rounded))
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+            }
+            .frame(width: 78, height: 78)
+
+            Text(title.localized)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.primary)
+
+            if let footnote {
+                Text(footnote)
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 10)
+        .padding(.horizontal, 6)
+        .background {
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color(nsColor: .controlBackgroundColor))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+                }
+        }
+    }
 }
 
 private struct TransferHistoryChart: View {
@@ -264,43 +430,106 @@ private struct TransferHistoryChart: View {
 
     var body: some View {
         Canvas { context, size in
-            let inset: CGFloat = 2
-            let chartSize = CGSize(width: size.width - inset * 2, height: size.height - inset * 2)
-            let peak = max(points.flatMap { [$0.download, $0.upload] }.max() ?? 0, 1)
+                let inset: CGFloat = 4
+                let chartRect = CGRect(
+                    x: inset,
+                    y: inset,
+                    width: size.width - inset * 2,
+                    height: size.height - inset * 2
+                )
+                let peak = max(points.flatMap { [$0.download, $0.upload] }.max() ?? 0, 1)
 
-            for fraction in [0.25, 0.5, 0.75] {
-                var grid = Path()
-                let y = inset + chartSize.height * fraction
-                grid.move(to: CGPoint(x: inset, y: y))
-                grid.addLine(to: CGPoint(x: size.width - inset, y: y))
-                context.stroke(grid, with: .color(.secondary.opacity(0.12)), lineWidth: 1)
+                for fraction in [0.25, 0.5, 0.75] {
+                    var grid = Path()
+                    let y = chartRect.minY + chartRect.height * fraction
+                    grid.move(to: CGPoint(x: chartRect.minX, y: y))
+                    grid.addLine(to: CGPoint(x: chartRect.maxX, y: y))
+                    context.stroke(grid, with: .color(.secondary.opacity(0.1)), lineWidth: 1)
+                }
+
+                if points.count > 1 {
+                    drawSeries(
+                        value: \.download,
+                        stroke: .cyan,
+                        fill: Color.cyan.opacity(0.18),
+                        peak: peak,
+                        rect: chartRect,
+                        context: &context
+                    )
+                    drawSeries(
+                        value: \.upload,
+                        stroke: .orange,
+                        fill: Color.orange.opacity(0.14),
+                        peak: peak,
+                        rect: chartRect,
+                        context: &context
+                    )
+                } else {
+                    var placeholder = Path()
+                    let midY = chartRect.midY
+                    placeholder.move(to: CGPoint(x: chartRect.minX, y: midY))
+                    placeholder.addLine(to: CGPoint(x: chartRect.maxX, y: midY))
+                    context.stroke(
+                        placeholder,
+                        with: .color(.secondary.opacity(0.2)),
+                        style: StrokeStyle(lineWidth: 1, dash: [4, 4])
+                    )
+                }
             }
-
-            drawLine(\.download, color: .cyan, peak: peak, size: chartSize, inset: inset, context: &context)
-            drawLine(\.upload, color: .orange, peak: peak, size: chartSize, inset: inset, context: &context)
+            .background(Color.primary.opacity(0.025), in: RoundedRectangle(cornerRadius: 8))
+            .overlay(alignment: .topTrailing) {
+                HStack(spacing: 10) {
+                    chartLegend(color: .cyan, label: "Download")
+                    chartLegend(color: .orange, label: "Upload")
+                }
+                .padding(6)
         }
-        .background(.black.opacity(0.035), in: RoundedRectangle(cornerRadius: 7))
         .accessibilityLabel("Network")
     }
 
-    private func drawLine(
-        _ value: KeyPath<TransferHistoryPoint, Double>,
-        color: Color,
+    private func chartLegend(color: Color, label: String) -> some View {
+        HStack(spacing: 4) {
+            Circle().fill(color).frame(width: 5, height: 5)
+            Text(label.localized)
+                .font(.system(size: 9, weight: .medium))
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private func drawSeries(
+        value: KeyPath<TransferHistoryPoint, Double>,
+        stroke: Color,
+        fill: Color,
         peak: Double,
-        size: CGSize,
-        inset: CGFloat,
+        rect: CGRect,
         context: inout GraphicsContext
     ) {
-        guard points.count > 1 else { return }
-        var path = Path()
+        var line = Path()
+        var area = Path()
         for (index, point) in points.enumerated() {
-            let x = inset + size.width * CGFloat(index) / CGFloat(max(points.count - 1, 1))
+            let x = rect.minX + rect.width * CGFloat(index) / CGFloat(max(points.count - 1, 1))
             let ratio = min(max(point[keyPath: value] / peak, 0), 1)
-            let y = inset + size.height * (1 - ratio)
-            if index == 0 { path.move(to: CGPoint(x: x, y: y)) }
-            else { path.addLine(to: CGPoint(x: x, y: y)) }
+            let y = rect.maxY - rect.height * ratio
+            let location = CGPoint(x: x, y: y)
+            if index == 0 {
+                line.move(to: location)
+                area.move(to: CGPoint(x: x, y: rect.maxY))
+                area.addLine(to: location)
+            } else {
+                line.addLine(to: location)
+                area.addLine(to: location)
+            }
         }
-        context.stroke(path, with: .color(color), style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
+        if let lastX = points.indices.last.map({ rect.minX + rect.width * CGFloat($0) / CGFloat(max(points.count - 1, 1)) }) {
+            area.addLine(to: CGPoint(x: lastX, y: rect.maxY))
+            area.closeSubpath()
+            context.fill(area, with: .color(fill))
+        }
+        context.stroke(
+            line,
+            with: .color(stroke),
+            style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round)
+        )
     }
 }
 

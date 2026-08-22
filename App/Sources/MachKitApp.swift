@@ -428,7 +428,7 @@ struct MachKitApp: App {
             image: "MenuBarMark",
             isInserted: $showMenuBar
         ) {
-            StatusBarMenuView(monitor: statusBarMonitor)
+            StatusBarMenuView(monitor: statusBarMonitor, model: model)
                 .background(GlobalShortcutBridge(model: model))
                 .environment(\.locale, language.locale)
                 .preferredColorScheme(appearance.colorScheme)
