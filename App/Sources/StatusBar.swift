@@ -6,6 +6,9 @@ private struct StatusBarSnapshot {
     var cpuPercent = 0.0
     var usedMemory: Int64 = 0
     var physicalMemory: Int64 = 0
+    var memoryPressure = 0.0
+    var memoryPressureLevel: MemoryPressureLevel = .normal
+    var thermalState = ProcessInfo.ThermalState.nominal
     var downloadBytesPerSecond = 0.0
     var uploadBytesPerSecond = 0.0
     var networkInterfaceName: String?
@@ -46,11 +49,24 @@ final class StatusBarMonitor: ObservableObject {
         ByteCountFormatter.string(fromByteCount: snapshot.physicalMemory, countStyle: .memory)
     }
 
-    var networkInterfaceName: String? { snapshot.networkInterfaceName }
-
-    var totalNetworkBytesPerSecond: Double {
-        snapshot.downloadBytesPerSecond + snapshot.uploadBytesPerSecond
+    var compactMemoryDetailText: String {
+        let used = memoryValueText
+        let total = memoryTotalText
+        let usedParts = used.split(separator: " ", maxSplits: 1, omittingEmptySubsequences: true)
+        let totalParts = total.split(separator: " ", maxSplits: 1, omittingEmptySubsequences: true)
+        if usedParts.count == 2, totalParts.count == 2, usedParts[1] == totalParts[1] {
+            return "\(usedParts[0])/\(totalParts[0]) \(usedParts[1])"
+        }
+        return "\(used)/\(total)"
     }
+
+    var memoryPressurePercent: Double { snapshot.memoryPressure * 100 }
+
+    var memoryPressureLevel: MemoryPressureLevel { snapshot.memoryPressureLevel }
+
+    var thermalState: ProcessInfo.ThermalState { snapshot.thermalState }
+
+    var networkInterfaceName: String? { snapshot.networkInterfaceName }
 
     var downloadText: String { Self.formatRate(snapshot.downloadBytesPerSecond) }
     var uploadText: String { Self.formatRate(snapshot.uploadBytesPerSecond) }
@@ -74,13 +90,20 @@ final class StatusBarMonitor: ObservableObject {
         monitoringTask = Task { [weak self] in
             while !Task.isCancelled {
                 guard let self else { return }
-                let performance = await systemMonitor.sampleSystemSummary()
-                let network = await systemMonitor.sampleTransferRate()
+                async let performanceSample = systemMonitor.sampleSystemSummary()
+                async let dashboardSample = systemMonitor.sampleDashboardMetrics()
+                async let networkSample = systemMonitor.sampleTransferRate()
+                let performance = await performanceSample
+                let dashboard = await dashboardSample
+                let network = await networkSample
                 guard !Task.isCancelled else { return }
                 snapshot = StatusBarSnapshot(
                     cpuPercent: performance.cpuPercent,
                     usedMemory: performance.usedMemory,
                     physicalMemory: performance.physicalMemory,
+                    memoryPressure: dashboard.memoryPressure,
+                    memoryPressureLevel: dashboard.memoryPressureLevel,
+                    thermalState: dashboard.thermalState,
                     downloadBytesPerSecond: network.downloadBytesPerSecond,
                     uploadBytesPerSecond: network.uploadBytesPerSecond,
                     networkInterfaceName: network.interfaceName
@@ -127,34 +150,40 @@ struct StatusBarMenuView: View {
     @ObservedObject var monitor: StatusBarMonitor
     var model: CleanerViewModel?
     @Environment(\.openWindow) private var openWindow
+    @StateObject private var systemColorScheme = SystemColorSchemeObserver()
     @State private var livePulse = false
 
-    private let panelWidth: CGFloat = 372
+    private let panelWidth: CGFloat = 352
+
+    private var colorScheme: ColorScheme { systemColorScheme.colorScheme }
 
     var body: some View {
         VStack(spacing: 0) {
             header
-                .padding(.horizontal, 16)
-                .padding(.top, 14)
-                .padding(.bottom, 12)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 9)
 
-            Divider().opacity(0.45)
+            Divider()
 
-            metricsRow
-                .padding(.horizontal, 16)
-                .padding(.vertical, 14)
+            VStack(spacing: 8) {
+                metricsGrid
+                networkSection
+            }
+            .padding(10)
 
-            networkSection
-                .padding(.horizontal, 16)
-                .padding(.bottom, 14)
-
-            Divider().opacity(0.45)
+            Divider()
 
             actionBar
-                .padding(14)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 8)
         }
         .frame(width: panelWidth)
-        .background(statusBarBackground)
+        .preferredColorScheme(systemColorScheme.colorScheme)
+        .background {
+            MenuBarPopoverBackground(colorScheme: systemColorScheme.colorScheme)
+        }
+        .background(MenuBarPopoverWindowConfigurator(colorScheme: systemColorScheme.colorScheme))
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         .onAppear {
             monitor.setPresented(true)
             livePulse = true
@@ -162,66 +191,51 @@ struct StatusBarMenuView: View {
         .onDisappear { monitor.setPresented(false) }
     }
 
-    private var statusBarBackground: some View {
-        ZStack {
-            Color(nsColor: .windowBackgroundColor)
-            LinearGradient(
-                colors: [
-                    Color.accentColor.opacity(0.07),
-                    Color.clear,
-                    Color.purple.opacity(0.04)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        }
+    private var cardBackground: some View {
+        RoundedRectangle(cornerRadius: 8, style: .continuous)
+            .fill(StatusBarChrome.cardFill)
+            .overlay {
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .stroke(StatusBarChrome.cardStroke, lineWidth: 0.5)
+            }
     }
 
     private var header: some View {
-        HStack(alignment: .center, spacing: 10) {
+        HStack(spacing: 8) {
             Button(action: openMachKit) {
-                HStack(spacing: 10) {
+                HStack(spacing: 7) {
                     Image("BrandMark")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 28, height: 28)
-                        .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text("MachKit")
-                            .font(.system(size: 15, weight: .semibold))
-                        Text("System Usage")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
+                        .frame(width: 22, height: 22)
+                    Text("MachKit")
+                        .font(.system(size: 13, weight: .semibold))
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(.tertiary)
                 }
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
 
-            Spacer(minLength: 8)
+            Spacer(minLength: 4)
 
-            HStack(spacing: 5) {
-                ZStack {
-                    Circle()
-                        .fill(Color.green.opacity(0.22))
-                        .frame(width: 14, height: 14)
-                        .scaleEffect(livePulse ? 1.35 : 0.85)
-                        .opacity(livePulse ? 0 : 0.9)
-                        .animation(.easeOut(duration: 1.4).repeatForever(autoreverses: false), value: livePulse)
-                    Circle()
-                        .fill(Color.green)
-                        .frame(width: 6, height: 6)
-                }
+            HStack(spacing: 4) {
+                Circle()
+                    .fill(Color.green)
+                    .frame(width: 5, height: 5)
+                    .opacity(livePulse ? 1 : 0.35)
+                    .animation(.easeInOut(duration: 1).repeatForever(autoreverses: true), value: livePulse)
                 Text("Live")
-                    .font(.caption.weight(.medium))
+                    .font(.caption2.weight(.medium))
                     .foregroundStyle(.secondary)
             }
 
             Button(action: { NSApp.terminate(nil) }) {
                 Image(systemName: "power")
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.system(size: 10, weight: .semibold))
                     .foregroundStyle(.secondary)
-                    .frame(width: 26, height: 26)
+                    .frame(width: 22, height: 22)
                     .background(Color.primary.opacity(0.05), in: Circle())
             }
             .buttonStyle(.plain)
@@ -231,114 +245,95 @@ struct StatusBarMenuView: View {
         }
     }
 
-    private var metricsRow: some View {
-        HStack(spacing: 10) {
-            StatusBarRingMetric(
+    private var metricsGrid: some View {
+        HStack(spacing: 5) {
+            StatusBarCompactMetric(
                 title: "CPU",
                 value: "\(Int(monitor.cpuPercent.rounded()))%",
+                detail: cpuFootnote(for: monitor.cpuPercent),
                 progress: monitor.cpuPercent / 100,
-                tint: cpuTint(for: monitor.cpuPercent),
-                footnote: cpuFootnote(for: monitor.cpuPercent)
+                icon: "cpu",
+                tint: cpuTint(for: monitor.cpuPercent)
             )
-            StatusBarRingMetric(
+            StatusBarCompactMetric(
                 title: "Memory",
-                value: "\(Int(monitor.memoryPercent.rounded()))%",
-                progress: monitor.memoryPercent / 100,
-                tint: memoryTint(for: monitor.memoryPercent),
-                footnote: "\(monitor.memoryValueText) / \(monitor.memoryTotalText)"
+                value: "\(Int(monitor.memoryPressurePercent.rounded()))%",
+                detail: monitor.compactMemoryDetailText,
+                progress: monitor.memoryPressurePercent / 100,
+                icon: "memorychip",
+                tint: memoryTint(for: monitor.memoryPressurePercent)
+            )
+            StatusBarCompactMetric(
+                title: "Thermal",
+                value: thermalShortText(monitor.thermalState),
+                detail: L10n.string("Live"),
+                progress: nil,
+                icon: "thermometer.medium",
+                tint: thermalTint(monitor.thermalState)
             )
         }
+    }
+
+    private var networkInterfaceDetail: String {
+        if let interface = monitor.networkInterfaceName {
+            return interface
+        }
+        return L10n.string("Network")
     }
 
     private var networkSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .firstTextBaseline) {
-                Label("Network", systemImage: "network")
-                    .font(.system(size: 13, weight: .semibold))
-                if let interface = monitor.networkInterfaceName {
-                    Text(interface)
-                        .font(.caption2.weight(.medium))
+        VStack(alignment: .leading, spacing: 5) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Network".localized)
+                        .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Color.primary.opacity(0.05), in: Capsule())
+                    Text(networkInterfaceDetail)
+                        .font(.system(size: 10))
+                        .foregroundStyle(.tertiary)
+                        .lineLimit(1)
                 }
                 Spacer(minLength: 4)
+                HStack(spacing: 10) {
+                    networkRateLabel(icon: "arrow.down", color: StatusBarChrome.downloadAccent(for: colorScheme), value: monitor.downloadText)
+                    networkRateLabel(icon: "arrow.up", color: StatusBarChrome.uploadAccent(for: colorScheme), value: monitor.uploadText)
+                }
             }
-
-            HStack(spacing: 8) {
-                networkRateTile(
-                    title: "Download",
-                    symbol: "arrow.down",
-                    value: monitor.downloadText,
-                    tint: .cyan
-                )
-                networkRateTile(
-                    title: "Upload",
-                    symbol: "arrow.up",
-                    value: monitor.uploadText,
-                    tint: .orange
-                )
-            }
-
-            TransferHistoryChart(points: monitor.transferHistory)
-                .frame(height: 88)
+            TransferHistoryChart(points: monitor.transferHistory, colorScheme: colorScheme)
+                .frame(height: 56)
         }
-        .padding(12)
+        .padding(8)
         .background(cardBackground)
     }
 
-    private func networkRateTile(title: String, symbol: String, value: String, tint: Color) -> some View {
-        HStack(spacing: 8) {
-            Image(systemName: symbol)
-                .font(.system(size: 10, weight: .bold))
-                .foregroundStyle(tint)
-                .frame(width: 24, height: 24)
-                .background(tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 6))
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title.localized)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                Text(value)
-                    .font(.system(size: 13, weight: .semibold, design: .rounded))
-                    .monospacedDigit()
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.75)
-            }
-            Spacer(minLength: 0)
+    private func networkRateLabel(icon: String, color: Color, value: String) -> some View {
+        HStack(spacing: 3) {
+            Image(systemName: icon)
+                .font(.system(size: 9, weight: .bold))
+                .foregroundStyle(color)
+            Text(value)
+                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(.primary)
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 8)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.primary.opacity(0.03), in: RoundedRectangle(cornerRadius: 8))
     }
 
     private var actionBar: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 6) {
             Button(action: openMachKit) {
                 Label("Open MachKit", systemImage: "macwindow")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
-            .controlSize(.regular)
+            .controlSize(.small)
 
             Button(action: openPerformance) {
                 Label("Performance", systemImage: "gauge.with.dots.needle.67percent")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.bordered)
-            .controlSize(.regular)
+            .controlSize(.small)
         }
-    }
-
-    private var cardBackground: some View {
-        RoundedRectangle(cornerRadius: 12)
-            .fill(Color(nsColor: .controlBackgroundColor))
-            .overlay {
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.primary.opacity(0.06), lineWidth: 1)
-            }
     }
 
     private func cpuTint(for percent: Double) -> Color {
@@ -347,6 +342,25 @@ struct StatusBarMenuView: View {
 
     private func memoryTint(for percent: Double) -> Color {
         percent >= 90 ? .red : (percent >= 75 ? .orange : .purple)
+    }
+
+    private func thermalTint(_ state: ProcessInfo.ThermalState) -> Color {
+        switch state {
+        case .nominal: .green
+        case .fair, .serious: .orange
+        case .critical: .red
+        @unknown default: .secondary
+        }
+    }
+
+    private func thermalShortText(_ state: ProcessInfo.ThermalState) -> String {
+        switch state {
+        case .nominal: L10n.string("Normal")
+        case .fair: L10n.string("Elevated")
+        case .serious: L10n.string("High")
+        case .critical: L10n.string("Critical")
+        @unknown default: L10n.string("Unknown")
+        }
     }
 
     private func cpuFootnote(for percent: Double) -> String {
@@ -369,64 +383,86 @@ struct StatusBarMenuView: View {
     }
 }
 
-private struct StatusBarRingMetric: View {
+private struct StatusBarCompactMetric: View {
     let title: String
     let value: String
-    let progress: Double
+    let detail: String
+    let progress: Double?
+    let icon: String
     let tint: Color
-    let footnote: String?
 
     var body: some View {
-        VStack(spacing: 8) {
-            ZStack {
-                Circle()
-                    .stroke(tint.opacity(0.14), lineWidth: 7)
-                Circle()
-                    .trim(from: 0, to: min(max(progress, 0), 1))
-                    .stroke(
-                        AngularGradient(
-                            colors: [tint.opacity(0.55), tint],
-                            center: .center
-                        ),
-                        style: StrokeStyle(lineWidth: 7, lineCap: .round)
-                    )
-                    .rotationEffect(.degrees(-90))
-                    .animation(.easeOut(duration: 0.35), value: progress)
-                Text(value)
-                    .font(.system(size: 19, weight: .semibold, design: .rounded))
-                    .monospacedDigit()
-                    .contentTransition(.numericText())
-            }
-            .frame(width: 78, height: 78)
-
-            Text(title.localized)
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.primary)
-
-            if let footnote {
-                Text(footnote)
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
+        VStack(alignment: .leading, spacing: 3) {
+            HStack(spacing: 3) {
+                Image(systemName: icon)
+                    .font(.system(size: 8, weight: .semibold))
+                    .foregroundStyle(tint)
+                Text(title.localized)
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundStyle(.secondary)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                    .truncationMode(.tail)
             }
+            Text(value)
+                .font(.system(size: 13, weight: .semibold, design: .rounded))
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+            if let progress {
+                MetricProgressBar(progress: progress, tint: tint)
+            }
+            Text(detail)
+                .font(.system(size: 9))
+                .foregroundStyle(.tertiary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .truncationMode(.tail)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 10)
         .padding(.horizontal, 6)
+        .padding(.vertical, 6)
+        .frame(maxWidth: .infinity, minHeight: 56, alignment: .leading)
         .background {
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color(nsColor: .controlBackgroundColor))
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(StatusBarChrome.cardFill)
                 .overlay {
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .stroke(StatusBarChrome.cardStroke, lineWidth: 0.5)
                 }
         }
     }
 }
 
+private struct MetricProgressBar: View {
+    let progress: Double
+    let tint: Color
+
+    private var clamped: Double { min(max(progress, 0), 1) }
+
+    var body: some View {
+        Capsule()
+            .fill(Color.primary.opacity(0.08))
+            .overlay(alignment: .leading) {
+                GeometryReader { geo in
+                    Capsule()
+                        .fill(tint)
+                        .frame(width: max(geo.size.width * clamped, clamped > 0 ? 2 : 0))
+                }
+            }
+            .frame(height: 3)
+            .frame(maxWidth: .infinity)
+    }
+}
+
 private struct TransferHistoryChart: View {
     let points: [TransferHistoryPoint]
+    let colorScheme: ColorScheme
+
+    private var downloadStroke: Color { StatusBarChrome.downloadAccent(for: colorScheme) }
+    private var uploadStroke: Color { StatusBarChrome.uploadAccent(for: colorScheme) }
+    private var downloadFill: Color { downloadStroke.opacity(colorScheme == .dark ? 0.28 : 0.18) }
+    private var uploadFill: Color { uploadStroke.opacity(colorScheme == .dark ? 0.24 : 0.14) }
+    private var gridOpacity: Double { colorScheme == .dark ? 0.16 : 0.1 }
+    private var chartInsetFill: Color { Color.primary.opacity(colorScheme == .dark ? 0.06 : 0.04) }
 
     var body: some View {
         Canvas { context, size in
@@ -444,22 +480,22 @@ private struct TransferHistoryChart: View {
                     let y = chartRect.minY + chartRect.height * fraction
                     grid.move(to: CGPoint(x: chartRect.minX, y: y))
                     grid.addLine(to: CGPoint(x: chartRect.maxX, y: y))
-                    context.stroke(grid, with: .color(.secondary.opacity(0.1)), lineWidth: 1)
+                    context.stroke(grid, with: .color(.secondary.opacity(gridOpacity)), lineWidth: 1)
                 }
 
                 if points.count > 1 {
                     drawSeries(
                         value: \.download,
-                        stroke: .cyan,
-                        fill: Color.cyan.opacity(0.18),
+                        stroke: downloadStroke,
+                        fill: downloadFill,
                         peak: peak,
                         rect: chartRect,
                         context: &context
                     )
                     drawSeries(
                         value: \.upload,
-                        stroke: .orange,
-                        fill: Color.orange.opacity(0.14),
+                        stroke: uploadStroke,
+                        fill: uploadFill,
                         peak: peak,
                         rect: chartRect,
                         context: &context
@@ -476,24 +512,8 @@ private struct TransferHistoryChart: View {
                     )
                 }
             }
-            .background(Color.primary.opacity(0.025), in: RoundedRectangle(cornerRadius: 8))
-            .overlay(alignment: .topTrailing) {
-                HStack(spacing: 10) {
-                    chartLegend(color: .cyan, label: "Download")
-                    chartLegend(color: .orange, label: "Upload")
-                }
-                .padding(6)
-        }
+            .background(chartInsetFill, in: RoundedRectangle(cornerRadius: 6, style: .continuous))
         .accessibilityLabel("Network")
-    }
-
-    private func chartLegend(color: Color, label: String) -> some View {
-        HStack(spacing: 4) {
-            Circle().fill(color).frame(width: 5, height: 5)
-            Text(label.localized)
-                .font(.system(size: 9, weight: .medium))
-                .foregroundStyle(.secondary)
-        }
     }
 
     private func drawSeries(
@@ -530,6 +550,110 @@ private struct TransferHistoryChart: View {
             with: .color(stroke),
             style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round)
         )
+    }
+}
+
+private enum StatusBarChrome {
+    static var cardFill: Color {
+        Color(nsColor: .quaternarySystemFill)
+    }
+
+    static var cardStroke: Color {
+        Color(nsColor: .separatorColor).opacity(0.35)
+    }
+
+    static func downloadAccent(for colorScheme: ColorScheme) -> Color {
+        colorScheme == .dark ? Color(red: 0.35, green: 0.82, blue: 0.98) : .cyan
+    }
+
+    static func uploadAccent(for colorScheme: ColorScheme) -> Color {
+        colorScheme == .dark ? Color(red: 1.0, green: 0.72, blue: 0.35) : .orange
+    }
+}
+
+private struct MenuBarPopoverBackground: NSViewRepresentable {
+    let colorScheme: ColorScheme
+
+    func makeNSView(context: Context) -> NSVisualEffectView {
+        let view = NSVisualEffectView()
+        applyStyle(to: view)
+        return view
+    }
+
+    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {
+        applyStyle(to: nsView)
+    }
+
+    private func applyStyle(to view: NSVisualEffectView) {
+        view.material = .popover
+        view.blendingMode = .behindWindow
+        view.state = .active
+        view.appearance = NSAppearance(named: colorScheme == .dark ? .darkAqua : .aqua)
+        view.needsDisplay = true
+    }
+}
+
+private struct MenuBarPopoverWindowConfigurator: NSViewRepresentable {
+    let colorScheme: ColorScheme
+
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView(frame: .zero)
+        configureWindow(for: view)
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {
+        configureWindow(for: nsView)
+    }
+
+    private func configureWindow(for view: NSView) {
+        DispatchQueue.main.async {
+            guard let window = view.window else { return }
+            window.isOpaque = false
+            window.backgroundColor = .clear
+            window.hasShadow = true
+            window.appearance = nil
+            window.contentView?.needsDisplay = true
+        }
+    }
+}
+
+@MainActor
+private final class SystemColorSchemeObserver: ObservableObject {
+    @Published private(set) var colorScheme: ColorScheme
+
+    private var appearanceObservation: NSKeyValueObservation?
+
+    init() {
+        colorScheme = Self.resolveColorScheme()
+        appearanceObservation = NSApp.observe(\.effectiveAppearance, options: [.new]) { [weak self] _, _ in
+            Task { @MainActor in
+                self?.refresh()
+            }
+        }
+        DistributedNotificationCenter.default().addObserver(
+            forName: Notification.Name("AppleInterfaceThemeChangedNotification"),
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.refresh()
+            }
+        }
+    }
+
+    private func refresh() {
+        let next = Self.resolveColorScheme()
+        guard next != colorScheme else { return }
+        colorScheme = next
+    }
+
+    private static func resolveColorScheme() -> ColorScheme {
+        let style = CFPreferencesCopyAppValue(
+            "AppleInterfaceStyle" as CFString,
+            kCFPreferencesAnyApplication
+        ) as? String
+        return style == "Dark" ? .dark : .light
     }
 }
 

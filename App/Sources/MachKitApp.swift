@@ -431,7 +431,6 @@ struct MachKitApp: App {
             StatusBarMenuView(monitor: statusBarMonitor, model: model)
                 .background(GlobalShortcutBridge(model: model))
                 .environment(\.locale, language.locale)
-                .preferredColorScheme(appearance.colorScheme)
         }
         .menuBarExtraStyle(.window)
     }
