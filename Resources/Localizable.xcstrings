@@ -30030,13 +30030,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "IP 解析"
+            "value": "IP 查看"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "IP 解析"
+            "value": "IP 檢視"
           }
         }
       }

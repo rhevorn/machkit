@@ -331,9 +331,9 @@ export const websiteToolCatalog = Object.freeze([
       ],
     },
     "zh-CN": {
-      title: "IP 解析",
+      title: "IP 查看",
       summary: "检查 IPv4 和 IPv6 类型、整数形式与反向 DNS 标签。",
-      introduction: "IP 解析在你动手处理地址前先说明它是什么。识别 IPv4 / IPv6 类型、整数形式和反向 DNS 标签，适合面对日志、抓包或配置里只有原始地址的情况。",
+      introduction: "IP 查看在你动手处理地址前先说明它是什么。识别 IPv4 / IPv6 类型、整数形式和反向 DNS 标签，适合面对日志、抓包或配置里只有原始地址的情况。",
       highlights: [
         "IPv4 与 IPv6 分类",
         "整数与反向 DNS 形式",

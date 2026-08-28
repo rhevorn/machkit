@@ -425,8 +425,8 @@ export const toolMeta = {
   "ip-inspector": {
     title: {
       en: "IP Inspector",
-      "zh-Hans": "IP 解析",
-      "zh-Hant": "IP 解析",
+      "zh-Hans": "IP 查看",
+      "zh-Hant": "IP 檢視",
       ja: "IP インスペクタ",
       ko: "IP 검사기",
       es: "Inspector IP",

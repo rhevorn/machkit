@@ -1,20 +1,46 @@
 import { Check } from "@phosphor-icons/react";
 import * as Checkbox from "@radix-ui/react-checkbox";
+import { cn } from "@/lib/utils.js";
 
-export function CheckboxField({ checked, onCheckedChange, label, description, disabled = false }) {
+export function CheckboxField({
+  checked,
+  onCheckedChange,
+  label,
+  description,
+  disabled = false,
+  className,
+}) {
   return (
-    <label className="flex items-start gap-3 text-[13px] text-foreground">
+    <label
+      className={cn(
+        "inline-flex max-w-full cursor-default items-center gap-2 text-[13px] text-foreground select-none",
+        description && "items-start",
+        disabled && "opacity-45",
+        className,
+      )}
+    >
       <Checkbox.Root
         checked={checked}
         onCheckedChange={onCheckedChange}
         disabled={disabled}
-        className="mt-0.5 grid size-4.5 shrink-0 place-items-center rounded-[4px] border border-border bg-field text-white outline-none transition-colors hover:border-accent focus-visible:ring-2 focus-visible:ring-accent/35 data-[state=checked]:border-accent data-[state=checked]:bg-accent disabled:opacity-45"
+        className={cn(
+          "grid size-4 shrink-0 place-items-center rounded-[4px] border border-border bg-field text-white outline-none transition-colors",
+          "hover:border-accent focus-visible:ring-2 focus-visible:ring-accent/35",
+          "data-[state=checked]:border-accent data-[state=checked]:bg-accent",
+          "data-[state=indeterminate]:border-accent data-[state=indeterminate]:bg-accent",
+          "disabled:pointer-events-none",
+          description && "mt-0.5",
+        )}
       >
-        <Checkbox.Indicator><Check size={12} weight="bold" /></Checkbox.Indicator>
+        <Checkbox.Indicator className="grid place-items-center text-white">
+          <Check size={11} weight="bold" />
+        </Checkbox.Indicator>
       </Checkbox.Root>
       <span className="min-w-0">
-        <span className="block font-medium">{label}</span>
-        {description ? <span className="mt-0.5 block text-xs leading-relaxed text-secondary">{description}</span> : null}
+        <span className="block text-[12px] leading-none font-medium text-secondary">{label}</span>
+        {description ? (
+          <span className="mt-1 block text-xs leading-relaxed text-tertiary">{description}</span>
+        ) : null}
       </span>
     </label>
   );

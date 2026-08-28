@@ -16,15 +16,25 @@ import { messages } from "./messages.js";
 
 const EXAMPLES = ["192.168.1.10", "127.0.0.1", "2001:db8::1", "::ffff:192.0.2.128"];
 
-function Detail({ label, value, copyLabel }) {
-  if (!value && value !== 0) return null;
+function DetailRow({ label, value, copyLabel }) {
+  const hasValue = value || value === 0;
+  if (!hasValue) return null;
+  const display = String(value);
   return (
-    <div className="flex min-w-0 items-center gap-2 border-b border-border px-3 py-2 last:border-b-0">
-      <span className="w-28 shrink-0 text-[12px] text-secondary">{label}</span>
-      <code className="min-w-0 flex-1 truncate font-mono text-[12px]">{value}</code>
-      <Button variant="ghost" size="sm" className="shrink-0" onClick={() => machkit.copy(String(value))}>
+    <div className="flex min-w-0 items-baseline gap-2 border-b border-border/70 py-2 last:border-b-0">
+      <span className="w-[7.5rem] shrink-0 text-[12px] text-secondary">{label}</span>
+      <code className="min-w-0 flex-1 truncate font-mono text-[13px] tabular-nums text-foreground select-text">
+        {display}
+      </code>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-7 shrink-0 px-2 text-secondary"
+        aria-label={copyLabel}
+        title={copyLabel}
+        onClick={() => machkit.copy(display)}
+      >
         <CopySimple size={15} />
-        {copyLabel}
       </Button>
     </div>
   );
@@ -48,10 +58,12 @@ function IpInspectorTool() {
 
   return (
     <ToolPage title={text.title}>
-      <ToolContent className="flex flex-col gap-3 pt-3 pb-4">
+      <ToolContent className="flex flex-col gap-3 pt-4 pb-6">
         <div className="machkit-toolbar gap-2">
           <div className="flex min-w-0 flex-1 items-center gap-2">
-            <label htmlFor="ip-input" className="machkit-control-label whitespace-nowrap">{text.input}</label>
+            <label htmlFor="ip-input" className="machkit-control-label whitespace-nowrap">
+              {text.input}
+            </label>
             <Input
               id="ip-input"
               className="min-w-0 flex-1 font-mono"
@@ -84,33 +96,33 @@ function IpInspectorTool() {
 
         <InlineMessage tone={status.tone}>{status.label}</InlineMessage>
 
-        <div className="machkit-panel">
+        <section className="rounded-panel border border-border bg-surface px-5 py-2">
           {result.ok ? (
             <>
-              <Detail label={text.version} value={`IPv${result.version}`} copyLabel={text.copy} />
-              <Detail label={text.address} value={result.address} copyLabel={text.copy} />
-              <Detail label={text.kind} value={kindLabel(text, result.kind)} copyLabel={text.copy} />
+              <DetailRow label={text.version} value={`IPv${result.version}`} copyLabel={text.copy} />
+              <DetailRow label={text.address} value={result.address} copyLabel={text.copy} />
+              <DetailRow label={text.kind} value={kindLabel(text, result.kind)} copyLabel={text.copy} />
               {result.version === 4 ? (
                 <>
-                  <Detail label={text.className} value={result.class} copyLabel={text.copy} />
-                  <Detail label={text.integer} value={result.integer} copyLabel={text.copy} />
-                  <Detail label={text.hex} value={result.hex} copyLabel={text.copy} />
-                  <Detail label={text.binary} value={result.binary} copyLabel={text.copy} />
+                  <DetailRow label={text.className} value={result.class} copyLabel={text.copy} />
+                  <DetailRow label={text.integer} value={result.integer} copyLabel={text.copy} />
+                  <DetailRow label={text.hex} value={result.hex} copyLabel={text.copy} />
+                  <DetailRow label={text.binary} value={result.binary} copyLabel={text.copy} />
                 </>
               ) : (
                 <>
-                  <Detail label={text.compressed} value={result.compressed} copyLabel={text.copy} />
-                  <Detail label={text.expanded} value={result.expanded} copyLabel={text.copy} />
-                  <Detail label={text.mapped} value={result.mappedIPv4} copyLabel={text.copy} />
-                  <Detail label={text.zone} value={result.zone} copyLabel={text.copy} />
+                  <DetailRow label={text.compressed} value={result.compressed} copyLabel={text.copy} />
+                  <DetailRow label={text.expanded} value={result.expanded} copyLabel={text.copy} />
+                  <DetailRow label={text.mapped} value={result.mappedIPv4} copyLabel={text.copy} />
+                  <DetailRow label={text.zone} value={result.zone} copyLabel={text.copy} />
                 </>
               )}
-              <Detail label={text.reverse} value={result.reverse} copyLabel={text.copy} />
+              <DetailRow label={text.reverse} value={result.reverse} copyLabel={text.copy} />
             </>
           ) : (
-            <p className="px-3 py-8 text-center text-xs text-tertiary">{text.empty}</p>
+            <p className="py-8 text-center text-xs text-tertiary">{text.empty}</p>
           )}
-        </div>
+        </section>
       </ToolContent>
     </ToolPage>
   );

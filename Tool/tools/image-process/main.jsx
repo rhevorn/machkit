@@ -3,6 +3,7 @@ import { DownloadSimple, Eraser, Image as ImageIcon, Trash, UploadSimple } from 
 import JSZip from "jszip";
 import {
   Button,
+  CheckboxField,
   InlineMessage,
   Input,
   SegmentedControl,
@@ -345,15 +346,11 @@ function ImageProcessTool() {
                     className="w-[220px] shrink-0"
                     options={dimUnitOptions}
                   />
-                  <label className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap text-[12px] text-secondary">
-                    <input
-                      type="checkbox"
-                      checked={lockAspect}
-                      onChange={(event) => setLockAspect(event.target.checked)}
-                      className="size-3.5 accent-[var(--color-accent)]"
-                    />
-                    {text.lockAspect}
-                  </label>
+                  <CheckboxField
+                    checked={lockAspect}
+                    onCheckedChange={(value) => setLockAspect(value === true)}
+                    label={text.lockAspect}
+                  />
                 </div>
               </div>
               <div className="flex w-full items-center gap-2">

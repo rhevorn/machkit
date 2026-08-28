@@ -34,7 +34,7 @@ export const messages = {
     kind_ipv4_compatible: 'IPv4-compatible',
   },
   "zh-Hans": {
-    title: 'IP 解析',
+    title: 'IP 查看',
     info: '本地查看 IPv4 / IPv6：整数、十六进制、反向 DNS 标签与地址类型。不做网络查询。',
     input: '地址',
     placeholder: '192.168.1.10 或 2001:db8::1',
@@ -68,7 +68,7 @@ export const messages = {
     kind_ipv4_compatible: 'IPv4 兼容',
   },
   "zh-Hant": {
-    title: 'IP 解析',
+    title: 'IP 檢視',
     info: '本機檢視 IPv4 / IPv6：整數、十六進位、反向 DNS 標籤與位址類型。不做網路查詢。',
     input: '位址',
     placeholder: '192.168.1.10 或 2001:db8::1',
