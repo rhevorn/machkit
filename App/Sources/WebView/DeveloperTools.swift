@@ -23,7 +23,7 @@ enum WebToolWidthClass: String, Equatable {
     case wide
 
     /// Bump to invalidate remembered frames after sizing policy changes.
-    static let frameEpoch = 9
+    static let frameEpoch = 10
 
     var width: CGFloat {
         switch self {
@@ -166,7 +166,7 @@ enum DeveloperToolRegistry {
                 "正则", "正則", "匹配", "替换", "取代", "分组", "捕获"
             ],
             icon: "text.magnifyingglass",
-            widthClass: .wide,
+            widthClass: .compact,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/regex-lab/index.html")
         ),
