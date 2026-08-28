@@ -23,7 +23,7 @@ enum WebToolWidthClass: String, Equatable {
     case wide
 
     /// Bump to invalidate remembered frames after sizing policy changes.
-    static let frameEpoch = 10
+    static let frameEpoch = 11
 
     var width: CGFloat {
         switch self {
@@ -117,7 +117,7 @@ enum DeveloperToolRegistry {
                 "encode", "decode", "md5", "sha", "编码", "解码", "哈希", "实体", "转义", "反转义"
             ],
             icon: "lock.rectangle.on.rectangle",
-            widthClass: .wide,
+            widthClass: .compact,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/codec/index.html")
         ),
