@@ -187,14 +187,20 @@ function HostsManager() {
             <div className="min-w-0 flex-1">
               {selectedEnvironment ? (
                 <input
-                  value={selectedEnvironment.name}
+                  value={environmentName(selectedEnvironment)}
                   onChange={(event) => updateName(event.target.value)}
                   onBlur={() => save()}
-                  aria-label={selectedEnvironment.name}
+                  aria-label={environmentName(selectedEnvironment)}
                   className="h-7 w-full rounded-[6px] bg-transparent px-1 text-sm font-semibold outline-none hover:bg-muted focus:bg-muted"
                 />
-              ) : <div className="truncate px-1 text-sm font-semibold">{rows.find((row) => row.id === selection)?.name}</div>}
-              <div className="truncate px-1 text-xs text-secondary">{rows.find((row) => row.id === selection)?.hint}</div>
+              ) : (
+                <div className="truncate px-1 text-sm font-semibold">
+                  {rows.find((row) => row.id === selection)?.name}
+                </div>
+              )}
+              <div className="truncate px-1 text-xs text-secondary">
+                {rows.find((row) => row.id === selection)?.hint}
+              </div>
             </div>
           </header>
           <div className="min-h-0 flex-1 px-5 pb-5">
