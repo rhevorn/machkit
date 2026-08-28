@@ -12138,61 +12138,61 @@
         }
       }
     },
-    "Calculate IPv4 network details, ranges, and membership checks": {
+    "Inspect IPv4 and IPv6 addresses or calculate IPv4 CIDR ranges locally": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "IPv4-Netzdetails, Bereiche und Zugehörigkeit berechnen"
+            "value": "IPv4- und IPv6-Adressen prüfen oder IPv4-CIDR-Bereiche lokal berechnen"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Calcula detalles, rangos y pertenencia de redes IPv4"
+            "value": "Inspecciona direcciones IPv4 e IPv6 o calcula rangos CIDR IPv4 en local"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Calculez détails, plages et appartenance des réseaux IPv4"
+            "value": "Inspectez les adresses IPv4 et IPv6 ou calculez localement les plages CIDR IPv4"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "IPv4 の網情報・範囲・所属判定を計算"
+            "value": "IPv4 / IPv6 アドレスの確認と IPv4 CIDR 範囲の計算をローカルで実行"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "IPv4 네트워크 정보·범위·포함 여부를 계산"
+            "value": "IPv4 및 IPv6 주소를 확인하거나 IPv4 CIDR 범위를 로컬에서 계산"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Calcule detalhes, intervalos e pertencimento de redes IPv4"
+            "value": "Inspecione endereços IPv4 e IPv6 ou calcule intervalos CIDR IPv4 localmente"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Расчёт деталей, диапазонов и вхождения IPv4"
+            "value": "Локально проверяйте адреса IPv4 и IPv6 или рассчитывайте диапазоны IPv4 CIDR"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "计算 IPv4 网段、范围与归属判断"
+            "value": "本地查看 IPv4 / IPv6 地址或计算 IPv4 CIDR 范围"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "計算 IPv4 網段、範圍與歸屬判斷"
+            "value": "本機檢視 IPv4 / IPv6 位址或計算 IPv4 CIDR 範圍"
           }
         }
       }
@@ -28981,65 +28981,6 @@
         }
       }
     },
-    "Inspect IPv4 and IPv6 addresses, kinds, and reverse DNS labels": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "IPv4-/IPv6-Adressen, Typen und Reverse-DNS-Labels prüfen"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Inspecciona direcciones IPv4/IPv6, tipos y etiquetas DNS inverso"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Inspectez adresses IPv4/IPv6, types et libellés DNS inverse"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "IPv4 / IPv6 のアドレス・種別・逆引きラベルを確認"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "IPv4/IPv6 주소·유형·역방향 DNS 라벨 검사"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Inspecione endereços IPv4/IPv6, tipos e rótulos de DNS reverso"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Проверяйте адреса IPv4/IPv6, типы и метки reverse DNS"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "查看 IPv4 / IPv6 地址、类型与反向 DNS 标签"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "檢視 IPv4 / IPv6 位址、類型與反向 DNS 標籤"
-          }
-        }
-      }
-    },
     "Inspect live traffic, connections, ports, routes, and proxies": {
       "extractionState": "manual",
       "localizations": {
@@ -29864,120 +29805,61 @@
         }
       }
     },
-    "IP / CIDR Calculator": {
+    "IP / CIDR": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "IP-/CIDR-Rechner"
+            "value": "IP / CIDR"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Calculadora IP / CIDR"
+            "value": "IP / CIDR"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Calculateur IP / CIDR"
+            "value": "IP / CIDR"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "IP / CIDR 計算機"
+            "value": "IP / CIDR"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "IP / CIDR 계산기"
+            "value": "IP / CIDR"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Calculadora IP / CIDR"
+            "value": "IP / CIDR"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Калькулятор IP / CIDR"
+            "value": "IP / CIDR"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "IP / CIDR 计算器"
+            "value": "IP / CIDR"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "IP / CIDR 計算器"
-          }
-        }
-      }
-    },
-    "IP Inspector": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "IP-Inspektor"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Inspector IP"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Inspecteur IP"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "IP インスペクタ"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "IP 검사기"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Inspetor IP"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "IP-инспектор"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "IP 查看"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "IP 檢視"
+            "value": "IP / CIDR"
           }
         }
       }

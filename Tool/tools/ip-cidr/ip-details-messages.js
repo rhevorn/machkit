@@ -1,6 +1,6 @@
 export const messages = {
   en: {
-    title: 'IP Inspector',
+    title: 'IP / CIDR',
     info: 'Inspect IPv4 and IPv6 addresses locally: integer, hex, reverse DNS labels, and address kind. No network lookups.',
     input: 'Address',
     placeholder: '192.168.1.10 or 2001:db8::1',
@@ -34,7 +34,7 @@ export const messages = {
     kind_ipv4_compatible: 'IPv4-compatible',
   },
   "zh-Hans": {
-    title: 'IP 查看',
+    title: 'IP / CIDR',
     info: '本地查看 IPv4 / IPv6：整数、十六进制、反向 DNS 标签与地址类型。不做网络查询。',
     input: '地址',
     placeholder: '192.168.1.10 或 2001:db8::1',
@@ -68,7 +68,7 @@ export const messages = {
     kind_ipv4_compatible: 'IPv4 兼容',
   },
   "zh-Hant": {
-    title: 'IP 檢視',
+    title: 'IP / CIDR',
     info: '本機檢視 IPv4 / IPv6：整數、十六進位、反向 DNS 標籤與位址類型。不做網路查詢。',
     input: '位址',
     placeholder: '192.168.1.10 或 2001:db8::1',
@@ -102,7 +102,7 @@ export const messages = {
     kind_ipv4_compatible: 'IPv4 相容',
   },
   "ja": {
-    title: 'IP インスペクタ',
+    title: 'IP / CIDR',
     info: 'IPv4 / IPv6 をローカル検査：整数・16 進・逆引きラベル・種別。ネットワーク照会なし。',
     input: 'アドレス',
     placeholder: '192.168.1.10 または 2001:db8::1',
@@ -136,7 +136,7 @@ export const messages = {
     kind_ipv4_compatible: 'IPv4 互換',
   },
   "ko": {
-    title: 'IP 검사기',
+    title: 'IP / CIDR',
     info: 'IPv4/IPv6를 로컬에서 검사: 정수, 16진, 역방향 DNS, 유형. 네트워크 조회 없음.',
     input: '주소',
     placeholder: '192.168.1.10 또는 2001:db8::1',
@@ -170,7 +170,7 @@ export const messages = {
     kind_ipv4_compatible: 'IPv4 호환',
   },
   "es": {
-    title: 'Inspector IP',
+    title: 'IP / CIDR',
     info: 'Inspecciona IPv4/IPv6 en local: entero, hex, DNS inverso y tipo. Sin consultas de red.',
     input: 'Dirección',
     placeholder: '192.168.1.10 o 2001:db8::1',
@@ -204,7 +204,7 @@ export const messages = {
     kind_ipv4_compatible: 'Compatible IPv4',
   },
   "fr": {
-    title: 'Inspecteur IP',
+    title: 'IP / CIDR',
     info: 'Inspectez IPv4/IPv6 en local : entier, hex, DNS inverse et type. Sans requêtes réseau.',
     input: 'Adresse',
     placeholder: '192.168.1.10 ou 2001:db8::1',
@@ -238,7 +238,7 @@ export const messages = {
     kind_ipv4_compatible: 'Compatible IPv4',
   },
   "de": {
-    title: 'IP-Inspektor',
+    title: 'IP / CIDR',
     info: 'IPv4/IPv6 lokal prüfen: Integer, Hex, Reverse-DNS und Typ. Keine Netzabfragen.',
     input: 'Adresse',
     placeholder: '192.168.1.10 oder 2001:db8::1',
@@ -272,7 +272,7 @@ export const messages = {
     kind_ipv4_compatible: 'IPv4-kompatibel',
   },
   "pt-BR": {
-    title: 'Inspetor IP',
+    title: 'IP / CIDR',
     info: 'Inspecione IPv4/IPv6 localmente: inteiro, hex, DNS reverso e tipo. Sem consultas de rede.',
     input: 'Endereço',
     placeholder: '192.168.1.10 ou 2001:db8::1',
@@ -306,7 +306,7 @@ export const messages = {
     kind_ipv4_compatible: 'Compatível IPv4',
   },
   "ru": {
-    title: 'IP-инспектор',
+    title: 'IP / CIDR',
     info: 'Локально разбирайте IPv4/IPv6: целое, hex, reverse DNS и тип. Без сетевых запросов.',
     input: 'Адрес',
     placeholder: '192.168.1.10 или 2001:db8::1',

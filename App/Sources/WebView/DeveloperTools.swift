@@ -225,29 +225,16 @@ enum DeveloperToolRegistry {
         ),
         DeveloperTool(
             id: "ip-cidr",
-            title: "IP / CIDR Calculator",
-            description: "Calculate IPv4 network details, ranges, and membership checks",
+            title: "IP / CIDR",
+            description: "Inspect IPv4 and IPv6 addresses or calculate IPv4 CIDR ranges locally",
             keywords: [
-                "ip", "cidr", "subnet", "netmask", "network", "broadcast",
-                "网段", "掩码", "子网", "地址"
+                "ip", "ipv4", "ipv6", "cidr", "subnet", "netmask", "network", "broadcast",
+                "integer", "arpa", "reverse dns", "网段", "掩码", "子网", "地址", "反向"
             ],
             icon: "point.3.connected.trianglepath.dotted",
             widthClass: .regular,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/ip-cidr/index.html")
-        ),
-        DeveloperTool(
-            id: "ip-inspector",
-            title: "IP Inspector",
-            description: "Inspect IPv4 and IPv6 addresses, kinds, and reverse DNS labels",
-            keywords: [
-                "ip", "ipv4", "ipv6", "address", "arpa", "inspector",
-                "解析", "地址"
-            ],
-            icon: "network",
-            widthClass: .regular,
-            capabilities: [.clipboard],
-            presentation: .bundledWeb(entryFile: "WebTools/tools/ip-inspector/index.html")
         ),
         DeveloperTool(
             id: "color-lab",
