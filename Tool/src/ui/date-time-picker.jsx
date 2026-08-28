@@ -17,7 +17,7 @@ import {
   Heading,
   Popover as AriaPopover,
 } from "react-aria-components";
-import { cn } from "@/lib/cn.js";
+import { cn } from "@/lib/utils.js";
 
 export function DateTimePicker({ value, onChange, label, className }) {
   const [isOpen, setIsOpen] = React.useState(false);

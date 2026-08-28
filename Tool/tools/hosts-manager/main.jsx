@@ -202,7 +202,7 @@ function HostsManager() {
             <CodeMirror
               value={editorValue}
               height="100%"
-              theme={editorTheme}
+              extensions={editorTheme}
               readOnly={selection === "system"}
               editable={selection !== "system"}
               basicSetup={{

@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { supportedLocales } from "@/i18n-catalog.js";
 import { resolveLocale, useLocale } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
+import "@/ui/ui.css";
 
 class ToolErrorBoundary extends React.Component {
   constructor(props) {
