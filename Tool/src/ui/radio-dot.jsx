@@ -23,7 +23,8 @@ export function RadioDot({
       className={cn(
         "grid size-[15px] shrink-0 place-items-center rounded-full border outline-none transition-colors focus-visible:ring-2 focus-visible:ring-accent/30",
         checked ? "border-accent bg-accent" : "border-tertiary hover:border-accent",
-        disabled && "pointer-events-none opacity-45",
+        disabled && "pointer-events-none",
+        disabled && !checked && "opacity-45",
         className,
       )}
       {...props}
