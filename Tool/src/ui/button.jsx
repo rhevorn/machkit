@@ -5,7 +5,7 @@ import * as Popover from "@radix-ui/react-popover";
 import { cn } from "@/lib/utils.js";
 
 const buttonVariants = cva(
-  "inline-flex shrink-0 cursor-default items-center justify-center gap-1.5 rounded-control font-sans text-xs font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-accent/35 disabled:pointer-events-none disabled:opacity-45",
+  "inline-flex shrink-0 cursor-default items-center justify-center gap-1.5 rounded-control font-sans text-xs font-medium outline-none transition-colors focus-visible:ring-3 focus-visible:ring-accent/35 disabled:pointer-events-none disabled:opacity-45",
   {
     variants: {
       variant: {
@@ -13,11 +13,14 @@ const buttonVariants = cva(
         secondary: "border border-border bg-surface text-foreground hover:bg-muted",
         ghost: "text-secondary hover:bg-muted hover:text-foreground",
         accentGhost: "text-accent hover:bg-accent-soft",
+        destructive: "bg-danger text-white hover:bg-danger/90",
       },
       size: {
-        default: "h-9 px-3.5",
-        sm: "h-8.5 px-3",
-        icon: "size-9 p-0",
+        default: "h-[var(--machkit-size-control)] px-3.5",
+        /* Match field / select / segmented height in compact toolbars */
+        sm: "h-[var(--machkit-size-control)] px-3",
+        compact: "h-[var(--machkit-size-control-compact)] px-2.5",
+        icon: "size-[var(--machkit-size-control)] p-0",
       },
     },
     defaultVariants: { variant: "default", size: "default" },

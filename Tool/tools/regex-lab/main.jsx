@@ -1,14 +1,18 @@
 import React, { useMemo, useState } from "react";
 import { CopySimple, Eraser } from "@phosphor-icons/react";
 import {
+  ActionGroup,
   Button,
-  InlineMessage,
+  ExampleChips,
   Input,
+  ResultPanel,
   SegmentedControl,
+  StatusStrip,
   Textarea,
   ToolContent,
   ToolInfoButton,
   ToolPage,
+  ToolToolbar,
 } from "@/ui/index.js";
 import { cn } from "@/lib/utils.js";
 import { useToolMessages } from "@/i18n.js";
@@ -59,20 +63,20 @@ function Seg({ children }) {
 
 function FlagChip({ active, label, title, onClick }) {
   return (
-    <button
+    <Button
       type="button"
       title={title}
       aria-pressed={active}
+      variant={active ? "secondary" : "ghost"}
+      size="compact"
       className={cn(
-        "h-7 min-w-7 rounded-[6px] px-2 font-mono text-xs transition-colors",
-        active
-          ? "bg-accent-soft font-semibold text-accent"
-          : "font-medium text-secondary hover:bg-muted hover:text-foreground",
+        "h-7 min-w-7 px-2 font-mono text-xs",
+        active && "border-transparent bg-accent-soft font-semibold text-accent hover:bg-accent-soft",
       )}
       onClick={onClick}
     >
       {label}
-    </button>
+    </Button>
   );
 }
 
@@ -121,7 +125,7 @@ function RegexLab() {
   return (
     <ToolPage title={text.title}>
       <ToolContent className="flex flex-col gap-4 pt-4 pb-6">
-        <div className="machkit-toolbar gap-2">
+        <ToolToolbar className="gap-2">
           <SegmentedControl
             value={mode}
             onChange={setMode}
@@ -133,7 +137,7 @@ function RegexLab() {
               { value: "replace", label: text.tabReplace },
             ]}
           />
-          <div className="ml-auto flex items-center gap-1">
+          <ActionGroup>
             <Button
               variant="ghost"
               size="sm"
@@ -148,8 +152,8 @@ function RegexLab() {
               {text.clear}
             </Button>
             <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
-          </div>
-        </div>
+          </ActionGroup>
+        </ToolToolbar>
 
         <div className="flex flex-col gap-2">
           <span className="machkit-sidebar-label">{text.pattern}</span>
@@ -187,27 +191,24 @@ function RegexLab() {
               ))}
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] text-tertiary">
-            <span>{text.presets}</span>
-            {regexPresets.map((preset) => (
-              <button
-                key={preset.id}
-                type="button"
-                className="font-mono text-secondary hover:text-accent"
-                onClick={() => applyPreset(preset)}
-              >
-                {text[PRESET_LABELS[preset.id]] || preset.id}
-              </button>
-            ))}
-          </div>
+          <ExampleChips
+            label={text.presets}
+            options={regexPresets.map((preset) => ({
+              id: preset.id,
+              value: preset.id,
+              label: text[PRESET_LABELS[preset.id]] || preset.id,
+            }))}
+            onSelect={(id) => {
+              const preset = regexPresets.find((item) => item.id === id);
+              if (preset) applyPreset(preset);
+            }}
+          />
         </div>
 
         {patternInvalid ? (
-          <InlineMessage tone="danger">{statusLabel}</InlineMessage>
+          <StatusStrip tone="danger">{statusLabel}</StatusStrip>
         ) : (
-          <div className="rounded-panel border border-border bg-accent-soft/70 px-3.5 py-2.5 text-xs text-accent">
-            {statusLabel}
-          </div>
+          <StatusStrip tone="info">{statusLabel}</StatusStrip>
         )}
 
         {mode === "replace" ? (
@@ -254,7 +255,10 @@ function RegexLab() {
           {mode === "test" ? (
             <div className="flex min-w-0 flex-col gap-2">
               <span className="machkit-sidebar-label">{text.preview}</span>
-              <div className="h-[150px] min-h-[150px] overflow-auto rounded-panel border border-border bg-surface px-3 py-2.5 font-mono text-[12px] leading-5 whitespace-pre-wrap break-words">
+              <ResultPanel
+                className="h-[150px] min-h-[150px] bg-surface"
+                bodyClassName="h-full overflow-auto px-3 py-2.5 font-mono text-[12px] leading-5 whitespace-pre-wrap break-words"
+              >
                 {input ? (
                   segments.map((segment, index) =>
                     segment.type === "match" ? (
@@ -271,7 +275,7 @@ function RegexLab() {
                 ) : (
                   <span className="text-tertiary">{text.emptyInput}</span>
                 )}
-              </div>
+              </ResultPanel>
             </div>
           ) : (
             <div className="flex min-w-0 flex-col gap-2">
@@ -289,7 +293,7 @@ function RegexLab() {
         {mode === "test" ? (
           <div className="flex flex-col gap-2">
             <span className="machkit-sidebar-label">{text.matches}</span>
-            <div className="max-h-[180px] overflow-auto rounded-panel border border-border bg-surface">
+            <ResultPanel className="max-h-[180px] overflow-auto bg-surface">
               {matchResult.ok && matchResult.matches.length ? (
                 <ul>
                   {matchResult.matches.map((match, index) => (
@@ -332,7 +336,7 @@ function RegexLab() {
               ) : (
                 <p className="px-3 py-6 text-center text-xs text-tertiary">{text.noMatches}</p>
               )}
-            </div>
+            </ResultPanel>
           </div>
         ) : null}
       </ToolContent>

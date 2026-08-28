@@ -8,7 +8,7 @@ export function SelectControl({ value, options, onChange, label, className }) {
       <Select.Trigger
         aria-label={label}
         className={cn(
-          "flex h-9.5 min-w-0 flex-1 items-center justify-between gap-2 rounded-control border border-border bg-field px-3.5 text-xs text-foreground outline-none hover:bg-muted focus:border-accent focus:ring-3 focus:ring-accent-soft",
+          "flex h-[var(--machkit-size-control)] min-w-0 flex-1 items-center justify-between gap-2 rounded-control border border-border bg-field px-3 text-xs text-foreground outline-none hover:bg-muted focus:border-accent focus:ring-3 focus:ring-accent-soft",
           className,
         )}
       >
@@ -26,7 +26,7 @@ export function SelectControl({ value, options, onChange, label, className }) {
               <Select.Item
                 value={option.value}
                 key={option.value}
-                className="relative flex h-9 cursor-default select-none items-center rounded-[6px] pr-8 pl-3 text-xs text-foreground outline-none data-[highlighted]:bg-accent-soft data-[highlighted]:text-accent"
+                className="relative flex h-[var(--machkit-size-control)] cursor-default select-none items-center rounded-sm pr-8 pl-3 text-xs text-foreground outline-none data-[highlighted]:bg-accent-soft data-[highlighted]:text-accent"
               >
                 <Select.ItemText>{option.label}</Select.ItemText>
                 <Select.ItemIndicator className="absolute right-2 inline-flex items-center text-accent">

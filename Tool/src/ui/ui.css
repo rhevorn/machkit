@@ -34,24 +34,86 @@
   --radius: 8px;
   --radius-panel: 10px;
 
-  /* MachKit aliases (used by existing tool pages) */
+  /*
+   * MachKit brand contract
+   *
+   * Tone: calm, precise, compact, and native to macOS. Blue is reserved for
+   * focus, selection, primary actions, and useful results. Ordinary structure
+   * is expressed with neutral surfaces and 1px borders instead of decoration.
+   * Shared UI components consume these roles; tools do not invent new scales.
+   */
+
+  /* Semantic color roles */
   --machkit-bg: var(--background);
   --machkit-surface: var(--card);
   --machkit-surface-muted: var(--muted);
+  --machkit-surface-elevated: var(--popover);
   --machkit-field: var(--input);
   --machkit-text: var(--foreground);
   --machkit-secondary: var(--secondary);
   --machkit-tertiary: var(--tertiary);
   --machkit-border: var(--border);
+  --machkit-border-subtle: color-mix(in srgb, var(--foreground) 8%, transparent);
+  --machkit-border-strong: color-mix(in srgb, var(--foreground) 18%, transparent);
   --machkit-accent: var(--accent);
   --machkit-accent-soft: var(--accent-soft);
+  --machkit-info: var(--accent);
+  --machkit-info-soft: var(--accent-soft);
+  --machkit-success: #248a3d;
+  --machkit-success-soft: rgb(36 138 61 / 10%);
+  --machkit-warning: #9a6700;
+  --machkit-warning-soft: rgb(154 103 0 / 11%);
   --machkit-danger: var(--destructive);
+  --machkit-danger-soft: rgb(216 59 59 / 10%);
+
+  /* 4px spacing scale. Prefer 4 / 8 / 12 / 16 / 24 / 32. */
+  --machkit-space-0: 0;
+  --machkit-space-1: 4px;
+  --machkit-space-2: 8px;
+  --machkit-space-3: 12px;
+  --machkit-space-4: 16px;
+  --machkit-space-6: 24px;
+  --machkit-space-8: 32px;
+
+  /* Compact desktop control and layout metrics */
+  --machkit-size-control-compact: 28px;
+  --machkit-size-control-small: 30px;
+  /* Default field / select / segmented / button height for compact tools */
+  --machkit-size-control: 34px;
+  --machkit-size-toolbar: 54px;
+  --machkit-size-icon-small: 14px;
+  --machkit-size-icon: 16px;
+  --machkit-size-icon-large: 18px;
+  --machkit-layout-min-width: 420px;
+  --machkit-layout-content-padding: 28px;
+  --machkit-layout-content-padding-compact: 24px;
+  --machkit-layout-section-gap: 12px;
+
+  /* Typography roles */
   --machkit-font-size-caption: 11px;
   --machkit-font-size-label: 12px;
   --machkit-font-size-body: 13px;
   --machkit-font-size-title: 14px;
+  --machkit-line-height-tight: 1.25;
+  --machkit-line-height-body: 1.45;
+  --machkit-line-height-relaxed: 1.65;
+  --machkit-font-weight-regular: 400;
+  --machkit-font-weight-medium: 500;
+  --machkit-font-weight-semibold: 600;
+
+  /* Shape, border, focus, and elevation */
+  --machkit-radius-xs: 4px;
+  --machkit-radius-sm: 6px;
   --machkit-radius-control: var(--radius);
   --machkit-radius-panel: var(--radius-panel);
+  --machkit-radius-overlay: 12px;
+  --machkit-border-width: 1px;
+  --machkit-focus-ring-width: 3px;
+  --machkit-disabled-opacity: 0.45;
+  --machkit-motion-fast: 120ms;
+  --machkit-motion-normal: 180ms;
+  --machkit-motion-slow: 240ms;
+  --machkit-ease-standard: cubic-bezier(0.2, 0, 0, 1);
   /*
    * Match SwiftUI Font.system / AppKit .systemFont on macOS.
    * Use only system UI families — named "SF Pro Text" / "Helvetica Neue"
@@ -94,11 +156,23 @@
   --color-field: var(--input);
   --color-tertiary: var(--tertiary);
   --color-danger: var(--destructive);
+  --color-danger-soft: var(--machkit-danger-soft);
+  --color-success: var(--machkit-success);
+  --color-success-soft: var(--machkit-success-soft);
+  --color-warning: var(--machkit-warning);
+  --color-warning-soft: var(--machkit-warning-soft);
+  --color-info: var(--machkit-info);
+  --color-info-soft: var(--machkit-info-soft);
+  --color-border-subtle: var(--machkit-border-subtle);
+  --color-border-strong: var(--machkit-border-strong);
+  --color-surface-elevated: var(--machkit-surface-elevated);
   --radius-control: var(--radius);
   --radius-panel: var(--radius-panel);
-  --radius-sm: calc(var(--radius) - 2px);
+  --radius-xs: var(--machkit-radius-xs);
+  --radius-sm: var(--machkit-radius-sm);
   --radius-md: var(--radius);
   --radius-lg: var(--radius-panel);
+  --radius-overlay: var(--machkit-radius-overlay);
   --text-xs: var(--machkit-font-size-label);
   --text-xs--line-height: 1.5;
   --text-sm: var(--machkit-font-size-title);
@@ -116,7 +190,7 @@
   }
   html, body, #root {
     width: 100%;
-    min-width: 420px;
+    min-width: var(--machkit-layout-min-width);
     height: 100%;
     min-height: 100%;
     margin: 0;
@@ -130,7 +204,7 @@
     color: var(--foreground);
     font-family: var(--machkit-font-sans);
     font-size: var(--machkit-font-size-body);
-    line-height: 1.45;
+    line-height: var(--machkit-line-height-body);
   }
   button, input, select, textarea { font: inherit; letter-spacing: inherit; }
   button { color: inherit; }
@@ -156,10 +230,10 @@
 
   .machkit-toolbar {
     display: flex;
-    min-height: 54px;
+    min-height: var(--machkit-size-toolbar);
     align-items: center;
-    gap: 8px;
-    border-bottom: 1px solid var(--border);
+    gap: var(--machkit-space-2);
+    border-bottom: var(--machkit-border-width) solid var(--border);
   }
   .machkit-control-label {
     flex: none;
@@ -345,6 +419,13 @@
     --input: #2a2a2d;
     --ring: rgb(10 132 255 / 35%);
     --tertiary: #707076;
+    --machkit-success: #32d74b;
+    --machkit-success-soft: rgb(50 215 75 / 14%);
+    --machkit-warning: #e3b341;
+    --machkit-warning-soft: rgb(227 179 65 / 14%);
+    --machkit-danger-soft: rgb(255 105 97 / 14%);
+    --machkit-border-subtle: color-mix(in srgb, var(--foreground) 10%, transparent);
+    --machkit-border-strong: color-mix(in srgb, var(--foreground) 22%, transparent);
     color-scheme: dark;
   }
 }
@@ -372,6 +453,13 @@
   --input: #2a2a2d;
   --ring: rgb(10 132 255 / 35%);
   --tertiary: #707076;
+  --machkit-success: #32d74b;
+  --machkit-success-soft: rgb(50 215 75 / 14%);
+  --machkit-warning: #e3b341;
+  --machkit-warning-soft: rgb(227 179 65 / 14%);
+  --machkit-danger-soft: rgb(255 105 97 / 14%);
+  --machkit-border-subtle: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --machkit-border-strong: color-mix(in srgb, var(--foreground) 22%, transparent);
   color-scheme: dark;
 }
 

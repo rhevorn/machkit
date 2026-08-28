@@ -163,7 +163,7 @@ export function DateTimePicker({ value, onChange, label, className }) {
     <Popover.Root open={open} onOpenChange={setOpen}>
       <div
         className={cn(
-          "machkit-datetime-field flex h-9.5 w-full items-center overflow-hidden rounded-control border border-border bg-field outline-none transition-[border-color,box-shadow]",
+          "machkit-datetime-field flex h-[var(--machkit-size-control)] w-full items-center overflow-hidden rounded-control border border-border bg-field outline-none transition-[border-color,box-shadow]",
           "focus-within:border-accent focus-within:ring-3 focus-within:ring-accent-soft",
           open && "border-accent ring-3 ring-accent-soft",
           className,

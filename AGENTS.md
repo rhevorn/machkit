@@ -102,9 +102,12 @@ Filesystem changes are security-sensitive.
 ## Embedded H5 tools
 
 - The unified H5 component standard is shadcn/ui through the repository-owned component layer. Do not add HeroUI or another general-purpose UI system.
+- The MachKit H5 visual language is calm, precise, compact, and macOS-native. Prefer neutral surfaces, clear hierarchy, restrained blue accents, thin borders, and functional density over decorative web styling.
 - Keep the existing tool layout unless the task explicitly requests structural change.
 - All tools must support the shared light and dark themes and visually align with the native app.
-- Reuse shared tokens, primitives, states, and interaction patterns; do not create one-off local design systems.
+- Treat `Tool/src/ui/ui.css` as the source of truth for semantic colors, spacing, radii, control sizes, borders, elevation, focus, typography, and motion. Do not introduce arbitrary local values when a shared token exists.
+- Reuse shared tokens, shadcn primitives, product-pattern components, page templates, states, and interaction patterns; do not create one-off local design systems.
+- For broad H5 UI migrations, follow `Tool/UI_MIGRATION_PLAN.md` in addition to `Tool/AGENTS.md`.
 - Keep tool identifiers, registry capabilities, bundled resource paths, and native bridge behavior synchronized.
 
 ## Website

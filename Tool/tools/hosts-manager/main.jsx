@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { Desktop, HardDrives, Link, Plus, Trash } from "@phosphor-icons/react";
-import { Button, InlineMessage, ToolPage } from "@/ui/index.js";
+import { Button, IconButton, Input, RadioDot, SidebarNavItem, StatusStrip, ToolPage, ToolSidebar } from "@/ui/index.js";
 import { useMachKitEditorTheme } from "@/ui/codemirror-theme.js";
 import { useToolMessages } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
@@ -145,7 +145,13 @@ function HostsManager() {
     return environment.name;
   };
 
-  if (!data) return <ToolPage title="Hosts Manager"><div className="grid h-full place-items-center text-xs text-secondary">{message || "…"}</div></ToolPage>;
+  if (!data) {
+    return (
+      <ToolPage title={text.title}>
+        <div className="grid h-full place-items-center text-xs text-secondary">{message || "…"}</div>
+      </ToolPage>
+    );
+  }
 
   const rows = [
     { id: "system", name: text.systemHosts, hint: text.systemHint, icon: Desktop },
@@ -154,13 +160,31 @@ function HostsManager() {
   ];
 
   return (
-    <ToolPage title="Hosts Manager">
+    <ToolPage title={text.title}>
       <div className="flex min-h-0 flex-1 bg-surface">
-        <aside className="w-[220px] shrink-0 bg-surface p-3">
+        <ToolSidebar width={220} className="bg-surface p-3">
           <div className="machkit-sidebar-label px-2 pt-1 pb-1.5">{text.system}</div>
-          {rows.slice(0, 1).map((row) => <HostRow key={row.id} row={row} selected={selection === row.id} active={false} onSelect={setSelection} />)}
+          {rows.slice(0, 1).map((row) => (
+            <SidebarNavItem
+              key={row.id}
+              icon={row.icon}
+              label={row.name}
+              hint={row.hint}
+              active={selection === row.id}
+              onClick={() => setSelection(row.id)}
+            />
+          ))}
           <div className="machkit-sidebar-label px-2 pt-3 pb-1.5">{text.shared}</div>
-          {rows.slice(1, 2).map((row) => <HostRow key={row.id} row={row} selected={selection === row.id} active={false} onSelect={setSelection} />)}
+          {rows.slice(1, 2).map((row) => (
+            <SidebarNavItem
+              key={row.id}
+              icon={row.icon}
+              label={row.name}
+              hint={row.hint}
+              active={selection === row.id}
+              onClick={() => setSelection(row.id)}
+            />
+          ))}
           <div className="mt-3 flex items-center justify-between px-2.5 py-2">
             <span className="machkit-sidebar-label">{text.environments}</span>
             <Button variant="ghost" size="icon" className="size-7" onClick={addEnvironment} aria-label={text.add}><Plus size={14} /></Button>
@@ -180,18 +204,18 @@ function HostsManager() {
               />
             ))}
           </div>
-        </aside>
+        </ToolSidebar>
 
         <section className="flex min-w-0 flex-1 flex-col">
-          <header className="flex h-[62px] shrink-0 items-center px-5">
+          <header className="flex min-h-[var(--machkit-size-toolbar)] shrink-0 items-center px-5">
             <div className="min-w-0 flex-1">
               {selectedEnvironment ? (
-                <input
+                <Input
                   value={environmentName(selectedEnvironment)}
                   onChange={(event) => updateName(event.target.value)}
                   onBlur={() => save()}
                   aria-label={environmentName(selectedEnvironment)}
-                  className="h-7 w-full rounded-[6px] bg-transparent px-1 text-sm font-semibold outline-none hover:bg-muted focus:bg-muted"
+                  className="h-7 border-transparent bg-transparent px-1 text-sm font-semibold shadow-none hover:bg-muted focus:border-transparent focus:bg-muted focus:ring-0"
                 />
               ) : (
                 <div className="truncate px-1 text-sm font-semibold">
@@ -225,55 +249,39 @@ function HostsManager() {
               className="hosts-code-editor machkit-panel h-full min-h-0"
             />
           </div>
-          {message ? <div className="px-3 pb-3"><InlineMessage tone="danger">{message}</InlineMessage></div> : null}
+          {message ? <div className="px-3 pb-3"><StatusStrip tone="danger">{message}</StatusStrip></div> : null}
         </section>
       </div>
     </ToolPage>
   );
 }
 
-function HostRow({ row, selected, active, onSelect }) {
-  const Icon = row.icon;
-  return (
-    <button type="button" onClick={() => onSelect(row.id)} className={`flex h-12 w-full items-center gap-3 rounded-control px-2.5 text-left ${selected ? "bg-foreground/[0.075] text-foreground" : "text-foreground hover:bg-foreground/[0.045]"}`}>
-      <Icon size={16} className="shrink-0" />
-      <span className="min-w-0 flex-1"><span className="block truncate text-xs font-medium">{row.name}</span>{row.hint ? <span className="mt-0.5 block truncate text-[11px] text-secondary">{row.hint}</span> : null}</span>
-      {active ? <span className="size-1.5 rounded-full bg-green-500" /> : null}
-    </button>
-  );
-}
-
 function EnvironmentRow({ row, text, busy, selected, active, onSelect, onActivate, onDelete }) {
-  const Icon = row.icon;
   return (
-    <div className={`group flex h-12 w-full items-center rounded-control pr-2.5 ${selected ? "bg-foreground/[0.075]" : "hover:bg-foreground/[0.045]"}`}>
-      <button type="button" onClick={() => onSelect(row.id)} className="flex min-w-0 flex-1 items-center gap-3 self-stretch px-2.5 text-left text-foreground">
-        <Icon size={16} className="shrink-0 text-secondary" />
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-xs font-medium">{row.name}</span>
-          {active ? <span className="mt-0.5 block truncate text-[11px] text-secondary">{text.active}</span> : null}
-        </span>
-      </button>
-      <button
-        type="button"
-        aria-label={`${text.delete} ${row.name}`}
+    <div className="group flex w-full items-center gap-0.5">
+      <SidebarNavItem
+        icon={row.icon}
+        label={row.name}
+        hint={active ? text.active : undefined}
+        active={selected}
+        onClick={() => onSelect(row.id)}
+        className="min-w-0 flex-1"
+      />
+      <IconButton
+        label={`${text.delete} ${row.name}`}
         disabled={active || busy}
         onClick={() => onDelete(row.id)}
-        className="mr-1.5 grid size-7 shrink-0 place-items-center rounded-[6px] text-secondary opacity-0 outline-none transition-opacity group-hover:opacity-100 hover:bg-danger/10 hover:text-danger focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-accent/30 disabled:pointer-events-none disabled:opacity-0"
+        className="size-7 shrink-0 text-secondary opacity-0 transition-opacity group-hover:opacity-100 hover:bg-danger/10 hover:text-danger focus-visible:opacity-100 disabled:pointer-events-none disabled:opacity-0"
       >
         <Trash size={14} />
-      </button>
-      <button
-        type="button"
-        role="radio"
-        aria-checked={active}
-        aria-label={`${text.activate} ${row.name}`}
+      </IconButton>
+      <RadioDot
+        checked={active}
         disabled={active || busy}
+        label={`${text.activate} ${row.name}`}
         onClick={() => onActivate(row.id)}
-        className={`grid size-[15px] shrink-0 place-items-center rounded-full border outline-none transition-colors focus-visible:ring-2 focus-visible:ring-accent/30 ${active ? "border-accent bg-accent" : "border-tertiary hover:border-accent"}`}
-      >
-        {active ? <span className="size-[5px] rounded-full bg-white" /> : null}
-      </button>
+        className="mr-1"
+      />
     </div>
   );
 }

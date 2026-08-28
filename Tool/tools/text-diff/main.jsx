@@ -1,13 +1,17 @@
 import React, { useMemo, useState } from "react";
 import { ArrowsLeftRight, CopySimple, Eraser } from "@phosphor-icons/react";
 import {
+  ActionGroup,
   Button,
   CheckboxField,
-  InlineMessage,
+  EditorPane,
+  SplitWorkspace,
+  StatusStrip,
   Textarea,
   ToolContent,
   ToolInfoButton,
   ToolPage,
+  ToolToolbar,
 } from "@/ui/index.js";
 import { useToolMessages } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
@@ -63,13 +67,13 @@ function TextDiff() {
   return (
     <ToolPage title={text.title}>
       <ToolContent className="flex flex-col gap-3 pt-4 pb-5">
-        <div className="machkit-toolbar flex-wrap gap-x-4 gap-y-2">
+        <ToolToolbar className="flex-wrap gap-x-4 gap-y-2">
           <CheckboxField
             checked={ignoreWhitespace}
             onCheckedChange={(checked) => setIgnoreWhitespace(checked === true)}
             label={text.ignoreWhitespace}
           />
-          <div className="ml-auto flex items-center gap-1">
+          <ActionGroup>
             <Button
               variant="ghost"
               size="sm"
@@ -102,12 +106,12 @@ function TextDiff() {
               {text.clear}
             </Button>
             <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
-          </div>
-        </div>
+          </ActionGroup>
+        </ToolToolbar>
 
-        <InlineMessage tone={status.tone}>{status.label}</InlineMessage>
+        <StatusStrip tone={status.tone}>{status.label}</StatusStrip>
 
-        <div className="grid gap-3 lg:grid-cols-2">
+        <SplitWorkspace>
           <label className="flex min-w-0 flex-col gap-2">
             <span className="machkit-control-label">{text.left}</span>
             <Textarea
@@ -126,11 +130,11 @@ function TextDiff() {
               spellCheck={false}
             />
           </label>
-        </div>
+        </SplitWorkspace>
 
         <div className="flex flex-col gap-2">
           <span className="machkit-control-label">{text.diff}</span>
-          <div className="machkit-panel overflow-hidden">
+          <EditorPane>
             {result.ok && result.rows.length ? (
               <div className="grid max-h-[320px] grid-cols-2 overflow-auto font-mono text-[12px] leading-5">
                 <div className="min-w-0 border-r border-border">
@@ -161,7 +165,7 @@ function TextDiff() {
             ) : (
               <p className="px-3 py-8 text-center text-xs text-tertiary">{text.empty}</p>
             )}
-          </div>
+          </EditorPane>
         </div>
       </ToolContent>
     </ToolPage>

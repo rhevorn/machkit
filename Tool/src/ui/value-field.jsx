@@ -16,7 +16,7 @@ export function ValueField({
   return (
     <div
       className={cn(
-        "flex h-9.5 w-full items-center overflow-hidden rounded-control border border-border bg-field",
+        "flex h-[var(--machkit-size-control)] w-full items-center overflow-hidden rounded-control border border-border bg-field",
         invalid && "border-danger",
         className,
       )}

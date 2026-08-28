@@ -1,15 +1,17 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowsClockwise, CopySimple, Eraser } from "@phosphor-icons/react";
 import {
+  ActionGroup,
   Button,
   CheckboxField,
-  InlineMessage,
   Input,
   SegmentedControl,
   SelectControl,
+  StatusStrip,
   ToolContent,
   ToolInfoButton,
   ToolPage,
+  ToolToolbar,
 } from "@/ui/index.js";
 import { useToolMessages } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
@@ -379,7 +381,7 @@ function StringGenerator() {
   return (
     <ToolPage title={text.title}>
       <ToolContent className="flex flex-col gap-3 pt-4 pb-5">
-        <div className="machkit-toolbar gap-2">
+        <ToolToolbar className="gap-2">
           <SegmentedControl
             value={format}
             onChange={setFormat}
@@ -389,9 +391,9 @@ function StringGenerator() {
             options={formatOptions}
           />
           <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
-        </div>
+        </ToolToolbar>
 
-        <div className="machkit-toolbar flex-wrap gap-x-4 gap-y-2">
+        <ToolToolbar className="flex-wrap gap-x-4 gap-y-2">
           {format === "uuid" ? (
             <SegmentedControl
               value={uuidVersion}
@@ -439,7 +441,7 @@ function StringGenerator() {
             />
           ) : null}
 
-          <div className="ml-auto">
+          <ActionGroup>
             <Button
               variant="secondary"
               size="sm"
@@ -449,11 +451,11 @@ function StringGenerator() {
               <ArrowsClockwise size={15} />
               {text.regenerate}
             </Button>
-          </div>
-        </div>
+          </ActionGroup>
+        </ToolToolbar>
 
         {isNameBased || format === "password" || (format !== "nanoid" && format !== "password") ? (
-          <div className="machkit-toolbar flex-wrap gap-x-4 gap-y-2">
+          <ToolToolbar className="flex-wrap gap-x-4 gap-y-2">
             {isNameBased ? (
               <>
                 <div className="flex min-w-0 items-center gap-2">
@@ -527,11 +529,11 @@ function StringGenerator() {
                 ) : null}
               </>
             ) : null}
-          </div>
+          </ToolToolbar>
         ) : null}
 
         {error === "alphabet-empty" ? (
-          <InlineMessage tone="danger">{text.alphabetEmpty}</InlineMessage>
+          <StatusStrip tone="danger">{text.alphabetEmpty}</StatusStrip>
         ) : null}
 
         <div className="flex w-full flex-col gap-2">
@@ -539,7 +541,7 @@ function StringGenerator() {
             <span className="machkit-control-label">{text.results}</span>
             {results.length ? <span className="text-xs text-tertiary">{results.length}</span> : null}
             <span className="text-xs text-tertiary">{text.clickToCopy}</span>
-            <div className="ml-auto flex gap-1">
+            <ActionGroup>
               <Button
                 variant="ghost"
                 size="sm"
@@ -558,7 +560,7 @@ function StringGenerator() {
                 <Eraser size={16} />
                 {text.clear}
               </Button>
-            </div>
+            </ActionGroup>
           </div>
 
           {results.length ? (
@@ -568,23 +570,24 @@ function StringGenerator() {
             >
               {results.map((value, index) => (
                 <li key={`${index}-${value}`} className="border-b border-border last:border-b-0">
-                  <button
+                  <Button
                     type="button"
-                    className="flex w-full cursor-pointer items-center gap-3 px-3.5 py-2.5 text-left hover:bg-muted focus-visible:bg-muted focus-visible:outline-none"
+                    variant="ghost"
+                    className="flex h-auto w-full items-center justify-start gap-3 rounded-none px-3.5 py-2.5 text-left font-normal hover:bg-muted"
                     title={text.clickToCopy}
                     onClick={() => machkit.copy(value)}
                   >
                     <span className="w-7 shrink-0 text-xs tabular-nums text-tertiary">{index + 1}</span>
                     <span className="min-w-0 flex-1 truncate font-mono text-[13px] text-foreground">{value}</span>
                     <CopySimple size={14} className="shrink-0 text-tertiary" />
-                  </button>
+                  </Button>
                 </li>
               ))}
             </ol>
           ) : (
-            <InlineMessage tone="neutral">
+            <StatusStrip tone="neutral">
               {error === "alphabet-empty" ? text.alphabetEmpty : text.empty}
-            </InlineMessage>
+            </StatusStrip>
           )}
         </div>
       </ToolContent>

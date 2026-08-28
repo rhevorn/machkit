@@ -2,14 +2,18 @@ import React, { useMemo, useRef, useState } from "react";
 import { DownloadSimple, Eraser, Image as ImageIcon, Trash, UploadSimple } from "@phosphor-icons/react";
 import JSZip from "jszip";
 import {
+  ActionGroup,
   Button,
   CheckboxField,
-  InlineMessage,
   Input,
+  ResultPanel,
   SegmentedControl,
+  Slider,
+  StatusStrip,
   ToolContent,
   ToolInfoButton,
   ToolPage,
+  ToolToolbar,
 } from "@/ui/index.js";
 import { useToolMessages } from "@/i18n.js";
 import { mountTool } from "@/runtime/mount-tool.jsx";
@@ -233,7 +237,7 @@ function ImageProcessTool() {
     <ToolPage title={text.title}>
       <ToolContent className="flex flex-col gap-3 pt-3 pb-4">
         <div className="flex w-full flex-col gap-2.5 border-b border-border pb-3">
-          <div className="flex w-full items-center gap-2">
+          <ToolToolbar className="gap-2">
             <span className="machkit-control-label w-16 shrink-0">{text.convertTo}</span>
             <SegmentedControl
               value={format}
@@ -243,7 +247,7 @@ function ImageProcessTool() {
               className="min-w-0 flex-1"
               options={formatOptions}
             />
-            <div className="flex shrink-0 items-center gap-1">
+            <ActionGroup>
               <Button variant="ghost" size="sm" disabled={!items.length || busy} onClick={processAll}>
                 {text.process}
               </Button>
@@ -256,8 +260,8 @@ function ImageProcessTool() {
                 {text.clear}
               </Button>
               <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
-            </div>
-          </div>
+            </ActionGroup>
+          </ToolToolbar>
 
           <div className="flex w-full items-center gap-2">
             <span className="machkit-control-label w-16 shrink-0">{text.mode}</span>
@@ -274,15 +278,15 @@ function ImageProcessTool() {
           {mode === "quality" ? (
             <div className="flex w-full items-center gap-2">
               <span className="machkit-control-label w-16 shrink-0">{text.quality}</span>
-              <input
-                type="range"
-                min="0.05"
-                max="1"
-                step="0.05"
+              <Slider
+                className="min-w-0 flex-1 gap-0"
+                min={0.05}
+                max={1}
+                step={0.05}
                 value={quality}
                 disabled={format === "png"}
-                onChange={(event) => setQuality(Number(event.target.value))}
-                className="w-40 shrink-0 accent-[var(--color-accent)]"
+                aria-label={text.quality}
+                onChange={(next) => setQuality(next)}
               />
               <span className="w-10 shrink-0 text-right font-mono text-[12px] text-secondary">
                 {Math.round(quality * 100)}
@@ -337,7 +341,7 @@ function ImageProcessTool() {
                   />
                   <span className="shrink-0 text-[12px] text-tertiary">{dimUnit}</span>
                 </div>
-                <div className="ml-auto flex items-center gap-3">
+                <ActionGroup className="gap-3">
                   <SegmentedControl
                     value={dimUnit}
                     onChange={setDimUnit}
@@ -351,19 +355,19 @@ function ImageProcessTool() {
                     onCheckedChange={(value) => setLockAspect(value === true)}
                     label={text.lockAspect}
                   />
-                </div>
+                </ActionGroup>
               </div>
               <div className="flex w-full items-center gap-2">
                 <span className="machkit-control-label w-16 shrink-0">{text.quality}</span>
-                <input
-                  type="range"
-                  min="0.05"
-                  max="1"
-                  step="0.05"
+                <Slider
+                  className="min-w-0 flex-1 gap-0"
+                  min={0.05}
+                  max={1}
+                  step={0.05}
                   value={quality}
                   disabled={format === "png"}
-                  onChange={(event) => setQuality(Number(event.target.value))}
-                  className="w-40 shrink-0 accent-[var(--color-accent)]"
+                  aria-label={text.quality}
+                  onChange={(next) => setQuality(next)}
                 />
                 <span className="w-10 shrink-0 text-right font-mono text-[12px] text-secondary">
                   {Math.round(quality * 100)}
@@ -373,7 +377,7 @@ function ImageProcessTool() {
           ) : null}
         </div>
 
-        <InlineMessage tone={status.tone}>{status.label}</InlineMessage>
+        <StatusStrip tone={status.tone}>{status.label}</StatusStrip>
 
         {busy && progress ? (
           <div className="w-full" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progressPercent}>
@@ -392,9 +396,10 @@ function ImageProcessTool() {
           </div>
         ) : null}
 
-        <button
+        <Button
           type="button"
-          className={`flex min-h-[120px] flex-col items-center justify-center gap-2 rounded-panel border border-dashed px-4 py-6 text-center transition-colors ${
+          variant="ghost"
+          className={`flex h-auto min-h-[120px] w-full flex-col items-center justify-center gap-2 rounded-panel border border-dashed px-4 py-6 text-center font-normal hover:bg-transparent ${
             dragOver ? "border-accent bg-accent-soft" : "border-border bg-field hover:border-accent/50"
           }`}
           onClick={() => inputRef.current?.click()}
@@ -426,11 +431,12 @@ function ImageProcessTool() {
               addFiles(event.target.files);
               event.target.value = "";
             }}
+            onClick={(event) => event.stopPropagation()}
           />
-        </button>
+        </Button>
 
         {items.length ? (
-          <div className="machkit-panel divide-y divide-border">
+          <ResultPanel bodyClassName="divide-y divide-border">
             {items.map((item) => {
               const result = item.result;
               return (
@@ -483,7 +489,7 @@ function ImageProcessTool() {
                 </div>
               );
             })}
-          </div>
+          </ResultPanel>
         ) : null}
       </ToolContent>
     </ToolPage>

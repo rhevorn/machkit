@@ -1,15 +1,19 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { CopySimple, Eraser } from "@phosphor-icons/react";
 import {
+  ActionGroup,
   Button,
-  InlineMessage,
   Input,
+  ResultPanel,
   SegmentedControl,
   SelectControl,
+  SplitWorkspace,
+  StatusStrip,
   Textarea,
   ToolContent,
   ToolInfoButton,
   ToolPage,
+  ToolToolbar,
 } from "@/ui/index.js";
 import { useToolMessages } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
@@ -141,7 +145,7 @@ function JwtLabTool() {
   return (
     <ToolPage title={text.title}>
       <ToolContent className="flex flex-col gap-3 pt-3 pb-4">
-        <div className="flex w-full flex-wrap items-center gap-y-2">
+        <ToolToolbar className="flex-wrap gap-y-2">
           <SegmentedControl
             value={mode}
             onChange={setMode}
@@ -183,7 +187,7 @@ function JwtLabTool() {
 
           <div className="mx-3 h-5 w-px shrink-0 bg-border" aria-hidden="true" />
 
-          <div className="flex shrink-0 items-center gap-1">
+          <ActionGroup>
             <Button
               variant="ghost"
               size="sm"
@@ -207,8 +211,8 @@ function JwtLabTool() {
               {text.clear}
             </Button>
             <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
-          </div>
-        </div>
+          </ActionGroup>
+        </ToolToolbar>
 
         <div className="flex min-w-0 flex-col gap-1.5">
           <span className="machkit-control-label">{text.token}</span>
@@ -227,39 +231,40 @@ function JwtLabTool() {
 
         {mode === "decode" ? (
           <>
-            <InlineMessage tone={decodeStatus.tone}>{decodeStatus.label}</InlineMessage>
+            <StatusStrip tone={decodeStatus.tone}>{decodeStatus.label}</StatusStrip>
             {decoded.ok ? <p className="text-[11px] text-tertiary">{text.unverified}</p> : null}
 
             {decoded.ok ? (
               <div className="grid gap-3 lg:grid-cols-2">
-                <div className="machkit-panel overflow-hidden">
-                  <div className="flex items-center justify-between border-b border-border px-3 py-2">
-                    <span className="text-[12px] font-medium">{text.header}</span>
+                <ResultPanel
+                  title={text.header}
+                  actions={
                     <Button variant="ghost" size="sm" onClick={() => machkit.copy(decoded.headerJson)}>
                       <CopySimple size={15} />
                       {text.copy}
                     </Button>
-                  </div>
+                  }
+                >
                   <pre className="max-h-48 overflow-auto px-3 py-2 font-mono text-[12px] leading-relaxed">
                     {decoded.headerJson}
                   </pre>
-                </div>
+                </ResultPanel>
 
-                <div className="machkit-panel overflow-hidden">
-                  <div className="flex items-center justify-between border-b border-border px-3 py-2">
-                    <span className="text-[12px] font-medium">{text.payload}</span>
+                <ResultPanel
+                  title={text.payload}
+                  actions={
                     <Button variant="ghost" size="sm" onClick={() => machkit.copy(decoded.payloadJson)}>
                       <CopySimple size={15} />
                       {text.copy}
                     </Button>
-                  </div>
+                  }
+                >
                   <pre className="max-h-48 overflow-auto px-3 py-2 font-mono text-[12px] leading-relaxed">
                     {decoded.payloadJson}
                   </pre>
-                </div>
+                </ResultPanel>
 
-                <div className="machkit-panel overflow-hidden lg:col-span-2">
-                  <div className="border-b border-border px-3 py-2 text-[12px] font-medium">{text.claims}</div>
+                <ResultPanel title={text.claims} className="lg:col-span-2">
                   <ClaimRow label={text.exp} claim={decoded.exp} none={text.none} />
                   <ClaimRow label={text.iat} claim={decoded.iat} none={text.none} />
                   <ClaimRow label={text.nbf} claim={decoded.nbf} none={text.none} />
@@ -269,13 +274,13 @@ function JwtLabTool() {
                       {decoded.parts.signature || text.none}
                     </code>
                   </div>
-                </div>
+                </ResultPanel>
               </div>
             ) : null}
           </>
         ) : (
           <>
-            <div className="grid gap-3 lg:grid-cols-2">
+            <SplitWorkspace>
               <div className="flex min-w-0 flex-col gap-1.5">
                 <span className="machkit-control-label">{text.header}</span>
                 <Textarea
@@ -294,11 +299,11 @@ function JwtLabTool() {
                   spellCheck={false}
                 />
               </div>
-            </div>
+            </SplitWorkspace>
 
-            <InlineMessage tone={generateStatus.tone}>
+            <StatusStrip tone={generateStatus.tone}>
               {busy ? text.generate : generateStatus.label}
-            </InlineMessage>
+            </StatusStrip>
           </>
         )}
       </ToolContent>

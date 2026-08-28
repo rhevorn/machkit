@@ -6,7 +6,7 @@ export const Input = React.forwardRef(function Input({ className, invalid = fals
     <input
       ref={ref}
       className={cn(
-        "h-9.5 w-full rounded-control border border-border bg-field px-3.5 font-sans text-[13px] text-foreground outline-none transition-[border-color,box-shadow] placeholder:text-tertiary focus:border-accent focus:ring-3 focus:ring-accent-soft",
+        "h-[var(--machkit-size-control)] w-full rounded-control border border-border bg-field px-3 font-sans text-[13px] text-foreground outline-none transition-[border-color,box-shadow] placeholder:text-tertiary focus:border-accent focus:ring-3 focus:ring-accent-soft",
         invalid && "border-danger focus:border-danger focus:ring-danger/10",
         className,
       )}

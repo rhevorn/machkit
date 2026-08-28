@@ -1,12 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { CopySimple, Eraser, Plus, Trash } from "@phosphor-icons/react";
 import {
+  ActionGroup,
   Button,
-  InlineMessage,
   Input,
+  StatusStrip,
   ToolContent,
   ToolInfoButton,
   ToolPage,
+  ToolToolbar,
 } from "@/ui/index.js";
 import { cn } from "@/lib/utils.js";
 import { useToolMessages } from "@/i18n.js";
@@ -81,7 +83,7 @@ function UrlLabTool() {
   return (
     <ToolPage title={text.title}>
       <ToolContent className="flex flex-col gap-4 pt-4 pb-6">
-        <div className="machkit-toolbar gap-2">
+        <ToolToolbar className="gap-2">
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <label htmlFor="url-raw" className="machkit-control-label whitespace-nowrap">
               {text.input}
@@ -96,22 +98,24 @@ function UrlLabTool() {
               invalid={Boolean(error) && Boolean(raw.trim())}
             />
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setRaw("");
-              setParts(parseURL("").parts);
-              setQuery([{ key: "", value: "" }]);
-            }}
-          >
-            <Eraser size={15} />
-            {text.clear}
-          </Button>
-          <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
-        </div>
+          <ActionGroup>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setRaw("");
+                setParts(parseURL("").parts);
+                setQuery([{ key: "", value: "" }]);
+              }}
+            >
+              <Eraser size={15} />
+              {text.clear}
+            </Button>
+            <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
+          </ActionGroup>
+        </ToolToolbar>
 
-        {error ? <InlineMessage tone="danger">{error}</InlineMessage> : null}
+        {error ? <StatusStrip tone="danger">{error}</StatusStrip> : null}
 
         <div className="flex flex-col gap-2">
           <span className="machkit-sidebar-label">{text.result}</span>

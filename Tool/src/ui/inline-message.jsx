@@ -6,8 +6,10 @@ export function InlineMessage({ children, tone = "neutral", className }) {
       className={cn(
         "rounded-control px-3.5 py-2.5 text-xs leading-relaxed",
         tone === "neutral" && "border border-border bg-transparent text-secondary",
-        tone === "info" && "bg-accent-soft text-accent",
-        tone === "danger" && "bg-danger/10 text-danger",
+        tone === "info" && "bg-info-soft text-info",
+        tone === "success" && "bg-success-soft text-success",
+        tone === "warning" && "bg-warning-soft text-warning",
+        tone === "danger" && "bg-danger-soft text-danger",
         className,
       )}
     >

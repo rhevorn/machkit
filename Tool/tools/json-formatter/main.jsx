@@ -4,12 +4,15 @@ import { json } from "@codemirror/lang-json";
 import { ViewPlugin } from "@codemirror/view";
 import { BracketsCurly, CopySimple, Eraser, MagnifyingGlass, Quotes, TextAa, TreeStructure } from "@phosphor-icons/react";
 import {
+  ActionGroup,
   Button,
-  InlineMessage,
+  EditorPane,
   Input,
+  StatusStrip,
   ToolContent,
   ToolInfoButton,
   ToolPage,
+  ToolToolbar,
 } from "@/ui/index.js";
 import { useToolMessages } from "@/i18n.js";
 import { useMachKitEditorTheme } from "@/ui/codemirror-theme.js";
@@ -300,7 +303,7 @@ function JsonFormatter() {
   return (
     <ToolPage title={text.title}>
       <ToolContent className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden pt-4">
-        <div className="machkit-toolbar flex-wrap pb-1.5">
+        <ToolToolbar className="flex-wrap pb-1.5">
           <Button variant="secondary" size="sm" disabled={!parsed.ok} onClick={() => mutate("format")}>
             <BracketsCurly size={15} />
             {text.format}
@@ -326,7 +329,7 @@ function JsonFormatter() {
             <Quotes size={15} weight="duotone" />
             {text.unescape}
           </Button>
-          <div className="ml-auto flex items-center gap-2">
+          <ActionGroup className="gap-2">
             <Button variant="ghost" size="sm" disabled={!source} onClick={() => machkit.copy(source)}>
               <CopySimple size={16} />
               <span className="max-[560px]:hidden">{text.copy}</span>
@@ -345,10 +348,10 @@ function JsonFormatter() {
               <span className="max-[560px]:hidden">{text.clear}</span>
             </Button>
             <ToolInfoButton info={text.info} className="size-8" />
-          </div>
-        </div>
+          </ActionGroup>
+        </ToolToolbar>
 
-        <div className="machkit-toolbar min-w-0 gap-2">
+        <ToolToolbar className="min-w-0 gap-2">
           <MagnifyingGlass size={15} className="shrink-0 text-secondary" />
           <span className="machkit-control-label">{text.path}</span>
           <Input
@@ -364,7 +367,7 @@ function JsonFormatter() {
               {pathStatus.label}
             </span>
           ) : null}
-        </div>
+        </ToolToolbar>
 
         <div className={`grid min-h-0 min-w-0 flex-1 items-stretch gap-4 py-4 ${showResults ? "min-[900px]:grid-cols-[minmax(0,1.35fr)_minmax(0,0.9fr)]" : ""}`}>
           <div className="json-code-editor machkit-panel min-h-[360px] min-w-0 overflow-hidden">
@@ -394,69 +397,74 @@ function JsonFormatter() {
           </div>
 
           {showResults ? (
-            <section className="machkit-panel flex min-h-[360px] min-w-0 flex-col overflow-hidden">
-              <header className="flex h-11 shrink-0 items-center border-b border-border px-4 text-xs font-medium text-secondary">
-                {text.results}
-              </header>
-              <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-3">
-                {pathQuery.matches.map((match) => {
-                  const valueText = stringifyValue(match.value);
-                  const fillHeight = pathQuery.matches.length === 1;
-                  return (
-                    <article
-                      key={match.path}
-                      className={
-                        fillHeight
-                          ? "flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-control border border-border bg-field px-3 py-2.5"
-                          : "flex max-h-64 min-w-0 shrink-0 flex-col overflow-hidden rounded-control border border-border bg-field px-3 py-2.5"
-                      }
-                    >
-                      <div className="mb-2 flex shrink-0 items-start gap-2">
-                        <code className="min-w-0 flex-1 truncate font-mono text-[11px] text-accent">{match.path}</code>
-                        <button
-                          type="button"
-                          className="shrink-0 text-[10px] text-secondary hover:text-foreground"
-                          onClick={() => machkit.copy(match.path)}
-                        >
-                          {text.copyPath}
-                        </button>
-                      </div>
-                      <div className="flex min-h-0 min-w-0 flex-1 items-stretch gap-2 overflow-hidden">
-                        <JsonHighlight value={match.value} />
-                        <button
-                          type="button"
-                          className="shrink-0 self-start text-[10px] text-secondary hover:text-foreground"
-                          onClick={() => machkit.copy(valueText)}
-                        >
-                          {text.copyValue}
-                        </button>
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
-            </section>
+            <EditorPane
+              title={text.results}
+              className="min-h-[360px]"
+              bodyClassName="space-y-3 overflow-y-auto p-3"
+            >
+              {pathQuery.matches.map((match) => {
+                const valueText = stringifyValue(match.value);
+                const fillHeight = pathQuery.matches.length === 1;
+                return (
+                  <article
+                    key={match.path}
+                    className={
+                      fillHeight
+                        ? "flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-control border border-border bg-field px-3 py-2.5"
+                        : "flex max-h-64 min-w-0 shrink-0 flex-col overflow-hidden rounded-control border border-border bg-field px-3 py-2.5"
+                    }
+                  >
+                    <div className="mb-2 flex shrink-0 items-start gap-2">
+                      <code className="min-w-0 flex-1 truncate font-mono text-[11px] text-accent">{match.path}</code>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="compact"
+                        className="h-auto shrink-0 px-1.5 py-0.5 text-[10px] font-normal"
+                        onClick={() => machkit.copy(match.path)}
+                      >
+                        {text.copyPath}
+                      </Button>
+                    </div>
+                    <div className="flex min-h-0 min-w-0 flex-1 items-stretch gap-2 overflow-hidden">
+                      <JsonHighlight value={match.value} />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="compact"
+                        className="h-auto shrink-0 self-start px-1.5 py-0.5 text-[10px] font-normal"
+                        onClick={() => machkit.copy(valueText)}
+                      >
+                        {text.copyValue}
+                      </Button>
+                    </div>
+                  </article>
+                );
+              })}
+            </EditorPane>
           ) : null}
         </div>
 
         <div className="flex min-h-8 items-center justify-between gap-3">
           {transformError || status.tone === "danger" ? (
-            <InlineMessage tone="danger" className="min-w-0 flex-1">
+            <StatusStrip tone="danger" className="min-w-0 flex-1">
               {transformError || status.label}
-            </InlineMessage>
+            </StatusStrip>
           ) : (
             <p className="min-w-0 flex-1 truncate text-xs text-secondary">{status.label}</p>
           )}
           {cursorPath ? (
-            <button
+            <Button
               type="button"
-              className="machkit-control-label inline-flex max-w-[55%] items-center gap-1.5 truncate text-left hover:text-foreground"
+              variant="ghost"
+              size="compact"
+              className="machkit-control-label inline-flex h-auto max-w-[55%] items-center gap-1.5 truncate px-1.5 py-0.5 text-left font-normal"
               title={text.copyPath}
               onClick={() => machkit.copy(cursorPath)}
             >
               <span className="shrink-0">{text.location}</span>
               <code className="min-w-0 truncate font-mono text-[11px] text-accent">{cursorPath}</code>
-            </button>
+            </Button>
           ) : null}
         </div>
       </ToolContent>

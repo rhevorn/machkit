@@ -1,14 +1,17 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { CopySimple, DownloadSimple, Eraser, Image as ImageIcon } from "@phosphor-icons/react";
 import {
+  ActionGroup,
   Button,
-  InlineMessage,
   Input,
+  ResultPanel,
   SegmentedControl,
+  StatusStrip,
   Textarea,
   ToolContent,
   ToolInfoButton,
   ToolPage,
+  ToolToolbar,
 } from "@/ui/index.js";
 import { useToolMessages } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
@@ -109,7 +112,7 @@ function QrCodeTool() {
   return (
     <ToolPage title={text.title}>
       <ToolContent className="flex flex-col gap-3 pt-3 pb-4">
-        <div className="flex w-full flex-wrap items-center gap-y-2 border-b border-border pb-3">
+        <ToolToolbar className="flex-wrap gap-y-2 border-b border-border pb-3">
           <div className="flex items-center gap-2">
             <span className="machkit-control-label shrink-0">{text.size}</span>
             <Input
@@ -169,9 +172,9 @@ function QrCodeTool() {
               }}
             />
           </div>
-        </div>
+        </ToolToolbar>
 
-        <InlineMessage tone={status.tone}>{status.label}</InlineMessage>
+        <StatusStrip tone={status.tone}>{status.label}</StatusStrip>
         {logoDataURL ? (
           <p className="text-[11px] text-tertiary">{text.logoHint}</p>
         ) : null}
@@ -196,7 +199,10 @@ function QrCodeTool() {
 
           <div className="flex min-h-0 min-w-0 flex-col gap-1.5">
             <span className="machkit-control-label">{text.preview}</span>
-            <div className="machkit-panel flex min-h-[240px] flex-1 flex-col items-center justify-center p-4">
+            <ResultPanel
+              className="flex min-h-[240px] flex-1 flex-col"
+              bodyClassName="flex min-h-[240px] flex-1 flex-col items-center justify-center p-4"
+            >
               {result.ok ? (
                 <img
                   src={result.dataURL}
@@ -209,32 +215,34 @@ function QrCodeTool() {
               ) : (
                 <p className="text-xs text-tertiary">{text.empty}</p>
               )}
-            </div>
+            </ResultPanel>
           </div>
         </div>
 
-        <div className="flex w-full items-center gap-1 border-t border-border pt-3">
-          <Button variant="ghost" size="sm" disabled={!content.trim()} onClick={() => machkit.copy(content)}>
-            <CopySimple size={15} />
-            {text.copy}
-          </Button>
-          <Button variant="ghost" size="sm" disabled={!result.ok} onClick={downloadPng}>
-            <DownloadSimple size={15} />
-            {text.download}
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setContent("");
-              clearLogo();
-            }}
-          >
-            <Eraser size={15} />
-            {text.clear}
-          </Button>
-          <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
-        </div>
+        <ToolToolbar className="border-t border-border pt-3">
+          <ActionGroup className="ml-0">
+            <Button variant="ghost" size="sm" disabled={!content.trim()} onClick={() => machkit.copy(content)}>
+              <CopySimple size={15} />
+              {text.copy}
+            </Button>
+            <Button variant="ghost" size="sm" disabled={!result.ok} onClick={downloadPng}>
+              <DownloadSimple size={15} />
+              {text.download}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setContent("");
+                clearLogo();
+              }}
+            >
+              <Eraser size={15} />
+              {text.clear}
+            </Button>
+            <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
+          </ActionGroup>
+        </ToolToolbar>
       </ToolContent>
     </ToolPage>
   );

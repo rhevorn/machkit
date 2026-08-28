@@ -73,6 +73,24 @@ styles. Treat those implementations as legacy:
   or an existing dependency cannot already handle the requirement.
 - Commit `package.json` and `package-lock.json` together.
 
+### Product-pattern components
+
+Shared shadcn primitives are the base layer. Repeated tool workflows belong in a
+second repository-owned product-pattern layer under `src/ui`.
+
+- Prefer shared patterns such as `ToolToolbar`, `ExampleChips`, `PropertyList`,
+  `PropertyRow`, `StatusStrip`, `ResultPanel`, `SplitWorkspace`, `ToolSidebar`,
+  `EditorPane`, `ActionGroup`, `RadioDot`, and `Slider` when they are available.
+- If the same composition is needed by two or more tools, add or extend a shared
+  pattern instead of copying markup and Tailwind classes into each tool.
+- Product-pattern components own common geometry, density, state presentation,
+  responsive behavior, and accessibility. Tool pages supply content and business
+  behavior.
+- Export shared patterns from `@/ui/index.js`. Do not deep-import them or create a
+  parallel `components` folder inside a tool.
+- A shared pattern must remain general enough for its named workflow. Do not add
+  tool-specific business rules or native capabilities to the UI layer.
+
 ## Themes
 
 MachKit has exactly two resolved visual themes: light and dark.
@@ -91,6 +109,56 @@ MachKit has exactly two resolved visual themes: light and dark.
   visualization or protocol-specific syntax, and must have an intentional dark
   theme value.
 
+### MachKit brand character
+
+Every H5 tool should feel like a focused pane inside the native MachKit app, not
+an independent website.
+
+- Calm: neutral backgrounds and surfaces dominate; decorative effects do not
+  compete with the task.
+- Precise: alignment, labels, numeric values, and state changes are unambiguous.
+- Compact: controls and spacing use desktop density, with no mobile-sized fields
+  or oversized cards.
+- Native: typography, focus, menus, shortcuts, and interaction rhythm should feel
+  at home on macOS.
+- Professional: one clear hierarchy, restrained emphasis, and predictable states
+  take priority over novelty.
+- Use blue only for primary actions, selection, focus, links, and useful data
+  emphasis. Do not tint every panel or heading with the accent color.
+- Use the shared monospace stack for source text, structured data, addresses,
+  identifiers, byte values, code, and other machine-readable output. Keep labels
+  and ordinary prose in the system UI font.
+
+### Design token contract
+
+Use semantic CSS variables from `src/ui/ui.css`; these values define the initial
+MachKit rhythm and should only change as a deliberate system-wide design decision.
+
+- Spacing scale: `0`, `4`, `8`, `12`, `16`, `24`, and `32` px.
+- Radius scale: `4` px for tiny elements, `6` px for internal elements, `8` px
+  for controls, `10` px for panels, and `12` px for overlays. Pill radii are only
+  for semantic chips, segmented controls, and status badges.
+- Control heights: `28` px for compact chips, `34` px for default fields, selects,
+  segmented controls, and toolbar buttons. The standard tool toolbar is `54` px
+  high. Keep Input / Select / Segmented / Button `sm` on the same `34` px token.
+- Icon sizes: `14`, `16`, and `18` px. Typography sizes: `11` px caption, `12` px
+  label, `13` px body/control, and `14` px compact title.
+- Standard content padding is `28` px; compact content padding is `24` px.
+- Standard borders are `1` px. The focus-visible ring is `3` px. Disabled opacity
+  is `0.45` unless contrast or platform behavior requires a documented exception.
+- Motion durations are `120`, `180`, and `240` ms with
+  `cubic-bezier(0.2, 0, 0, 1)`. Respect reduced-motion preferences and avoid motion
+  that does not communicate state or spatial continuity.
+- The semantic color model includes canvas; surface, muted surface, and elevated
+  surface; field; primary, secondary, and tertiary text; subtle, normal, and
+  strong border; accent and accent-soft; info, success, warning, and danger with
+  soft variants; and a focus ring.
+- Retain the existing MachKit neutral and blue palette unless the task explicitly
+  changes the brand system. Define both light and dark mappings together.
+- Do not use arbitrary Tailwind values for shared spacing, radii, control heights,
+  font sizes, shadows, or colors. Add a global token to `src/ui/ui.css` when a
+  genuinely reusable value is missing.
+
 ### Visual consistency
 
 - Use a clean native surface for the page background. Do not add gradients,
@@ -108,6 +176,32 @@ MachKit has exactly two resolved visual themes: light and dark.
   use ghost or icon-only emphasis.
 - Disabled, hover, pressed, focus-visible, pending, invalid, success, and danger
   states must remain distinguishable in both themes.
+
+## Standard page templates
+
+Every tool should use the closest established page family. Preserve an existing
+layout unless the task explicitly migrates it; when migrating, keep the workflow
+and information architecture intact.
+
+1. **Editor/transform** — a toolbar above one or two editor panes, with examples,
+   format actions, status, and copy behavior. Use for JSON and text transforms.
+2. **Form/structured result** — compact labeled inputs followed by a stable result
+   region composed from property rows or result panels. Use for IP, CIDR, and
+   calculator-style tools.
+3. **Sidebar workbench** — a narrow mode/navigation sidebar plus a primary editor
+   or output workspace. Use for codec and number-base tools with multiple modes.
+4. **Task/progress** — explicit inputs and primary action followed by progress,
+   cancellation, partial results, completion, and error states. Use for scans and
+   other asynchronous native operations.
+
+- Select one primary template before writing tool-specific CSS.
+- Compose the template from `ToolPage`, `ToolContent`, shared primitives, and
+  product-pattern components. Tool CSS should describe only unique workspace
+  layout or specialized visualization.
+- Do not introduce a new page family because one screen needs a small variation;
+  extend the closest shared template or pattern first.
+- Broad migrations must follow `UI_MIGRATION_PLAN.md`, including its reference
+  tools, migration order, and per-tool acceptance checklist.
 
 ## Layout and content
 
@@ -181,8 +275,11 @@ MachKit has exactly two resolved visual themes: light and dark.
 4. Register the tool in `DeveloperToolRegistry` with the appropriate width class
    and minimum native capabilities.
 5. Add or update catalog metadata and ordering only when required.
-6. Use the shared shadcn/ui controls and MachKit theme from the first version.
-7. Run the verification checklist below.
+6. Select the closest standard page template and reuse the corresponding shared
+   product-pattern components.
+7. Use the shared shadcn/ui controls, semantic tokens, and MachKit theme from the
+   first version.
+8. Run the verification checklist below.
 
 Do not manually edit generated `Resources/WebTools` output. `npm run build:app`
 regenerates it when app integration needs to be tested.
@@ -212,6 +309,10 @@ A tool change is done only when:
 
 - behavior and layout match the request;
 - visible controls use the designated component system consistently;
+- the page follows the closest standard template and reuses shared product
+  patterns where applicable;
+- colors, spacing, radii, control heights, borders, typography, focus, elevation,
+  and motion come from shared semantic tokens rather than one-off values;
 - both resolved themes align with MachKit;
 - localization and accessibility are complete;
 - heavy work and large inputs are bounded;

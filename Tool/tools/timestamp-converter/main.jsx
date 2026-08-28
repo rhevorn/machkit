@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { ArrowsLeftRight, CopySimple, Minus, Pause, Play, Plus, Trash } from "@phosphor-icons/react";
 import { useLocale, useToolMessages } from "../../src/i18n.js";
 import {
+  ActionGroup,
   Button,
   DateTimePicker,
   Field,
@@ -11,6 +12,7 @@ import {
   ToolContent,
   ToolInfoButton,
   ToolPage,
+  ToolToolbar,
 } from "@/ui/index.js";
 import { machkit } from "../../src/runtime/machkit.js";
 import { mountTool } from "@/runtime/mount-tool.jsx";
@@ -126,28 +128,28 @@ function resultFormatItems(milliseconds, timeZone, locale, text, unitLabel, unit
 
 function AmountStepper({ id, value, label, subtractLabel, addLabel, onChange, onNudge }) {
   return (
-    <div className="flex h-9.5 min-w-0 items-stretch overflow-hidden rounded-control border border-border bg-field focus-within:border-accent focus-within:ring-3 focus-within:ring-accent-soft">
+    <div className="flex h-[var(--machkit-size-control)] min-w-0 items-stretch overflow-hidden rounded-control border border-border bg-field focus-within:border-accent focus-within:ring-3 focus-within:ring-accent-soft">
       <Button
         variant="ghost"
         size="icon"
-        className="size-9.5 shrink-0 rounded-none border-0 text-secondary"
+        className="size-[var(--machkit-size-control)] shrink-0 rounded-none border-0 text-secondary"
         aria-label={subtractLabel}
         onClick={() => onNudge(-1)}
       >
         <Minus size={14} weight="bold" />
       </Button>
-      <input
+      <Input
         id={id}
         inputMode="numeric"
         aria-label={label}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="min-w-0 flex-1 border-x border-border bg-transparent px-2 text-center font-sans text-[13px] tabular-nums text-foreground outline-none"
+        className="h-auto min-w-0 flex-1 rounded-none border-0 border-x border-border bg-transparent px-2 text-center font-sans text-[13px] tabular-nums shadow-none focus:border-border focus:ring-0"
       />
       <Button
         variant="ghost"
         size="icon"
-        className="size-9.5 shrink-0 rounded-none border-0 text-secondary"
+        className="size-[var(--machkit-size-control)] shrink-0 rounded-none border-0 text-secondary"
         aria-label={addLabel}
         onClick={() => onNudge(1)}
       >
@@ -248,7 +250,7 @@ function TimestampTool() {
   return (
     <ToolPage title={text.title} adaptiveHeight>
       <ToolContent className="flex flex-col pt-4 pb-6">
-        <div className="machkit-toolbar gap-2">
+        <ToolToolbar className="gap-2">
           <SegmentedControl
             value={tab}
             onChange={setTab}
@@ -259,8 +261,10 @@ function TimestampTool() {
               { value: "calculate", label: text.tabCalculate },
             ]}
           />
-          <ToolInfoButton info={text.info} className="ml-auto size-8.5 shrink-0" />
-        </div>
+          <ActionGroup>
+            <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
+          </ActionGroup>
+        </ToolToolbar>
 
         {tab === "convert" ? (
           <>
@@ -293,7 +297,7 @@ function TimestampTool() {
                 <span className="min-w-0 truncate text-[12px] text-tertiary">
                   {timeZoneLabel(timeZone, locale, currentMilliseconds)}
                 </span>
-                <div className="ml-auto flex shrink-0 gap-0.5">
+                <ActionGroup className="shrink-0 gap-0.5">
                   <Button variant="ghost" size="sm" className="h-7 px-2" onClick={() => applyMoment(Date.now())}>
                     {text.useNow}
                   </Button>
@@ -317,7 +321,7 @@ function TimestampTool() {
                   >
                     <CopySimple size={14} />
                   </Button>
-                </div>
+                </ActionGroup>
               </div>
               <output className="block min-w-0 overflow-hidden font-mono text-[clamp(22px,3.2vw,30px)] leading-none font-medium tracking-[0.03em] text-ellipsis whitespace-nowrap tabular-nums select-text">
                 {currentTimestamp}
@@ -337,7 +341,7 @@ function TimestampTool() {
                   />
                 </Field>
 
-                <div className="mb-2 flex h-9.5 shrink-0 items-center px-1 text-accent" aria-hidden>
+                <div className="mb-2 flex h-[var(--machkit-size-control)] shrink-0 items-center px-1 text-accent" aria-hidden>
                   <ArrowsLeftRight size={18} weight="bold" />
                 </div>
 

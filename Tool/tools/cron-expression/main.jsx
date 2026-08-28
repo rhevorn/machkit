@@ -1,12 +1,17 @@
 import React, { useMemo, useState } from "react";
 import { CopySimple, Eraser } from "@phosphor-icons/react";
 import {
+  ActionGroup,
   Button,
-  InlineMessage,
+  ExampleChips,
   Input,
+  ResultPanel,
+  SplitWorkspace,
+  StatusStrip,
   ToolContent,
   ToolInfoButton,
   ToolPage,
+  ToolToolbar,
 } from "@/ui/index.js";
 import { useToolMessages } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
@@ -48,7 +53,7 @@ function CronTool() {
   return (
     <ToolPage title={text.title}>
       <ToolContent className="flex flex-col gap-3 pt-3 pb-4">
-        <div className="machkit-toolbar gap-2">
+        <ToolToolbar className="gap-2">
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <label htmlFor="cron-expression" className="machkit-control-label whitespace-nowrap">
               {text.expression}
@@ -62,42 +67,40 @@ function CronTool() {
               spellCheck={false}
             />
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={!expression.trim()}
-            onClick={() => machkit.copy(expression.trim())}
-          >
-            <CopySimple size={15} />
-            {text.copy}
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => setExpression("")}>
-            <Eraser size={15} />
-            {text.clear}
-          </Button>
-          <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
-        </div>
-
-        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] text-tertiary">
-          <span>{text.presets}</span>
-          {cronPresets.map((preset) => (
-            <button
-              key={preset.id}
-              type="button"
-              className="text-secondary hover:text-accent"
-              onClick={() => setExpression(preset.expression)}
+          <ActionGroup>
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={!expression.trim()}
+              onClick={() => machkit.copy(expression.trim())}
             >
-              {text[PRESET_LABELS[preset.id]] || preset.id}
-            </button>
-          ))}
-        </div>
+              <CopySimple size={15} />
+              {text.copy}
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setExpression("")}>
+              <Eraser size={15} />
+              {text.clear}
+            </Button>
+            <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
+          </ActionGroup>
+        </ToolToolbar>
 
-        <InlineMessage tone={status.tone}>{status.label}</InlineMessage>
+        <ExampleChips
+          label={text.presets}
+          options={cronPresets.map((preset) => ({
+            id: preset.id,
+            value: preset.expression,
+            label: text[PRESET_LABELS[preset.id]] || preset.id,
+          }))}
+          onSelect={setExpression}
+        />
 
-        <div className="grid gap-3 lg:grid-cols-2">
+        <StatusStrip tone={status.tone}>{status.label}</StatusStrip>
+
+        <SplitWorkspace>
           <div className="flex flex-col gap-1.5">
             <span className="machkit-control-label">{text.fields}</span>
-            <div className="machkit-panel">
+            <ResultPanel>
               {result.ok ? FIELD_KEYS.map((key) => (
                 <div key={key} className="flex items-baseline justify-between gap-3 border-b border-border px-3 py-2 last:border-b-0">
                   <span className="text-[12px] text-secondary">{text[key]}</span>
@@ -110,12 +113,12 @@ function CronTool() {
               )) : (
                 <p className="px-3 py-8 text-center text-xs text-tertiary">{text.empty}</p>
               )}
-            </div>
+            </ResultPanel>
           </div>
 
           <div className="flex flex-col gap-1.5">
             <span className="machkit-control-label">{text.nextRuns}</span>
-            <div className="machkit-panel max-h-[260px] overflow-auto">
+            <ResultPanel className="max-h-[260px] overflow-auto">
               {result.ok && result.runs.length ? (
                 <ul className="divide-y divide-border">
                   {result.runs.map((run) => (
@@ -129,9 +132,9 @@ function CronTool() {
                   {result.ok ? text.noRuns : text.empty}
                 </p>
               )}
-            </div>
+            </ResultPanel>
           </div>
-        </div>
+        </SplitWorkspace>
       </ToolContent>
     </ToolPage>
   );

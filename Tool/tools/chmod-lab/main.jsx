@@ -1,13 +1,16 @@
 import React, { useMemo, useState } from "react";
 import { CopySimple, Eraser } from "@phosphor-icons/react";
 import {
+  ActionGroup,
   Button,
   CheckboxField,
-  InlineMessage,
   Input,
+  ResultPanel,
+  StatusStrip,
   ToolContent,
   ToolInfoButton,
   ToolPage,
+  ToolToolbar,
 } from "@/ui/index.js";
 import { useToolMessages } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
@@ -37,7 +40,7 @@ function ChmodLabTool() {
   return (
     <ToolPage title={text.title}>
       <ToolContent className="flex flex-col gap-3 pt-3 pb-4">
-        <div className="machkit-toolbar gap-2">
+        <ToolToolbar className="gap-2">
           <label htmlFor="chmod-input" className="machkit-control-label whitespace-nowrap">
             {text.input}
           </label>
@@ -53,25 +56,27 @@ function ChmodLabTool() {
             placeholder={text.placeholder}
             spellCheck={false}
           />
-          <Button variant="ghost" size="sm" onClick={() => machkit.copy(view.chmod)}>
-            <CopySimple size={15} />
-            {text.copy}
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setInput("");
-              setMode(0);
-            }}
-          >
-            <Eraser size={15} />
-            {text.clear}
-          </Button>
-          <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
-        </div>
+          <ActionGroup>
+            <Button variant="ghost" size="sm" onClick={() => machkit.copy(view.chmod)}>
+              <CopySimple size={15} />
+              {text.copy}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setInput("");
+                setMode(0);
+              }}
+            >
+              <Eraser size={15} />
+              {text.clear}
+            </Button>
+            <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
+          </ActionGroup>
+        </ToolToolbar>
 
-        <InlineMessage tone={status.tone}>{status.label}</InlineMessage>
+        <StatusStrip tone={status.tone}>{status.label}</StatusStrip>
 
         <div className="grid gap-3 sm:grid-cols-3">
           {[
@@ -79,19 +84,25 @@ function ChmodLabTool() {
             ["symbolic", view.symbolic],
             ["command", view.chmod],
           ].map(([key, value]) => (
-            <div key={key} className="machkit-panel flex items-center justify-between gap-2 px-3 py-2.5">
-              <div className="min-w-0">
-                <div className="text-[11px] text-secondary">{text[key]}</div>
-                <code className="font-mono text-[13px]">{value}</code>
+            <ResultPanel
+              key={key}
+              className="flex items-center justify-between gap-2 px-3 py-2.5"
+              bodyClassName="contents"
+            >
+              <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <div className="text-[11px] text-secondary">{text[key]}</div>
+                  <code className="font-mono text-[13px]">{value}</code>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => machkit.copy(value)}>
+                  <CopySimple size={15} />
+                </Button>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => machkit.copy(value)}>
-                <CopySimple size={15} />
-              </Button>
-            </div>
+            </ResultPanel>
           ))}
         </div>
 
-        <div className="machkit-panel overflow-hidden">
+        <ResultPanel>
           <div className="grid grid-cols-[7rem_repeat(3,minmax(0,1fr))] border-b border-border px-3 py-2 text-[11px] text-secondary">
             <span />
             <span>{text.read}</span>
@@ -114,9 +125,9 @@ function ChmodLabTool() {
               ))}
             </div>
           ))}
-        </div>
+        </ResultPanel>
 
-        <div className="machkit-panel flex flex-col gap-2 px-3 py-3">
+        <ResultPanel bodyClassName="flex flex-col gap-2 px-3 py-3">
           <div className="flex flex-wrap items-center gap-4">
             <span className="text-[12px] text-secondary">{text.special}</span>
             {["setuid", "setgid", "sticky"].map((flag) => (
@@ -129,7 +140,7 @@ function ChmodLabTool() {
             ))}
           </div>
           <p className="text-[11px] leading-relaxed text-tertiary">{text.specialHint}</p>
-        </div>
+        </ResultPanel>
       </ToolContent>
     </ToolPage>
   );

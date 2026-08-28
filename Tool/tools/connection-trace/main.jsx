@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import { Eraser, Play } from "@phosphor-icons/react";
 import {
+  ActionGroup,
   Button,
-  InlineMessage,
+  ExampleChips,
   Input,
+  ResultPanel,
   SegmentedControl,
+  StatusStrip,
   ToolContent,
   ToolInfoButton,
   ToolPage,
+  ToolToolbar,
 } from "@/ui/index.js";
 import { useToolMessages } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
@@ -89,7 +93,7 @@ function ConnectionTraceTool() {
   return (
     <ToolPage title={text.title}>
       <ToolContent className="flex flex-col gap-2.5 pt-3 pb-4">
-        <div className="machkit-toolbar gap-2">
+        <ToolToolbar className="gap-2">
           <SegmentedControl
             value={modes.includes(mode) ? mode : "full"}
             onChange={setMode}
@@ -114,49 +118,46 @@ function ConnectionTraceTool() {
             placeholder={text.placeholder}
             spellCheck={false}
           />
-          <Button variant="secondary" size="sm" disabled={running} onClick={runTrace}>
-            <Play size={15} />
-            {text.run}
-          </Button>
-          <Button variant="ghost" size="sm" disabled={running} onClick={clearAll}>
-            <Eraser size={15} />
-            {text.clear}
-          </Button>
-          <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
-        </div>
+          <ActionGroup>
+            <Button variant="default" size="sm" disabled={running} onClick={runTrace}>
+              <Play size={15} />
+              {text.run}
+            </Button>
+            <Button variant="ghost" size="sm" disabled={running} onClick={clearAll}>
+              <Eraser size={15} />
+              {text.clear}
+            </Button>
+            <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
+          </ActionGroup>
+        </ToolToolbar>
 
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-tertiary">
-          <span>{text.examples}</span>
-          {EXAMPLES.map((example) => (
-            <button
-              key={example}
-              type="button"
-              className="font-mono text-secondary hover:text-accent"
-              onClick={() => setTarget(example)}
-            >
-              {example}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
+          <ExampleChips label={text.examples} options={EXAMPLES} onSelect={setTarget} />
           {timings ? (
-            <>
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-tertiary">
               <span className="text-border">·</span>
               <TimingChip label="DNS" value={timings.dnsMs} />
               <TimingChip label="TCP" value={timings.tcpMs} />
               <TimingChip label="TLS" value={timings.tlsMs} />
               <TimingChip label="TTFB" value={timings.ttfbMs} />
               <TimingChip label="Σ" value={timings.totalMs} />
-            </>
+            </div>
           ) : null}
         </div>
 
-        {status ? <InlineMessage tone={status.tone}>{status.label}</InlineMessage> : null}
+        {status ? <StatusStrip tone={status.tone}>{status.label}</StatusStrip> : null}
 
         {result ? (
-          <pre className="machkit-panel max-h-[520px] overflow-auto px-3 py-2.5 font-mono text-[11.5px] leading-[1.45] whitespace-pre-wrap break-all text-foreground">
-            {verbose.length
-              ? verbose.join("\n")
-              : `* ${result.message || errorLabel(text, result.error)}`}
-          </pre>
+          <ResultPanel
+            className="max-h-[520px]"
+            bodyClassName="overflow-auto px-3 py-2.5 font-mono text-[11.5px] leading-[1.45] whitespace-pre-wrap break-all text-foreground"
+          >
+            <pre className="m-0 font-inherit whitespace-pre-wrap break-all">
+              {verbose.length
+                ? verbose.join("\n")
+                : `* ${result.message || errorLabel(text, result.error)}`}
+            </pre>
+          </ResultPanel>
         ) : null}
       </ToolContent>
     </ToolPage>

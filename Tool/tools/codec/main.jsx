@@ -1,17 +1,20 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ArrowsLeftRight, CopySimple, Eraser } from "@phosphor-icons/react";
 import {
+  ActionGroup,
   Button,
   CheckboxField,
   IconButton,
-  InlineMessage,
   SegmentedControl,
   SelectControl,
+  SidebarNavItem,
+  StatusStrip,
   Textarea,
   ToolInfoButton,
   ToolPage,
+  ToolSidebar,
+  ToolToolbar,
 } from "@/ui/index.js";
-import { cn } from "@/lib/utils.js";
 import { useToolMessages } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
 import { mountTool } from "@/runtime/mount-tool.jsx";
@@ -54,34 +57,6 @@ const INTRO_KEYS = {
   escape: "introEscape",
   hash: "introHash",
 };
-
-function CodecNavItem({ active, code, label, onClick }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "group relative flex h-9 w-full items-center gap-2 rounded-[7px] px-2 text-left transition-colors",
-        active
-          ? "bg-accent-soft text-accent"
-          : "text-secondary hover:bg-foreground/[0.04] hover:text-foreground",
-      )}
-    >
-      {active ? (
-        <span className="absolute top-1.5 bottom-1.5 left-0 w-[2px] rounded-full bg-accent" aria-hidden="true" />
-      ) : null}
-      <span
-        className={cn(
-          "grid size-6 shrink-0 place-items-center rounded-[5px] font-mono text-[10px] leading-none tracking-tight",
-          active ? "bg-accent/15 text-accent" : "bg-muted text-tertiary group-hover:text-secondary",
-        )}
-      >
-        {code}
-      </span>
-      <span className={cn("min-w-0 truncate text-[12.5px]", active && "font-medium")}>{label}</span>
-    </button>
-  );
-}
 
 function CodecTool() {
   const text = useToolMessages(messages);
@@ -172,14 +147,13 @@ function CodecTool() {
   return (
     <ToolPage title={text.title}>
       <div className="flex min-h-0 flex-1 bg-surface">
-        <aside className="flex w-[148px] shrink-0 flex-col p-2.5">
-          <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-auto rounded-panel bg-muted/70 px-1.5 py-2">
+        <ToolSidebar width={148} className="p-2.5" muted>
             {CODEC_GROUPS.map((group) => (
               <div key={group.id}>
                 <div className="machkit-sidebar-label px-2 pb-1.5">{groupLabels[group.id]}</div>
                 <nav className="flex flex-col gap-0.5" aria-label={groupLabels[group.id]}>
                   {group.items.map((item) => (
-                    <CodecNavItem
+                    <SidebarNavItem
                       key={item.id}
                       active={tab === item.id}
                       code={item.code}
@@ -190,13 +164,12 @@ function CodecTool() {
                 </nav>
               </div>
             ))}
-          </div>
-        </aside>
+        </ToolSidebar>
 
         <section className="flex min-w-0 flex-1 flex-col">
           <header className="flex h-11 shrink-0 items-center gap-2 px-4">
             <span className="truncate text-sm font-semibold">{tabLabel}</span>
-            <div className="ml-auto flex items-center gap-1">
+            <ActionGroup>
               <Button
                 variant="ghost"
                 size="sm"
@@ -211,11 +184,11 @@ function CodecTool() {
                 {text.clear}
               </Button>
               <ToolInfoButton info={`${text.info}\n\n${text[introKey]}`} className="size-8.5 shrink-0" />
-            </div>
+            </ActionGroup>
           </header>
 
           <div className="flex min-h-0 flex-1 flex-col gap-2.5 px-4 pb-4">
-            <div className="machkit-toolbar flex-wrap gap-2">
+            <ToolToolbar className="flex-wrap gap-2">
               {tab === "hash" ? (
                 <div className="flex min-w-0 flex-1 items-center gap-2">
                   <span className="machkit-control-label whitespace-nowrap">{text.algorithm}</span>
@@ -258,17 +231,17 @@ function CodecTool() {
               )}
 
               {tab === "base64" ? (
-                <div className="ml-auto">
+                <ActionGroup>
                   <CheckboxField
                     checked={base64URL}
                     onCheckedChange={(checked) => setBase64URL(checked === true)}
                     label={text.base64URL}
                   />
-                </div>
+                </ActionGroup>
               ) : null}
 
               {tab === "url" ? (
-                <div className="ml-auto flex min-w-0 items-center gap-2">
+                <ActionGroup className="min-w-0 gap-2">
                   <span className="machkit-control-label whitespace-nowrap">{text.urlMode}</span>
                   <SelectControl
                     value={urlMode}
@@ -280,9 +253,9 @@ function CodecTool() {
                       { value: "uri", label: text.uri },
                     ]}
                   />
-                </div>
+                </ActionGroup>
               ) : null}
-            </div>
+            </ToolToolbar>
 
             <div className="flex min-h-0 flex-1 flex-col gap-2.5">
               <label className="flex min-h-0 min-w-0 flex-1 flex-col gap-1.5">
@@ -298,7 +271,7 @@ function CodecTool() {
               <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-1.5">
                 <div className="flex items-center gap-2">
                   <span className="machkit-control-label">{text.output}</span>
-                  <div className="ml-auto">
+                  <ActionGroup>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -308,7 +281,7 @@ function CodecTool() {
                       <CopySimple size={15} />
                       {text.copy}
                     </Button>
-                  </div>
+                  </ActionGroup>
                 </div>
                 <Textarea
                   value={output}
@@ -318,10 +291,10 @@ function CodecTool() {
                   className="min-h-[120px] w-full flex-1 resize-y bg-field"
                 />
                 {error ? (
-                  <InlineMessage tone="danger">
+                  <StatusStrip tone="danger">
                     {text[error] ||
                       (error === "input-too-large" ? "Input is too large (2 MB maximum)" : error)}
-                  </InlineMessage>
+                  </StatusStrip>
                 ) : null}
               </div>
             </div>

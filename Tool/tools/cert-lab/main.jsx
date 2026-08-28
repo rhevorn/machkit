@@ -1,36 +1,23 @@
 import React, { useMemo, useRef, useState } from "react";
 import { CopySimple, Eraser, UploadSimple } from "@phosphor-icons/react";
 import {
+  ActionGroup,
   Button,
-  InlineMessage,
+  PropertyList,
+  PropertyRow,
+  ResultPanel,
+  StatusStrip,
   Textarea,
   ToolContent,
   ToolInfoButton,
   ToolPage,
+  ToolToolbar,
 } from "@/ui/index.js";
 import { useToolMessages } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
 import { mountTool } from "@/runtime/mount-tool.jsx";
 import { inspectCertificatePem } from "./cert.js";
 import { messages } from "./messages.js";
-
-function FieldRow({ label, value, copyLabel, mono = true }) {
-  const display = value || "—";
-  return (
-    <div className="flex min-w-0 items-start gap-2 border-b border-border px-3 py-2 last:border-b-0">
-      <span className="w-24 shrink-0 pt-0.5 text-[12px] text-secondary">{label}</span>
-      <code className={`min-w-0 flex-1 break-all text-[12px] leading-relaxed ${mono ? "font-mono" : ""}`}>
-        {display}
-      </code>
-      {value ? (
-        <Button variant="ghost" size="sm" className="shrink-0" onClick={() => machkit.copy(String(value))}>
-          <CopySimple size={15} />
-          {copyLabel}
-        </Button>
-      ) : null}
-    </div>
-  );
-}
 
 function statusLabel(text, status) {
   if (status === "expired") return text.statusExpired;
@@ -43,9 +30,9 @@ function CertPanel({ cert, index, text }) {
   const san = cert.san?.length ? cert.san.join(", ") : "";
 
   return (
-    <div className="machkit-panel overflow-hidden">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-3 py-2">
-        <span className="text-[12px] font-medium">
+    <ResultPanel
+      title={
+        <>
           #{index + 1}
           <span className="mx-2 text-border">|</span>
           <span className={cert.status === "valid" ? "text-foreground" : "text-danger"}>
@@ -57,20 +44,25 @@ function CertPanel({ cert, index, text }) {
               <span className="text-secondary">{text.isCA}</span>
             </>
           ) : null}
-        </span>
+        </>
+      }
+      actions={
         <Button variant="ghost" size="sm" onClick={() => machkit.copy(cert.pem)}>
           <CopySimple size={15} />
           {text.copyPem}
         </Button>
-      </div>
-      <FieldRow label={text.subject} value={cert.subject} copyLabel={text.copy} />
-      <FieldRow label={text.issuer} value={cert.issuer} copyLabel={text.copy} />
-      <FieldRow label={text.serial} value={cert.serialNumber} copyLabel={text.copy} />
-      <FieldRow label={text.validity} value={validity} copyLabel={text.copy} mono={false} />
-      <FieldRow label={text.sha1} value={cert.sha1} copyLabel={text.copy} />
-      <FieldRow label={text.sha256} value={cert.sha256} copyLabel={text.copy} />
-      <FieldRow label={text.san} value={san || text.none} copyLabel={text.copy} />
-    </div>
+      }
+    >
+      <PropertyList>
+        <PropertyRow label={text.subject} value={cert.subject} copyLabel={text.copy} />
+        <PropertyRow label={text.issuer} value={cert.issuer} copyLabel={text.copy} />
+        <PropertyRow label={text.serial} value={cert.serialNumber} copyLabel={text.copy} />
+        <PropertyRow label={text.validity} value={validity} copyLabel={text.copy} mono={false} />
+        <PropertyRow label={text.sha1} value={cert.sha1} copyLabel={text.copy} />
+        <PropertyRow label={text.sha256} value={cert.sha256} copyLabel={text.copy} />
+        <PropertyRow label={text.san} value={san || text.none} copyLabel={text.copy} />
+      </PropertyList>
+    </ResultPanel>
   );
 }
 
@@ -108,33 +100,35 @@ function CertLabTool() {
   return (
     <ToolPage title={text.title}>
       <ToolContent className="flex flex-col gap-3 pt-3 pb-4">
-        <div className="machkit-toolbar gap-2">
+        <ToolToolbar className="gap-2">
           <span className="machkit-control-label shrink-0">{text.pem}</span>
           <div className="mx-1 h-5 w-px shrink-0 bg-border" aria-hidden="true" />
-          <Button variant="ghost" size="sm" onClick={() => fileRef.current?.click()}>
-            <UploadSimple size={15} />
-            {text.import}
-          </Button>
-          <input
-            ref={fileRef}
-            type="file"
-            accept=".pem,.crt,.cer,.txt,application/x-pem-file,application/pkix-cert,text/plain"
-            className="hidden"
-            onChange={(event) => {
-              onImportFile(event.target.files?.[0]);
-              event.target.value = "";
-            }}
-          />
-          <Button variant="ghost" size="sm" disabled={!pem.trim()} onClick={() => machkit.copy(pem.trim())}>
-            <CopySimple size={15} />
-            {text.copy}
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => setPem("")}>
-            <Eraser size={15} />
-            {text.clear}
-          </Button>
-          <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
-        </div>
+          <ActionGroup>
+            <Button variant="ghost" size="sm" onClick={() => fileRef.current?.click()}>
+              <UploadSimple size={15} />
+              {text.import}
+            </Button>
+            <input
+              ref={fileRef}
+              type="file"
+              accept=".pem,.crt,.cer,.txt,application/x-pem-file,application/pkix-cert,text/plain"
+              className="hidden"
+              onChange={(event) => {
+                onImportFile(event.target.files?.[0]);
+                event.target.value = "";
+              }}
+            />
+            <Button variant="ghost" size="sm" disabled={!pem.trim()} onClick={() => machkit.copy(pem.trim())}>
+              <CopySimple size={15} />
+              {text.copy}
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setPem("")}>
+              <Eraser size={15} />
+              {text.clear}
+            </Button>
+            <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
+          </ActionGroup>
+        </ToolToolbar>
 
         <Textarea
           className="min-h-[120px] font-mono text-[12px]"
@@ -144,7 +138,7 @@ function CertLabTool() {
           spellCheck={false}
         />
 
-        <InlineMessage tone={status.tone}>{status.label}</InlineMessage>
+        <StatusStrip tone={status.tone}>{status.label}</StatusStrip>
 
         {result.ok
           ? result.certificates.map((cert, index) => (
