@@ -8,7 +8,8 @@ self.onmessage = ({ data }) => {
   try {
     if (source !== cachedSource) {
       cachedSource = source;
-      cachedParsed = parseJSON(source);
+      // Keep the editor literal — do not unwrap escaped JSON string layers.
+      cachedParsed = parseJSON(source, { unwrap: false });
     }
     if (type === "transform") {
       if (!cachedParsed.ok) throw new Error(cachedParsed.error || "Invalid JSON");
@@ -23,10 +24,7 @@ self.onmessage = ({ data }) => {
     const pathQuery = cachedParsed.ok
       ? queryPath(cachedParsed.data, path)
       : { ok: true, error: null, matches: [] };
-    const normalizedSource = cachedParsed.ok && cachedParsed.unwrapped
-      ? formatJSON(cachedParsed.data)
-      : null;
-    self.postMessage({ id, type, source, path, parsed: cachedParsed, pathQuery, normalizedSource });
+    self.postMessage({ id, type, source, path, parsed: cachedParsed, pathQuery });
   } catch (error) {
     if (type === "transform") {
       self.postMessage({ id, type, ok: false, error: error instanceof Error ? error.message : "Unable to transform JSON" });

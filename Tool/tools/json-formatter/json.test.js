@@ -5,9 +5,12 @@ import {
   formatJSON,
   minifyJSON,
   parseJSON,
+  pathAtOffset,
   queryPath,
   sortKeysDeep,
   stringifyValue,
+  escapeJSONText,
+  unescapeJSONText,
 } from "./json.js";
 
 const sample = {
@@ -45,6 +48,11 @@ test("unwraps outer escaped JSON string layers", () => {
   assert.equal(plainString.ok, true);
   assert.equal(plainString.unwrapped, false);
   assert.equal(plainString.data, "hello");
+
+  const literal = parseJSON('"{\\"a\\":1}"', { unwrap: false });
+  assert.equal(literal.ok, true);
+  assert.equal(literal.unwrapped, false);
+  assert.equal(literal.data, '{"a":1}');
 });
 
 test("formats, minifies, and sorts object keys", () => {
@@ -55,6 +63,15 @@ test("formats, minifies, and sorts object keys", () => {
   let deeplyNested = { value: true };
   for (let depth = 0; depth < 10_000; depth += 1) deeplyNested = { child: deeplyNested };
   assert.doesNotThrow(() => sortKeysDeep(deeplyNested));
+});
+
+test("escapes and unescapes JSON text", () => {
+  assert.equal(escapeJSONText('{"a":1}'), '"{\\"a\\":1}"');
+  assert.equal(unescapeJSONText('"{\\"a\\":1}"'), '{"a":1}');
+  assert.equal(unescapeJSONText('{\\"a\\":1}'), '{"a":1}');
+  assert.equal(unescapeJSONText(escapeJSONText('{\n  "hello": "世界"\n}')), '{\n  "hello": "世界"\n}');
+  assert.throws(() => unescapeJSONText(""), /empty/);
+  assert.throws(() => unescapeJSONText('"unterminated'), /./);
 });
 
 test("queries dotted paths, indexes, wildcards, and recursive descent", () => {
@@ -86,4 +103,14 @@ test("stringifies matched values for display and measures UTF-8 size", () => {
   assert.equal(stringifyValue("hello"), "hello");
   assert.equal(stringifyValue({ a: 1 }, 0), '{"a":1}');
   assert.equal(byteSize("你好"), 6);
+});
+
+test("resolves JSONPath at a document offset", () => {
+  const source = '{\n  "store": {\n    "book": [\n      { "author": "Nigel" }\n    ]\n  }\n}\n';
+  const author = source.indexOf('"Nigel"');
+  assert.equal(pathAtOffset(source, author).path, "$.store.book[0].author");
+  assert.equal(pathAtOffset(source, source.indexOf('"author"')).path, "$.store.book[0].author");
+  assert.equal(pathAtOffset(source, source.indexOf('"book"')).path, "$.store.book");
+  assert.equal(pathAtOffset(source, 0).path, "$");
+  assert.equal(pathAtOffset("{", 0).ok, false);
 });
