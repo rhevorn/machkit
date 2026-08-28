@@ -23,7 +23,7 @@ enum WebToolWidthClass: String, Equatable {
     case wide
 
     /// Bump to invalidate remembered frames after sizing policy changes.
-    static let frameEpoch = 8
+    static let frameEpoch = 9
 
     var width: CGFloat {
         switch self {
@@ -153,7 +153,7 @@ enum DeveloperToolRegistry {
                 "链接", "网址", "参数"
             ],
             icon: "link",
-            widthClass: .wide,
+            widthClass: .compact,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/url-lab/index.html")
         ),
