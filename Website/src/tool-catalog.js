@@ -390,30 +390,6 @@ export const websiteToolCatalog = Object.freeze([
     },
   }),
   tool({
-    id: "xml-plist",
-    category: "text-data",
-    en: {
-      title: "XML / Plist",
-      summary: "Format XML and convert Apple XML property lists to JSON.",
-      introduction: "XML / Plist helps with Apple-centric and general XML chores. Format XML for readability, or convert Apple XML property lists to JSON when inspecting preferences, manifests, and configuration that still lives in plist form.",
-      highlights: [
-        "XML formatting",
-        "Apple XML plist to JSON",
-        "Local preference and manifest inspection",
-      ],
-    },
-    "zh-CN": {
-      title: "XML / Plist",
-      summary: "格式化 XML，并将 Apple XML 属性列表转换为 JSON。",
-      introduction: "XML / Plist 处理通用 XML 和 Apple 相关配置。可格式化 XML 便于阅读，或把 Apple XML 属性列表转成 JSON，方便检查偏好设置、清单和仍以 plist 存在的配置。",
-      highlights: [
-        "XML 格式化",
-        "Apple XML plist 转 JSON",
-        "本机检查偏好与清单",
-      ],
-    },
-  }),
-  tool({
     id: "qr-code",
     category: "media",
     en: {

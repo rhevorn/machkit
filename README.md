@@ -41,7 +41,6 @@ MachKit has no analytics service or cloud backend. Scans read local file metadat
   - **QR Code** — Generate QR codes from text or URLs locally
   - **URL Lab** — Parse and rebuild URLs with query and hash editing
   - **Number Base** — Convert integers across bases and byte units locally
-  - **XML / Plist** — Format XML and convert Apple XML plists to JSON locally
   - **IP Inspector** — Inspect IPv4 and IPv6 addresses, kinds, and reverse DNS labels
   - **Image Tools** — Convert formats and control output by quality, target size, or dimensions
   - **JWT Lab** — Decode, inspect, and create JSON Web Tokens locally

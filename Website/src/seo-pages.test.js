@@ -53,8 +53,8 @@ test("feature pages provide complete localized content and unique paths", () => 
 
 test("utilities page represents the current growing catalog with introductions", () => {
   const page = featurePages.find((candidate) => candidate.id === "utilities");
-  assert.equal(page.locales.en.catalog.length, 24);
-  assert.equal(page.locales["zh-CN"].catalog.length, 24);
+  assert.equal(page.locales.en.catalog.length, 23);
+  assert.equal(page.locales["zh-CN"].catalog.length, 23);
   assert.equal(page.locales.en.catalogGroups.length, 4);
   assert.match(page.locales.en.lead, /catalog/i);
   assert.match(page.locales.en.lead, /screenshot/i);
