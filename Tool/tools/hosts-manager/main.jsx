@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import CodeMirror from "@uiw/react-codemirror";
-import { Check, Desktop, HardDrives, Link, Plus, Power, Trash } from "@phosphor-icons/react";
-import * as ContextMenu from "@radix-ui/react-context-menu";
+import { Desktop, HardDrives, Link, Plus, Trash } from "@phosphor-icons/react";
 import { Button, InlineMessage, ToolPage } from "@/ui/index.js";
 import { useMachKitEditorTheme } from "@/ui/codemirror-theme.js";
 import { useToolMessages } from "@/i18n.js";
@@ -241,40 +240,35 @@ function HostRow({ row, selected, active, onSelect }) {
 function EnvironmentRow({ row, text, busy, selected, active, onSelect, onActivate, onDelete }) {
   const Icon = row.icon;
   return (
-    <ContextMenu.Root>
-      <ContextMenu.Trigger asChild>
-        <div className={`group flex h-12 w-full items-center rounded-control pr-2.5 ${selected ? "bg-foreground/[0.075]" : "hover:bg-foreground/[0.045]"}`}>
-          <button type="button" onClick={() => onSelect(row.id)} className="flex min-w-0 flex-1 items-center gap-3 self-stretch px-2.5 text-left text-foreground">
-            <Icon size={16} className="shrink-0 text-secondary" />
-            <span className="min-w-0 flex-1">
-              <span className="block truncate text-xs font-medium">{row.name}</span>
-              {active ? <span className="mt-0.5 block truncate text-[11px] text-secondary">{text.active}</span> : null}
-            </span>
-          </button>
-          <button
-            type="button"
-            role="radio"
-            aria-checked={active}
-            aria-label={`${text.activate} ${row.name}`}
-            disabled={active || busy}
-            onClick={() => onActivate(row.id)}
-            className={`grid size-[15px] shrink-0 place-items-center rounded-full border outline-none transition-colors focus-visible:ring-2 focus-visible:ring-accent/30 ${active ? "border-accent bg-accent" : "border-tertiary hover:border-accent"}`}
-          >
-            {active ? <span className="size-[5px] rounded-full bg-white" /> : null}
-          </button>
-        </div>
-      </ContextMenu.Trigger>
-      <ContextMenu.Portal>
-        <ContextMenu.Content className="z-50 min-w-36 rounded-panel border border-border bg-surface p-1 shadow-popover outline-none">
-          <ContextMenu.Item disabled={active || busy} onSelect={() => onActivate(row.id)} className="flex h-8 cursor-default items-center gap-2 rounded-[6px] px-2.5 text-xs outline-none data-[highlighted]:bg-muted data-[disabled]:opacity-40">
-            {active ? <Check size={14} /> : <Power size={14} />}{active ? text.active : text.activate}
-          </ContextMenu.Item>
-          <ContextMenu.Item disabled={active || busy} onSelect={() => onDelete(row.id)} className="flex h-8 cursor-default items-center gap-2 rounded-[6px] px-2.5 text-xs text-danger outline-none data-[highlighted]:bg-danger/10 data-[disabled]:opacity-40">
-            <Trash size={14} />{text.delete}
-          </ContextMenu.Item>
-        </ContextMenu.Content>
-      </ContextMenu.Portal>
-    </ContextMenu.Root>
+    <div className={`group flex h-12 w-full items-center rounded-control pr-2.5 ${selected ? "bg-foreground/[0.075]" : "hover:bg-foreground/[0.045]"}`}>
+      <button type="button" onClick={() => onSelect(row.id)} className="flex min-w-0 flex-1 items-center gap-3 self-stretch px-2.5 text-left text-foreground">
+        <Icon size={16} className="shrink-0 text-secondary" />
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-xs font-medium">{row.name}</span>
+          {active ? <span className="mt-0.5 block truncate text-[11px] text-secondary">{text.active}</span> : null}
+        </span>
+      </button>
+      <button
+        type="button"
+        aria-label={`${text.delete} ${row.name}`}
+        disabled={active || busy}
+        onClick={() => onDelete(row.id)}
+        className="mr-1.5 grid size-7 shrink-0 place-items-center rounded-[6px] text-secondary opacity-0 outline-none transition-opacity group-hover:opacity-100 hover:bg-danger/10 hover:text-danger focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-accent/30 disabled:pointer-events-none disabled:opacity-0"
+      >
+        <Trash size={14} />
+      </button>
+      <button
+        type="button"
+        role="radio"
+        aria-checked={active}
+        aria-label={`${text.activate} ${row.name}`}
+        disabled={active || busy}
+        onClick={() => onActivate(row.id)}
+        className={`grid size-[15px] shrink-0 place-items-center rounded-full border outline-none transition-colors focus-visible:ring-2 focus-visible:ring-accent/30 ${active ? "border-accent bg-accent" : "border-tertiary hover:border-accent"}`}
+      >
+        {active ? <span className="size-[5px] rounded-full bg-white" /> : null}
+      </button>
+    </div>
   );
 }
 

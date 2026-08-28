@@ -139,6 +139,21 @@
 }
 
 @layer components {
+  .machkit-calendar table {
+    width: 16rem;
+    table-layout: fixed;
+    border-collapse: collapse;
+  }
+
+  .machkit-calendar th,
+  .machkit-calendar td {
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    text-align: center;
+    vertical-align: middle;
+  }
+
   .machkit-toolbar {
     display: flex;
     min-height: 54px;
@@ -253,18 +268,6 @@
     min-width: 0;
     height: 100%;
   }
-  .machkit-datetime-field .machkit-date-segment-literal,
-  .machkit-datetime-field .machkit-date-segment-dayPeriod { display: none; }
-  .machkit-datetime-field .machkit-date-segment-year { order: 1; }
-  .machkit-datetime-field .machkit-date-segment-month { order: 2; }
-  .machkit-datetime-field .machkit-date-segment-day { order: 3; margin-right: 0.55rem; }
-  .machkit-datetime-field .machkit-date-segment-hour { order: 4; }
-  .machkit-datetime-field .machkit-date-segment-minute { order: 5; }
-  .machkit-datetime-field .machkit-date-segment-second { order: 6; }
-  .machkit-datetime-field .machkit-date-segment-year::after,
-  .machkit-datetime-field .machkit-date-segment-month::after { content: "-"; color: var(--secondary); }
-  .machkit-datetime-field .machkit-date-segment-hour::after,
-  .machkit-datetime-field .machkit-date-segment-minute::after { content: ":"; color: var(--secondary); }
   .machkit-callout {
     width: 100%;
     margin: 12px 0 0;

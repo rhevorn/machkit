@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { ArrowsLeftRight, CopySimple, Minus, Pause, Play, Plus, Trash } from "@phosphor-icons/react";
-import { I18nProvider } from "react-aria-components";
 import { useLocale, useToolMessages } from "../../src/i18n.js";
 import {
   Button,
@@ -330,7 +329,7 @@ function TimestampTool() {
 
             <section className="mt-5 overflow-visible rounded-panel border border-border bg-surface px-6 py-6">
               <div className="flex flex-wrap items-end gap-4">
-                <Field label={text.dateTime} className="w-[260px] shrink-0">
+                <Field label={text.dateTime} className="w-[292px] shrink-0">
                   <DateTimePicker
                     value={selectedDate}
                     onChange={onDateChange}
@@ -485,13 +484,4 @@ function TimestampTool() {
   );
 }
 
-mountTool(<TimestampApp />, { name: "Timestamp Converter" });
-
-function TimestampApp() {
-  const locale = useLocale().replaceAll("_", "-");
-  return (
-    <I18nProvider locale={locale}>
-      <TimestampTool />
-    </I18nProvider>
-  );
-}
+mountTool(<TimestampTool />, { name: "Timestamp Converter" });

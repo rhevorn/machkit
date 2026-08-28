@@ -76,6 +76,19 @@ private struct ToolWindowConfigurator: NSViewRepresentable {
     }
 }
 
+private final class ContextMenuDisabledWebView: WKWebView {
+    override func menu(for event: NSEvent) -> NSMenu? {
+        nil
+    }
+
+    override func willOpenMenu(_ menu: NSMenu, with event: NSEvent) {
+        // Strip Reload / Inspect / Autofill / Writing Tools, then cancel so an
+        // empty menu never flashes on right-click inside editors.
+        menu.removeAllItems()
+        menu.cancelTracking()
+    }
+}
+
 private struct BundledWebView: NSViewRepresentable {
     let toolID: String
     let entryFile: String
@@ -99,7 +112,7 @@ private struct BundledWebView: NSViewRepresentable {
                 forMainFrameOnly: true
             )
         )
-        let webView = WKWebView(frame: .zero, configuration: configuration)
+        let webView = ContextMenuDisabledWebView(frame: .zero, configuration: configuration)
         webView.underPageBackgroundColor = .clear
         webView.navigationDelegate = context.coordinator
         Self.disableElasticScrolling(in: webView)
@@ -164,6 +177,11 @@ private struct BundledWebView: NSViewRepresentable {
             delete root.dataset.appearance;
             root.style.colorScheme = '';
           }
+          // Block WebKit's page context menu (Reload / Autofill / Inspect, etc.)
+          // so embedded tool editors stay chrome-free.
+          var blockContextMenu = function (event) { event.preventDefault(); };
+          document.addEventListener('contextmenu', blockContextMenu, true);
+          window.addEventListener('contextmenu', blockContextMenu, true);
         })();
         """
     }
