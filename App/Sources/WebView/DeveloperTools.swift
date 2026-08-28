@@ -316,19 +316,6 @@ enum DeveloperToolRegistry {
             presentation: .bundledWeb(entryFile: "WebTools/tools/cert-lab/index.html")
         ),
         DeveloperTool(
-            id: "text-lab",
-            title: "Text Lab",
-            description: "Trim, dedupe, sort, and transform text lines locally",
-            keywords: [
-                "text", "dedupe", "sort", "trim", "lines", "case",
-                "文本", "去重", "排序"
-            ],
-            icon: "text.alignleft",
-            widthClass: .regular,
-            capabilities: [.clipboard],
-            presentation: .bundledWeb(entryFile: "WebTools/tools/text-lab/index.html")
-        ),
-        DeveloperTool(
             id: "curl-lab",
             title: "cURL Lab",
             description: "Visually edit HTTP requests and convert to or from cURL",

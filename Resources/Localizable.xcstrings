@@ -57031,65 +57031,6 @@
         }
       }
     },
-    "Text Lab": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Text Lab"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Text Lab"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Text Lab"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "テキストラボ"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "텍스트 랩"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Text Lab"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Text Lab"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "文本处理"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "文字處理"
-          }
-        }
-      }
-    },
     "The app and selected related files will be moved to Trash.": {
       "localizations": {
         "de": {
@@ -61220,65 +61161,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "廢紙簍記錄"
-          }
-        }
-      }
-    },
-    "Trim, dedupe, sort, and transform text lines locally": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zeilen lokal trimmen, deduplizieren, sortieren und umwandeln"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Recorta, deduplica, ordena y transforma líneas en local"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nettoyez, dédupliquez, triez et transformez des lignes en local"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "テキスト行の整形・重複削除・ソートをローカル実行"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "텍스트 줄 정리·중복 제거·정렬을 로컬에서 처리"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ajuste, remova duplicatas, ordene e transforme linhas localmente"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Локально чистите, дедуплицируйте и сортируйте строки текста"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "本地对文本行去空白、去重、排序与大小写转换"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "本機對文字行去空白、去重、排序與大小寫轉換"
           }
         }
       }

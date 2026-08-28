@@ -462,30 +462,6 @@ export const websiteToolCatalog = Object.freeze([
     },
   }),
   tool({
-    id: "text-lab",
-    category: "text-data",
-    en: {
-      title: "Text Lab",
-      summary: "Clean, transform, sort, count, and reshape text in one workspace.",
-      introduction: "Text Lab gathers everyday text cleanup into one workspace. Trim, dedupe, sort, count, and reshape lines when a pasted list, CSV fragment, or notes dump needs to become usable without opening a spreadsheet.",
-      highlights: [
-        "Trim, dedupe, sort, and count",
-        "Reshape lines in one place",
-        "Local text cleanup",
-      ],
-    },
-    "zh-CN": {
-      title: "文本实验室",
-      summary: "在一个工作区中清理、转换、排序、统计和重组文本。",
-      introduction: "文本实验室把日常文本清理集中到一个工作区。修剪、去重、排序、统计和重组行内容，让粘贴列表、CSV 片段或笔记草稿更快变成可用文本，不必打开表格软件。",
-      highlights: [
-        "修剪、去重、排序与统计",
-        "在一处重组文本行",
-        "本地文本清理",
-      ],
-    },
-  }),
-  tool({
     id: "curl-lab",
     category: "network",
     en: {
