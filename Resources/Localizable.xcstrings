@@ -26381,65 +26381,6 @@
         }
       }
     },
-    "Generate UUIDs, random IDs, and passwords locally": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "UUIDs, Zufalls-IDs und Passwörter lokal erzeugen"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Genera UUID, ID aleatorios y contraseñas en local"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Générez UUID, ID aléatoires et mots de passe localement"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "UUID・ランダム ID・パスワードをローカル生成"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "UUID, 임의 ID, 비밀번호를 로컬에서 생성"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gere UUIDs, IDs aleatórios e senhas localmente"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Локально создавайте UUID, случайные ID и пароли"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "本地生成 UUID、随机 ID 与密码"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "本機產生 UUID、隨機 ID 與密碼"
-          }
-        }
-      }
-    },
     "Getting ready…": {
       "extractionState": "manual",
       "localizations": {
@@ -67954,6 +67895,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mac 儲存空間不足"
+          }
+        }
+      }
+    },
+    "Generate UUIDs, random IDs, and strings locally": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UUIDs, Zufalls-IDs und Zeichenketten lokal erzeugen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Genera UUID, ID aleatorios y cadenas en local"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Générez UUID, ID aléatoires et chaînes localement"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UUID・ランダム ID・文字列をローカル生成"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UUID, 임의 ID, 문자열을 로컬에서 생성"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gere UUIDs, IDs aleatórios e strings localmente"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Локально создавайте UUID, случайные ID и строки"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本地生成 UUID、随机 ID 与字符串"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本機產生 UUID、隨機 ID 與字串"
           }
         }
       }

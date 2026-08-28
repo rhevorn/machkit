@@ -19,17 +19,17 @@ import { mountTool } from "@/runtime/mount-tool.jsx";
 import {
   defaultHexBytes,
   defaultNanoLength,
-  defaultPasswordLength,
+  defaultStringLength,
   generateIds,
   maxBatchCount,
-  passwordAlphabet,
+  stringAlphabet,
   uuidNamespaces,
 } from "./id.js";
 import { messages } from "./messages.js";
 
 const PREFS_KEY = "string-generator.prefs";
 const DEFAULT_COUNT = 3;
-const formats = new Set(["uuid", "ulid", "nanoid", "hex", "password"]);
+const formats = new Set(["uuid", "ulid", "nanoid", "hex", "string"]);
 const uuidVersions = new Set(["v1", "v3", "v4", "v5", "v6", "v7"]);
 const namespaceKeys = new Set(["dns", "url", "oid", "x500"]);
 
@@ -38,7 +38,7 @@ const defaultPrefs = {
   uuidVersion: "v4",
   count: String(DEFAULT_COUNT),
   length: String(defaultNanoLength),
-  passwordLength: String(defaultPasswordLength),
+  stringLength: String(defaultStringLength),
   byteLength: String(defaultHexBytes),
   uppercase: false,
   hyphens: true,
@@ -63,12 +63,14 @@ function asBoolean(value, fallback) {
 
 function normalizePrefs(raw) {
   if (!raw || typeof raw !== "object") return { ...defaultPrefs };
+  const formatRaw = raw.format === "string" ? "string" : raw.format;
+  const stringLengthRaw = raw.stringLength ?? raw.passwordLength;
   return {
-    format: formats.has(raw.format) ? raw.format : defaultPrefs.format,
+    format: formats.has(formatRaw) ? formatRaw : defaultPrefs.format,
     uuidVersion: uuidVersions.has(raw.uuidVersion) ? raw.uuidVersion : defaultPrefs.uuidVersion,
     count: String(clampInt(raw.count, 1, maxBatchCount, DEFAULT_COUNT)),
     length: String(clampInt(raw.length, 1, 128, defaultNanoLength)),
-    passwordLength: String(clampInt(raw.passwordLength, 4, 128, defaultPasswordLength)),
+    stringLength: String(clampInt(stringLengthRaw, 4, 128, defaultStringLength)),
     byteLength: String(clampInt(raw.byteLength, 1, 64, defaultHexBytes)),
     uppercase: asBoolean(raw.uppercase, defaultPrefs.uppercase),
     hyphens: asBoolean(raw.hyphens, defaultPrefs.hyphens),
@@ -196,7 +198,7 @@ function StringGenerator() {
   const [uuidVersion, setUuidVersion] = useState(defaultPrefs.uuidVersion);
   const [count, setCount] = useState(defaultPrefs.count);
   const [length, setLength] = useState(defaultPrefs.length);
-  const [passwordLength, setPasswordLength] = useState(defaultPrefs.passwordLength);
+  const [stringLength, setStringLength] = useState(defaultPrefs.stringLength);
   const [byteLength, setByteLength] = useState(defaultPrefs.byteLength);
   const [uppercase, setUppercase] = useState(defaultPrefs.uppercase);
   const [hyphens, setHyphens] = useState(defaultPrefs.hyphens);
@@ -218,7 +220,7 @@ function StringGenerator() {
       { value: "ulid", label: text.ulid },
       { value: "nanoid", label: text.nanoid },
       { value: "hex", label: text.hex },
-      { value: "password", label: text.password },
+      { value: "string", label: text.string },
     ],
     [text],
   );
@@ -247,7 +249,7 @@ function StringGenerator() {
 
   const resultText = results.join("\n");
   const isNameBased = format === "uuid" && (uuidVersion === "v3" || uuidVersion === "v5");
-  const hasPasswordAlphabet = passwordAlphabet({
+  const hasStringAlphabet = stringAlphabet({
     upper: charsetUpper,
     lower: charsetLower,
     digits: charsetDigits,
@@ -260,7 +262,7 @@ function StringGenerator() {
     uuidVersion,
     count: String(clampInt(count, 1, maxBatchCount, DEFAULT_COUNT)),
     length: String(clampInt(length, 1, 128, defaultNanoLength)),
-    passwordLength: String(clampInt(passwordLength, 4, 128, defaultPasswordLength)),
+    stringLength: String(clampInt(stringLength, 4, 128, defaultStringLength)),
     byteLength: String(clampInt(byteLength, 1, 64, defaultHexBytes)),
     uppercase,
     hyphens,
@@ -278,7 +280,7 @@ function StringGenerator() {
     setUuidVersion(prefs.uuidVersion);
     setCount(prefs.count);
     setLength(prefs.length);
-    setPasswordLength(prefs.passwordLength);
+    setStringLength(prefs.stringLength);
     setByteLength(prefs.byteLength);
     setUppercase(prefs.uppercase);
     setHyphens(prefs.hyphens);
@@ -297,8 +299,8 @@ function StringGenerator() {
     const options = {
       uppercase: prefs.uppercase,
       hyphens: prefs.hyphens,
-      length: prefs.format === "password"
-        ? clampInt(prefs.passwordLength, 4, 128, defaultPasswordLength)
+      length: prefs.format === "string"
+        ? clampInt(prefs.stringLength, 4, 128, defaultStringLength)
         : clampInt(prefs.length, 1, 128, defaultNanoLength),
       byteLength: clampInt(prefs.byteLength, 1, 64, defaultHexBytes),
       upper: prefs.charsetUpper,
@@ -309,7 +311,7 @@ function StringGenerator() {
       namespace: uuidNamespaces[prefs.namespaceKey] || uuidNamespaces.dns,
       name: prefs.name,
     };
-    if (prefs.format === "password" && !passwordAlphabet(options).length) {
+    if (prefs.format === "string" && !stringAlphabet(options).length) {
       if (generationID !== generationIDRef.current) return;
       setError("alphabet-empty");
       setResults([]);
@@ -359,7 +361,7 @@ function StringGenerator() {
     uuidVersion,
     count,
     length,
-    passwordLength,
+    stringLength,
     byteLength,
     uppercase,
     hyphens,
@@ -421,13 +423,13 @@ function StringGenerator() {
             />
           ) : null}
 
-          {format === "password" ? (
+          {format === "string" ? (
             <OptionNumber
               label={text.length}
-              id="string-password-length"
-              value={passwordLength}
-              onChange={(event) => setPasswordLength(event.target.value)}
-              onBlur={() => setPasswordLength(String(clampInt(passwordLength, 4, 128, defaultPasswordLength)))}
+              id="string-random-length"
+              value={stringLength}
+              onChange={(event) => setStringLength(event.target.value)}
+              onBlur={() => setStringLength(String(clampInt(stringLength, 4, 128, defaultStringLength)))}
             />
           ) : null}
 
@@ -445,7 +447,7 @@ function StringGenerator() {
             <Button
               variant="secondary"
               size="sm"
-              disabled={format === "password" && !hasPasswordAlphabet}
+              disabled={format === "string" && !hasStringAlphabet}
               onClick={regenerateNow}
             >
               <ArrowsClockwise size={15} />
@@ -454,7 +456,7 @@ function StringGenerator() {
           </ActionGroup>
         </ToolToolbar>
 
-        {isNameBased || format === "password" || (format !== "nanoid" && format !== "password") ? (
+        {isNameBased || format === "string" || (format !== "nanoid" && format !== "string") ? (
           <ToolToolbar className="flex-wrap gap-x-4 gap-y-2">
             {isNameBased ? (
               <>
@@ -483,7 +485,7 @@ function StringGenerator() {
               </>
             ) : null}
 
-            {format === "password" ? (
+            {format === "string" ? (
               <>
                 <CheckboxField
                   checked={charsetUpper}
@@ -513,7 +515,7 @@ function StringGenerator() {
               </>
             ) : null}
 
-            {format !== "nanoid" && format !== "password" ? (
+            {format !== "nanoid" && format !== "string" ? (
               <>
                 <CheckboxField
                   checked={uppercase}

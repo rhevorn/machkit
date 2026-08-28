@@ -124,7 +124,7 @@ enum DeveloperToolRegistry {
         DeveloperTool(
             id: "string-generator",
             title: "String Generator",
-            description: "Generate UUIDs, random IDs, and passwords locally",
+            description: "Generate UUIDs, random IDs, and strings locally",
             keywords: [
                 "uuid", "ulid", "nanoid", "guid", "random", "id", "hex", "objectid", "string",
                 "password", "passwd", "secret", "生成", "随机", "密码", "字符串", "字串"

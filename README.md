@@ -31,7 +31,7 @@ MachKit has no analytics service or cloud backend. Scans read local file metadat
   - **Timestamp Converter** — Convert dates and Unix timestamps across units and time zones
   - **JSON Formatter** — Format, minify, sort keys, and query values with path expressions
   - **Codec** — Encode and decode Base64, Base32, Base62, Hex, URL, HTML, Unicode, Escape, and Hash
-  - **String Generator** — Generate UUID v1–v7, ULIDs, Nano IDs, hex strings, and passwords locally
+  - **String Generator** — Generate UUID v1–v7, ULIDs, Nano IDs, hex strings, and random strings locally
   - **Regex Lab** — Highlight matches, inspect capture groups, and try common replacements
   - **Text Diff** — Compare two texts side by side with line-level highlighting
   - **IP / CIDR** — Inspect IPv4 and IPv6 addresses or calculate IPv4 CIDR ranges locally

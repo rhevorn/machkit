@@ -130,21 +130,21 @@ export const websiteToolCatalog = Object.freeze([
     category: "text-data",
     en: {
       title: "String Generator",
-      summary: "Generate UUID v1–v7, ULIDs, Nano IDs, Object IDs, hex strings, and configurable passwords locally.",
-      introduction: "String Generator creates identifiers and passwords on the Mac instead of in a browser tab. Choose UUID versions, ULID, Nano ID, Object ID, hex strings, or configurable passwords when scaffolding data, filling forms, or preparing test fixtures.",
+      summary: "Generate UUID v1–v7, ULIDs, Nano IDs, Object IDs, hex strings, and configurable random strings locally.",
+      introduction: "String Generator creates identifiers and random strings on the Mac instead of in a browser tab. Choose UUID versions, ULID, Nano ID, Object ID, hex strings, or configurable random strings when scaffolding data, filling forms, or preparing test fixtures.",
       highlights: [
         "UUID v1–v7, ULID, Nano ID, and Object ID",
-        "Hex strings and configurable passwords",
+        "Hex strings and configurable random strings",
         "Everything generated locally",
       ],
     },
     "zh-CN": {
       title: "字符串生成",
-      summary: "在本地生成 UUID v1–v7、ULID、Nano ID、Object ID、十六进制字符串和可配置密码。",
-      introduction: "字符串生成在 Mac 本机创建标识符和密码，不必打开浏览器标签。可选择 UUID 版本、ULID、Nano ID、Object ID、十六进制字符串或可配置密码，方便搭数据、填表单或准备测试样例。",
+      summary: "在本地生成 UUID v1–v7、ULID、Nano ID、Object ID、十六进制字符串和可配置随机字符串。",
+      introduction: "字符串生成在 Mac 本机创建标识符和随机字符串，不必打开浏览器标签。可选择 UUID 版本、ULID、Nano ID、Object ID、十六进制字符串或可配置随机字符串，方便搭数据、填表单或准备测试样例。",
       highlights: [
         "UUID v1–v7、ULID、Nano ID、Object ID",
-        "十六进制字符串与可配置密码",
+        "十六进制字符串与可配置随机字符串",
         "全部在本地生成",
       ],
     },

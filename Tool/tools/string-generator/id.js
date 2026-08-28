@@ -21,7 +21,7 @@ export const formats = Object.freeze([
   "ulid",
   "nanoid",
   "hex",
-  "password",
+  "string",
 ]);
 export const uuidNamespaces = Object.freeze({
   dns: "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
@@ -32,7 +32,7 @@ export const uuidNamespaces = Object.freeze({
 export const maxBatchCount = 500;
 export const defaultNanoLength = 21;
 export const defaultHexBytes = 16;
-export const defaultPasswordLength = 16;
+export const defaultStringLength = 16;
 
 const UUID_EPOCH_OFFSET_MS = 12_219_292_800_000;
 const textEncoder = new TextEncoder();
@@ -293,7 +293,7 @@ function filterAmbiguous(alphabet) {
   return [...alphabet].filter((char) => !AMBIGUOUS.has(char)).join("");
 }
 
-export function passwordAlphabet({
+export function stringAlphabet({
   upper = true,
   lower = true,
   digits = true,
@@ -308,16 +308,16 @@ export function passwordAlphabet({
   return groups.filter(Boolean);
 }
 
-export function generatePassword({
-  length = defaultPasswordLength,
+export function generateString({
+  length = defaultStringLength,
   upper = true,
   lower = true,
   digits = true,
   symbols = true,
   excludeAmbiguous = false,
 } = {}) {
-  const size = Math.min(128, Math.max(4, Math.floor(Number(length)) || defaultPasswordLength));
-  const groups = passwordAlphabet({ upper, lower, digits, symbols, excludeAmbiguous });
+  const size = Math.min(128, Math.max(4, Math.floor(Number(length)) || defaultStringLength));
+  const groups = stringAlphabet({ upper, lower, digits, symbols, excludeAmbiguous });
   if (!groups.length) throw new Error("empty-alphabet");
   const alphabet = groups.join("");
   const chars = [];
@@ -356,8 +356,8 @@ export async function generateId(format, options = {}) {
       return generateNanoId(options.length);
     case "hex":
       return generateHex(options.byteLength, options);
-    case "password":
-      return generatePassword(options);
+    case "string":
+      return generateString(options);
     default:
       throw new Error(`unsupported-format:${format}`);
   }
@@ -449,7 +449,7 @@ export function validateId(raw) {
   }
 
   if (/^[\x21-\x7E]+$/.test(value) && value.length >= 4 && value.length <= 128) {
-    return { ok: true, kind: "password-like", normalized: value };
+    return { ok: true, kind: "string-like", normalized: value };
   }
 
   return { ok: false, kind: "unknown", error: "unrecognized", normalized: value };
