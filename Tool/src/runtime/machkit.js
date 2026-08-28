@@ -145,6 +145,19 @@ export const machkit = Object.freeze({
     }
   },
 
+  async readClipboard() {
+    try {
+      if (this.isEmbedded) {
+        const result = await this.request("clipboard.read");
+        return typeof result?.text === "string" ? result.text : "";
+      }
+      if (!navigator.clipboard?.readText) return "";
+      return await navigator.clipboard.readText();
+    } catch {
+      return "";
+    }
+  },
+
   fitContentHeight(height) {
     if (!Number.isFinite(height) || height <= 0 || !this.isEmbedded) return Promise.resolve(false);
     return this.request("window.fitContentHeight", { height: Math.ceil(height) })

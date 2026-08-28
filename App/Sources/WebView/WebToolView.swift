@@ -102,6 +102,7 @@ private struct BundledWebView: NSViewRepresentable {
         let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.underPageBackgroundColor = .clear
         webView.navigationDelegate = context.coordinator
+        Self.disableElasticScrolling(in: webView)
         context.coordinator.localeIdentifier = localeIdentifier
         context.coordinator.appearance = appearance
         context.coordinator.loadInitialPage(in: webView)
@@ -109,11 +110,24 @@ private struct BundledWebView: NSViewRepresentable {
     }
 
     func updateNSView(_ webView: WKWebView, context: Context) {
+        Self.disableElasticScrolling(in: webView)
         context.coordinator.applyPreferencesIfNeeded(
             in: webView,
             localeIdentifier: localeIdentifier,
             appearance: appearance
         )
+    }
+
+    /// Trackpad rubber-banding on the page chrome feels like the whole tool is
+    /// sliding even when there is nothing to scroll. Keep real overflow scrollers.
+    private static func disableElasticScrolling(in root: NSView) {
+        if let scrollView = root as? NSScrollView {
+            scrollView.horizontalScrollElasticity = .none
+            scrollView.verticalScrollElasticity = .none
+        }
+        for subview in root.subviews {
+            disableElasticScrolling(in: subview)
+        }
     }
 
     static func dismantleNSView(_ webView: WKWebView, coordinator: Coordinator) {
@@ -271,6 +285,17 @@ private struct BundledWebView: NSViewRepresentable {
                     return
                 }
                 replyHandler(["ok": true], nil)
+            case "clipboard.read":
+                guard capabilities.contains(.clipboard) else {
+                    replyHandler(nil, "Clipboard access is not available to this tool.")
+                    return
+                }
+                let text = NSPasteboard.general.string(forType: .string) ?? ""
+                guard text.utf8.count <= 5_000_000 else {
+                    replyHandler(nil, "Clipboard content is too large.")
+                    return
+                }
+                replyHandler(["text": text], nil)
             case "window.fitContentHeight":
                 guard let height = parameters["height"] as? NSNumber,
                       let webView = message.webView else {
@@ -510,6 +535,10 @@ private struct BundledWebView: NSViewRepresentable {
         ) {
             guard isUsingDevelopmentServer else { return }
             loadBundledPage(in: webView)
+        }
+
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            BundledWebView.disableElasticScrolling(in: webView)
         }
 
         private func fail(_ task: any WKURLSchemeTask, code: Int) {

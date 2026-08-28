@@ -54,6 +54,15 @@ test("copy feedback waits for the native acknowledgement", async () => {
   assert.equal(events.at(-1).detail.ok, true);
 });
 
+test("readClipboard returns native pasteboard text", async () => {
+  postMessage = async (request) => {
+    assert.equal(request.method, "clipboard.read");
+    assert.deepEqual(request.params, {});
+    return { text: '{"a":1}' };
+  };
+  assert.equal(await machkit.readClipboard(), '{"a":1}');
+});
+
 test("bridge requests time out instead of hanging forever", async () => {
   postMessage = () => new Promise(() => {});
   await assert.rejects(
