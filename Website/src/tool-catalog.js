@@ -222,30 +222,6 @@ export const websiteToolCatalog = Object.freeze([
     },
   }),
   tool({
-    id: "data-format",
-    category: "text-data",
-    en: {
-      title: "Data Format",
-      summary: "Convert structured data between JSON, YAML, and TOML locally.",
-      introduction: "Data Format converts structured content between JSON, YAML, and TOML on the Mac. Keep configuration experiments and data hand-offs local when you need a quick format change without installing another CLI or opening an upload form.",
-      highlights: [
-        "JSON, YAML, and TOML conversion",
-        "Local structured-data transforms",
-        "No upload or extra CLI required",
-      ],
-    },
-    "zh-CN": {
-      title: "数据格式",
-      summary: "在本地转换 JSON、YAML 和 TOML 结构化数据。",
-      introduction: "数据格式在本机完成 JSON、YAML、TOML 之间的转换。做配置试验或数据交接时，不必再装额外 CLI，也不必把内容上传到网页表单。",
-      highlights: [
-        "JSON、YAML、TOML 互转",
-        "本地结构化数据转换",
-        "无需上传或额外命令行工具",
-      ],
-    },
-  }),
-  tool({
     id: "number-base",
     category: "text-data",
     en: {

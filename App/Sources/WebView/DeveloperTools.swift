@@ -184,19 +184,6 @@ enum DeveloperToolRegistry {
             presentation: .bundledWeb(entryFile: "WebTools/tools/text-diff/index.html")
         ),
         DeveloperTool(
-            id: "data-format",
-            title: "Data Format",
-            description: "Convert between JSON, YAML, and TOML locally",
-            keywords: [
-                "json", "yaml", "yml", "toml", "convert", "format",
-                "转换", "格式", "数据"
-            ],
-            icon: "arrow.left.arrow.right",
-            widthClass: .wide,
-            capabilities: [.clipboard],
-            presentation: .bundledWeb(entryFile: "WebTools/tools/data-format/index.html")
-        ),
-        DeveloperTool(
             id: "number-base",
             title: "Unit Converter",
             description: "Convert bases, bytes, time, length, mass, temperature, and more locally",

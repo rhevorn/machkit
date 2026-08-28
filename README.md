@@ -36,7 +36,6 @@ MachKit has no analytics service or cloud backend. Scans read local file metadat
   - **Text Diff** — Compare two texts side by side with line-level highlighting
   - **IP / CIDR** — Inspect IPv4 and IPv6 addresses or calculate IPv4 CIDR ranges locally
   - **Cron Expression** — Build five-field cron schedules and preview upcoming runs
-  - **Data Format** — Convert between JSON, YAML, and TOML locally
   - **Color Lab** — Convert HEX, RGB, HSL, and HSV with local contrast checks
   - **QR Code** — Generate QR codes from text or URLs locally
   - **URL Lab** — Parse and rebuild URLs with query and hash editing
