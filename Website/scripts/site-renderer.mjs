@@ -337,7 +337,7 @@ export function renderSitemap(lastModified) {
   const entries = [
     ...supportedLocales.map((locale) => ({
       url: locale === "zh-CN" ? `${site.origin}/zh-CN/` : `${site.origin}/`,
-      imageURL: `${site.origin}/assets/${localizedImageName("overview.webp", locale)}`,
+      imageURL: `${site.origin}/assets/${localizedImageName("cleanup.webp", locale)}`,
       lastModified: sitemapLastModified(lastModified, "home"),
       alternates: {
         en: `${site.origin}/`,

@@ -55,6 +55,7 @@ for (const file of htmlFiles) {
 assert.equal(indexableFiles.length, 12, "expected 12 indexable localized pages");
 
 const homepage = await fs.readFile(path.join(clientDirectory, "index.html"), "utf8");
+const chineseHomepage = await fs.readFile(path.join(clientDirectory, "zh-CN/index.html"), "utf8");
 assert.match(homepage, /"@type": "WebSite"/);
 assert.match(homepage, /"@type": "Offer"/);
 assert.match(homepage, /"price": "0"/);
@@ -63,8 +64,11 @@ assert.match(homepage, /href="\.\/utilities\/"/);
 assert.match(homepage, /Mackit/);
 assert.match(homepage, /Mac cleaner/);
 assert.match(homepage, /href="\.\/features\/screenshot\/"/);
-assert.match(homepage, /width="1600" height="1329"/);
+assert.match(homepage, /width="2040" height="1648"/);
 assert.match(homepage, /data-anchor-pending/);
+assert.match(homepage, /assets\/cleanup\.webp/);
+assert.doesNotMatch(homepage, /assets\/cleanup-zh-CN\.webp/);
+assert.match(chineseHomepage, /assets\/cleanup-zh-CN\.webp/);
 
 const utilities = await fs.readFile(path.join(clientDirectory, "utilities/index.html"), "utf8");
 assert.match(utilities, /Regex Lab/);

@@ -25,7 +25,7 @@ export const messages = {
       primary: "Download for macOS",
       secondary: "View source",
       compatibility: "Free and open source · macOS 14 or later",
-      previewAlt: "MachKit overview showing storage health, live system status, and common tools",
+      previewAlt: "MachKit cleanup workspace showing local scan categories and the start scan action",
     },
     introduction: {
       kicker: "One practical workspace",
@@ -48,7 +48,7 @@ export const messages = {
           items: [
             ["Overview", "Storage health, CPU, memory pressure, network speed, thermal state, and quick actions."],
             ["Storage", "Disk categories, folder sizes, and large files with drill-down navigation.", "./features/storage-cleanup/"],
-            ["Monitor", "Live resource usage and the apps placing the most pressure on your Mac."],
+            ["Performance", "Live resource usage and the apps placing the most pressure on your Mac."],
           ],
         },
         {
@@ -129,14 +129,14 @@ export const messages = {
           alt: "MachKit storage analysis showing folder sizes",
         },
         performance: {
-          label: "Monitor",
+          label: "Performance",
           title: "Understand pressure, not just percentages.",
           features: [
             "Monitor CPU, memory usage, pressure level, and thermal state live.",
             "Compare CPU and memory trends across the last 60 seconds.",
             "Find the apps using the most resources and release reclaimable memory.",
           ],
-          alt: "MachKit monitor workspace showing CPU, memory, and resource-heavy apps",
+          alt: "MachKit Performance workspace showing CPU, memory, and resource-heavy apps",
         },
         network: {
           label: "Network",
@@ -158,6 +158,16 @@ export const messages = {
             "Search tools quickly and assign global keyboard shortcuts to frequent actions.",
           ],
           alt: "MachKit tools workspace with practical local utilities",
+        },
+        settings: {
+          label: "Settings",
+          title: "Keep the app aligned with your workflow.",
+          features: [
+            "Choose the app language and follow the system appearance or use a fixed theme.",
+            "Control menu bar access and the global shortcuts used for tools and screenshots.",
+            "Clear locally stored preferences and tool data when you want a fresh start.",
+          ],
+          alt: "MachKit settings showing language, appearance, shortcuts, and local data controls",
         },
         system: {
           label: "System",
@@ -238,7 +248,7 @@ export const messages = {
       primary: "下载 macOS 版",
       secondary: "查看源码",
       compatibility: "免费且开源 · 需要 macOS 14 或更高版本",
-      previewAlt: "MachKit 总览界面，显示存储健康、实时系统状态和常用工具",
+      previewAlt: "MachKit 清理工作区，显示本地扫描分类和开始扫描操作",
     },
     introduction: {
       kicker: "一个实用的工作区",
@@ -261,7 +271,7 @@ export const messages = {
           items: [
             ["总览", "存储健康、CPU、内存压力、网速、散热状态和快捷操作。"],
             ["存储", "磁盘分类、文件夹大小和大文件，支持逐层查看。", "./features/storage-cleanup/"],
-            ["监控", "实时资源使用情况，以及占用最高的应用。"],
+            ["性能", "实时资源使用情况，以及占用最高的应用。"],
           ],
         },
         {
@@ -342,14 +352,14 @@ export const messages = {
           alt: "MachKit 存储分析，显示文件夹大小",
         },
         performance: {
-          label: "监控",
+          label: "性能",
           title: "理解系统压力，而不只是百分比。",
           features: [
             "实时监控 CPU、内存用量、压力等级和温度状态。",
             "对比最近 60 秒的 CPU 与内存变化趋势。",
             "找到资源占用最高的应用，并释放可回收内存。",
           ],
-          alt: "MachKit 监控工作区，显示 CPU、内存和高占用应用",
+          alt: "MachKit 性能工作区，显示 CPU、内存和高占用应用",
         },
         network: {
           label: "网络",
@@ -371,6 +381,16 @@ export const messages = {
             "快速搜索工具，并为常用操作设置全局键盘快捷键。",
           ],
           alt: "MachKit 工具工作区，包含实用的本地小工具",
+        },
+        settings: {
+          label: "设置",
+          title: "让应用适应你的使用习惯。",
+          features: [
+            "选择应用语言，并跟随系统外观或固定使用浅色、深色模式。",
+            "管理菜单栏入口，以及工具列表和截图使用的全局快捷键。",
+            "需要重新开始时，清除保存在本机的偏好设置与工具数据。",
+          ],
+          alt: "MachKit 设置，显示语言、外观、快捷键和本地数据选项",
         },
         system: {
           label: "系统",

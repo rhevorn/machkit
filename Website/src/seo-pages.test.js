@@ -108,7 +108,8 @@ test("sitemap includes every localized homepage and feature page", () => {
   assert.match(sitemap, /https:\/\/machkit\.app\/features\/screenshot\//);
   assert.match(sitemap, /xmlns:image="http:\/\/www\.google\.com\/schemas\/sitemap-image\/1\.1"/);
   assert.equal((sitemap.match(/<image:image>/g) || []).length, 12);
-  assert.match(sitemap, /https:\/\/machkit\.app\/assets\/overview-zh-CN\.webp/);
+  assert.match(sitemap, /https:\/\/machkit\.app\/assets\/cleanup\.webp/);
+  assert.match(sitemap, /https:\/\/machkit\.app\/assets\/cleanup-zh-CN\.webp/);
   assert.match(sitemap, /https:\/\/machkit\.app\/assets\/tools-zh-CN\.webp/);
   assert.equal((sitemap.match(/<lastmod>2026-08-15<\/lastmod>/g) || []).length, 12);
 });

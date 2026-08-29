@@ -21,14 +21,11 @@ import {
 
 const THEME_KEY = "machkit-website-theme";
 const SCREEN_KEYS = [
-  "overview",
   "cleanup",
   "apps",
-  "storage",
   "performance",
-  "network",
   "tools",
-  "system",
+  "settings",
 ];
 
 const GROUP_ICONS = [ChartDonut, Wrench, Pulse, Code];
@@ -86,7 +83,7 @@ export function App({
     || ".";
   const copy = messages[locale];
   const [theme, setTheme] = useState(() => initialTheme || preferredTheme());
-  const [selectedScreen, setSelectedScreen] = useState("overview");
+  const [selectedScreen, setSelectedScreen] = useState("cleanup");
   const release = fallbackRelease;
 
   const languageURL = locale === "en" ? "./zh-CN/" : "../";
@@ -180,10 +177,10 @@ export function App({
           <div className="hero-product" aria-label={copy.hero.previewAlt}>
             <div className="product-window">
               <img
-                src={screenImages.overview}
+                src={screenImages.cleanup}
                 alt={copy.hero.previewAlt}
-                width="1600"
-                height="1329"
+                width="2040"
+                height="1648"
                 fetchPriority="high"
               />
             </div>
@@ -248,8 +245,8 @@ export function App({
                 <img
                   src={screenImages[selectedScreen]}
                   alt={activeScreen.alt}
-                  width="1600"
-                  height="1329"
+                  width="2040"
+                  height="1648"
                 />
               </div>
             </div>

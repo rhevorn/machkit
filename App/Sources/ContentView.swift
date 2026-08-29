@@ -247,7 +247,7 @@ struct ContentView: View {
         } label: {
             VStack(spacing: 2) {
                 Image(systemName: icon).font(.system(size: 17, weight: .medium))
-                sidebarLabel(mode.sidebarTitle)
+                sidebarLabel(mode.rawValue)
             }
             .foregroundStyle(model.mode == mode ? Color.accentColor : Color.secondary)
             .frame(width: 60, height: 48)

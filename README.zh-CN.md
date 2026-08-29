@@ -10,7 +10,7 @@ MachKit 不使用分析服务或云端后台。扫描只读取本机文件元数
   <table cellpadding="12" cellspacing="0">
     <tr>
       <td align="center" bgcolor="#e8e8ed">
-        <img src="Website/public/assets/overview-zh-CN.webp" alt="MachKit 总览界面" width="900" />
+        <img src="Website/public/assets/performance-zh-CN.webp" alt="MachKit 性能工作区" width="900" />
       </td>
     </tr>
   </table>
@@ -21,7 +21,7 @@ MachKit 不使用分析服务或云端后台。扫描只读取本机文件元数
 - **垃圾清理** — 查找缓存、日志、应用残留和开发文件，风险项默认不勾选
 - **应用** — 查看 App 和命令行工具，并连同支持文件一起卸载
 - **存储分析** — 看清磁盘占用和大目录
-- **监控** — 查看 CPU、内存压力、温度状态和高占用 App（详见 [监控说明](docs/monitoring.md)）
+- **性能** — 查看 CPU、内存压力、温度状态和高占用 App（详见 [性能说明](docs/monitoring.md)）
 - **网络** — 查看流量、连接、监听端口、路由、VPN/TUN 和代理
 - **系统** — 查看登录项、后台活动和扩展
 - **菜单栏** — 常驻菜单栏，快速打开功能与退出
