@@ -91,7 +91,7 @@ Filesystem changes are security-sensitive.
 ## WebView bridges and embedded tools
 
 - The native host owns capabilities. Register every tool and its capabilities explicitly; do not infer privileges from page content.
-- Grant only the capabilities a tool actually needs, such as clipboard, hosts, storage, connection tracing, port scanning, file access, or curl execution.
+- Grant only the capabilities a tool actually needs, such as clipboard, hosts, storage, port scanning, file access, or curl execution.
 - Validate the source frame, tool identity, message shape, request identifier, and capability before performing native work.
 - Prefer versioned request/reply messages with bounded timeouts and structured errors.
 - Avoid exposing generic filesystem, process, or network execution handlers to web content.

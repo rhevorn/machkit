@@ -16912,65 +16912,6 @@
         }
       }
     },
-    "Connection Trace": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connection Trace"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connection Trace"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connection Trace"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "接続トレース"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "연결 추적"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connection Trace"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connection Trace"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "连接追踪"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "連線追蹤"
-          }
-        }
-      }
-    },
     "Connections": {
       "extractionState": "manual",
       "localizations": {
@@ -60631,65 +60572,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "系統總使用率"
-          }
-        }
-      }
-    },
-    "Trace DNS lookup and HTTP/TLS connection timing for a host": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DNS- und HTTP/TLS-Verbindungszeiten eines Hosts verfolgen"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rastrea DNS y tiempos de conexión HTTP/TLS de un host"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tracez DNS et timings de connexion HTTP/TLS d’un hôte"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ホストの DNS と HTTP/TLS 接続タイミングを追跡"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "호스트의 DNS·HTTP/TLS 연결 시간을 추적"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rastreie DNS e tempos de conexão HTTP/TLS de um host"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Трассировка DNS и времени HTTP/TLS-подключения хоста"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "追踪主机的 DNS 解析与 HTTP/TLS 连接耗时"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "追蹤主機的 DNS 解析與 HTTP/TLS 連線耗時"
           }
         }
       }

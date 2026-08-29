@@ -194,7 +194,6 @@ private struct BundledWebView: NSViewRepresentable {
         private let capabilities: Set<DeveloperToolCapability>
         private var isUsingDevelopmentServer = false
         private let hostsBridge = HostsWebBridge.shared
-        private let connectionTraceBridge = ConnectionTraceWebBridge.shared
         private let portScanBridge = PortScanWebBridge.shared
         private let curlLabBridge = CurlLabWebBridge.shared
         var localeIdentifier = "en"
@@ -427,26 +426,6 @@ private struct BundledWebView: NSViewRepresentable {
                         replyHandler(response["result"], nil)
                     } else {
                         replyHandler(nil, response["error"] as? String ?? "Hosts operation failed.")
-                    }
-                }
-            case let method where method.hasPrefix("connectionTrace."):
-                guard capabilities.contains(.connectionTrace) else {
-                    replyHandler(nil, "Connection tracing is not available to this tool.")
-                    return
-                }
-                var payload = parameters
-                payload["action"] = String(method.dropFirst("connectionTrace.".count))
-                payload["requestID"] = "bridge-reply"
-                Task { @MainActor [weak self] in
-                    guard let self else {
-                        replyHandler(nil, "The tool bridge is no longer available.")
-                        return
-                    }
-                    let response = await connectionTraceBridge.handle(payload)
-                    if response["ok"] as? Bool == true {
-                        replyHandler(response["result"], nil)
-                    } else {
-                        replyHandler(nil, response["error"] as? String ?? "Connection trace failed.")
                     }
                 }
             case let method where method.hasPrefix("portScan."):

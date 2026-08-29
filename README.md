@@ -45,7 +45,6 @@ MachKit has no analytics service or cloud backend. Scans read local file metadat
   - **chmod Lab** — Convert Unix permission modes and preview symbolic changes
   - **Certificate Lab** — Inspect certificates, CSRs, and certificate chains locally
   - **cURL Lab** — Build, parse, edit, and explicitly run cURL requests directly from your Mac
-  - **Connection Trace** — Trace how a destination resolves and routes through the Mac
   - **Port Scanner** — Scan any TCP port or range with progress and open-port results
 
 ## Requirements

@@ -290,7 +290,7 @@ from this document.
 `json-formatter`, `timestamp-converter`, `codec`, `string-generator`,
 `hosts-manager`, `url-lab`, `regex-lab`, `text-diff`, `number-base`,
 `cron-expression`, `ip-cidr`, `color-lab`, `image-process`, `qr-code`,
-`jwt-lab`, `chmod-lab`, `cert-lab`, `curl-lab`, `connection-trace`,
+`jwt-lab`, `chmod-lab`, `cert-lab`, `curl-lab`,
 `port-scan`.
 
 ### Wave 0 — foundation (blocking)
@@ -343,7 +343,6 @@ stability.
 
 Template E:
 
-- `connection-trace`
 - `port-scan` if not already the Template E reference
 
 Goals: explicit execution, progress, cancellation, partial results, timeouts,

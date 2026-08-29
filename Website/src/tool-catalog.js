@@ -462,30 +462,6 @@ export const websiteToolCatalog = Object.freeze([
     },
   }),
   tool({
-    id: "connection-trace",
-    category: "network",
-    en: {
-      title: "Connection Trace",
-      summary: "Trace DNS resolution, routes, proxies, and connection timing for a host.",
-      introduction: "Connection Trace follows what happens when your Mac reaches a host. Review DNS resolution, routing, proxy influence, and connection timing so intermittent network issues become a sequence of facts instead of a vague timeout.",
-      highlights: [
-        "DNS resolution and route context",
-        "Proxy visibility",
-        "Connection timing diagnostics",
-      ],
-    },
-    "zh-CN": {
-      title: "连接追踪",
-      summary: "追踪目标主机的 DNS 解析、路由、代理和连接耗时。",
-      introduction: "连接追踪跟进 Mac 访问某个主机时发生了什么。查看 DNS 解析、路由、代理影响和连接耗时，让间歇性网络问题变成一串可核对的事实，而不是模糊的超时。",
-      highlights: [
-        "DNS 解析与路由上下文",
-        "代理状态可见",
-        "连接耗时诊断",
-      ],
-    },
-  }),
-  tool({
     id: "port-scan",
     category: "network",
     en: {

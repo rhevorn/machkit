@@ -10,7 +10,6 @@ enum DeveloperToolCapability: String, Hashable {
     case clipboard
     case hosts
     case storage
-    case connectionTrace
     case portScan
     case files
     case curlLab
@@ -314,19 +313,6 @@ enum DeveloperToolRegistry {
             widthClass: .wide,
             capabilities: [.clipboard, .files, .curlLab],
             presentation: .bundledWeb(entryFile: "WebTools/tools/curl-lab/index.html")
-        ),
-        DeveloperTool(
-            id: "connection-trace",
-            title: "Connection Trace",
-            description: "Trace DNS lookup and HTTP/TLS connection timing for a host",
-            keywords: [
-                "dns", "resolve", "tls", "http", "latency", "curl", "trace", "connect",
-                "域名", "解析", "连接", "耗时"
-            ],
-            icon: "antenna.radiowaves.left.and.right",
-            widthClass: .regular,
-            capabilities: [.clipboard, .connectionTrace],
-            presentation: .bundledWeb(entryFile: "WebTools/tools/connection-trace/index.html")
         ),
         DeveloperTool(
             id: "port-scan",

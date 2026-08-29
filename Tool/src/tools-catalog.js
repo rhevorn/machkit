@@ -22,7 +22,6 @@ const preferredOrder = [
   "chmod-lab",
   "cert-lab",
   "curl-lab",
-  "connection-trace",
   "port-scan",
 ];
 
@@ -494,32 +493,6 @@ export const toolMeta = {
       de: "HTTP-Requests visuell bearbeiten und von/nach cURL konvertieren",
       "pt-BR": "Edite requisições HTTP visualmente e converta de/para cURL",
       ru: "Визуально редактируйте HTTP-запросы и конвертируйте в/из cURL",
-    },
-  },
-  "connection-trace": {
-    title: {
-      en: "Connection Trace",
-      "zh-Hans": "连接追踪",
-      "zh-Hant": "連線追蹤",
-      ja: "接続トレース",
-      ko: "연결 추적",
-      es: "Connection Trace",
-      fr: "Connection Trace",
-      de: "Connection Trace",
-      "pt-BR": "Connection Trace",
-      ru: "Connection Trace",
-    },
-    description: {
-      en: "Trace DNS lookup and HTTP/TLS connection timing for a host",
-      "zh-Hans": "追踪主机的 DNS 解析与 HTTP/TLS 连接耗时",
-      "zh-Hant": "追蹤主機的 DNS 解析與 HTTP/TLS 連線耗時",
-      ja: "ホストの DNS と HTTP/TLS 接続タイミングを追跡",
-      ko: "호스트의 DNS·HTTP/TLS 연결 시간을 추적",
-      es: "Rastrea DNS y tiempos de conexión HTTP/TLS de un host",
-      fr: "Tracez DNS et timings de connexion HTTP/TLS d’un hôte",
-      de: "DNS- und HTTP/TLS-Verbindungszeiten eines Hosts verfolgen",
-      "pt-BR": "Rastreie DNS e tempos de conexão HTTP/TLS de um host",
-      ru: "Трассировка DNS и времени HTTP/TLS-подключения хоста",
     },
   },
   "port-scan": {
