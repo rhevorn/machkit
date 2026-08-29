@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 71;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -24,13 +24,15 @@
 		A1000000000000000000000F /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000011 /* AppSettings.swift */; };
 		A10000000000000000000010 /* OperationResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000012 /* OperationResultView.swift */; };
 		A10000000000000000000013 /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000015 /* AppPreferences.swift */; };
-		E10000000000000000000001 /* AppUpdateChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000001 /* AppUpdateChecker.swift */; };
-		E10000000000000000000002 /* AppUpdateCheckTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000002 /* AppUpdateCheckTests.swift */; };
 		A10000000000000000000014 /* FeatureModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000016 /* FeatureModels.swift */; };
 		A10000000000000000000015 /* StatusBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000017 /* StatusBar.swift */; };
 		A10000000000000000000016 /* SystemMonitorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20000000000000000000001 /* SystemMonitorService.swift */; };
+		A10000000000000000000017 /* ToolsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000019 /* ToolsView.swift */; };
+		A10000000000000000000019 /* DeveloperTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000021 /* DeveloperTools.swift */; };
+		A1000000000000000000001A /* WebToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000022 /* WebToolView.swift */; };
+		A1000000000000000000001B /* WebTools in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000023 /* WebTools */; };
 		A1000000000000000000001C /* HostsWebBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000024 /* HostsWebBridge.swift */; };
-				A1000000000000000000001E /* PortScanWebBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000026 /* PortScanWebBridge.swift */; };
+		A1000000000000000000001E /* PortScanWebBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000026 /* PortScanWebBridge.swift */; };
 		A1000000000000000000001F /* CurlLabWebBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000027 /* CurlLabWebBridge.swift */; };
 		A10000000000000000000020 /* ScreenshotAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000028 /* ScreenshotAction.swift */; };
 		A10000000000000000000021 /* ScreenshotCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000029 /* ScreenshotCapture.swift */; };
@@ -43,17 +45,16 @@
 		A10000000000000000000028 /* ScreenshotEditorModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000030 /* ScreenshotEditorModel.swift */; };
 		A10000000000000000000029 /* ScreenshotAnnotatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000031 /* ScreenshotAnnotatorView.swift */; };
 		B10000000000000000000001 /* HostsManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* HostsManagerTests.swift */; };
-				B10000000000000000000003 /* CurlLabRunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000003 /* CurlLabRunnerTests.swift */; };
+		B10000000000000000000003 /* CurlLabRunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000003 /* CurlLabRunnerTests.swift */; };
 		B10000000000000000000004 /* TCPPortScanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000004 /* TCPPortScanTests.swift */; };
 		B10000000000000000000005 /* PrivilegedCommandRunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000005 /* PrivilegedCommandRunnerTests.swift */; };
 		C10000000000000000000001 /* AppSnapshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000001 /* AppSnapshotStore.swift */; };
 		C10000000000000000000002 /* ContentViewSoftware.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000002 /* ContentViewSoftware.swift */; };
 		C10000000000000000000003 /* ContentViewNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000003 /* ContentViewNetwork.swift */; };
 		C10000000000000000000004 /* ContentViewStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000004 /* ContentViewStorage.swift */; };
-		A10000000000000000000017 /* ToolsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000019 /* ToolsView.swift */; };
-		A10000000000000000000019 /* DeveloperTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000021 /* DeveloperTools.swift */; };
-		A1000000000000000000001A /* WebToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000022 /* WebToolView.swift */; };
-		A1000000000000000000001B /* WebTools in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000023 /* WebTools */; };
+		E10000000000000000000001 /* AppUpdateChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000001 /* AppUpdateChecker.swift */; };
+		E10000000000000000000002 /* AppUpdateCheckTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000002 /* AppUpdateCheckTests.swift */; };
+		F91882353042DFB800998E0C /* SoCMetrics in Frameworks */ = {isa = PBXBuildFile; productRef = A90000000000000000000003 /* SoCMetrics */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -76,13 +77,14 @@
 		A20000000000000000000011 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		A20000000000000000000012 /* OperationResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationResultView.swift; sourceTree = "<group>"; };
 		A20000000000000000000015 /* AppPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferences.swift; sourceTree = "<group>"; };
-		E20000000000000000000001 /* AppUpdateChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdateChecker.swift; sourceTree = "<group>"; };
-		E20000000000000000000002 /* AppUpdateCheckTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdateCheckTests.swift; sourceTree = "<group>"; };
 		A20000000000000000000016 /* FeatureModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureModels.swift; sourceTree = "<group>"; };
-		D20000000000000000000001 /* SystemMonitorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMonitorService.swift; sourceTree = "<group>"; };
 		A20000000000000000000017 /* StatusBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBar.swift; sourceTree = "<group>"; };
+		A20000000000000000000019 /* ToolsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsView.swift; sourceTree = "<group>"; };
+		A20000000000000000000021 /* DeveloperTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperTools.swift; sourceTree = "<group>"; };
+		A20000000000000000000022 /* WebToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebToolView.swift; sourceTree = "<group>"; };
+		A20000000000000000000023 /* WebTools */ = {isa = PBXFileReference; lastKnownFileType = folder; path = WebTools; sourceTree = "<group>"; };
 		A20000000000000000000024 /* HostsWebBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostsWebBridge.swift; sourceTree = "<group>"; };
-				A20000000000000000000026 /* PortScanWebBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortScanWebBridge.swift; sourceTree = "<group>"; };
+		A20000000000000000000026 /* PortScanWebBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortScanWebBridge.swift; sourceTree = "<group>"; };
 		A20000000000000000000027 /* CurlLabWebBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurlLabWebBridge.swift; sourceTree = "<group>"; };
 		A20000000000000000000028 /* ScreenshotAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotAction.swift; sourceTree = "<group>"; };
 		A20000000000000000000029 /* ScreenshotCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotCapture.swift; sourceTree = "<group>"; };
@@ -95,17 +97,16 @@
 		A20000000000000000000030 /* ScreenshotEditorModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotEditorModel.swift; sourceTree = "<group>"; };
 		A20000000000000000000031 /* ScreenshotAnnotatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotAnnotatorView.swift; sourceTree = "<group>"; };
 		B20000000000000000000001 /* HostsManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostsManagerTests.swift; sourceTree = "<group>"; };
-				B20000000000000000000003 /* CurlLabRunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurlLabRunnerTests.swift; sourceTree = "<group>"; };
+		B20000000000000000000003 /* CurlLabRunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurlLabRunnerTests.swift; sourceTree = "<group>"; };
 		B20000000000000000000004 /* TCPPortScanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPPortScanTests.swift; sourceTree = "<group>"; };
 		B20000000000000000000005 /* PrivilegedCommandRunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivilegedCommandRunnerTests.swift; sourceTree = "<group>"; };
 		C20000000000000000000001 /* AppSnapshotStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSnapshotStore.swift; sourceTree = "<group>"; };
 		C20000000000000000000002 /* ContentViewSoftware.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewSoftware.swift; sourceTree = "<group>"; };
 		C20000000000000000000003 /* ContentViewNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewNetwork.swift; sourceTree = "<group>"; };
 		C20000000000000000000004 /* ContentViewStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewStorage.swift; sourceTree = "<group>"; };
-		A20000000000000000000019 /* ToolsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsView.swift; sourceTree = "<group>"; };
-		A20000000000000000000021 /* DeveloperTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperTools.swift; sourceTree = "<group>"; };
-		A20000000000000000000022 /* WebToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebToolView.swift; sourceTree = "<group>"; };
-		A20000000000000000000023 /* WebTools */ = {isa = PBXFileReference; lastKnownFileType = folder; path = WebTools; sourceTree = "<group>"; };
+		D20000000000000000000001 /* SystemMonitorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMonitorService.swift; sourceTree = "<group>"; };
+		E20000000000000000000001 /* AppUpdateChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdateChecker.swift; sourceTree = "<group>"; };
+		E20000000000000000000002 /* AppUpdateCheckTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdateCheckTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,6 +114,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F91882353042DFB800998E0C /* SoCMetrics in Frameworks */,
 				A10000000000000000000007 /* MachKitCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -132,9 +134,9 @@
 			isa = PBXGroup;
 			children = (
 				A40000000000000000000002 /* App */,
-				A40000000000000000000003 /* Sources */,
+				A40000000000000000000003 /* App/Sources */,
 				A40000000000000000000004 /* Resources */,
-				A40000000000000000000006 /* Tests */,
+				A40000000000000000000006 /* Tests/MachKitCoreTests */,
 				A40000000000000000000005 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -148,7 +150,7 @@
 			path = App;
 			sourceTree = "<group>";
 		};
-		A40000000000000000000003 /* Sources */ = {
+		A40000000000000000000003 /* App/Sources */ = {
 			isa = PBXGroup;
 			children = (
 				A20000000000000000000001 /* MachKitApp.swift */,
@@ -176,35 +178,6 @@
 			path = App/Sources;
 			sourceTree = "<group>";
 		};
-		A40000000000000000000008 /* Screenshot */ = {
-			isa = PBXGroup;
-			children = (
-				A20000000000000000000028 /* ScreenshotAction.swift */,
-				A20000000000000000000029 /* ScreenshotCapture.swift */,
-				A2000000000000000000002A /* ScreenshotSelectionSession.swift */,
-				A2000000000000000000002B /* ScreenshotController.swift */,
-				A2000000000000000000002D /* ScreenshotInk.swift */,
-				A2000000000000000000002E /* ScreenshotStroke.swift */,
-				A2000000000000000000002F /* ScreenshotStrokeRenderer.swift */,
-				A20000000000000000000030 /* ScreenshotEditorModel.swift */,
-				A20000000000000000000031 /* ScreenshotAnnotatorView.swift */,
-				A2000000000000000000002C /* ScreenshotEditorController.swift */,
-			);
-			path = Screenshot;
-			sourceTree = "<group>";
-		};
-		A40000000000000000000007 /* WebView */ = {
-			isa = PBXGroup;
-			children = (
-				A20000000000000000000021 /* DeveloperTools.swift */,
-				A20000000000000000000022 /* WebToolView.swift */,
-				A20000000000000000000024 /* HostsWebBridge.swift */,
-				A20000000000000000000026 /* PortScanWebBridge.swift */,
-				A20000000000000000000027 /* CurlLabWebBridge.swift */,
-			);
-			path = WebView;
-			sourceTree = "<group>";
-		};
 		A40000000000000000000004 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -225,7 +198,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A40000000000000000000006 /* Tests */ = {
+		A40000000000000000000006 /* Tests/MachKitCoreTests */ = {
 			isa = PBXGroup;
 			children = (
 				A2000000000000000000000A /* ProductBoundaryTests.swift */,
@@ -237,6 +210,35 @@
 				E20000000000000000000002 /* AppUpdateCheckTests.swift */,
 			);
 			path = Tests/MachKitCoreTests;
+			sourceTree = "<group>";
+		};
+		A40000000000000000000007 /* WebView */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000021 /* DeveloperTools.swift */,
+				A20000000000000000000022 /* WebToolView.swift */,
+				A20000000000000000000024 /* HostsWebBridge.swift */,
+				A20000000000000000000026 /* PortScanWebBridge.swift */,
+				A20000000000000000000027 /* CurlLabWebBridge.swift */,
+			);
+			path = WebView;
+			sourceTree = "<group>";
+		};
+		A40000000000000000000008 /* Screenshot */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000028 /* ScreenshotAction.swift */,
+				A20000000000000000000029 /* ScreenshotCapture.swift */,
+				A2000000000000000000002A /* ScreenshotSelectionSession.swift */,
+				A2000000000000000000002B /* ScreenshotController.swift */,
+				A2000000000000000000002D /* ScreenshotInk.swift */,
+				A2000000000000000000002E /* ScreenshotStroke.swift */,
+				A2000000000000000000002F /* ScreenshotStrokeRenderer.swift */,
+				A20000000000000000000030 /* ScreenshotEditorModel.swift */,
+				A20000000000000000000031 /* ScreenshotAnnotatorView.swift */,
+				A2000000000000000000002C /* ScreenshotEditorController.swift */,
+			);
+			path = Screenshot;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -324,11 +326,10 @@
 				A80000000000000000000001 /* XCLocalSwiftPackageReference "." */,
 				B80000000000000000000001 /* XCRemoteSwiftPackageReference "swift-soc-metrics" */,
 			);
-			preferredProjectObjectVersion = 77;
 			productRefGroup = A40000000000000000000005 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
-			 targets = (
+			targets = (
 				A50000000000000000000001 /* MachKit App */,
 				A50000000000000000000002 /* MachKitCoreTests */,
 			);
@@ -434,37 +435,120 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-		};
+			};
 			name = Debug;
 		};
 		A71000000000000000000002 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
-		};
+			};
 			name = Release;
 		};
 		A72000000000000000000001 /* Debug */ = {
@@ -479,6 +563,7 @@
 				DEVELOPMENT_TEAM = 8V6ZAZTB4J;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -489,6 +574,7 @@
 				MARKETING_VERSION = dev;
 				PRODUCT_BUNDLE_IDENTIFIER = app.machkit.mac;
 				PRODUCT_NAME = MachKit;
+				REGISTER_APP_GROUPS = YES;
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
@@ -507,6 +593,7 @@
 				DEVELOPMENT_TEAM = 8V6ZAZTB4J;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -517,6 +604,7 @@
 				MARKETING_VERSION = dev;
 				PRODUCT_BUNDLE_IDENTIFIER = app.machkit.mac;
 				PRODUCT_NAME = MachKit;
+				REGISTER_APP_GROUPS = YES;
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
@@ -530,7 +618,7 @@
 				CODE_SIGN_STYLE = Manual;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.machkit.core-tests;
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.machkit.core-tests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_VERSION = 6.0;
@@ -544,7 +632,7 @@
 				CODE_SIGN_STYLE = Manual;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.machkit.core-tests;
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.machkit.core-tests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_VERSION = 6.0;
@@ -583,6 +671,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		A80000000000000000000001 /* XCLocalSwiftPackageReference "." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = .;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		B80000000000000000000001 /* XCRemoteSwiftPackageReference "swift-soc-metrics" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -593,13 +688,6 @@
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCLocalSwiftPackageReference section */
-		A80000000000000000000001 /* XCLocalSwiftPackageReference "." */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ".";
-		};
-/* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		A90000000000000000000001 /* MachKitCore */ = {

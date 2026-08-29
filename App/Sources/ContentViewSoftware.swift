@@ -448,11 +448,11 @@ extension ContentView {
                 inventoryBadge("Hide After Launch", color: .secondary)
             }
             if let url = item.applicationURL {
-                Button("Show") { reveal(url) }
-                    .buttonStyle(.borderless).font(.caption).fixedSize()
+                inventoryTextAction("Show") { reveal(url) }
             }
-            Button("Remove", role: .destructive) { model.requestLoginApplicationRemoval(item) }
-                .buttonStyle(.borderless).font(.caption).fixedSize()
+            inventoryTextAction("Remove", isDestructive: true) {
+                model.requestLoginApplicationRemoval(item)
+            }
         }
         .padding(.horizontal, 14).padding(.vertical, 9)
     }
@@ -464,11 +464,14 @@ extension ContentView {
                 subtitle: "Manage login items, background activity, and extensions",
                 trailing: AnyView(
                     HStack(spacing: 10) {
-                        Button(role: .destructive) {
+                        Button {
                             model.showBackgroundDatabaseResetConfirmation = true
                         } label: {
                             Label("Rebuild Database", systemImage: "arrow.triangle.2.circlepath")
                         }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                        .tint(.red)
                         .help("Use when an uninstalled app still shows under Background Activity or Login Items.")
                         refreshControl(for: .backgroundActivity, action: model.scanBackgroundActivity)
                     }
@@ -505,7 +508,9 @@ extension ContentView {
                 )
             } else {
                 ScrollView {
-                    LazyVStack(spacing: 14) {
+                    // Prefer VStack over LazyVStack: borderless/plain buttons inside
+                    // LazyVStack+ForEach have crashed SwiftUI layout on recent macOS.
+                    VStack(spacing: 14) {
                         if let notice = model.backgroundDatabaseNotice {
                             HStack(spacing: 9) {
                                 Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
@@ -532,6 +537,7 @@ extension ContentView {
                         }
                     }
                     .padding(.horizontal, 16).padding(.bottom, 16)
+                    .frame(maxWidth: .infinity, alignment: .topLeading)
                 }
             }
         }
@@ -552,7 +558,7 @@ extension ContentView {
         VStack(spacing: 0) {
             inventorySectionHeader(
                 title: "App Background Activity",
-                subtitle: "App records in the macOS background task management database",
+                subtitle: "System database records. macOS has no API to delete one entry; use Rebuild Database for leftovers. Removable launchd plists are listed in the sections below.",
                 count: filteredRegisteredBackgroundTasks.count
             )
             Divider()
@@ -565,7 +571,10 @@ extension ContentView {
     }
 
     func registeredBackgroundTaskRow(_ item: RegisteredBackgroundTask) -> some View {
-        HStack(spacing: 12) {
+        let canRemoveTrashResidue = item.isRemovableTrashResidue(
+            home: FileManager.default.homeDirectoryForCurrentUser
+        )
+        return HStack(spacing: 12) {
             Image(nsImage: NSWorkspace.shared.icon(forFile: item.applicationURL?.path ?? "/Applications"))
                 .resizable().aspectRatio(contentMode: .fit).frame(width: 38, height: 38)
             VStack(alignment: .leading, spacing: 3) {
@@ -573,19 +582,22 @@ extension ContentView {
                 Text(item.applicationURL?.path ?? item.bundleIdentifier ?? L10n.string("System Record"))
                     .font(.caption2).foregroundStyle(.secondary).lineLimit(1)
             }
-            Spacer()
+            Spacer(minLength: 8)
             if item.assessment == .likelyResidue {
-                missingBadge(item.isRemovableTrashResidue(home: FileManager.default.homeDirectoryForCurrentUser)
-                    ? "Trash Record"
-                    : "App Not Found")
+                missingBadge(canRemoveTrashResidue ? "Trash Record" : "App Not Found")
             }
             if let url = item.applicationURL {
-                Button("Show") { reveal(url) }
-                    .buttonStyle(.borderless).font(.caption).fixedSize()
+                inventoryTextAction("Show") { reveal(url) }
             }
-            if item.isRemovableTrashResidue(home: FileManager.default.homeDirectoryForCurrentUser) {
-                Button("Remove", role: .destructive) { model.requestRegisteredBackgroundTaskRemoval(item) }
-                    .buttonStyle(.borderless).font(.caption).fixedSize()
+            if canRemoveTrashResidue {
+                inventoryTextAction("Remove", isDestructive: true) {
+                    model.requestRegisteredBackgroundTaskRemoval(item)
+                }
+            } else {
+                Text("No single-item remove".localized)
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                    .help("macOS does not allow MachKit to delete one background database record. Use Rebuild Database above for leftovers, or remove a launchd configuration from the sections below if one exists.")
             }
         }
         .padding(.horizontal, 14).padding(.vertical, 9)
@@ -642,10 +654,10 @@ extension ContentView {
                 inventoryBadge("Restart After Exit", color: .orange)
                     .help("After the process exits or crashes, launchd may try to start it again.")
             }
-            Button("Show") { reveal(item.configURL) }
-                .buttonStyle(.borderless).font(.caption).fixedSize()
-            Button("Remove", role: .destructive) { model.requestBackgroundItemRemoval(item) }
-                .buttonStyle(.borderless).font(.caption).fixedSize()
+            inventoryTextAction("Show") { reveal(item.configURL) }
+            inventoryTextAction("Remove", isDestructive: true) {
+                model.requestBackgroundItemRemoval(item)
+            }
         }
         .padding(.horizontal, 14).padding(.vertical, 9)
         .contentShape(Rectangle())
@@ -688,12 +700,13 @@ extension ContentView {
                 )
             } else {
                 ScrollView {
-                    LazyVStack(spacing: 14) {
+                    VStack(spacing: 14) {
                         ForEach(filteredExtensionGroups) { group in
                             extensionSection(group)
                         }
                     }
                     .padding(.horizontal, 16).padding(.bottom, 16)
+                    .frame(maxWidth: .infinity, alignment: .topLeading)
                 }
             }
         }
@@ -750,17 +763,16 @@ extension ContentView {
                 Text(identifier).font(.caption2).foregroundStyle(.tertiary).lineLimit(1)
                     .frame(maxWidth: 190, alignment: .trailing)
             }
-            Button("Show") { reveal(item.bundleURL) }
-                .buttonStyle(.borderless).font(.caption).fixedSize()
+            inventoryTextAction("Show") { reveal(item.bundleURL) }
             if item.ownerApplicationURL == nil {
-                Button("Remove", role: .destructive) { model.requestExtensionRemoval(item) }
-                    .buttonStyle(.borderless).font(.caption).fixedSize()
+                inventoryTextAction("Remove", isDestructive: true) {
+                    model.requestExtensionRemoval(item)
+                }
             } else {
-                Button("Uninstall App") {
+                inventoryTextAction("Uninstall App") {
                     applicationSearch = item.ownerName ?? ""
                     model.changeMode(.uninstall)
                 }
-                .buttonStyle(.borderless).font(.caption).fixedSize()
             }
         }
         .padding(.horizontal, 14).padding(.vertical, 9)
@@ -833,8 +845,12 @@ extension ContentView {
             Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
             TextField(placeholder, text: $inventorySearch).textFieldStyle(.plain)
             if !inventorySearch.isEmpty {
-                Button { inventorySearch = "" } label: { Image(systemName: "xmark.circle.fill") }
-                    .buttonStyle(.plain).foregroundStyle(.tertiary)
+                Image(systemName: "xmark.circle.fill")
+                    .foregroundStyle(.tertiary)
+                    .contentShape(Rectangle())
+                    .onTapGesture { inventorySearch = "" }
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityLabel(Text("Clear".localized))
             }
         }
         .padding(.horizontal, 12).frame(height: 36)
@@ -884,6 +900,23 @@ extension ContentView {
         .padding(.horizontal, 14).padding(.vertical, 11)
     }
 
+    /// Text-based row actions avoid ButtonStyle (especially BorderlessButtonStyle),
+    /// which has crashed SwiftUI layout inside ForEach on macOS 26.
+    func inventoryTextAction(
+        _ title: String,
+        isDestructive: Bool = false,
+        action: @escaping () -> Void
+    ) -> some View {
+        Text(title.localized)
+            .font(.caption)
+            .foregroundStyle(isDestructive ? Color.red : Color.accentColor)
+            .fixedSize()
+            .contentShape(Rectangle())
+            .onTapGesture(perform: action)
+            .accessibilityAddTraits(.isButton)
+            .accessibilityLabel(Text(title.localized))
+    }
+
     func inventoryBadge(_ title: String, color: Color) -> some View {
         Text(title.localized)
             .font(.system(size: 9, weight: .semibold)).foregroundStyle(color)
@@ -905,11 +938,23 @@ extension ContentView {
     }
 
     var backgroundItemRemovalMessage: String {
-        guard let item = model.backgroundItemRemovalCandidate else { return L10n.string("The launch configuration will be moved to Trash.") }
+        guard let item = model.backgroundItemRemovalCandidate else {
+            return L10n.string("The launch configuration will be moved to Trash.")
+        }
         let assessment = item.assessment == .likelyResidue
             ? L10n.string("The target program was not found; this may be an uninstall leftover.")
             : item.assessment.explanation.localized + L10n.string(".")
-        return L10n.format("%@ “%@”'s launch configuration will be moved to Trash. Running processes will not be terminated.", assessment, item.label)
+        let base = L10n.format(
+            "%@ “%@”'s launch configuration will be moved to Trash. Running processes will not be terminated.",
+            assessment,
+            item.label
+        )
+        switch item.domain {
+        case .sharedAgent, .daemon:
+            return base + " " + L10n.string("macOS will ask for an administrator password because this file is outside your home folder.")
+        case .userAgent:
+            return base
+        }
     }
 
     var registeredBackgroundTaskRemovalMessage: String {

@@ -1189,7 +1189,6 @@ final class CleanerViewModel: ObservableObject {
                     Int64(registeredBackgroundTasks.count),
                     Int64(backgroundItems.count)
                 )
-                scanBackgroundActivity()
             } else {
                 status = L10n.string("Reading background activity…")
                 scanBackgroundActivity()
@@ -1314,13 +1313,22 @@ final class CleanerViewModel: ObservableObject {
         backgroundDatabaseNotice = nil
         status = L10n.string("Reading background activity…")
         featureTasks[.backgroundActivity] = Task {
+            // Launchd plists do not need admin rights — surface them before the
+            // privileged BTM dump so a password prompt does not blank the page.
             let found = await systemInventoryScanner.loginItems(
                 home: FileManager.default.homeDirectoryForCurrentUser
             )
             guard !Task.isCancelled else { return }
+            backgroundItems = found
+            if mode == .backgroundActivity {
+                status = L10n.format(
+                    "%lld background configurations found. Checking app background records…",
+                    Int64(found.count)
+                )
+            }
+
             let registered = await systemInventoryScanner.registeredBackgroundTasks()
             guard !Task.isCancelled else { return }
-            backgroundItems = found
             registeredBackgroundTasks = registered.items
             let localizedError = registered.errorMessage.map(L10n.diagnostic)
             backgroundTaskScanError = localizedError

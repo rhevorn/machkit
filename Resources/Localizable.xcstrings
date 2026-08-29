@@ -3487,6 +3487,65 @@
         }
       }
     },
+    "%lld background configurations found. Checking app background records…" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Hintergrundkonfigurationen gefunden. App-Hintergrundeinträge werden geprüft…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se encontraron %lld configuraciones en segundo plano. Comprobando registros de apps…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld configurations d’arrière-plan trouvées. Vérification des enregistrements d’apps…"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 件のバックグラウンド構成が見つかりました。アプリのバックグラウンド記録を確認しています…"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "백그라운드 구성 %lld개를 찾았습니다. 앱 백그라운드 기록을 확인하는 중…"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld configurações em segundo plano encontradas. Verificando registros de apps…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Найдено фоновых конфигураций: %lld. Проверка записей фоновых задач приложений…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已找到 %lld 个后台配置。正在检查 App 后台记录…"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已找到 %lld 個背景設定。正在檢查 App 背景記錄…"
+          }
+        }
+      }
+    },
     "%lld candidate files found. Items marked ‘Review’ are not selected by default." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -34044,6 +34103,64 @@
         }
       }
     },
+    "macOS does not allow MachKit to delete one background database record. Use Rebuild Database above for leftovers, or remove a launchd configuration from the sections below if one exists." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS erlaubt kein Löschen einzelner Hintergrund-DB-Einträge. Nutzen Sie oben Datenbank neu aufbauen oder entfernen Sie unten eine launchd-Konfiguration."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS no permite borrar un solo registro de la base en segundo plano. Use Reconstruir base de datos arriba, o quite un plist de launchd en las secciones inferiores."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS n’autorise pas la suppression d’un enregistrement d’arrière-plan. Utilisez Reconstruire la base ci-dessus, ou retirez un plist launchd dans les sections ci-dessous."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS は単一のバックグラウンド DB 記録の削除を許可しません。残骸は上の「データベースを再構築」を使うか、下のセクションの launchd 構成を削除してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS는 백그라운드 DB 단일 기록 삭제를 허용하지 않습니다. 잔여 항목은 위의 ‘데이터베이스 재구성’을 사용하거나 아래 섹션의 launchd 구성을 제거하세요."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O macOS não permite apagar um registro individual do banco em segundo plano. Use Reconstruir banco acima ou remova um plist launchd nas seções abaixo."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS не позволяет удалить одну запись фоновой базы. Используйте «Пересобрать базу» выше или удалите launchd-конфигурацию в секциях ниже."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 不允许 MachKit 删除单条后台数据库记录。残留请用上方「重建数据库」，或在下方分组中移除对应的 launchd 配置。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 不允許 MachKit 刪除單筆背景資料庫記錄。殘留請用上方「重建資料庫」，或在下方分組中移除對應的 launchd 設定。"
+          }
+        }
+      }
+    },
     "macOS handles hidden apps that are marked for automatic termination and currently unused, while MachKit returns reclaimable pages from its own heap." : {
       "localizations" : {
         "de" : {
@@ -34275,6 +34392,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "macOS 會主動利用空閒記憶體作為檔案緩存，這些快取會在應用程式需要時自動釋放。強制「釋放記憶體」通常會清空有用緩存，反而讓系統變慢。"
+          }
+        }
+      }
+    },
+    "macOS will ask for an administrator password because this file is outside your home folder." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS fragt nach einem Administratorpasswort, weil diese Datei außerhalb Ihres Benutzerordners liegt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS pedirá una contraseña de administrador porque este archivo está fuera de su carpeta de inicio."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS demandera un mot de passe administrateur car ce fichier est hors de votre dossier personnel."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このファイルはホームフォルダ外にあるため、macOS が管理者パスワードを求めます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 파일은 홈 폴더 밖에 있으므로 macOS가 관리자 암호를 요청합니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O macOS pedirá uma senha de administrador porque este arquivo está fora da sua pasta pessoal."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS запросит пароль администратора, потому что файл находится вне вашей домашней папки."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此文件位于个人文件夹之外，macOS 会要求输入管理员密码。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此檔案位於個人資料夾之外，macOS 會要求輸入管理者密碼。"
           }
         }
       }
@@ -38814,6 +38990,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "沒有匹配結果"
+          }
+        }
+      }
+    },
+    "No single-item remove" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein Einzeleintrag-Löschen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin eliminación individual"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas de suppression unitaire"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "個別削除不可"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "개별 제거 불가"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sem remoção individual"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нельзя удалить по одной"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法单条移除"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法單筆移除"
           }
         }
       }
@@ -56677,6 +56912,65 @@
         }
       }
     },
+    "System database records. macOS has no API to delete one entry; use Rebuild Database for leftovers. Removable launchd plists are listed in the sections below." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Systemdatenbankeinträge. macOS erlaubt kein Löschen einzelner Einträge; nutzen Sie Datenbank neu aufbauen für Reste. Entfernbare launchd-Plists stehen unten."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registros de la base de datos del sistema. macOS no permite borrar una sola entrada; use Reconstruir base de datos para restos. Los plists de launchd removibles están abajo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrements de la base système. macOS n’autorise pas la suppression d’une entrée ; utilisez Reconstruire la base pour les résidus. Les plists launchd supprimables sont ci-dessous."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "システムデータベースの記録です。単一エントリを削除する API はありません。残骸は「データベースを再構築」を使ってください。削除可能な launchd 構成は下のセクションにあります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시스템 데이터베이스 기록입니다. 단일 항목을 삭제하는 API가 없습니다. 잔여 항목은 ‘데이터베이스 재구성’을 사용하세요. 제거 가능한 launchd 구성은 아래 섹션에 있습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registros do banco do sistema. O macOS não permite apagar uma entrada; use Reconstruir banco para resíduos. Plists launchd removíveis ficam abaixo."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Записи системной базы. macOS не даёт удалить одну запись; для остатков используйте «Пересобрать базу». Удаляемые launchd-plist — в секциях ниже."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "系统数据库记录。macOS 不提供单条删除接口；残留请用「重建数据库」。可移除的 launchd 配置在下方分组中。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "系統資料庫記錄。macOS 不提供單筆刪除介面；殘留請用「重建資料庫」。可移除的 launchd 設定在下方分組中。"
+          }
+        }
+      }
+    },
     "System Disk" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -63182,6 +63476,7 @@
       }
     },
     "Uninstall App" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {

@@ -638,8 +638,11 @@ extension ContentView {
                     Image(systemName: "arrow.clockwise")
                 }
             }
-            .buttonStyle(.borderless)
-            .frame(width: 24, height: 24)
+            // Avoid .borderless: SwiftUI 7 / macOS 26 can crash in ForEach layout
+            // when copying BorderlessButtonStyle (SIGBUS in swift_retain).
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .frame(width: 28, height: 24)
             .contentShape(Rectangle())
             .help("Update Now")
             .accessibilityLabel(Text((isRefreshing ? "Updating" : "Update Now").localized))

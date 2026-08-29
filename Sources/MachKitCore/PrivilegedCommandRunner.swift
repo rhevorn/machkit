@@ -17,26 +17,15 @@ enum PrivilegedCommandError: LocalizedError, Equatable {
     }
 }
 
-/// Narrow administrator boundary used by the two system features that require
-/// root access. The AppleScript is constant, validates its executable again,
-/// and quotes every argument before asking macOS to authorize the operation.
+/// Narrow administrator boundary used by the system features that require root
+/// access. Commands run in-process via `NSAppleScript` so the macOS password
+/// sheet attributes to MachKit instead of the `osascript` helper process.
 enum PrivilegedCommandRunner {
-    private static let administratorScript = """
-    on run argv
-        if (count of argv) < 1 then error "Missing executable"
-        set executablePath to item 1 of argv
-        if executablePath is not "/bin/cp" and executablePath is not "/usr/bin/sfltool" then
-            error "Executable is not allowed"
-        end if
-        set commandText to quoted form of executablePath
-        if (count of argv) > 1 then
-            repeat with argumentIndex from 2 to count of argv
-                set commandText to commandText & space & quoted form of (item argumentIndex of argv)
-            end repeat
-        end if
-        return do shell script commandText with administrator privileges
-    end run
-    """
+    private static let allowedExecutables: Set<String> = [
+        "/bin/cp",
+        "/bin/mv",
+        "/usr/bin/sfltool"
+    ]
 
     static func replaceHostsFile(with source: URL) throws {
         let temporaryRoot = FileManager.default.temporaryDirectory
@@ -57,24 +46,107 @@ enum PrivilegedCommandRunner {
         return try run(executable: "/usr/bin/sfltool", arguments: [action])
     }
 
-    private static func run(executable: String, arguments: [String]) throws -> String {
-        let output = try SystemCommandRunner.run(
-            executable: "/usr/bin/osascript",
-            arguments: ["-e", administratorScript, "--", executable] + arguments,
-            timeout: 120
+    /// Moves a validated `/Library/LaunchAgents|LaunchDaemons/*.plist` into the
+    /// current user's Trash. Destination uniqueness is enforced before asking
+    /// for administrator privileges.
+    static func moveProtectedLaunchdPlistToTrash(
+        _ source: URL,
+        home: URL,
+        libraryRoot: URL = URL(fileURLWithPath: "/Library", isDirectory: true),
+        fileManager: FileManager = .default
+    ) throws -> URL {
+        let destination = try validatedProtectedLaunchdTrashMove(
+            source: source,
+            home: home,
+            libraryRoot: libraryRoot,
+            fileManager: fileManager
         )
-        guard output.status == 0 else {
-            let detail = output.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        _ = try run(executable: "/bin/mv", arguments: [source.path, destination.path])
+        return destination
+    }
+
+    /// Pure validation used by tests and by the privileged mover.
+    static func validatedProtectedLaunchdTrashMove(
+        source: URL,
+        home: URL,
+        libraryRoot: URL = URL(fileURLWithPath: "/Library", isDirectory: true),
+        fileManager: FileManager = .default
+    ) throws -> URL {
+        let allowedParents = [
+            libraryRoot.appending(path: "LaunchAgents", directoryHint: .isDirectory),
+            libraryRoot.appending(path: "LaunchDaemons", directoryHint: .isDirectory)
+        ]
+        let standardized = source.standardizedFileURL
+        guard standardized.pathExtension.lowercased() == "plist",
+              allowedParents.contains(where: { SafetyPolicy.isDirectChild(standardized, of: $0) }) else {
+            throw PrivilegedCommandError.invalidRequest
+        }
+
+        let values = try? standardized.resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey, .isDirectoryKey])
+        guard fileManager.fileExists(atPath: standardized.path),
+              values?.isSymbolicLink != true,
+              values?.isDirectory != true,
+              values?.isRegularFile == true else {
+            throw PrivilegedCommandError.invalidRequest
+        }
+
+        let trash = home.appending(path: ".Trash", directoryHint: .isDirectory).standardizedFileURL
+        try fileManager.createDirectory(at: trash, withIntermediateDirectories: true)
+
+        var destinationName = standardized.lastPathComponent
+        var destination = trash.appending(path: destinationName)
+        if fileManager.fileExists(atPath: destination.path) {
+            let stem = standardized.deletingPathExtension().lastPathComponent
+            destinationName = "\(stem).\(UUID().uuidString.prefix(8)).plist"
+            destination = trash.appending(path: destinationName)
+        }
+        guard SafetyPolicy.isDirectChild(destination, of: trash),
+              !fileManager.fileExists(atPath: destination.path) else {
+            throw PrivilegedCommandError.invalidRequest
+        }
+        return destination
+    }
+
+    private static func run(executable: String, arguments: [String]) throws -> String {
+        guard allowedExecutables.contains(executable) else {
+            throw PrivilegedCommandError.invalidRequest
+        }
+
+        // Build `quoted form of "…"` tokens in AppleScript so paths with spaces
+        // stay literal arguments and never pass through a shell interpreter.
+        let tokens = [executable] + arguments
+        let quotedForms = tokens.map { token in
+            "quoted form of \"\(escapeForAppleScriptString(token))\""
+        }
+        let source = """
+        do shell script (\(quotedForms.joined(separator: " & space & "))) with administrator privileges
+        """
+
+        var errorInfo: NSDictionary?
+        guard let script = NSAppleScript(source: source) else {
+            throw PrivilegedCommandError.invalidRequest
+        }
+        let result = script.executeAndReturnError(&errorInfo)
+        if let errorInfo {
+            let detail = (errorInfo[NSAppleScript.errorMessage] as? String)?
+                .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            let number = errorInfo[NSAppleScript.errorNumber] as? Int ?? 0
             let normalized = detail.lowercased()
-            if normalized.contains("user canceled")
-                || normalized.contains("user cancelled")
-                || normalized.contains("(-128)") {
+            if number == -128
+                || normalized.contains("user canceled")
+                || normalized.contains("user cancelled") {
                 throw PrivilegedCommandError.authorizationCancelled
             }
             throw PrivilegedCommandError.commandFailed(
-                detail.isEmpty ? "osascript exited with status \(output.status)." : detail
+                detail.isEmpty ? "Administrator command failed with status \(number)." : detail
             )
         }
-        return output.text.trimmingCharacters(in: .newlines)
+        return (result.stringValue ?? "").trimmingCharacters(in: .newlines)
+    }
+
+    private static func escapeForAppleScriptString(_ value: String) -> String {
+        value
+            .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "\"", with: "\\\"")
     }
 }

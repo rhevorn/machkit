@@ -337,16 +337,44 @@ public actor SystemInventoryScanner {
         home: URL,
         libraryRoot: URL = URL(fileURLWithPath: "/Library", isDirectory: true)
     ) -> CleanResult {
-        let allowedParents = [
-            home.appending(path: "Library/LaunchAgents", directoryHint: .isDirectory),
-            libraryRoot.appending(path: "LaunchAgents", directoryHint: .isDirectory),
-            libraryRoot.appending(path: "LaunchDaemons", directoryHint: .isDirectory)
-        ]
+        let userAgents = home.appending(path: "Library/LaunchAgents", directoryHint: .isDirectory)
+        let sharedAgents = libraryRoot.appending(path: "LaunchAgents", directoryHint: .isDirectory)
+        let daemons = libraryRoot.appending(path: "LaunchDaemons", directoryHint: .isDirectory)
+        let allowedParents = [userAgents, sharedAgents, daemons]
         guard item.configURL.pathExtension.lowercased() == "plist",
               allowedParents.contains(where: { SafetyPolicy.isDirectChild(item.configURL, of: $0) }) else {
             return rejectedRemoval(item.configURL, reason: "Not in the supported login items directory.")
         }
+
+        let requiresAdministrator =
+            SafetyPolicy.isDirectChild(item.configURL, of: sharedAgents)
+            || SafetyPolicy.isDirectChild(item.configURL, of: daemons)
+        if requiresAdministrator {
+            return privilegedMoveLaunchdPlistToTrash(item.configURL, home: home, libraryRoot: libraryRoot)
+        }
         return moveToTrash(item.configURL)
+    }
+
+    private func privilegedMoveLaunchdPlistToTrash(
+        _ url: URL,
+        home: URL,
+        libraryRoot: URL
+    ) -> CleanResult {
+        do {
+            _ = try PrivilegedCommandRunner.moveProtectedLaunchdPlistToTrash(
+                url,
+                home: home,
+                libraryRoot: libraryRoot,
+                fileManager: fileManager
+            )
+            return CleanResult(movedToTrash: [url], failures: [])
+        } catch PrivilegedCommandError.authorizationCancelled {
+            return rejectedRemoval(url, reason: "Administrator authorization has been canceled.")
+        } catch PrivilegedCommandError.invalidRequest {
+            return rejectedRemoval(url, reason: "Not in the supported login items directory.")
+        } catch {
+            return rejectedRemoval(url, reason: error.localizedDescription)
+        }
     }
 
     public func moveExtensionToTrash(
