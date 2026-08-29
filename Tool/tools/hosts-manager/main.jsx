@@ -304,12 +304,18 @@ function EnvironmentRow({ row, text, busy, selected, active, onSelect, onActivat
         onClick={() => onSelect(row.id)}
         aria-current={selected ? "page" : undefined}
         className={cn(
-          "h-auto min-h-12 min-w-0 flex-1 justify-start gap-2 px-2 font-normal",
-          selected ? "bg-transparent text-accent hover:bg-transparent hover:text-accent" : "text-secondary hover:bg-transparent hover:text-foreground",
+          "h-auto min-h-12 min-w-0 flex-1 justify-start gap-2 px-2 text-left font-normal",
+          selected
+            ? "bg-transparent text-accent hover:bg-transparent hover:text-accent"
+            : "text-secondary hover:bg-transparent hover:text-foreground",
         )}
       >
-        {Icon ? <Icon size={16} className={cn("shrink-0", selected ? "text-accent" : "text-secondary")} /> : null}
-        <span className={cn("min-w-0 flex-1 truncate text-[12.5px]", selected && "font-medium")}>{row.name}</span>
+        {Icon ? (
+          <Icon size={16} className={cn("shrink-0", selected ? "text-accent" : "text-secondary")} />
+        ) : null}
+        <span className={cn("min-w-0 flex-1 truncate text-left text-[12.5px]", selected && "font-medium")}>
+          {row.name}
+        </span>
       </Button>
       <RadioDot
         checked={active}
