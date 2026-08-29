@@ -59,10 +59,10 @@ struct AppSettingsView: View {
                             }
                         }
                         .labelsHidden()
-                        .frame(minWidth: 168, idealWidth: 190, maxWidth: 220)
+                        .frame(width: 168, alignment: .trailing)
                     }
 
-                    Divider().padding(.leading, 64)
+                    Divider().padding(.leading, 52)
 
                     settingRow(
                         icon: "circle.lefthalf.filled",
@@ -77,10 +77,10 @@ struct AppSettingsView: View {
                         }
                         .labelsHidden()
                         .pickerStyle(.segmented)
-                        .frame(minWidth: 180, idealWidth: 270, maxWidth: 340)
+                        .fixedSize(horizontal: true, vertical: false)
                     }
 
-                    Divider().padding(.leading, 64)
+                    Divider().padding(.leading, 52)
 
                     settingRow(
                         icon: "menubar.rectangle",
@@ -93,8 +93,7 @@ struct AppSettingsView: View {
                             .toggleStyle(.switch)
                     }
 
-
-                    Divider().padding(.leading, 64)
+                    Divider().padding(.leading, 52)
 
                     settingRow(
                         icon: "keyboard",
@@ -118,11 +117,7 @@ struct AppSettingsView: View {
                         .buttonStyle(.plain)
                     }
                 }
-                .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 12))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color(nsColor: .separatorColor).opacity(0.45), lineWidth: 0.5)
-                }
+                .frame(maxWidth: .infinity, alignment: .leading)
 
                 Text("Screenshot".localized)
                     .font(.system(size: 13, weight: .semibold))
@@ -151,19 +146,13 @@ struct AppSettingsView: View {
                                 )
                             }
                         }
+
+                        if action != ScreenshotAction.allCases.last {
+                            Divider().padding(.leading, 52)
+                        }
                     }
                 }
-                .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 12))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color(nsColor: .separatorColor).opacity(0.45), lineWidth: 0.5)
-                }
-
-                Label("Changes are applied immediately.".localized, systemImage: "info.circle")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .padding(.leading, 4)
-                    .padding(.top, 2)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
                 Text("Data".localized)
                     .font(.system(size: 13, weight: .semibold))
@@ -180,11 +169,6 @@ struct AppSettingsView: View {
                     Button("Clear Data…".localized, role: .destructive) {
                         showingClearDataConfirmation = true
                     }
-                }
-                .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 12))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color(nsColor: .separatorColor).opacity(0.45), lineWidth: 0.5)
                 }
             }
             .padding(.horizontal, 16)
@@ -257,17 +241,17 @@ struct AppSettingsView: View {
         detail: String,
         @ViewBuilder control: () -> Control
     ) -> some View {
-        HStack(spacing: 14) {
+        HStack(alignment: .center, spacing: 14) {
             settingsIcon(icon, color: color)
             VStack(alignment: .leading, spacing: 3) {
                 Text(title.localized).font(.system(size: 13, weight: .semibold))
                 Text(detail.localized).font(.caption).foregroundStyle(.secondary)
             }
-            Spacer(minLength: 24)
+            Spacer(minLength: 16)
             control()
         }
-        .padding(.horizontal, 14)
-        .frame(minHeight: 72)
+        .padding(.horizontal, 4)
+        .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)
     }
 
     private func settingsIcon(_ systemName: String, color: Color) -> some View {
