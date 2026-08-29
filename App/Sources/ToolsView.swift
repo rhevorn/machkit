@@ -39,9 +39,9 @@ struct ToolsView: View {
                         }
                     }
                 }
-                .padding(.horizontal, 28)
+                .padding(.horizontal, 18)
                 .padding(.top, 14)
-                .padding(.bottom, 28)
+                .padding(.bottom, 18)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
             }
         }
@@ -94,7 +94,7 @@ struct ToolsView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 28)
+        .padding(.horizontal, 18)
         .padding(.top, 18)
         .padding(.bottom, 8)
     }
