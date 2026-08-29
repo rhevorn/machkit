@@ -9,7 +9,6 @@ import {
   ResultPanel,
   StatusStrip,
   ToolContent,
-  ToolInfoButton,
   ToolPage,
   ToolToolbar,
 } from "@/ui/index.js";
@@ -108,7 +107,6 @@ function IpCidrTool() {
               <Eraser size={15} />
               {text.clear}
             </Button>
-            <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
           </ActionGroup>
         </ToolToolbar>
 

@@ -207,8 +207,8 @@ and information architecture intact.
 
 - Tool titles live in the native compact title bar. Do not repeat a large title
   or marketing subtitle inside the H5 page.
-- Start with the task controls and working content. Put optional explanation in a
-  shared `ToolInfoButton`/Popover opened from an accessible info button.
+- Start with the task controls and working content. Do not add in-page title
+  banners or info/exclamation buttons for tool introductions.
 - Preserve the existing tool layout unless the user explicitly asks to change it.
   A visual refresh is not authorization to rearrange controls or workflows.
 - Keep desktop tool density compact and macOS-like. Avoid mobile-sized controls,

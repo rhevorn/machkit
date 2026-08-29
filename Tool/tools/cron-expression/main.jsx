@@ -7,7 +7,6 @@ import {
   Input,
   StatusStrip,
   ToolContent,
-  ToolInfoButton,
   ToolPage,
   ToolToolbar,
 } from "@/ui/index.js";
@@ -87,7 +86,6 @@ function CronTool() {
               <Eraser size={15} />
               {text.clear}
             </Button>
-            <ToolInfoButton info={text.info} className="size-[var(--machkit-size-control)] shrink-0" />
           </ActionGroup>
         </ToolToolbar>
 

@@ -10,7 +10,6 @@ import {
   SegmentedControl,
   SelectControl,
   ToolContent,
-  ToolInfoButton,
   ToolPage,
   ToolToolbar,
 } from "@/ui/index.js";
@@ -262,7 +261,6 @@ function TimestampTool() {
             ]}
           />
           <ActionGroup>
-            <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
           </ActionGroup>
         </ToolToolbar>
 

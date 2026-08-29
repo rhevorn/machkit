@@ -11,7 +11,6 @@ import {
   StatusStrip,
   Textarea,
   ToolContent,
-  ToolInfoButton,
   ToolPage,
   ToolToolbar,
 } from "@/ui/index.js";
@@ -720,7 +719,6 @@ function CurlLabTool() {
                       <CopySimple size={15} />
                       {text.copy}
                     </Button>
-                    <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
                   </ActionGroup>
                 </div>
                 <ResultPanel

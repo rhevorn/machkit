@@ -9,7 +9,6 @@ import {
   SelectControl,
   StatusStrip,
   ToolContent,
-  ToolInfoButton,
   ToolPage,
   ToolToolbar,
 } from "@/ui/index.js";
@@ -392,8 +391,7 @@ function StringGenerator() {
             className="min-w-0 w-full"
             options={formatOptions}
           />
-          <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
-        </ToolToolbar>
+          </ToolToolbar>
 
         <ToolToolbar className="flex-wrap gap-x-4 gap-y-2">
           {format === "uuid" ? (

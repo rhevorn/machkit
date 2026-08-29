@@ -10,7 +10,6 @@ import {
   Input,
   StatusStrip,
   ToolContent,
-  ToolInfoButton,
   ToolPage,
   ToolToolbar,
 } from "@/ui/index.js";
@@ -347,7 +346,6 @@ function JsonFormatter() {
               <Eraser size={16} />
               <span className="max-[560px]:hidden">{text.clear}</span>
             </Button>
-            <ToolInfoButton info={text.info} className="size-8" />
           </ActionGroup>
         </ToolToolbar>
 

@@ -3,7 +3,6 @@ import { CheckCircle, WarningCircle } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils.js";
 import { useLocale } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
-import { ToolInfoButton } from "./button.jsx";
 
 const copiedLabels = {
   en: { success: "Copied", failure: "Copy failed" },
@@ -18,7 +17,7 @@ const copiedLabels = {
   ru: { success: "Скопировано", failure: "Не удалось скопировать" },
 };
 
-export function ToolPage({ title, info, adaptiveHeight = true, children }) {
+export function ToolPage({ title, adaptiveHeight = true, children }) {
   const pageRef = React.useRef(null);
 
   React.useEffect(() => {
@@ -57,11 +56,6 @@ export function ToolPage({ title, info, adaptiveHeight = true, children }) {
 
   return (
     <main ref={pageRef} className="relative flex h-full min-h-full w-full min-w-0 flex-col overflow-hidden bg-surface font-sans text-[13px] text-foreground">
-      {info ? (
-        <div className="absolute top-2 right-5 z-20">
-          <ToolInfoButton info={info} />
-        </div>
-      ) : null}
       {children}
       <CopyFeedbackToast />
     </main>

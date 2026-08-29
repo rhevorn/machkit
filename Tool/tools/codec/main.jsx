@@ -10,7 +10,6 @@ import {
   SidebarNavItem,
   StatusStrip,
   Textarea,
-  ToolInfoButton,
   ToolPage,
   ToolSidebar,
   ToolToolbar,
@@ -45,18 +44,6 @@ const CODEC_GROUPS = [
     items: [{ id: "hash", code: "#" }],
   },
 ];
-
-const INTRO_KEYS = {
-  base64: "introBase64",
-  base32: "introBase32",
-  base62: "introBase62",
-  hex: "introHex",
-  url: "introUrl",
-  html: "introHtml",
-  unicode: "introUnicode",
-  escape: "introEscape",
-  hash: "introHash",
-};
 
 function CodecTool() {
   const text = useToolMessages(messages);
@@ -136,7 +123,6 @@ function CodecTool() {
     setDirection((value) => (value === "encode" ? "decode" : "encode"));
   };
 
-  const introKey = INTRO_KEYS[tab];
   const tabLabel = text[tab] || tab;
   const groupLabels = {
     binary: text.groupBinary,
@@ -183,7 +169,6 @@ function CodecTool() {
                 <Eraser size={15} />
                 {text.clear}
               </Button>
-              <ToolInfoButton info={`${text.info}\n\n${text[introKey]}`} className="size-8.5 shrink-0" />
             </ActionGroup>
           </header>
 
