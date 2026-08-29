@@ -127,4 +127,113 @@ public enum ScreenshotGeometry {
         let bodyEnd = CGPoint(x: (left.x + right.x) / 2, y: (left.y + right.y) / 2)
         return (bodyEnd, left, right)
     }
+
+    /// Maps an AppKit view point (origin bottom-left) onto a top-left CGImage pixel.
+    public static func pixelPoint(
+        at point: CGPoint,
+        viewSize: CGSize,
+        imageWidth: Int,
+        imageHeight: Int
+    ) -> (x: Int, y: Int)? {
+        guard imageWidth > 0,
+              imageHeight > 0,
+              viewSize.width > 0,
+              viewSize.height > 0,
+              viewSize.width.isFinite,
+              viewSize.height.isFinite
+        else { return nil }
+
+        let clampedX = min(max(0, point.x), viewSize.width)
+        let clampedY = min(max(0, point.y), viewSize.height)
+        let x = min(
+            imageWidth - 1,
+            max(0, Int((clampedX / viewSize.width * CGFloat(imageWidth)).rounded(.down)))
+        )
+        // Flip Y: view bottom-left → image top-left.
+        let y = min(
+            imageHeight - 1,
+            max(0, Int(((viewSize.height - clampedY) / viewSize.height * CGFloat(imageHeight)).rounded(.down)))
+        )
+        return (x, y)
+    }
+
+    /// Square sample region (top-left image coords) centered on a pixel for the loupe.
+    public static func loupeSourceRect(
+        pixelX: Int,
+        pixelY: Int,
+        imageWidth: Int,
+        imageHeight: Int,
+        sampleSize: Int = 17
+    ) -> CGRect? {
+        guard imageWidth > 0, imageHeight > 0, sampleSize > 0 else { return nil }
+        let size = min(sampleSize, min(imageWidth, imageHeight))
+        let half = size / 2
+        let x = min(max(0, pixelX - half), imageWidth - size)
+        let y = min(max(0, pixelY - half), imageHeight - size)
+        return CGRect(x: x, y: y, width: size, height: size)
+    }
+
+    /// Places the loupe near the cursor while keeping it inside the view.
+    public static func loupeFrame(
+        cursor: CGPoint,
+        viewBounds: CGRect,
+        diameter: CGFloat = 126,
+        gap: CGFloat = 18
+    ) -> CGRect {
+        let size = CGSize(width: diameter, height: diameter)
+        var origin = CGPoint(x: cursor.x + gap, y: cursor.y - diameter - gap)
+        if origin.x + size.width > viewBounds.maxX {
+            origin.x = cursor.x - size.width - gap
+        }
+        if origin.y < viewBounds.minY {
+            origin.y = cursor.y + gap
+        }
+        if origin.x < viewBounds.minX {
+            origin.x = viewBounds.minX + 8
+        }
+        if origin.y + size.height > viewBounds.maxY {
+            origin.y = viewBounds.maxY - size.height - 8
+        }
+        return CGRect(origin: origin, size: size)
+    }
+}
+
+/// sRGB color sampled from a frozen desktop CGImage.
+public struct ScreenshotPixelColor: Equatable, Sendable {
+    public let red: UInt8
+    public let green: UInt8
+    public let blue: UInt8
+
+    public init(red: UInt8, green: UInt8, blue: UInt8) {
+        self.red = red
+        self.green = green
+        self.blue = blue
+    }
+
+    public var hexString: String {
+        String(format: "#%02X%02X%02X", red, green, blue)
+    }
+}
+
+public enum ScreenshotPixelSampling {
+    /// Samples one pixel from a CGImage using top-left image coordinates.
+    public static func color(in image: CGImage, atX x: Int, atY y: Int) -> ScreenshotPixelColor? {
+        guard x >= 0, y >= 0, x < image.width, y < image.height else { return nil }
+        let rect = CGRect(x: x, y: y, width: 1, height: 1)
+        guard let cropped = image.cropping(to: rect) else { return nil }
+
+        var pixel = [UInt8](repeating: 0, count: 4)
+        guard let context = CGContext(
+            data: &pixel,
+            width: 1,
+            height: 1,
+            bitsPerComponent: 8,
+            bytesPerRow: 4,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ) else { return nil }
+        context.interpolationQuality = .none
+        context.draw(cropped, in: CGRect(x: 0, y: 0, width: 1, height: 1))
+        return ScreenshotPixelColor(red: pixel[0], green: pixel[1], blue: pixel[2])
+    }
 }

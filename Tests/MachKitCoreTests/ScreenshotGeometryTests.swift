@@ -115,3 +115,64 @@ import Testing
     #expect(parts != nil)
     #expect(parts?.left.y != parts?.right.y)
 }
+
+@Test func screenshotPixelPointFlipsViewYOntoImagePixels() {
+    let point = ScreenshotGeometry.pixelPoint(
+        at: CGPoint(x: 50, y: 25),
+        viewSize: CGSize(width: 100, height: 100),
+        imageWidth: 200,
+        imageHeight: 200
+    )
+    #expect(point?.x == 100)
+    // View y=25 from bottom → 75% from top of image → pixel y ≈ 150
+    #expect(point?.y == 150)
+}
+
+@Test func screenshotPixelPointClampsToImageEdges() {
+    let point = ScreenshotGeometry.pixelPoint(
+        at: CGPoint(x: -10, y: 200),
+        viewSize: CGSize(width: 100, height: 100),
+        imageWidth: 50,
+        imageHeight: 50
+    )
+    #expect(point?.x == 0)
+    #expect(point?.y == 0)
+}
+
+@Test func screenshotLoupeSourceRectStaysInsideImage() {
+    let rect = ScreenshotGeometry.loupeSourceRect(
+        pixelX: 2,
+        pixelY: 2,
+        imageWidth: 40,
+        imageHeight: 40,
+        sampleSize: 17
+    )
+    #expect(rect == CGRect(x: 0, y: 0, width: 17, height: 17))
+
+    let nearEdge = ScreenshotGeometry.loupeSourceRect(
+        pixelX: 38,
+        pixelY: 38,
+        imageWidth: 40,
+        imageHeight: 40,
+        sampleSize: 17
+    )
+    #expect(nearEdge == CGRect(x: 23, y: 23, width: 17, height: 17))
+}
+
+@Test func screenshotLoupeFrameKeepsDiameterInsideView() {
+    let bounds = CGRect(x: 0, y: 0, width: 400, height: 300)
+    let frame = ScreenshotGeometry.loupeFrame(
+        cursor: CGPoint(x: 390, y: 10),
+        viewBounds: bounds,
+        diameter: 126,
+        gap: 18
+    )
+    #expect(frame.minX >= bounds.minX)
+    #expect(frame.maxX <= bounds.maxX)
+    #expect(frame.minY >= bounds.minY)
+    #expect(frame.maxY <= bounds.maxY)
+}
+
+@Test func screenshotPixelColorHexFormatsRGB() {
+    #expect(ScreenshotPixelColor(red: 15, green: 128, blue: 255).hexString == "#0F80FF")
+}

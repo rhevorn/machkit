@@ -128,6 +128,9 @@ enum ScreenshotCapture {
             configuration.height = max(1, Int((filter.contentRect.height * scale).rounded()))
             configuration.showsCursor = false
             configuration.captureResolution = .best
+            // Keep window drop shadows so overlapping light windows still separate.
+            configuration.ignoreShadowsDisplay = false
+            configuration.ignoreShadowsSingleWindow = false
 
             targets.append(
                 DisplayTarget(

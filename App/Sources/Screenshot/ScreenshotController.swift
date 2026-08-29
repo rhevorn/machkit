@@ -205,6 +205,7 @@ final class ScreenshotController: ObservableObject {
             }
         )
         editorController = editor
+        ScreenshotCursorRestore.forceSystemArrow()
         editor.present()
     }
 
@@ -216,6 +217,7 @@ final class ScreenshotController: ObservableObject {
         desktopSnapshot = nil
         captureTask = nil
         isBusy = false
+        ScreenshotCursorRestore.forceSystemArrow()
         if let previousApplication {
             let currentPID = ProcessInfo.processInfo.processIdentifier
             if NSWorkspace.shared.frontmostApplication?.processIdentifier == currentPID {

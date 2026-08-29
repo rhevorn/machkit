@@ -1,4 +1,5 @@
 import AppKit
+import MachKitCore
 
 protocol ScreenshotOverlayWindowMarker: AnyObject {
     var trackedDisplayID: CGDirectDisplayID { get }
@@ -77,7 +78,7 @@ final class ScreenshotSelectionSession {
             window.contentView = nil
             window.close()
         }
-        NSCursor.arrow.set()
+        ScreenshotCursorRestore.forceSystemArrow()
     }
 
     func prepareForCapture() {
@@ -151,14 +152,27 @@ private final class ScreenshotSelectionWindow: NSPanel, ScreenshotOverlayWindowM
     }
 }
 
+enum ScreenshotCursorRestore {
+    /// `NSCursor.hide()` nests; a mismatched count leaves the pointer invisible
+    /// system-wide. Always unwind hide depth, then install the arrow.
+    static func forceSystemArrow() {
+        for _ in 0..<16 {
+            NSCursor.unhide()
+        }
+        NSCursor.arrow.set()
+    }
+}
+
 private final class ScreenshotSelectionView: NSView {
     private let displayID: CGDirectDisplayID
     private let onSelect: (ScreenshotSelection) -> Void
     private let onCancel: () -> Void
+    private var frozenCGImage: CGImage?
     private var frozenNSImage: NSImage?
     private var dragStart: CGPoint?
     private var dragCurrent: CGPoint?
     private var completedSelectionRect: CGRect?
+    private var cursorPoint: CGPoint?
 
     init(
         displayID: CGDirectDisplayID,
@@ -181,6 +195,7 @@ private final class ScreenshotSelectionView: NSView {
     override var isOpaque: Bool { frozenNSImage != nil }
 
     func setFrozenImage(_ image: CGImage) {
+        frozenCGImage = image
         frozenNSImage = NSImage(
             cgImage: image,
             size: NSSize(width: image.width, height: image.height)
@@ -193,7 +208,42 @@ private final class ScreenshotSelectionView: NSView {
         super.viewDidMoveToWindow()
         frame = window?.contentView?.bounds ?? frame
         window?.makeFirstResponder(self)
+        window?.acceptsMouseMovedEvents = true
         NSCursor.crosshair.set()
+        updateTrackingAreas()
+        needsDisplay = true
+    }
+
+    override func updateTrackingAreas() {
+        super.updateTrackingAreas()
+        for area in trackingAreas {
+            removeTrackingArea(area)
+        }
+        addTrackingArea(
+            NSTrackingArea(
+                rect: bounds,
+                options: [.activeAlways, .mouseMoved, .mouseEnteredAndExited, .inVisibleRect, .cursorUpdate],
+                owner: self,
+                userInfo: nil
+            )
+        )
+    }
+
+    override func cursorUpdate(with event: NSEvent) {
+        NSCursor.crosshair.set()
+    }
+
+    override func mouseMoved(with event: NSEvent) {
+        updateCursor(from: event)
+    }
+
+    override func mouseEntered(with event: NSEvent) {
+        updateCursor(from: event)
+        NSCursor.crosshair.set()
+    }
+
+    override func mouseExited(with event: NSEvent) {
+        cursorPoint = nil
         needsDisplay = true
     }
 
@@ -222,7 +272,16 @@ private final class ScreenshotSelectionView: NSView {
         } else {
             bounds.fill()
         }
-        drawInstruction()
+
+        let probe = dragCurrent ?? cursorPoint
+        if let probe {
+            drawCrosshair(at: probe)
+            drawLoupe(at: probe)
+        }
+
+        if selection == nil {
+            drawInstruction()
+        }
     }
 
     override func mouseDown(with event: NSEvent) {
@@ -230,12 +289,15 @@ private final class ScreenshotSelectionView: NSView {
         completedSelectionRect = nil
         dragStart = point
         dragCurrent = point
+        cursorPoint = point
         needsDisplay = true
     }
 
     override func mouseDragged(with event: NSEvent) {
         guard dragStart != nil else { return }
-        dragCurrent = clipped(convert(event.locationInWindow, from: nil))
+        let point = clipped(convert(event.locationInWindow, from: nil))
+        dragCurrent = point
+        cursorPoint = point
         needsDisplay = true
     }
 
@@ -246,6 +308,7 @@ private final class ScreenshotSelectionView: NSView {
         guard rect.width >= 3, rect.height >= 3 else {
             dragStart = nil
             dragCurrent = nil
+            cursorPoint = end
             needsDisplay = true
             return
         }
@@ -273,6 +336,12 @@ private final class ScreenshotSelectionView: NSView {
         return normalized(dragStart, dragCurrent).intersection(bounds)
     }
 
+    private func updateCursor(from event: NSEvent) {
+        let point = clipped(convert(event.locationInWindow, from: nil))
+        cursorPoint = point
+        needsDisplay = true
+    }
+
     private func normalized(_ first: CGPoint, _ second: CGPoint) -> CGRect {
         CGRect(
             x: min(first.x, second.x),
@@ -286,6 +355,141 @@ private final class ScreenshotSelectionView: NSView {
         CGPoint(
             x: min(max(bounds.minX, point.x), bounds.maxX),
             y: min(max(bounds.minY, point.y), bounds.maxY)
+        )
+    }
+
+    private func drawCrosshair(at point: CGPoint) {
+        // Compact reticle near the pointer — not full-screen guide lines.
+        let arm: CGFloat = 9
+        let gap: CGFloat = 2.5
+        let x = point.x
+        let y = point.y
+
+        func stroke(_ path: NSBezierPath, color: NSColor, width: CGFloat) {
+            color.setStroke()
+            path.lineWidth = width
+            path.lineCapStyle = .square
+            path.stroke()
+        }
+
+        let path = NSBezierPath()
+        path.move(to: CGPoint(x: x - arm, y: y))
+        path.line(to: CGPoint(x: x - gap, y: y))
+        path.move(to: CGPoint(x: x + gap, y: y))
+        path.line(to: CGPoint(x: x + arm, y: y))
+        path.move(to: CGPoint(x: x, y: y - arm))
+        path.line(to: CGPoint(x: x, y: y - gap))
+        path.move(to: CGPoint(x: x, y: y + gap))
+        path.line(to: CGPoint(x: x, y: y + arm))
+
+        stroke(path, color: NSColor.black.withAlphaComponent(0.55), width: 2.5)
+        stroke(path, color: NSColor.white.withAlphaComponent(0.95), width: 1)
+    }
+
+    private func drawLoupe(at point: CGPoint) {
+        guard let frozenCGImage,
+              let pixel = ScreenshotGeometry.pixelPoint(
+                at: point,
+                viewSize: bounds.size,
+                imageWidth: frozenCGImage.width,
+                imageHeight: frozenCGImage.height
+              ),
+              let source = ScreenshotGeometry.loupeSourceRect(
+                pixelX: pixel.x,
+                pixelY: pixel.y,
+                imageWidth: frozenCGImage.width,
+                imageHeight: frozenCGImage.height
+              ),
+              let cropped = frozenCGImage.cropping(to: source)
+        else { return }
+
+        let loupe = ScreenshotGeometry.loupeFrame(cursor: point, viewBounds: bounds)
+        let color = ScreenshotPixelSampling.color(in: frozenCGImage, atX: pixel.x, atY: pixel.y)
+
+        NSGraphicsContext.saveGraphicsState()
+        let circle = NSBezierPath(ovalIn: loupe)
+        circle.addClip()
+
+        let loupeImage = NSImage(cgImage: cropped, size: loupe.size)
+        loupeImage.draw(
+            in: loupe,
+            from: .zero,
+            operation: .copy,
+            fraction: 1,
+            respectFlipped: false,
+            hints: [.interpolation: NSNumber(value: NSImageInterpolation.none.rawValue)]
+        )
+
+        NSColor.white.withAlphaComponent(0.95).setStroke()
+        let ring = NSBezierPath(ovalIn: loupe.insetBy(dx: 0.5, dy: 0.5))
+        ring.lineWidth = 2
+        ring.stroke()
+
+        let cross = NSBezierPath()
+        let inset: CGFloat = 18
+        cross.move(to: CGPoint(x: loupe.midX, y: loupe.minY + inset))
+        cross.line(to: CGPoint(x: loupe.midX, y: loupe.maxY - inset))
+        cross.move(to: CGPoint(x: loupe.minX + inset, y: loupe.midY))
+        cross.line(to: CGPoint(x: loupe.maxX - inset, y: loupe.midY))
+        NSColor.black.withAlphaComponent(0.35).setStroke()
+        cross.lineWidth = 2
+        cross.stroke()
+        NSColor.white.withAlphaComponent(0.7).setStroke()
+        cross.lineWidth = 1
+        cross.stroke()
+        NSGraphicsContext.restoreGraphicsState()
+
+        if let color {
+            drawColorBadge(color, under: loupe)
+        }
+    }
+
+    private func drawColorBadge(_ color: ScreenshotPixelColor, under loupe: CGRect) {
+        let hex = color.hexString
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: NSFont.monospacedSystemFont(ofSize: 11, weight: .medium),
+            .foregroundColor: NSColor.white,
+        ]
+        let textSize = (hex as NSString).size(withAttributes: attributes)
+        let swatch: CGFloat = 12
+        let padding: CGFloat = 8
+        let width = padding + swatch + 6 + textSize.width + padding
+        let height: CGFloat = 24
+        var frame = CGRect(
+            x: loupe.midX - width / 2,
+            y: loupe.minY - height - 8,
+            width: width,
+            height: height
+        )
+        if frame.minY < bounds.minY + 4 {
+            frame.origin.y = loupe.maxY + 8
+        }
+        if frame.minX < bounds.minX + 4 {
+            frame.origin.x = bounds.minX + 4
+        }
+        if frame.maxX > bounds.maxX - 4 {
+            frame.origin.x = bounds.maxX - 4 - width
+        }
+
+        NSColor.black.withAlphaComponent(0.78).setFill()
+        NSBezierPath(roundedRect: frame, xRadius: 7, yRadius: 7).fill()
+
+        let swatchRect = CGRect(
+            x: frame.minX + padding,
+            y: frame.midY - swatch / 2,
+            width: swatch,
+            height: swatch
+        )
+        NSColor(srgbRed: CGFloat(color.red) / 255, green: CGFloat(color.green) / 255, blue: CGFloat(color.blue) / 255, alpha: 1).setFill()
+        NSBezierPath(roundedRect: swatchRect, xRadius: 3, yRadius: 3).fill()
+        NSColor.white.withAlphaComponent(0.35).setStroke()
+        let swatchBorder = NSBezierPath(roundedRect: swatchRect.insetBy(dx: 0.5, dy: 0.5), xRadius: 3, yRadius: 3)
+        swatchBorder.lineWidth = 1
+        swatchBorder.stroke()
+
+        (hex as NSString).draw(
+            at: CGPoint(x: swatchRect.maxX + 6, y: frame.minY + (height - textSize.height) / 2),
+            withAttributes: attributes
         )
     }
 
