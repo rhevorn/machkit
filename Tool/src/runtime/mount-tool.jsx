@@ -40,13 +40,13 @@ const appearanceOptions = [
 ];
 
 const DOCK_LAYOUT_KEY = "machkit:dev-dock-layout";
-const reactRoots = new WeakMap();
+const ROOT_KEY = "__machkitReactRoot";
 
 function renderInto(container, node) {
-  let root = reactRoots.get(container);
+  let root = container[ROOT_KEY];
   if (!root) {
     root = createRoot(container);
-    reactRoots.set(container, root);
+    container[ROOT_KEY] = root;
   }
   root.render(node);
   return root;
