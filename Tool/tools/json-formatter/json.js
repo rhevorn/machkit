@@ -146,6 +146,18 @@ export function stringifyValue(value, space = 2) {
   return JSON.stringify(value, null, space);
 }
 
+/**
+ * If a matched value is a JSON object/array encoded as a string, parse it for preview.
+ */
+export function resolvePreviewValue(value) {
+  if (typeof value !== "string") return value;
+  const trimmed = value.trim();
+  if (!trimmed || (trimmed[0] !== "{" && trimmed[0] !== "[")) return value;
+  const parsed = tryParse(trimmed);
+  if (!parsed.ok || parsed.data === null || typeof parsed.data !== "object") return value;
+  return unwrapJSONLayers(parsed.data).data;
+}
+
 function isObject(value) {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }

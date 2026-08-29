@@ -1,14 +1,23 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { json } from "@codemirror/lang-json";
-import { ViewPlugin } from "@codemirror/view";
-import { BracketsCurly, CopySimple, Eraser, MagnifyingGlass, Quotes, TextAa, TreeStructure } from "@phosphor-icons/react";
+import { EditorView, ViewPlugin } from "@codemirror/view";
+import * as Popover from "@radix-ui/react-popover";
+import {
+  BracketsCurly,
+  ClockCounterClockwise,
+  CopySimple,
+  MagnifyingGlass,
+  Quotes,
+  TextAa,
+  Trash,
+  TreeStructure,
+} from "@phosphor-icons/react";
 import {
   ActionGroup,
   Button,
-  EditorPane,
+  IconButton,
   Input,
-  StatusStrip,
   ToolContent,
   ToolPage,
   ToolToolbar,
@@ -29,6 +38,12 @@ import {
   unescapeJSONText,
   pathAtOffset,
 } from "./json.js";
+import {
+  HISTORY_STORAGE_KEY,
+  parseHistoryPayload,
+  pushHistoryEntry,
+  serializeHistory,
+} from "./history.js";
 import { JsonHighlight } from "./json-highlight.jsx";
 
 import { messages } from "./messages.js";
@@ -112,23 +127,161 @@ const syncContentMinWidth = ViewPlugin.fromClass(
   },
 );
 
-function formatBytes(size) {
-  if (size < 1024) return `${size} B`;
-  if (size < 1024 * 1024) return `${(size / 1024).toFixed(size < 10_240 ? 1 : 0)} KB`;
-  return `${(size / (1024 * 1024)).toFixed(2)} MB`;
+/** Click anywhere on a line to fill the path from that line's leading token. */
+function fillPathOnLineClick(onFill) {
+  return EditorView.domEventHandlers({
+    click(event, view) {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) {
+        return false;
+      }
+      if (event.target?.closest?.(".cm-gutters")) return false;
+      const pos = view.posAtCoords({ x: event.clientX, y: event.clientY });
+      if (pos == null) return false;
+      const line = view.state.doc.lineAt(pos);
+      let offset = line.from;
+      while (offset < line.to && /\s/.test(line.text[offset - line.from])) offset += 1;
+      if (offset >= line.to) offset = pos;
+      const result = pathAtOffset(view.state.doc.toString(), offset);
+      if (!result.ok || !result.path) return false;
+      onFill(result.path);
+      return false;
+    },
+  });
+}
+
+/** Remember valid JSON pasted into the editor. */
+function rememberPasteOnPaste(onPasteText) {
+  return EditorView.domEventHandlers({
+    paste(event) {
+      const text = event.clipboardData?.getData("text");
+      if (text) onPasteText(text);
+      return false;
+    },
+  });
+}
+
+function formatHistoryTime(savedAt) {
+  try {
+    return new Intl.DateTimeFormat(undefined, { dateStyle: "short", timeStyle: "short" }).format(savedAt);
+  } catch {
+    return "";
+  }
+}
+
+function prepareHistorySource(raw) {
+  const parsed = parseJSON(raw);
+  if (!parsed.ok || parsed.data === null || typeof parsed.data !== "object") return null;
+  try {
+    return formatJSON(parsed.data);
+  } catch {
+    return String(raw ?? "");
+  }
+}
+
+const SPLIT_STORAGE_KEY = "machkit.json-formatter.leftRatio.v2";
+const DEFAULT_LEFT_RATIO = 0.75;
+const MIN_LEFT_RATIO = 0.28;
+const MAX_LEFT_RATIO = 0.78;
+
+function clampLeftRatio(value) {
+  return Math.min(MAX_LEFT_RATIO, Math.max(MIN_LEFT_RATIO, value));
+}
+
+function readLeftRatio() {
+  try {
+    const value = Number(window.localStorage.getItem(SPLIT_STORAGE_KEY));
+    if (Number.isFinite(value) && value >= MIN_LEFT_RATIO && value <= MAX_LEFT_RATIO) return value;
+  } catch {
+    // ignore
+  }
+  return DEFAULT_LEFT_RATIO;
+}
+
+function HorizontalSplit({ left, right, label }) {
+  const containerRef = useRef(null);
+  const [leftRatio, setLeftRatio] = useState(readLeftRatio);
+  const dragRef = useRef(null);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(SPLIT_STORAGE_KEY, String(leftRatio));
+    } catch {
+      // ignore
+    }
+  }, [leftRatio]);
+
+  function endDrag(event) {
+    if (!dragRef.current) return;
+    dragRef.current = null;
+    document.body.style.removeProperty("cursor");
+    document.body.style.removeProperty("user-select");
+    try {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    } catch {
+      // ignore
+    }
+  }
+
+  return (
+    <div ref={containerRef} className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
+      <div
+        className="flex min-h-0 min-w-0 flex-col overflow-hidden"
+        style={{ flex: `0 0 ${leftRatio * 100}%` }}
+      >
+        {left}
+      </div>
+      <div
+        role="separator"
+        aria-orientation="vertical"
+        aria-label={label}
+        aria-valuemin={Math.round(MIN_LEFT_RATIO * 100)}
+        aria-valuemax={Math.round(MAX_LEFT_RATIO * 100)}
+        aria-valuenow={Math.round(leftRatio * 100)}
+        tabIndex={0}
+        className="group relative z-10 w-3 shrink-0 cursor-col-resize touch-none outline-none"
+        onPointerDown={(event) => {
+          if (event.button !== 0) return;
+          const container = containerRef.current;
+          if (!container) return;
+          event.preventDefault();
+          const rect = container.getBoundingClientRect();
+          dragRef.current = { left: rect.left, width: rect.width };
+          document.body.style.cursor = "col-resize";
+          document.body.style.userSelect = "none";
+          event.currentTarget.setPointerCapture(event.pointerId);
+        }}
+        onPointerMove={(event) => {
+          const drag = dragRef.current;
+          if (!drag || drag.width <= 0) return;
+          setLeftRatio(clampLeftRatio((event.clientX - drag.left) / drag.width));
+        }}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onKeyDown={(event) => {
+          if (event.key === "ArrowLeft") {
+            event.preventDefault();
+            setLeftRatio((ratio) => clampLeftRatio(ratio - 0.02));
+          } else if (event.key === "ArrowRight") {
+            event.preventDefault();
+            setLeftRatio((ratio) => clampLeftRatio(ratio + 0.02));
+          }
+        }}
+      >
+        <div className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-border transition-colors group-hover:bg-accent group-focus-visible:bg-accent group-active:bg-accent" />
+      </div>
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">{right}</div>
+    </div>
+  );
 }
 
 function JsonFormatter() {
   const text = useToolMessages(messages);
   const editorTheme = useMachKitEditorTheme();
-  const editorExtensions = useMemo(
-    () => [jsonLanguage, disableScrollerOverscroll, syncContentMinWidth, ...editorTheme],
-    [editorTheme],
-  );
   const [source, setSource] = useState("");
   const [path, setPath] = useState("");
-  const [cursorPath, setCursorPath] = useState("");
   const [transformError, setTransformError] = useState("");
+  const [history, setHistory] = useState([]);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [analysis, setAnalysis] = useState(() => ({
     source: "",
     path: "",
@@ -138,17 +291,51 @@ function JsonFormatter() {
   const workerRef = useRef(null);
   const analysisIDRef = useRef(0);
   const transformIDRef = useRef(0);
-  const cursorPathTimerRef = useRef(0);
+  const applyPathRef = useRef((nextPath) => {});
+  const rememberPasteRef = useRef((raw) => {});
+  applyPathRef.current = (nextPath) => {
+    if (nextPath) setPath(nextPath);
+  };
+  const editorExtensions = useMemo(
+    () => [
+      jsonLanguage,
+      disableScrollerOverscroll,
+      syncContentMinWidth,
+      fillPathOnLineClick((nextPath) => applyPathRef.current(nextPath)),
+      rememberPasteOnPaste((raw) => rememberPasteRef.current(raw)),
+      ...editorTheme,
+    ],
+    [editorTheme],
+  );
 
-  const updateCursorPath = React.useCallback((docText, offset) => {
-    window.clearTimeout(cursorPathTimerRef.current);
-    cursorPathTimerRef.current = window.setTimeout(() => {
-      const result = pathAtOffset(docText, offset);
-      setCursorPath(result.ok ? result.path : "");
-    }, 80);
+  const persistHistory = React.useCallback((entries) => {
+    setHistory(entries);
+    machkit.setItem(HISTORY_STORAGE_KEY, serializeHistory(entries)).catch(() => {});
   }, []);
 
-  useEffect(() => () => window.clearTimeout(cursorPathTimerRef.current), []);
+  const rememberPaste = React.useCallback((raw) => {
+    const prepared = prepareHistorySource(raw);
+    if (!prepared) return;
+    setHistory((current) => {
+      const { entries, changed } = pushHistoryEntry(current, prepared);
+      if (!changed) return current;
+      machkit.setItem(HISTORY_STORAGE_KEY, serializeHistory(entries)).catch(() => {});
+      return entries;
+    });
+  }, []);
+  rememberPasteRef.current = rememberPaste;
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const raw = await machkit.getItem(HISTORY_STORAGE_KEY);
+      if (cancelled) return;
+      setHistory(parseHistoryPayload(raw));
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (typeof Worker === "undefined") return undefined;
@@ -180,19 +367,15 @@ function JsonFormatter() {
       const clipboard = await machkit.readClipboard();
       if (cancelled || !clipboard.trim()) return;
       if (byteSize(clipboard) > 5_000_000) return;
-      // Clipboard import may unwrap escaped JSON once on open.
-      const parsed = parseJSON(clipboard);
-      if (!parsed.ok || parsed.data === null || typeof parsed.data !== "object") return;
-      try {
-        setSource(formatJSON(parsed.data));
-      } catch {
-        // Ignore format failures; leave the editor empty.
-      }
+      const prepared = prepareHistorySource(clipboard);
+      if (!prepared) return;
+      setSource(prepared);
+      rememberPaste(prepared);
     })();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [rememberPaste]);
 
   useEffect(() => {
     const id = analysisIDRef.current + 1;
@@ -222,37 +405,31 @@ function JsonFormatter() {
     return () => window.clearTimeout(timer);
   }, [source, path]);
 
-  const isAnalyzing = analysis.source !== source || analysis.path !== path;
-  const parsed = isAnalyzing
-    ? { ok: false, error: "analyzing", data: null, unwrapped: false }
-    : analysis.parsed;
-  const pathQuery = isAnalyzing
-    ? { ok: true, error: null, matches: [] }
-    : analysis.pathQuery;
-
-  const status = !source.trim()
-    ? { tone: "neutral", label: text.empty }
-    : parsed.ok
-      ? { tone: "info", label: `${text.valid} · ${formatBytes(byteSize(source))}` }
-      : parsed.error === "analyzing"
-        ? { tone: "neutral", label: text.analyzing || "Analyzing…" }
-        : parsed.error === "input-too-large"
-          ? { tone: "danger", label: text.tooLarge || "Input is too large (5 MB maximum)" }
-          : { tone: "danger", label: `${text.invalid}: ${parsed.error}` };
+  // Keep last parse while source is re-analyzing; path queries update sync so the
+  // split pane does not collapse/remount on every line click.
+  const isSourceAnalyzing = analysis.source !== source;
+  const parsed = analysis.parsed;
+  const pathQuery = useMemo(() => {
+    if (!path.trim()) return { ok: true, error: null, matches: [] };
+    if (analysis.source !== source) return analysis.pathQuery;
+    if (!analysis.parsed.ok) return { ok: true, error: null, matches: [] };
+    return queryPath(analysis.parsed.data, path);
+  }, [analysis, source, path]);
 
   const pathStatus = (() => {
+    if (transformError) return transformError;
+    if (!isSourceAnalyzing && source.trim() && !parsed.ok) {
+      return parsed.error === "input-too-large"
+        ? (text.tooLarge || "Input is too large (5 MB maximum)")
+        : `${text.invalid}: ${parsed.error}`;
+    }
     if (!path.trim() || !parsed.ok) return null;
-    if (!pathQuery.ok) return { tone: "danger", label: `${text.pathError}: ${pathQuery.error}` };
-    if (!pathQuery.matches.length) return { tone: "neutral", label: text.noMatches };
-    const count = pathQuery.matches.length;
-    return {
-      tone: "info",
-      label: `${count} ${count === 1 ? text.match : text.matches}`,
-    };
+    if (!pathQuery.ok) return `${text.pathError}: ${pathQuery.error}`;
+    return null;
   })();
 
   const mutate = (operation) => {
-    if (!parsed.ok) return;
+    if (!parsed.ok || isSourceAnalyzing) return;
     setTransformError("");
     if (workerRef.current) {
       const id = transformIDRef.current + 1;
@@ -299,171 +476,228 @@ function JsonFormatter() {
 
   const showResults = Boolean(path.trim()) && parsed.ok && pathQuery.ok && pathQuery.matches.length > 0;
 
+  const copySource = () => {
+    if (!source) return;
+    machkit.copy(source);
+  };
+
+  const copyResults = () => {
+    if (!pathQuery.matches.length) return;
+    machkit.copy(pathQuery.matches.map((match) => stringifyValue(match.value)).join("\n\n"));
+  };
+
+  const editorPane = (
+    <div
+      className={`json-pane json-code-editor relative min-h-[360px] min-w-0 overflow-hidden ${showResults ? "h-full" : "flex-1"}`}
+    >
+      <div className="json-cm-host h-full min-h-[360px] min-w-0">
+        <CodeMirror
+          value={source}
+          height="100%"
+          extensions={editorExtensions}
+          basicSetup={{
+            lineNumbers: true,
+            highlightActiveLine: true,
+            highlightActiveLineGutter: true,
+            foldGutter: true,
+            dropCursor: false,
+            allowMultipleSelections: false,
+            indentOnInput: true,
+          }}
+          onChange={(value) => {
+            setSource(value);
+            if (!value.trim()) setPath("");
+          }}
+          className="h-full min-h-[360px] min-w-0"
+        />
+      </div>
+      <div className="pointer-events-none absolute top-2 right-2 z-20">
+        <IconButton
+          label={text.copy}
+          disabled={!source}
+          className="pointer-events-auto size-7 bg-surface/90 text-secondary shadow-sm backdrop-blur-sm hover:bg-muted hover:text-foreground"
+          onClick={copySource}
+        >
+          <CopySimple size={15} />
+        </IconButton>
+      </div>
+    </div>
+  );
+
+  const resultsPane = (
+    <div className="json-pane relative flex h-full min-h-[360px] min-w-0 flex-col overflow-hidden">
+      <div className="pointer-events-none absolute top-2 right-2 z-20">
+        <IconButton
+          label={text.copy}
+          disabled={!pathQuery.matches.length}
+          className="pointer-events-auto size-7 bg-surface/90 text-secondary shadow-sm backdrop-blur-sm hover:bg-muted hover:text-foreground"
+          onClick={copyResults}
+        >
+          <CopySimple size={15} />
+        </IconButton>
+      </div>
+      <div className="min-h-0 min-w-0 flex-1 space-y-4 overflow-y-auto px-3 py-2.5 pr-11">
+        {pathQuery.matches.map((match) => {
+          const fillHeight = pathQuery.matches.length === 1;
+          return (
+            <article
+              key={match.path}
+              className={
+                fillHeight
+                  ? "json-result-surface flex h-full min-h-0 min-w-0 flex-col overflow-hidden"
+                  : "json-result-surface flex max-h-64 min-w-0 shrink-0 flex-col overflow-hidden"
+              }
+            >
+              <button
+                type="button"
+                className="mb-1.5 min-w-0 shrink-0 truncate text-left font-mono text-[11px] text-accent hover:underline"
+                title={text.usePath}
+                onClick={() => setPath(match.path)}
+              >
+                {match.path}
+              </button>
+              <div className="min-h-0 min-w-0 flex-1 overflow-hidden">
+                <JsonHighlight value={match.value} />
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  );
+
   return (
     <ToolPage title={text.title}>
-      <ToolContent className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden pt-4">
-        <ToolToolbar className="flex-wrap pb-1.5">
-          <Button variant="secondary" size="sm" disabled={!parsed.ok} onClick={() => mutate("format")}>
-            <BracketsCurly size={15} />
+      <ToolContent className="flex min-h-0 min-w-0 flex-1 flex-col gap-2 overflow-x-hidden pt-3">
+        <div className="flex flex-col rounded-panel border border-border/80 bg-muted/55">
+        <ToolToolbar className="min-h-[var(--machkit-size-control-compact)] flex-wrap gap-0.5 border-b-0 px-1.5 py-0.5">
+          <Button
+            variant="ghost"
+            size="compact"
+            disabled={!parsed.ok || isSourceAnalyzing}
+            onClick={() => mutate("format")}
+          >
+            <BracketsCurly size={14} />
             {text.format}
           </Button>
-          <Button variant="secondary" size="sm" disabled={!parsed.ok} onClick={() => mutate("minify")}>
-            <TextAa size={15} />
+          <Button
+            variant="ghost"
+            size="compact"
+            disabled={!parsed.ok || isSourceAnalyzing}
+            onClick={() => mutate("minify")}
+          >
+            <TextAa size={14} />
             {text.minify}
           </Button>
           <Button
-            variant="secondary"
-            size="sm"
-            disabled={!parsed.ok}
+            variant="ghost"
+            size="compact"
+            disabled={!parsed.ok || isSourceAnalyzing}
             onClick={() => mutate("sort")}
           >
-            <TreeStructure size={15} />
+            <TreeStructure size={14} />
             {text.sort}
           </Button>
-          <Button variant="secondary" size="sm" disabled={!source} onClick={escapeSource}>
-            <Quotes size={15} />
+          <span className="mx-1 hidden h-3.5 w-px shrink-0 self-center bg-border sm:block" aria-hidden />
+          <Button variant="ghost" size="compact" disabled={!source} onClick={escapeSource}>
+            <Quotes size={14} />
             {text.escape}
           </Button>
-          <Button variant="secondary" size="sm" disabled={!source.trim()} onClick={unescapeSource}>
-            <Quotes size={15} weight="duotone" />
+          <Button variant="ghost" size="compact" disabled={!source.trim()} onClick={unescapeSource}>
+            <Quotes size={14} weight="duotone" />
             {text.unescape}
           </Button>
-          <ActionGroup className="gap-2">
-            <Button variant="ghost" size="sm" disabled={!source} onClick={() => machkit.copy(source)}>
-              <CopySimple size={16} />
-              <span className="max-[560px]:hidden">{text.copy}</span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              disabled={!source && !path}
-              onClick={() => {
-                setSource("");
-                setPath("");
-                setCursorPath("");
-              }}
-            >
-              <Eraser size={16} />
-              <span className="max-[560px]:hidden">{text.clear}</span>
-            </Button>
+          <ActionGroup>
+            <Popover.Root open={historyOpen} onOpenChange={setHistoryOpen}>
+              <Popover.Trigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-[var(--machkit-size-control-compact)]"
+                  aria-label={text.history}
+                  title={text.history}
+                >
+                  <ClockCounterClockwise size={15} />
+                </Button>
+              </Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Content
+                  side="bottom"
+                  align="end"
+                  sideOffset={6}
+                  className="z-50 w-[min(420px,calc(100vw-32px))] overflow-hidden rounded-panel border border-border bg-popover text-popover-foreground shadow-popover"
+                >
+                  <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
+                    <span className="text-xs font-medium text-secondary">{text.history}</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="compact"
+                      className="h-auto px-1.5 py-0.5 text-[11px] font-normal"
+                      disabled={!history.length}
+                      onClick={() => persistHistory([])}
+                    >
+                      <Trash size={13} />
+                      {text.clearHistory}
+                    </Button>
+                  </div>
+                  {history.length === 0 ? (
+                    <p className="px-3 py-6 text-center text-xs text-secondary">{text.historyEmpty}</p>
+                  ) : (
+                    <ul className="max-h-72 overflow-y-auto py-1">
+                      {history.map((entry) => (
+                        <li key={entry.id}>
+                          <button
+                            type="button"
+                            className="flex w-full flex-col gap-0.5 px-3 py-2 text-left hover:bg-accent-soft"
+                            onClick={() => {
+                              setSource(entry.source);
+                              setHistoryOpen(false);
+                            }}
+                          >
+                            <span className="line-clamp-2 font-mono text-[11px] text-foreground">{entry.preview}</span>
+                            <span className="text-[10px] text-tertiary">{formatHistoryTime(entry.savedAt)}</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </Popover.Content>
+              </Popover.Portal>
+            </Popover.Root>
           </ActionGroup>
         </ToolToolbar>
 
-        <ToolToolbar className="min-w-0 gap-2">
-          <MagnifyingGlass size={15} className="shrink-0 text-secondary" />
-          <span className="machkit-control-label">{text.path}</span>
-          <Input
-            value={path}
-            onChange={(event) => setPath(event.target.value)}
-            placeholder={text.pathPlaceholder}
-            aria-label={text.path}
-            invalid={Boolean(path.trim()) && parsed.ok && !pathQuery.ok}
-            className="min-w-0"
-          />
+        <ToolToolbar className="min-h-[var(--machkit-size-control)] min-w-0 gap-2 border-b-0 px-2.5 pt-0.5 pb-1.5">
+          <div className="relative min-w-0 flex-1">
+            <MagnifyingGlass
+              size={15}
+              className="pointer-events-none absolute top-1/2 left-2.5 z-10 -translate-y-1/2 text-secondary"
+              aria-hidden
+            />
+            <Input
+              value={path}
+              onChange={(event) => setPath(event.target.value)}
+              placeholder={text.pathPlaceholder}
+              aria-label={text.path}
+              invalid={Boolean(path.trim()) && parsed.ok && !pathQuery.ok}
+              className="min-w-0 pl-8"
+            />
+          </div>
           {pathStatus ? (
-            <span className={`shrink-0 text-xs ${pathStatus.tone === "danger" ? "text-danger" : "text-secondary"}`}>
-              {pathStatus.label}
+            <span className="shrink-0 text-xs text-danger">
+              {pathStatus}
             </span>
           ) : null}
         </ToolToolbar>
-
-        <div className={`grid min-h-0 min-w-0 flex-1 items-stretch gap-4 py-4 ${showResults ? "min-[900px]:grid-cols-[minmax(0,1.35fr)_minmax(0,0.9fr)]" : ""}`}>
-          <div className="json-code-editor machkit-panel min-h-[360px] min-w-0 overflow-hidden">
-            <CodeMirror
-              value={source}
-              height="100%"
-              extensions={editorExtensions}
-              basicSetup={{
-                lineNumbers: true,
-                highlightActiveLine: true,
-                highlightActiveLineGutter: true,
-                foldGutter: true,
-                dropCursor: false,
-                allowMultipleSelections: false,
-                indentOnInput: true,
-              }}
-              onChange={(value, viewUpdate) => {
-                setSource(value);
-                updateCursorPath(value, viewUpdate.state.selection.main.head);
-              }}
-              onUpdate={(viewUpdate) => {
-                if (!viewUpdate.selectionSet) return;
-                updateCursorPath(viewUpdate.state.doc.toString(), viewUpdate.state.selection.main.head);
-              }}
-              className="h-full min-h-[360px] min-w-0"
-            />
-          </div>
-
-          {showResults ? (
-            <EditorPane
-              title={text.results}
-              className="min-h-[360px]"
-              bodyClassName="space-y-3 overflow-y-auto p-3"
-            >
-              {pathQuery.matches.map((match) => {
-                const valueText = stringifyValue(match.value);
-                const fillHeight = pathQuery.matches.length === 1;
-                return (
-                  <article
-                    key={match.path}
-                    className={
-                      fillHeight
-                        ? "flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-control border border-border bg-field px-3 py-2.5"
-                        : "flex max-h-64 min-w-0 shrink-0 flex-col overflow-hidden rounded-control border border-border bg-field px-3 py-2.5"
-                    }
-                  >
-                    <div className="mb-2 flex shrink-0 items-start gap-2">
-                      <code className="min-w-0 flex-1 truncate font-mono text-[11px] text-accent">{match.path}</code>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="compact"
-                        className="h-auto shrink-0 px-1.5 py-0.5 text-[10px] font-normal"
-                        onClick={() => machkit.copy(match.path)}
-                      >
-                        {text.copyPath}
-                      </Button>
-                    </div>
-                    <div className="flex min-h-0 min-w-0 flex-1 items-stretch gap-2 overflow-hidden">
-                      <JsonHighlight value={match.value} />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="compact"
-                        className="h-auto shrink-0 self-start px-1.5 py-0.5 text-[10px] font-normal"
-                        onClick={() => machkit.copy(valueText)}
-                      >
-                        {text.copyValue}
-                      </Button>
-                    </div>
-                  </article>
-                );
-              })}
-            </EditorPane>
-          ) : null}
         </div>
 
-        <div className="flex min-h-8 items-center justify-between gap-3">
-          {transformError || status.tone === "danger" ? (
-            <StatusStrip tone="danger" className="min-w-0 flex-1">
-              {transformError || status.label}
-            </StatusStrip>
+        <div className="json-workspace machkit-panel flex min-h-0 min-w-0 flex-1 overflow-hidden">
+          {showResults ? (
+            <HorizontalSplit label={text.splitResize} left={editorPane} right={resultsPane} />
           ) : (
-            <p className="min-w-0 flex-1 truncate text-xs text-secondary">{status.label}</p>
+            editorPane
           )}
-          {cursorPath ? (
-            <Button
-              type="button"
-              variant="ghost"
-              size="compact"
-              className="machkit-control-label inline-flex h-auto max-w-[55%] items-center gap-1.5 truncate px-1.5 py-0.5 text-left font-normal"
-              title={text.copyPath}
-              onClick={() => machkit.copy(cursorPath)}
-            >
-              <span className="shrink-0">{text.location}</span>
-              <code className="min-w-0 truncate font-mono text-[11px] text-accent">{cursorPath}</code>
-            </Button>
-          ) : null}
         </div>
       </ToolContent>
     </ToolPage>

@@ -9,6 +9,7 @@ import {
   queryPath,
   sortKeysDeep,
   stringifyValue,
+  resolvePreviewValue,
   escapeJSONText,
   unescapeJSONText,
 } from "./json.js";
@@ -103,6 +104,14 @@ test("stringifies matched values for display and measures UTF-8 size", () => {
   assert.equal(stringifyValue("hello"), "hello");
   assert.equal(stringifyValue({ a: 1 }, 0), '{"a":1}');
   assert.equal(byteSize("你好"), 6);
+});
+
+test("resolves stringified JSON for preview formatting", () => {
+  assert.deepEqual(resolvePreviewValue('{"a":1}'), { a: 1 });
+  assert.deepEqual(resolvePreviewValue("[1,2]"), [1, 2]);
+  assert.equal(resolvePreviewValue("hello"), "hello");
+  assert.equal(resolvePreviewValue("123"), "123");
+  assert.deepEqual(resolvePreviewValue({ a: 1 }), { a: 1 });
 });
 
 test("resolves JSONPath at a document offset", () => {

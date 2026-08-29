@@ -380,9 +380,28 @@
   .json-code-editor .cm-focused { outline: none; }
   .hosts-code-editor { border: 1px solid var(--border); background: var(--input); }
   .json-code-editor .cm-editor { min-height: 360px; }
+  .json-workspace {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+  .json-workspace .json-pane {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+  .json-code-editor .json-cm-key {
+    color: #a16207;
+  }
   .json-code-editor .cm-foldGutter .cm-gutterElement { color: var(--tertiary); }
-  .json-code-editor > .cm-theme,
-  .json-code-editor > div {
+  /* Only the editor host — not floating chrome like the copy button. */
+  .json-code-editor > .json-cm-host {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    height: 100%;
+  }
+  .json-code-editor > .json-cm-host > .cm-theme,
+  .json-code-editor > .json-cm-host > div {
     width: 100%;
     max-width: 100%;
     min-width: 0;
@@ -410,36 +429,82 @@
   .diff-row-insert { background: color-mix(in srgb, #34c759 16%, transparent); }
   .diff-row-blank { background: color-mix(in srgb, var(--secondary) 6%, transparent); }
 
-  .json-highlight .json-token-key { color: #087fff; }
-  .json-highlight .json-token-string { color: #1a7f37; }
-  .json-highlight .json-token-number { color: #9a6700; }
+  /*
+   * JSON syntax — VS Code Dark+/Light+ defaults.
+   * Keep in sync with Tool/src/ui/codemirror-theme.js.
+   */
+  .json-highlight .json-token-key { color: #a16207; }
+  .json-highlight .json-token-string { color: #a31515; }
+  .json-highlight .json-token-number { color: #098658; }
   .json-highlight .json-token-bool,
-  .json-highlight .json-token-null { color: #8250df; }
-  .json-highlight .json-token-punct { color: #696b73; }
+  .json-highlight .json-token-null { color: #0000ff; }
+  .json-highlight .json-token-punct { color: #000000; }
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-appearance="light"]) .json-highlight .json-token-key { color: #6cb6ff; }
-  :root:not([data-appearance="light"]) .json-highlight .json-token-string { color: #7ee787; }
-  :root:not([data-appearance="light"]) .json-highlight .json-token-number { color: #e3b341; }
+  :root:not([data-appearance="light"]) .json-highlight .json-token-key { color: #e5c07b; }
+  :root:not([data-appearance="light"]) .json-highlight .json-token-string { color: #ce9178; }
+  :root:not([data-appearance="light"]) .json-highlight .json-token-number { color: #b5cea8; }
   :root:not([data-appearance="light"]) .json-highlight .json-token-bool,
-  :root:not([data-appearance="light"]) .json-highlight .json-token-null { color: #d2a8ff; }
-  :root:not([data-appearance="light"]) .json-highlight .json-token-punct { color: #a2a2a8; }
+  :root:not([data-appearance="light"]) .json-highlight .json-token-null { color: #569cd6; }
+  :root:not([data-appearance="light"]) .json-highlight .json-token-punct { color: #d4d4d4; }
 }
 
-:root[data-appearance="dark"] .json-highlight .json-token-key { color: #6cb6ff; }
-:root[data-appearance="dark"] .json-highlight .json-token-string { color: #7ee787; }
-:root[data-appearance="dark"] .json-highlight .json-token-number { color: #e3b341; }
+:root[data-appearance="dark"] .json-highlight .json-token-key { color: #e5c07b; }
+:root[data-appearance="dark"] .json-highlight .json-token-string { color: #ce9178; }
+:root[data-appearance="dark"] .json-highlight .json-token-number { color: #b5cea8; }
 :root[data-appearance="dark"] .json-highlight .json-token-bool,
-:root[data-appearance="dark"] .json-highlight .json-token-null { color: #d2a8ff; }
-:root[data-appearance="dark"] .json-highlight .json-token-punct { color: #a2a2a8; }
+:root[data-appearance="dark"] .json-highlight .json-token-null { color: #569cd6; }
+:root[data-appearance="dark"] .json-highlight .json-token-punct { color: #d4d4d4; }
 
-:root[data-appearance="light"] .json-highlight .json-token-key { color: #087fff; }
-:root[data-appearance="light"] .json-highlight .json-token-string { color: #1a7f37; }
-:root[data-appearance="light"] .json-highlight .json-token-number { color: #9a6700; }
+:root[data-appearance="light"] .json-highlight .json-token-key { color: #a16207; }
+:root[data-appearance="light"] .json-highlight .json-token-string { color: #a31515; }
+:root[data-appearance="light"] .json-highlight .json-token-number { color: #098658; }
 :root[data-appearance="light"] .json-highlight .json-token-bool,
-:root[data-appearance="light"] .json-highlight .json-token-null { color: #8250df; }
-:root[data-appearance="light"] .json-highlight .json-token-punct { color: #696b73; }
+:root[data-appearance="light"] .json-highlight .json-token-null { color: #0000ff; }
+:root[data-appearance="light"] .json-highlight .json-token-punct { color: #000000; }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-appearance="light"]) .json-code-editor .json-cm-key {
+    color: #e5c07b;
+  }
+}
+
+:root[data-appearance="dark"] .json-code-editor .json-cm-key {
+  color: #e5c07b;
+}
+
+:root[data-appearance="light"] .json-code-editor .json-cm-key {
+  color: #a16207;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-appearance="light"]) .json-workspace,
+  :root:not([data-appearance="light"]) .json-workspace .json-code-editor {
+    --machkit-field: #1e1e1e;
+    --input: #1e1e1e;
+    background: #1e1e1e;
+  }
+
+  :root:not([data-appearance="light"]) .json-code-editor .cm-editor,
+  :root:not([data-appearance="light"]) .json-code-editor .cm-gutters {
+    background: #1e1e1e !important;
+    background-color: #1e1e1e !important;
+  }
+}
+
+:root[data-appearance="dark"] .json-workspace,
+:root[data-appearance="dark"] .json-workspace .json-code-editor {
+  --machkit-field: #1e1e1e;
+  --input: #1e1e1e;
+  background: #1e1e1e;
+}
+
+:root[data-appearance="dark"] .json-code-editor .cm-editor,
+:root[data-appearance="dark"] .json-code-editor .cm-gutters {
+  background: #1e1e1e !important;
+  background-color: #1e1e1e !important;
+}
 
 /* Dark theme — system preference when appearance is unset */
 @media (prefers-color-scheme: dark) {

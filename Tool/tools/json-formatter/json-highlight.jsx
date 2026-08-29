@@ -1,4 +1,5 @@
 import React from "react";
+import { resolvePreviewValue } from "./json.js";
 
 const HIGHLIGHT_CHAR_BUDGET = 80_000;
 
@@ -75,18 +76,19 @@ function renderValue(value, depth) {
 }
 
 export function JsonHighlight({ value, className = "" }) {
+  const preview = resolvePreviewValue(value);
   let plain = null;
   try {
-    plain = typeof value === "string" ? value : JSON.stringify(value, null, 2);
+    plain = typeof preview === "string" ? preview : JSON.stringify(preview, null, 2);
   } catch {
-    plain = String(value);
+    plain = String(preview);
   }
 
   const usePlain = !plain || plain.length > HIGHLIGHT_CHAR_BUDGET;
 
   return (
     <pre className={`json-highlight h-full min-h-0 min-w-0 flex-1 overflow-auto font-mono text-[12px] leading-relaxed break-all whitespace-pre-wrap ${className}`.trim()}>
-      {usePlain ? plain : renderValue(value, 0)}
+      {usePlain ? plain : renderValue(preview, 0)}
     </pre>
   );
 }

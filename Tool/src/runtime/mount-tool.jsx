@@ -40,6 +40,17 @@ const appearanceOptions = [
 ];
 
 const DOCK_LAYOUT_KEY = "machkit:dev-dock-layout";
+const reactRoots = new WeakMap();
+
+function renderInto(container, node) {
+  let root = reactRoots.get(container);
+  if (!root) {
+    root = createRoot(container);
+    reactRoots.set(container, root);
+  }
+  root.render(node);
+  return root;
+}
 
 function homeHref() {
   const marker = "/tools/";
@@ -249,7 +260,7 @@ function mountDevPreferencesDock() {
     host.id = hostID;
     document.body.append(host);
   }
-  createRoot(host).render(<DevPreferencesDock />);
+  renderInto(host, <DevPreferencesDock />);
 }
 
 export function mountTool(element, { name = "tool", strict = true } = {}) {
@@ -262,6 +273,6 @@ export function mountTool(element, { name = "tool", strict = true } = {}) {
   });
 
   const content = <ToolErrorBoundary name={name}>{element}</ToolErrorBoundary>;
-  createRoot(rootElement).render(strict ? <React.StrictMode>{content}</React.StrictMode> : content);
+  renderInto(rootElement, strict ? <React.StrictMode>{content}</React.StrictMode> : content);
   mountDevPreferencesDock();
 }

@@ -122,7 +122,7 @@ enum DeveloperToolRegistry {
             keywords: ["json", "format", "minify", "path", "jsonpath", "格式化", "压缩", "路径"],
             icon: "curlybraces",
             widthClass: .wide,
-            capabilities: [.clipboard],
+            capabilities: [.clipboard, .storage],
             presentation: .bundledWeb(entryFile: "WebTools/tools/json-formatter/index.html")
         ),
         DeveloperTool(

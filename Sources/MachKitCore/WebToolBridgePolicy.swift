@@ -4,7 +4,8 @@ import Foundation
 /// Keep AppKit / WebKit out of this type so behavior stays unit-testable.
 public enum WebToolBridgePolicy: Sendable {
     public static let maxClipboardUTF8Bytes = 5_000_000
-    public static let maxStorageUTF8Bytes = 8_192
+    /// Tool prefs and paste history (e.g. JSON formatter keeps recent pastes).
+    public static let maxStorageUTF8Bytes = 2_097_152
     public static let maxSaveFileBytes = 100 * 1_024 * 1_024
     public static let developmentServerHost = "127.0.0.1"
     public static let developmentServerPort = 4174
