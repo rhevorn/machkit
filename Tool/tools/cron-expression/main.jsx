@@ -5,14 +5,13 @@ import {
   Button,
   ExampleChips,
   Input,
-  ResultPanel,
-  SplitWorkspace,
   StatusStrip,
   ToolContent,
   ToolInfoButton,
   ToolPage,
   ToolToolbar,
 } from "@/ui/index.js";
+import { cn } from "@/lib/utils.js";
 import { useToolMessages } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
 import { mountTool } from "@/runtime/mount-tool.jsx";
@@ -35,25 +34,32 @@ function formatRun(date) {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
+function formatFieldValues(values) {
+  if (!values?.length) return "—";
+  if (values.length > 14) return `${values.slice(0, 14).join(",")}…`;
+  return values.join(",");
+}
+
 function CronTool() {
   const text = useToolMessages(messages);
   const [expression, setExpression] = useState("0 9 * * 1-5");
 
-  const result = useMemo(() => nextCronRuns(expression, { count: 8 }), [expression]);
+  const result = useMemo(() => nextCronRuns(expression, { count: 100 }), [expression]);
+  const tokens = result.ok ? result.expression.split(" ") : [];
 
   const status = !expression.trim()
-    ? { tone: "neutral", label: text.empty }
+    ? null
     : !result.ok
       ? {
           tone: "danger",
           label: result.error === "field-count" ? text.fieldCount : text.invalid,
         }
-      : { tone: "info", label: expression.trim() };
+      : null;
 
   return (
-    <ToolPage title={text.title}>
-      <ToolContent className="flex flex-col gap-3 pt-3 pb-4">
-        <ToolToolbar className="gap-2">
+    <ToolPage title={text.title} adaptiveHeight={false}>
+      <ToolContent className="flex h-full min-h-0 flex-1 flex-col gap-3 overflow-hidden pt-3 pb-4">
+        <ToolToolbar className="min-h-[var(--machkit-size-control)] shrink-0 gap-2 border-b-0">
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <label htmlFor="cron-expression" className="machkit-control-label whitespace-nowrap">
               {text.expression}
@@ -81,11 +87,12 @@ function CronTool() {
               <Eraser size={15} />
               {text.clear}
             </Button>
-            <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
+            <ToolInfoButton info={text.info} className="size-[var(--machkit-size-control)] shrink-0" />
           </ActionGroup>
         </ToolToolbar>
 
         <ExampleChips
+          className="shrink-0"
           label={text.presets}
           options={cronPresets.map((preset) => ({
             id: preset.id,
@@ -95,46 +102,60 @@ function CronTool() {
           onSelect={setExpression}
         />
 
-        <StatusStrip tone={status.tone}>{status.label}</StatusStrip>
+        {status ? <StatusStrip tone={status.tone}>{status.label}</StatusStrip> : null}
 
-        <SplitWorkspace>
-          <div className="flex flex-col gap-1.5">
-            <span className="machkit-control-label">{text.fields}</span>
-            <ResultPanel>
-              {result.ok ? FIELD_KEYS.map((key) => (
-                <div key={key} className="flex items-baseline justify-between gap-3 border-b border-border px-3 py-2 last:border-b-0">
-                  <span className="text-[12px] text-secondary">{text[key]}</span>
-                  <span className="min-w-0 truncate font-mono text-[12px]">
-                    {result.fields[key].length > 12
-                      ? `${result.fields[key].slice(0, 12).join(",")}…`
-                      : result.fields[key].join(",")}
-                  </span>
-                </div>
-              )) : (
-                <p className="px-3 py-8 text-center text-xs text-tertiary">{text.empty}</p>
-              )}
-            </ResultPanel>
-          </div>
+        {result.ok ? (
+          <div className="grid min-h-0 flex-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+            <section className="flex min-h-0 flex-col gap-2">
+              <div className="machkit-sidebar-label shrink-0">{text.fields}</div>
+              <div className="min-h-0 flex-1 overflow-auto">
+                {FIELD_KEYS.map((key, index) => (
+                  <div
+                    key={key}
+                    className={cn(
+                      "flex items-start gap-3 border-b border-border/70 py-2.5 last:border-b-0",
+                    )}
+                  >
+                    <span className="w-[4.5rem] shrink-0 pt-0.5 text-[12px] text-secondary">
+                      {text[key]}
+                    </span>
+                    <span className="w-16 shrink-0 truncate font-mono text-[13px] font-semibold tracking-tight text-accent">
+                      {tokens[index] ?? "—"}
+                    </span>
+                    <span className="min-w-0 flex-1 break-all font-mono text-[11px] leading-relaxed text-tertiary">
+                      {formatFieldValues(result.fields[key])}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </section>
 
-          <div className="flex flex-col gap-1.5">
-            <span className="machkit-control-label">{text.nextRuns}</span>
-            <ResultPanel className="max-h-[260px] overflow-auto">
-              {result.ok && result.runs.length ? (
-                <ul className="divide-y divide-border">
-                  {result.runs.map((run) => (
-                    <li key={run.toISOString()} className="px-3 py-2 font-mono text-[12px]">
-                      {formatRun(run)}
+            <section className="flex min-h-0 flex-col gap-2 border-l border-border/70 pl-6 max-lg:border-l-0 max-lg:pl-0 max-lg:border-t max-lg:pt-4">
+              <div className="machkit-sidebar-label shrink-0">{text.nextRuns}</div>
+              {result.runs.length ? (
+                <ol className="min-h-0 flex-1 space-y-0.5 overflow-auto">
+                  {result.runs.map((run, index) => (
+                    <li
+                      key={run.toISOString()}
+                      className="flex items-baseline gap-3 rounded-control px-1.5 py-1.5 font-mono text-[12.5px] tabular-nums hover:bg-muted/70"
+                    >
+                      <span className="w-5 shrink-0 text-right text-[11px] text-tertiary">
+                        {index + 1}
+                      </span>
+                      <span className="text-foreground">{formatRun(run)}</span>
                     </li>
                   ))}
-                </ul>
+                </ol>
               ) : (
-                <p className="px-3 py-8 text-center text-xs text-tertiary">
-                  {result.ok ? text.noRuns : text.empty}
-                </p>
+                <p className="py-4 text-xs text-tertiary">{text.noRuns}</p>
               )}
-            </ResultPanel>
+            </section>
           </div>
-        </SplitWorkspace>
+        ) : !status ? (
+          <p className="grid flex-1 place-items-center text-xs text-tertiary">{text.empty}</p>
+        ) : (
+          <div className="flex-1" />
+        )}
       </ToolContent>
     </ToolPage>
   );

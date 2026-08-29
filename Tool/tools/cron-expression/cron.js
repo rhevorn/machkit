@@ -69,8 +69,9 @@ export function nextCronRuns(expression, { count = 5, from = new Date() } = {}) 
   cursor.setSeconds(0, 0);
   cursor.setMinutes(cursor.getMinutes() + 1);
 
-  // Cap search to ~2 years of minutes.
-  for (let guard = 0; guard < 60 * 24 * 370 * 2 && runs.length < count; guard += 1) {
+  // Cap search far enough for sparse schedules (e.g. monthly × 100).
+  const searchMinutes = Math.max(60 * 24 * 370 * 2, count * 60 * 24 * 40);
+  for (let guard = 0; guard < searchMinutes && runs.length < count; guard += 1) {
     if (matchesDate(parsed.fields, cursor)) runs.push(new Date(cursor.getTime()));
     cursor.setMinutes(cursor.getMinutes() + 1);
   }

@@ -23,7 +23,7 @@ enum WebToolWidthClass: String, Equatable {
     case wide
 
     /// Bump to invalidate remembered frames after sizing policy changes.
-    static let frameEpoch = 11
+    static let frameEpoch = 12
 
     var width: CGFloat {
         switch self {
@@ -206,7 +206,7 @@ enum DeveloperToolRegistry {
                 "定时", "计划任务", "表达式"
             ],
             icon: "calendar.badge.clock",
-            widthClass: .regular,
+            widthClass: .compact,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/cron-expression/index.html")
         ),
