@@ -118,8 +118,8 @@ enum DeveloperToolRegistry {
         DeveloperTool(
             id: "json-formatter",
             title: "JSON Formatter",
-            description: "Format, minify, and query JSON with path expressions",
-            keywords: ["json", "format", "minify", "path", "jsonpath", "格式化", "压缩", "路径"],
+            description: "Format, minify, sort, and inspect JSON values",
+            keywords: ["json", "format", "minify", "sort", "inspect", "value", "格式化", "压缩", "排序", "查看"],
             icon: "curlybraces",
             widthClass: .wide,
             capabilities: [.clipboard, .storage],

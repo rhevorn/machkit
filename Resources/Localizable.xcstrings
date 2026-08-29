@@ -29468,61 +29468,61 @@
         }
       }
     },
-    "Format, minify, and query JSON with path expressions" : {
+    "Format, minify, sort, and inspect JSON values" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "JSON formatieren, komprimieren und per Pfad abfragen"
+            "value" : "JSON-Werte formatieren, komprimieren, sortieren und prüfen"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Formatea, minimiza y consulta JSON con expresiones de ruta"
+            "value" : "Formatea, minimiza, ordena e inspecciona valores JSON"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Formatez, minifiez et interrogez du JSON avec des chemins"
+            "value" : "Formatez, minifiez, triez et inspectez les valeurs JSON"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "JSON の整形・圧縮とパス式による値の検索"
+            "value" : "JSON の整形・圧縮・キー並び替え・値の確認"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "JSON 포맷/압축 및 경로 식으로 값 조회"
+            "value" : "JSON 포맷, 압축, 키 정렬 및 값 검사"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Formate, compacte e consulte JSON com expressões de caminho"
+            "value" : "Formate, compacte, ordene e inspecione valores JSON"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Форматируйте, сжимайте и запрашивайте JSON по путям"
+            "value" : "Форматирование, сжатие, сортировка и просмотр значений JSON"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "格式化、压缩 JSON，并用路径表达式查询"
+            "value" : "格式化、压缩、排序并查看 JSON 值"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "格式化、壓縮 JSON，並用路徑表達式查詢"
+            "value" : "格式化、壓縮、排序並查看 JSON 值"
           }
         }
       }
