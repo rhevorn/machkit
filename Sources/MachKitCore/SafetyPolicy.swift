@@ -32,6 +32,34 @@ public enum SafetyPolicy {
     }
 
     public static func validateForCleaning(item: ScanItem, selectedRoot: URL) throws {
+        switch item.rule.rootScope {
+        case .selectedRoot:
+            break
+        case .systemVolume:
+            let systemCaches = URL(fileURLWithPath: "/Library/Caches", isDirectory: true)
+            guard item.rule.id == "system-caches",
+                  item.rule.cleanupDisposition == .privilegedMoveToTrash,
+                  isDirectChild(item.url, of: systemCaches) else {
+                throw SafetyError.forbiddenLocation(item.url.path)
+            }
+            return
+        case .mountedVolumes:
+            let volumes = URL(fileURLWithPath: "/Volumes", isDirectory: true)
+            guard item.rule.id == "incomplete-time-machine-backups",
+                  item.rule.cleanupDisposition == .privilegedMoveToTrash,
+                  isIncompleteTimeMachineBackup(item.url, under: volumes) else {
+                throw SafetyError.forbiddenLocation(item.url.path)
+            }
+            return
+        case .virtual:
+            guard item.rule.id == "time-machine-local-snapshots",
+                  item.rule.cleanupDisposition == .deleteTimeMachineSnapshot,
+                  TimeMachineSnapshotParser.isValidDeletionIdentifier(item.url.lastPathComponent) else {
+                throw SafetyError.forbiddenLocation(item.url.path)
+            }
+            return
+        }
+
         let canonicalRoot = selectedRoot.standardizedFileURL.resolvingSymlinksInPath()
         let canonicalItem = item.url.standardizedFileURL.resolvingSymlinksInPath()
         let prefix = canonicalRoot.path.hasSuffix("/") ? canonicalRoot.path : canonicalRoot.path + "/"
@@ -60,6 +88,25 @@ public enum SafetyPolicy {
         let canonicalDirectory = canonicalized(directory)
         let canonicalCandidate = canonicalized(candidate)
         return canonicalCandidate.deletingLastPathComponent() == canonicalDirectory
+    }
+
+    /// Accepts only `/Volumes/<volume>/Backups.backupdb/.../*.inProgress`.
+    /// A nested lookalike directory elsewhere on a mounted volume is rejected.
+    static func isIncompleteTimeMachineBackup(
+        _ candidate: URL,
+        under volumesRoot: URL = URL(fileURLWithPath: "/Volumes", isDirectory: true)
+    ) -> Bool {
+        let canonicalVolumes = canonicalized(volumesRoot)
+        let canonicalCandidate = canonicalized(candidate)
+        let prefix = canonicalVolumes.path.hasSuffix("/")
+            ? canonicalVolumes.path
+            : canonicalVolumes.path + "/"
+        guard canonicalCandidate.path.hasPrefix(prefix) else { return false }
+        let relative = String(canonicalCandidate.path.dropFirst(prefix.count))
+        let components = relative.split(separator: "/").map(String.init)
+        return components.count >= 3
+            && components[1] == "Backups.backupdb"
+            && components.last?.hasSuffix(".inProgress") == true
     }
 
     /// `resolvingSymlinksInPath` stops at a missing leaf. Resolve the nearest

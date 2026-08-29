@@ -8,9 +8,6 @@ public actor Cleaner {
     }
 
     public func moveToTrash(items: [ScanItem], selectedRoot: URL) -> CleanResult {
-        let trashRoot = selectedRoot
-            .appending(path: ".Trash", directoryHint: .isDirectory)
-            .standardizedFileURL
         var moved: [URL] = []
         var permanentlyDeleted: [URL] = []
         var failures: [CleanFailure] = []
@@ -18,13 +15,36 @@ public actor Cleaner {
         for item in items {
             do {
                 try SafetyPolicy.validateForCleaning(item: item, selectedRoot: selectedRoot)
-                if SafetyPolicy.contains(item.url, in: trashRoot) {
+                switch item.rule.cleanupDisposition {
+                case .permanentlyDelete:
                     try fileManager.removeItem(at: item.url)
                     permanentlyDeleted.append(item.url)
-                } else {
+                case .moveToTrash:
                     var destination: NSURL?
                     try fileManager.trashItem(at: item.url, resultingItemURL: &destination)
                     moved.append(item.url)
+                case .privilegedMoveToTrash:
+                    let domain: PrivilegedCommandRunner.ProtectedCleanupDomain
+                    switch item.rule.id {
+                    case "system-caches":
+                        domain = .systemCache
+                    case "incomplete-time-machine-backups":
+                        domain = .incompleteTimeMachineBackup
+                    default:
+                        throw PrivilegedCommandError.invalidRequest
+                    }
+                    _ = try PrivilegedCommandRunner.moveProtectedCleanupItemToTrash(
+                        item.url,
+                        domain: domain,
+                        home: fileManager.homeDirectoryForCurrentUser,
+                        fileManager: fileManager
+                    )
+                    moved.append(item.url)
+                case .deleteTimeMachineSnapshot:
+                    try PrivilegedCommandRunner.deleteTimeMachineLocalSnapshot(
+                        identifier: item.url.lastPathComponent
+                    )
+                    permanentlyDeleted.append(item.url)
                 }
             } catch {
                 failures.append(CleanFailure(url: item.url, reason: error.localizedDescription))

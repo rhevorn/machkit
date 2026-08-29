@@ -1,6 +1,3623 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "%lld safe": {"extractionState":"manual","localizations":{"de":{"stringUnit":{"state":"translated","value":"%lld sicher"}},"es":{"stringUnit":{"state":"translated","value":"%lld seguros"}},"fr":{"stringUnit":{"state":"translated","value":"%lld sûrs"}},"ja":{"stringUnit":{"state":"translated","value":"安全 %lld 件"}},"ko":{"stringUnit":{"state":"translated","value":"안전 %lld개"}},"pt-BR":{"stringUnit":{"state":"translated","value":"%lld seguros"}},"ru":{"stringUnit":{"state":"translated","value":"%lld безопасных"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"%lld 项安全"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"%lld 項安全"}}}},
+    "Developer cleanup": {"extractionState":"manual","localizations":{"de":{"stringUnit":{"state":"translated","value":"Developer cleanup"}},"es":{"stringUnit":{"state":"translated","value":"Developer cleanup"}},"fr":{"stringUnit":{"state":"translated","value":"Developer cleanup"}},"ja":{"stringUnit":{"state":"translated","value":"Developer cleanup"}},"ko":{"stringUnit":{"state":"translated","value":"Developer cleanup"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Developer cleanup"}},"ru":{"stringUnit":{"state":"translated","value":"Developer cleanup"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"开发者清理"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"開發者清理"}}}},
+    "Homebrew, package managers, Xcode, simulators, and recognized project build output.": {"extractionState":"manual","localizations":{"de":{"stringUnit":{"state":"translated","value":"Homebrew, package managers, Xcode, simulators, and recognized project build output."}},"es":{"stringUnit":{"state":"translated","value":"Homebrew, package managers, Xcode, simulators, and recognized project build output."}},"fr":{"stringUnit":{"state":"translated","value":"Homebrew, package managers, Xcode, simulators, and recognized project build output."}},"ja":{"stringUnit":{"state":"translated","value":"Homebrew, package managers, Xcode, simulators, and recognized project build output."}},"ko":{"stringUnit":{"state":"translated","value":"Homebrew, package managers, Xcode, simulators, and recognized project build output."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Homebrew, package managers, Xcode, simulators, and recognized project build output."}},"ru":{"stringUnit":{"state":"translated","value":"Homebrew, package managers, Xcode, simulators, and recognized project build output."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"Homebrew、包管理器、Xcode、模拟器和已识别项目的构建产物。"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"Homebrew、套件管理器、Xcode、模擬器和已識別專案的建置產物。"}}}},
+    "Logs & diagnostics": {"extractionState":"manual","localizations":{"de":{"stringUnit":{"state":"translated","value":"Logs & diagnostics"}},"es":{"stringUnit":{"state":"translated","value":"Logs & diagnostics"}},"fr":{"stringUnit":{"state":"translated","value":"Logs & diagnostics"}},"ja":{"stringUnit":{"state":"translated","value":"Logs & diagnostics"}},"ko":{"stringUnit":{"state":"translated","value":"Logs & diagnostics"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Logs & diagnostics"}},"ru":{"stringUnit":{"state":"translated","value":"Logs & diagnostics"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"日志与诊断"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"日誌與診斷"}}}},
+    "Downloads & devices": {"extractionState":"manual","localizations":{"de":{"stringUnit":{"state":"translated","value":"Downloads & devices"}},"es":{"stringUnit":{"state":"translated","value":"Downloads & devices"}},"fr":{"stringUnit":{"state":"translated","value":"Downloads & devices"}},"ja":{"stringUnit":{"state":"translated","value":"Downloads & devices"}},"ko":{"stringUnit":{"state":"translated","value":"Downloads & devices"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Downloads & devices"}},"ru":{"stringUnit":{"state":"translated","value":"Downloads & devices"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"下载与设备"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"下載與裝置"}}}},
+    "Old installers, Mail attachments, device backups, and downloaded firmware.": {"extractionState":"manual","localizations":{"de":{"stringUnit":{"state":"translated","value":"Old installers, Mail attachments, device backups, and downloaded firmware."}},"es":{"stringUnit":{"state":"translated","value":"Old installers, Mail attachments, device backups, and downloaded firmware."}},"fr":{"stringUnit":{"state":"translated","value":"Old installers, Mail attachments, device backups, and downloaded firmware."}},"ja":{"stringUnit":{"state":"translated","value":"Old installers, Mail attachments, device backups, and downloaded firmware."}},"ko":{"stringUnit":{"state":"translated","value":"Old installers, Mail attachments, device backups, and downloaded firmware."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Old installers, Mail attachments, device backups, and downloaded firmware."}},"ru":{"stringUnit":{"state":"translated","value":"Old installers, Mail attachments, device backups, and downloaded firmware."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"旧安装包、邮件附件、设备备份和已下载的固件。"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"舊安裝程式、郵件附件、裝置備份和已下載的韌體。"}}}},
+    "App leftovers": {"extractionState":"manual","localizations":{"de":{"stringUnit":{"state":"translated","value":"App leftovers"}},"es":{"stringUnit":{"state":"translated","value":"App leftovers"}},"fr":{"stringUnit":{"state":"translated","value":"App leftovers"}},"ja":{"stringUnit":{"state":"translated","value":"App leftovers"}},"ko":{"stringUnit":{"state":"translated","value":"App leftovers"}},"pt-BR":{"stringUnit":{"state":"translated","value":"App leftovers"}},"ru":{"stringUnit":{"state":"translated","value":"App leftovers"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"应用残留"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"App 殘留"}}}},
+    "System cleanup": {"extractionState":"manual","localizations":{"de":{"stringUnit":{"state":"translated","value":"System cleanup"}},"es":{"stringUnit":{"state":"translated","value":"System cleanup"}},"fr":{"stringUnit":{"state":"translated","value":"System cleanup"}},"ja":{"stringUnit":{"state":"translated","value":"System cleanup"}},"ko":{"stringUnit":{"state":"translated","value":"System cleanup"}},"pt-BR":{"stringUnit":{"state":"translated","value":"System cleanup"}},"ru":{"stringUnit":{"state":"translated","value":"System cleanup"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"系统清理"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"系統清理"}}}},
+    "Administrator-reviewed caches under /Library/Caches.": {"extractionState":"manual","localizations":{"de":{"stringUnit":{"state":"translated","value":"Administrator-reviewed caches under /Library/Caches."}},"es":{"stringUnit":{"state":"translated","value":"Administrator-reviewed caches under /Library/Caches."}},"fr":{"stringUnit":{"state":"translated","value":"Administrator-reviewed caches under /Library/Caches."}},"ja":{"stringUnit":{"state":"translated","value":"Administrator-reviewed caches under /Library/Caches."}},"ko":{"stringUnit":{"state":"translated","value":"Administrator-reviewed caches under /Library/Caches."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Administrator-reviewed caches under /Library/Caches."}},"ru":{"stringUnit":{"state":"translated","value":"Administrator-reviewed caches under /Library/Caches."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"需要管理员复核的 /Library/Caches 缓存。"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"需要管理員複核的 /Library/Caches 快取。"}}}},
+    "Scanning developer cleanup…": {"extractionState":"manual","localizations":{"de":{"stringUnit":{"state":"translated","value":"Scanning developer cleanup…"}},"es":{"stringUnit":{"state":"translated","value":"Scanning developer cleanup…"}},"fr":{"stringUnit":{"state":"translated","value":"Scanning developer cleanup…"}},"ja":{"stringUnit":{"state":"translated","value":"Scanning developer cleanup…"}},"ko":{"stringUnit":{"state":"translated","value":"Scanning developer cleanup…"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Scanning developer cleanup…"}},"ru":{"stringUnit":{"state":"translated","value":"Scanning developer cleanup…"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"正在扫描开发者清理项…"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"正在掃描開發者清理項目…"}}}},
+    "Developer Cleanup": {"extractionState":"manual","localizations":{"de":{"stringUnit":{"state":"translated","value":"Developer Cleanup"}},"es":{"stringUnit":{"state":"translated","value":"Developer Cleanup"}},"fr":{"stringUnit":{"state":"translated","value":"Developer Cleanup"}},"ja":{"stringUnit":{"state":"translated","value":"Developer Cleanup"}},"ko":{"stringUnit":{"state":"translated","value":"Developer Cleanup"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Developer Cleanup"}},"ru":{"stringUnit":{"state":"translated","value":"Developer Cleanup"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"开发者清理"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"開發者清理"}}}},
+    "Homebrew, Xcode, simulators, and project output": {"extractionState":"manual","localizations":{"de":{"stringUnit":{"state":"translated","value":"Homebrew, Xcode, simulators, and project output"}},"es":{"stringUnit":{"state":"translated","value":"Homebrew, Xcode, simulators, and project output"}},"fr":{"stringUnit":{"state":"translated","value":"Homebrew, Xcode, simulators, and project output"}},"ja":{"stringUnit":{"state":"translated","value":"Homebrew, Xcode, simulators, and project output"}},"ko":{"stringUnit":{"state":"translated","value":"Homebrew, Xcode, simulators, and project output"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Homebrew, Xcode, simulators, and project output"}},"ru":{"stringUnit":{"state":"translated","value":"Homebrew, Xcode, simulators, and project output"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"Homebrew、Xcode、模拟器和项目构建产物"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"Homebrew、Xcode、模擬器和專案建置產物"}}}},
+    "Logs & Diagnostics": {"extractionState":"manual","localizations":{"de":{"stringUnit":{"state":"translated","value":"Logs & Diagnostics"}},"es":{"stringUnit":{"state":"translated","value":"Logs & Diagnostics"}},"fr":{"stringUnit":{"state":"translated","value":"Logs & Diagnostics"}},"ja":{"stringUnit":{"state":"translated","value":"Logs & Diagnostics"}},"ko":{"stringUnit":{"state":"translated","value":"Logs & Diagnostics"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Logs & Diagnostics"}},"ru":{"stringUnit":{"state":"translated","value":"Logs & Diagnostics"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"日志与诊断"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"日誌與診斷"}}}},
+    "Downloads & Devices": {"extractionState":"manual","localizations":{"de":{"stringUnit":{"state":"translated","value":"Downloads & Devices"}},"es":{"stringUnit":{"state":"translated","value":"Downloads & Devices"}},"fr":{"stringUnit":{"state":"translated","value":"Downloads & Devices"}},"ja":{"stringUnit":{"state":"translated","value":"Downloads & Devices"}},"ko":{"stringUnit":{"state":"translated","value":"Downloads & Devices"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Downloads & Devices"}},"ru":{"stringUnit":{"state":"translated","value":"Downloads & Devices"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"下载与设备"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"下載與裝置"}}}},
+    "Installers, attachments, backups, and firmware": {"extractionState":"manual","localizations":{"de":{"stringUnit":{"state":"translated","value":"Installers, attachments, backups, and firmware"}},"es":{"stringUnit":{"state":"translated","value":"Installers, attachments, backups, and firmware"}},"fr":{"stringUnit":{"state":"translated","value":"Installers, attachments, backups, and firmware"}},"ja":{"stringUnit":{"state":"translated","value":"Installers, attachments, backups, and firmware"}},"ko":{"stringUnit":{"state":"translated","value":"Installers, attachments, backups, and firmware"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Installers, attachments, backups, and firmware"}},"ru":{"stringUnit":{"state":"translated","value":"Installers, attachments, backups, and firmware"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"安装包、附件、备份和固件"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"安裝程式、附件、備份和韌體"}}}},
+    "App Leftovers": {"extractionState":"manual","localizations":{"de":{"stringUnit":{"state":"translated","value":"App Leftovers"}},"es":{"stringUnit":{"state":"translated","value":"App Leftovers"}},"fr":{"stringUnit":{"state":"translated","value":"App Leftovers"}},"ja":{"stringUnit":{"state":"translated","value":"App Leftovers"}},"ko":{"stringUnit":{"state":"translated","value":"App Leftovers"}},"pt-BR":{"stringUnit":{"state":"translated","value":"App Leftovers"}},"ru":{"stringUnit":{"state":"translated","value":"App Leftovers"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"应用残留"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"App 殘留"}}}},
+    "System Cleanup": {"extractionState":"manual","localizations":{"de":{"stringUnit":{"state":"translated","value":"System Cleanup"}},"es":{"stringUnit":{"state":"translated","value":"System Cleanup"}},"fr":{"stringUnit":{"state":"translated","value":"System Cleanup"}},"ja":{"stringUnit":{"state":"translated","value":"System Cleanup"}},"ko":{"stringUnit":{"state":"translated","value":"System Cleanup"}},"pt-BR":{"stringUnit":{"state":"translated","value":"System Cleanup"}},"ru":{"stringUnit":{"state":"translated","value":"System Cleanup"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"系统清理"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"系統清理"}}}},
+    "Administrator-reviewed system caches": {"extractionState":"manual","localizations":{"de":{"stringUnit":{"state":"translated","value":"Administrator-reviewed system caches"}},"es":{"stringUnit":{"state":"translated","value":"Administrator-reviewed system caches"}},"fr":{"stringUnit":{"state":"translated","value":"Administrator-reviewed system caches"}},"ja":{"stringUnit":{"state":"translated","value":"Administrator-reviewed system caches"}},"ko":{"stringUnit":{"state":"translated","value":"Administrator-reviewed system caches"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Administrator-reviewed system caches"}},"ru":{"stringUnit":{"state":"translated","value":"Administrator-reviewed system caches"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"需要管理员复核的系统缓存"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"需要管理員複核的系統快取"}}}},
+      "Homebrew Caches & Logs": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Homebrew Caches & Logs"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Homebrew Caches & Logs"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Homebrew Caches & Logs"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Homebrew Caches & Logs"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Homebrew Caches & Logs"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Homebrew Caches & Logs"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Homebrew Caches & Logs"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Homebrew 缓存与日志"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Homebrew 快取与記錄"
+            }
+          }
+        }
+      },
+      "Downloaded bottles, source archives, and old Homebrew logs. Installed formulae, casks, taps, and configuration are preserved.": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Downloaded bottles, source archives, and old Homebrew logs. Installed formulae, casks, taps, and configuration are preserved."
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Downloaded bottles, source archives, and old Homebrew logs. Installed formulae, casks, taps, and configuration are preserved."
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Downloaded bottles, source archives, and old Homebrew logs. Installed formulae, casks, taps, and configuration are preserved."
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Downloaded bottles, source archives, and old Homebrew logs. Installed formulae, casks, taps, and configuration are preserved."
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Downloaded bottles, source archives, and old Homebrew logs. Installed formulae, casks, taps, and configuration are preserved."
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Downloaded bottles, source archives, and old Homebrew logs. Installed formulae, casks, taps, and configuration are preserved."
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Downloaded bottles, source archives, and old Homebrew logs. Installed formulae, casks, taps, and configuration are preserved."
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "已下载的预编译包、源码归档和旧 Homebrew 日志。已安装的 formula、cask、tap 和配置会被保留。"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "已下載的预編譯包、原始碼封存和旧 Homebrew 記錄。已安裝的 formula、cask、tap 和設定会被保留。"
+            }
+          }
+        }
+      },
+      "Browser Support Caches": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Browser Support Caches"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Browser Support Caches"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Browser Support Caches"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Browser Support Caches"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Browser Support Caches"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Browser Support Caches"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Browser Support Caches"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "浏览器支持缓存"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "瀏覽器支援快取"
+            }
+          }
+        }
+      },
+      "Regenerable Chromium-family caches stored inside Application Support. Profiles, cookies, passwords, history, extensions, and bookmarks are preserved.": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Regenerable Chromium-family caches stored inside Application Support. Profiles, cookies, passwords, history, extensions, and bookmarks are preserved."
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Regenerable Chromium-family caches stored inside Application Support. Profiles, cookies, passwords, history, extensions, and bookmarks are preserved."
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Regenerable Chromium-family caches stored inside Application Support. Profiles, cookies, passwords, history, extensions, and bookmarks are preserved."
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Regenerable Chromium-family caches stored inside Application Support. Profiles, cookies, passwords, history, extensions, and bookmarks are preserved."
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Regenerable Chromium-family caches stored inside Application Support. Profiles, cookies, passwords, history, extensions, and bookmarks are preserved."
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Regenerable Chromium-family caches stored inside Application Support. Profiles, cookies, passwords, history, extensions, and bookmarks are preserved."
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Regenerable Chromium-family caches stored inside Application Support. Profiles, cookies, passwords, history, extensions, and bookmarks are preserved."
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Application Support 内可重新生成的 Chromium 系浏览器缓存。用户资料、Cookie、密码、历史记录、扩展和书签会被保留。"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Application Support 内可重新產生的 Chromium 系瀏覽器快取。使用者資料、Cookie、密碼、歷史記錄、擴充功能和書籤会被保留。"
+            }
+          }
+        }
+      },
+      "Editor Caches": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Editor Caches"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Editor Caches"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Editor Caches"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Editor Caches"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Editor Caches"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Editor Caches"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Editor Caches"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "编辑器缓存"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "編輯器快取"
+            }
+          }
+        }
+      },
+      "Regenerable editor UI, extension download, shader, and webview caches. Settings, projects, extensions, and workspace state are preserved.": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Regenerable editor UI, extension download, shader, and webview caches. Settings, projects, extensions, and workspace state are preserved."
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Regenerable editor UI, extension download, shader, and webview caches. Settings, projects, extensions, and workspace state are preserved."
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Regenerable editor UI, extension download, shader, and webview caches. Settings, projects, extensions, and workspace state are preserved."
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Regenerable editor UI, extension download, shader, and webview caches. Settings, projects, extensions, and workspace state are preserved."
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Regenerable editor UI, extension download, shader, and webview caches. Settings, projects, extensions, and workspace state are preserved."
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Regenerable editor UI, extension download, shader, and webview caches. Settings, projects, extensions, and workspace state are preserved."
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Regenerable editor UI, extension download, shader, and webview caches. Settings, projects, extensions, and workspace state are preserved."
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "可重新生成的编辑器界面、扩展下载、着色器和 WebView 缓存。设置、项目、扩展和工作区状态会被保留。"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "可重新產生的編輯器介面、擴充功能下載、著色器和 WebView 快取。設定、專案、擴充功能和工作区状态会被保留。"
+            }
+          }
+        }
+      },
+      "Communication App Caches": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Communication App Caches"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Communication App Caches"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Communication App Caches"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Communication App Caches"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Communication App Caches"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Communication App Caches"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Communication App Caches"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "通讯 App 缓存"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "通訊 App 快取"
+            }
+          }
+        }
+      },
+      "Regenerable desktop communication app caches. Accounts, messages, downloaded files, local databases, cookies, and sessions are preserved.": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Regenerable desktop communication app caches. Accounts, messages, downloaded files, local databases, cookies, and sessions are preserved."
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Regenerable desktop communication app caches. Accounts, messages, downloaded files, local databases, cookies, and sessions are preserved."
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Regenerable desktop communication app caches. Accounts, messages, downloaded files, local databases, cookies, and sessions are preserved."
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Regenerable desktop communication app caches. Accounts, messages, downloaded files, local databases, cookies, and sessions are preserved."
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Regenerable desktop communication app caches. Accounts, messages, downloaded files, local databases, cookies, and sessions are preserved."
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Regenerable desktop communication app caches. Accounts, messages, downloaded files, local databases, cookies, and sessions are preserved."
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Regenerable desktop communication app caches. Accounts, messages, downloaded files, local databases, cookies, and sessions are preserved."
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "可重新生成的桌面通讯 App 缓存。账号、消息、下载文件、本地数据库、Cookie 和会话会被保留。"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "可重新產生的桌面通訊 App 快取。帳號、訊息、下載檔案、本地資料庫、Cookie 和工作階段会被保留。"
+            }
+          }
+        }
+      },
+      "Application Support Logs": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Application Support Logs"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Application Support Logs"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Application Support Logs"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Application Support Logs"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Application Support Logs"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Application Support Logs"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Application Support Logs"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Application Support 日志"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Application Support 記錄"
+            }
+          }
+        }
+      },
+      "Old log directories embedded in Application Support. Review before cleaning because recent diagnostics may still be useful for troubleshooting.": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Old log directories embedded in Application Support. Review before cleaning because recent diagnostics may still be useful for troubleshooting."
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Old log directories embedded in Application Support. Review before cleaning because recent diagnostics may still be useful for troubleshooting."
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Old log directories embedded in Application Support. Review before cleaning because recent diagnostics may still be useful for troubleshooting."
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Old log directories embedded in Application Support. Review before cleaning because recent diagnostics may still be useful for troubleshooting."
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Old log directories embedded in Application Support. Review before cleaning because recent diagnostics may still be useful for troubleshooting."
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Old log directories embedded in Application Support. Review before cleaning because recent diagnostics may still be useful for troubleshooting."
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Old log directories embedded in Application Support. Review before cleaning because recent diagnostics may still be useful for troubleshooting."
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Application Support 内的旧日志目录。清理前请复核，因为近期诊断信息可能仍可用于排查问题。"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Application Support 内的旧記錄目錄。清理前请檢查，因为近期診斷資訊可能仍可用于疑難排解问题。"
+            }
+          }
+        }
+      },
+      "Device Firmware Downloads": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Device Firmware Downloads"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Device Firmware Downloads"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Device Firmware Downloads"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Device Firmware Downloads"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Device Firmware Downloads"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Device Firmware Downloads"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Device Firmware Downloads"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "设备固件下载"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "裝置韌體下載"
+            }
+          }
+        }
+      },
+      "Previously downloaded Apple device firmware packages. Devices may need to download the firmware again for a future restore or update.": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Previously downloaded Apple device firmware packages. Devices may need to download the firmware again for a future restore or update."
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Previously downloaded Apple device firmware packages. Devices may need to download the firmware again for a future restore or update."
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Previously downloaded Apple device firmware packages. Devices may need to download the firmware again for a future restore or update."
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Previously downloaded Apple device firmware packages. Devices may need to download the firmware again for a future restore or update."
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Previously downloaded Apple device firmware packages. Devices may need to download the firmware again for a future restore or update."
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Previously downloaded Apple device firmware packages. Devices may need to download the firmware again for a future restore or update."
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Previously downloaded Apple device firmware packages. Devices may need to download the firmware again for a future restore or update."
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "之前下载的 Apple 设备固件包。设备今后恢复或更新时可能需要重新下载固件。"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "先前下載的 Apple 裝置韌體包。裝置今后還原或更新时可能需要重新下載韌體。"
+            }
+          }
+        }
+      },
+      "Project Build Artifacts": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Project Build Artifacts"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Project Build Artifacts"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Project Build Artifacts"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Project Build Artifacts"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Project Build Artifacts"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Project Build Artifacts"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Project Build Artifacts"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "项目构建产物"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "專案建置產物"
+            }
+          }
+        }
+      },
+      "Rebuildable dependency and compiler output inside recognized projects. Source files are never selected; the next install or build may take longer.": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Rebuildable dependency and compiler output inside recognized projects. Source files are never selected; the next install or build may take longer."
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Rebuildable dependency and compiler output inside recognized projects. Source files are never selected; the next install or build may take longer."
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Rebuildable dependency and compiler output inside recognized projects. Source files are never selected; the next install or build may take longer."
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Rebuildable dependency and compiler output inside recognized projects. Source files are never selected; the next install or build may take longer."
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Rebuildable dependency and compiler output inside recognized projects. Source files are never selected; the next install or build may take longer."
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Rebuildable dependency and compiler output inside recognized projects. Source files are never selected; the next install or build may take longer."
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Rebuildable dependency and compiler output inside recognized projects. Source files are never selected; the next install or build may take longer."
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "已识别项目内可重新生成的依赖和编译输出。源码永远不会被选中；下次安装依赖或构建可能更久。"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "已识别專案内可重新產生的相依項目和編譯輸出。原始碼永远不会被選取；下次安裝相依項目或建置可能更久。"
+            }
+          }
+        }
+      },
+      "System-level Caches": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "System-level Caches"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "System-level Caches"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "System-level Caches"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "System-level Caches"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "System-level Caches"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "System-level Caches"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "System-level Caches"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "系统级缓存"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "系统级快取"
+            }
+          }
+        }
+      },
+      "Optional caches under /Library/Caches. Cleaning requires administrator approval and may make apps or services rebuild data on next use.": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Optional caches under /Library/Caches. Cleaning requires administrator approval and may make apps or services rebuild data on next use."
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Optional caches under /Library/Caches. Cleaning requires administrator approval and may make apps or services rebuild data on next use."
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Optional caches under /Library/Caches. Cleaning requires administrator approval and may make apps or services rebuild data on next use."
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Optional caches under /Library/Caches. Cleaning requires administrator approval and may make apps or services rebuild data on next use."
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Optional caches under /Library/Caches. Cleaning requires administrator approval and may make apps or services rebuild data on next use."
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Optional caches under /Library/Caches. Cleaning requires administrator approval and may make apps or services rebuild data on next use."
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Optional caches under /Library/Caches. Cleaning requires administrator approval and may make apps or services rebuild data on next use."
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "/Library/Caches 下的可选缓存。清理需要管理员批准，App 或服务下次使用时可能会重新生成数据。"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "/Library/Caches 下的可选快取。清理需要管理員核准，App 或服務下次使用时可能会重新產生数据。"
+            }
+          }
+        }
+      },
+      "Incomplete Time Machine Backups": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Incomplete Time Machine Backups"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Incomplete Time Machine Backups"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Incomplete Time Machine Backups"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Incomplete Time Machine Backups"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Incomplete Time Machine Backups"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Incomplete Time Machine Backups"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Incomplete Time Machine Backups"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "未完成的 Time Machine 备份"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "未完成的 Time Machine 備份"
+            }
+          }
+        }
+      },
+      "Failed Time Machine backup directories ending in .inProgress on mounted backup volumes. Confirm the backup is not currently running before removal.": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Failed Time Machine backup directories ending in .inProgress on mounted backup volumes. Confirm the backup is not currently running before removal."
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Failed Time Machine backup directories ending in .inProgress on mounted backup volumes. Confirm the backup is not currently running before removal."
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Failed Time Machine backup directories ending in .inProgress on mounted backup volumes. Confirm the backup is not currently running before removal."
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Failed Time Machine backup directories ending in .inProgress on mounted backup volumes. Confirm the backup is not currently running before removal."
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Failed Time Machine backup directories ending in .inProgress on mounted backup volumes. Confirm the backup is not currently running before removal."
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Failed Time Machine backup directories ending in .inProgress on mounted backup volumes. Confirm the backup is not currently running before removal."
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Failed Time Machine backup directories ending in .inProgress on mounted backup volumes. Confirm the backup is not currently running before removal."
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "已挂载备份卷中以 .inProgress 结尾的失败 Time Machine 备份目录。移除前请确认当前没有正在运行的备份。"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "已掛載備份卷中以 .inProgress 结尾的失敗 Time Machine 備份目錄。移除前请确认当前没有正在运行的備份。"
+            }
+          }
+        }
+      },
+      "Time Machine Local Snapshots": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Time Machine Local Snapshots"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Time Machine Local Snapshots"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Time Machine Local Snapshots"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Time Machine Local Snapshots"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Time Machine Local Snapshots"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Time Machine Local Snapshots"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Time Machine Local Snapshots"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Time Machine 本地快照"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Time Machine 本地快照"
+            }
+          }
+        }
+      },
+      "Local APFS snapshots reported by Time Machine. Deletion is permanent, requires administrator approval, and macOS may create new snapshots later.": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local APFS snapshots reported by Time Machine. Deletion is permanent, requires administrator approval, and macOS may create new snapshots later."
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local APFS snapshots reported by Time Machine. Deletion is permanent, requires administrator approval, and macOS may create new snapshots later."
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local APFS snapshots reported by Time Machine. Deletion is permanent, requires administrator approval, and macOS may create new snapshots later."
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local APFS snapshots reported by Time Machine. Deletion is permanent, requires administrator approval, and macOS may create new snapshots later."
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local APFS snapshots reported by Time Machine. Deletion is permanent, requires administrator approval, and macOS may create new snapshots later."
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local APFS snapshots reported by Time Machine. Deletion is permanent, requires administrator approval, and macOS may create new snapshots later."
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local APFS snapshots reported by Time Machine. Deletion is permanent, requires administrator approval, and macOS may create new snapshots later."
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Time Machine 报告的本地 APFS 快照。删除不可恢复，需要管理员批准，macOS 之后可能会创建新快照。"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Time Machine 报告的本地 APFS 快照。刪除不可還原，需要管理員核准，macOS 之后可能会建立新快照。"
+            }
+          }
+        }
+      },
+      "App caches": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "App caches"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "App caches"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "App caches"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "App caches"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "App caches"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "App caches"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "App caches"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "App 缓存"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "App 快取"
+            }
+          }
+        }
+      },
+      "App, browser, editor, communication, temporary, and language modeling caches.": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "App, browser, editor, communication, temporary, and language modeling caches."
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "App, browser, editor, communication, temporary, and language modeling caches."
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "App, browser, editor, communication, temporary, and language modeling caches."
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "App, browser, editor, communication, temporary, and language modeling caches."
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "App, browser, editor, communication, temporary, and language modeling caches."
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "App, browser, editor, communication, temporary, and language modeling caches."
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "App, browser, editor, communication, temporary, and language modeling caches."
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "App、浏览器、编辑器、通讯、临时文件和语言建模缓存。"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "App、瀏覽器、編輯器、通訊、暫存檔案和語言建模快取。"
+            }
+          }
+        }
+      },
+      "Developer caches": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Developer caches"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Developer caches"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Developer caches"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Developer caches"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Developer caches"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Developer caches"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Developer caches"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "开发者缓存"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "開發者快取"
+            }
+          }
+        }
+      },
+      "Homebrew, package-manager, and shared command-line tool caches.": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Homebrew, package-manager, and shared command-line tool caches."
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Homebrew, package-manager, and shared command-line tool caches."
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Homebrew, package-manager, and shared command-line tool caches."
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Homebrew, package-manager, and shared command-line tool caches."
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Homebrew, package-manager, and shared command-line tool caches."
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Homebrew, package-manager, and shared command-line tool caches."
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Homebrew, package-manager, and shared command-line tool caches."
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Homebrew、包管理器和共享命令行工具缓存。"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Homebrew、套件管理器和共享命令行工具快取。"
+            }
+          }
+        }
+      },
+      "Logs": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Logs"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Logs"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Logs"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Logs"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Logs"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Logs"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Logs"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "日志"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "記錄"
+            }
+          }
+        }
+      },
+      "Old user logs and logs embedded inside Application Support.": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Old user logs and logs embedded inside Application Support."
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Old user logs and logs embedded inside Application Support."
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Old user logs and logs embedded inside Application Support."
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Old user logs and logs embedded inside Application Support."
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Old user logs and logs embedded inside Application Support."
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Old user logs and logs embedded inside Application Support."
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Old user logs and logs embedded inside Application Support."
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "旧用户日志和 Application Support 内的日志。"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "旧使用者記錄和 Application Support 内的記錄。"
+            }
+          }
+        }
+      },
+      "Devices": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Devices"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Devices"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Devices"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Devices"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Devices"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Devices"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Devices"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "设备"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "裝置"
+            }
+          }
+        }
+      },
+      "Local iPhone and iPad backups plus old downloaded device firmware.": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local iPhone and iPad backups plus old downloaded device firmware."
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local iPhone and iPad backups plus old downloaded device firmware."
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local iPhone and iPad backups plus old downloaded device firmware."
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local iPhone and iPad backups plus old downloaded device firmware."
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local iPhone and iPad backups plus old downloaded device firmware."
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local iPhone and iPad backups plus old downloaded device firmware."
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local iPhone and iPad backups plus old downloaded device firmware."
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "本地 iPhone、iPad 备份和旧设备固件下载。"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "本地 iPhone、iPad 備份和旧裝置韌體下載。"
+            }
+          }
+        }
+      },
+      "Xcode files": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Xcode files"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Xcode files"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Xcode files"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Xcode files"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Xcode files"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Xcode files"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Xcode files"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Xcode 文件"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Xcode 檔案"
+            }
+          }
+        }
+      },
+      "Xcode build artifacts, simulator caches, and unavailable simulator devices.": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Xcode build artifacts, simulator caches, and unavailable simulator devices."
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Xcode build artifacts, simulator caches, and unavailable simulator devices."
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Xcode build artifacts, simulator caches, and unavailable simulator devices."
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Xcode build artifacts, simulator caches, and unavailable simulator devices."
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Xcode build artifacts, simulator caches, and unavailable simulator devices."
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Xcode build artifacts, simulator caches, and unavailable simulator devices."
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Xcode build artifacts, simulator caches, and unavailable simulator devices."
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Xcode 构建产物、模拟器缓存和不可用的模拟器设备。"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Xcode 建置產物、模擬器快取和不可用的模擬器裝置。"
+            }
+          }
+        }
+      },
+      "Project artifacts": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Project artifacts"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Project artifacts"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Project artifacts"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Project artifacts"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Project artifacts"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Project artifacts"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Project artifacts"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "项目产物"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "專案產物"
+            }
+          }
+        }
+      },
+      "Stale rebuildable dependencies and compiler output inside recognized projects.": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Stale rebuildable dependencies and compiler output inside recognized projects."
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Stale rebuildable dependencies and compiler output inside recognized projects."
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Stale rebuildable dependencies and compiler output inside recognized projects."
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Stale rebuildable dependencies and compiler output inside recognized projects."
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Stale rebuildable dependencies and compiler output inside recognized projects."
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Stale rebuildable dependencies and compiler output inside recognized projects."
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Stale rebuildable dependencies and compiler output inside recognized projects."
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "已识别项目内长期未使用且可重新生成的依赖和编译输出。"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "已识别專案内長期未使用且可重新產生的相依項目和編譯輸出。"
+            }
+          }
+        }
+      },
+      "Time Machine": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Time Machine"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Time Machine"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Time Machine"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Time Machine"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Time Machine"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Time Machine"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Time Machine"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Time Machine"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Time Machine"
+            }
+          }
+        }
+      },
+      "Failed mounted backups and local snapshots; always review before deletion.": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Failed mounted backups and local snapshots; always review before deletion."
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Failed mounted backups and local snapshots; always review before deletion."
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Failed mounted backups and local snapshots; always review before deletion."
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Failed mounted backups and local snapshots; always review before deletion."
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Failed mounted backups and local snapshots; always review before deletion."
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Failed mounted backups and local snapshots; always review before deletion."
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Failed mounted backups and local snapshots; always review before deletion."
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "失败的已挂载备份和本地快照；删除前始终需要复核。"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "失敗的已掛載備份和本地快照；刪除前始终需要檢查。"
+            }
+          }
+        }
+      },
+      "System caches": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "System caches"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "System caches"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "System caches"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "System caches"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "System caches"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "System caches"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "System caches"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "系统缓存"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "系统快取"
+            }
+          }
+        }
+      },
+      "Optional /Library caches that require administrator approval.": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Optional /Library caches that require administrator approval."
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Optional /Library caches that require administrator approval."
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Optional /Library caches that require administrator approval."
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Optional /Library caches that require administrator approval."
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Optional /Library caches that require administrator approval."
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Optional /Library caches that require administrator approval."
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Optional /Library caches that require administrator approval."
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "需要管理员批准的可选 /Library 缓存。"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "需要管理員核准的可选 /Library 快取。"
+            }
+          }
+        }
+      },
+      "App Caches": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "App Caches"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "App Caches"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "App Caches"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "App Caches"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "App Caches"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "App Caches"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "App Caches"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "App 缓存"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "App 快取"
+            }
+          }
+        }
+      },
+      "Browser, editor, and communication caches": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Browser, editor, and communication caches"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Browser, editor, and communication caches"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Browser, editor, and communication caches"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Browser, editor, and communication caches"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Browser, editor, and communication caches"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Browser, editor, and communication caches"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Browser, editor, and communication caches"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "浏览器、编辑器和通讯 App 缓存"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "瀏覽器、編輯器和通訊 App 快取"
+            }
+          }
+        }
+      },
+      "Homebrew and package-manager caches": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Homebrew and package-manager caches"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Homebrew and package-manager caches"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Homebrew and package-manager caches"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Homebrew and package-manager caches"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Homebrew and package-manager caches"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Homebrew and package-manager caches"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Homebrew and package-manager caches"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Homebrew 和包管理器缓存"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Homebrew 和套件管理器快取"
+            }
+          }
+        }
+      },
+      "Old user and Application Support logs": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Old user and Application Support logs"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Old user and Application Support logs"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Old user and Application Support logs"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Old user and Application Support logs"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Old user and Application Support logs"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Old user and Application Support logs"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Old user and Application Support logs"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "旧用户日志和 Application Support 日志"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "旧使用者記錄和 Application Support 記錄"
+            }
+          }
+        }
+      },
+      "Devices & Firmware": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Devices & Firmware"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Devices & Firmware"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Devices & Firmware"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Devices & Firmware"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Devices & Firmware"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Devices & Firmware"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Devices & Firmware"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "设备与固件"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "裝置与韌體"
+            }
+          }
+        }
+      },
+      "Local backups and firmware downloads": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local backups and firmware downloads"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local backups and firmware downloads"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local backups and firmware downloads"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local backups and firmware downloads"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local backups and firmware downloads"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local backups and firmware downloads"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local backups and firmware downloads"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "本地备份和固件下载"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "本地備份和韌體下載"
+            }
+          }
+        }
+      },
+      "Build Artifacts": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Build Artifacts"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Build Artifacts"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Build Artifacts"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Build Artifacts"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Build Artifacts"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Build Artifacts"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Build Artifacts"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "构建产物"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "建置產物"
+            }
+          }
+        }
+      },
+      "Xcode, simulators, and project output": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Xcode, simulators, and project output"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Xcode, simulators, and project output"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Xcode, simulators, and project output"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Xcode, simulators, and project output"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Xcode, simulators, and project output"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Xcode, simulators, and project output"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Xcode, simulators, and project output"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Xcode、模拟器和项目输出"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Xcode、模擬器和專案輸出"
+            }
+          }
+        }
+      },
+      "Failed backups and local snapshots": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Failed backups and local snapshots"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Failed backups and local snapshots"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Failed backups and local snapshots"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Failed backups and local snapshots"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Failed backups and local snapshots"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Failed backups and local snapshots"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Failed backups and local snapshots"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "失败备份和本地快照"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "失敗備份和本地快照"
+            }
+          }
+        }
+      },
+      "Orphaned App Data": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Orphaned App Data"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Orphaned App Data"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Orphaned App Data"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Orphaned App Data"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Orphaned App Data"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Orphaned App Data"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Orphaned App Data"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "孤立 App 数据"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "孤立 App 数据"
+            }
+          }
+        }
+      },
+      "Containers, support files, and LaunchAgents": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Containers, support files, and LaunchAgents"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Containers, support files, and LaunchAgents"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Containers, support files, and LaunchAgents"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Containers, support files, and LaunchAgents"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Containers, support files, and LaunchAgents"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Containers, support files, and LaunchAgents"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Containers, support files, and LaunchAgents"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "容器、支持文件和 LaunchAgents"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "容器、支援檔案和 LaunchAgents"
+            }
+          }
+        }
+      },
+      "Include system-level caches": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Include system-level caches"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Include system-level caches"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Include system-level caches"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Include system-level caches"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Include system-level caches"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Include system-level caches"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Include system-level caches"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "包含系统级缓存"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "包含系统级快取"
+            }
+          }
+        }
+      },
+      "Adds administrator-reviewed items from /Library/Caches. This option is off by default.": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Adds administrator-reviewed items from /Library/Caches. This option is off by default."
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Adds administrator-reviewed items from /Library/Caches. This option is off by default."
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Adds administrator-reviewed items from /Library/Caches. This option is off by default."
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Adds administrator-reviewed items from /Library/Caches. This option is off by default."
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Adds administrator-reviewed items from /Library/Caches. This option is off by default."
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Adds administrator-reviewed items from /Library/Caches. This option is off by default."
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Adds administrator-reviewed items from /Library/Caches. This option is off by default."
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "加入 /Library/Caches 中需要管理员复核的项目。此选项默认关闭。"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "加入 /Library/Caches 中需要管理員檢查的專案。此選項預設关闭。"
+            }
+          }
+        }
+      },
+      "Scanning developer caches…": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Scanning developer caches…"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Scanning developer caches…"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Scanning developer caches…"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Scanning developer caches…"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Scanning developer caches…"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Scanning developer caches…"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Scanning developer caches…"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "正在扫描开发者缓存…"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "正在扫描開發者快取…"
+            }
+          }
+        }
+      },
+      "Checking old logs…": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking old logs…"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking old logs…"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking old logs…"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking old logs…"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking old logs…"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking old logs…"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking old logs…"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "正在检查旧日志…"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "正在检查旧記錄…"
+            }
+          }
+        }
+      },
+      "Checking device backups and firmware…": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking device backups and firmware…"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking device backups and firmware…"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking device backups and firmware…"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking device backups and firmware…"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking device backups and firmware…"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking device backups and firmware…"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking device backups and firmware…"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "正在检查设备备份和固件…"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "正在检查裝置備份和韌體…"
+            }
+          }
+        }
+      },
+      "Scanning Xcode files…": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Scanning Xcode files…"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Scanning Xcode files…"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Scanning Xcode files…"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Scanning Xcode files…"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Scanning Xcode files…"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Scanning Xcode files…"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Scanning Xcode files…"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "正在扫描 Xcode 文件…"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "正在扫描 Xcode 檔案…"
+            }
+          }
+        }
+      },
+      "Looking for project build artifacts…": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Looking for project build artifacts…"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Looking for project build artifacts…"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Looking for project build artifacts…"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Looking for project build artifacts…"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Looking for project build artifacts…"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Looking for project build artifacts…"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Looking for project build artifacts…"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "正在查找项目构建产物…"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "正在查找專案建置產物…"
+            }
+          }
+        }
+      },
+      "Checking Time Machine data…": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking Time Machine data…"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking Time Machine data…"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking Time Machine data…"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking Time Machine data…"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking Time Machine data…"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking Time Machine data…"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking Time Machine data…"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "正在检查 Time Machine 数据…"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "正在检查 Time Machine 数据…"
+            }
+          }
+        }
+      },
+      "Checking system-level caches…": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking system-level caches…"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking system-level caches…"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking system-level caches…"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking system-level caches…"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking system-level caches…"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking system-level caches…"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Checking system-level caches…"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "正在检查系统级缓存…"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "正在检查系统级快取…"
+            }
+          }
+        }
+      },
+      "Permanently delete selected items?": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Permanently delete selected items?"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Permanently delete selected items?"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Permanently delete selected items?"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Permanently delete selected items?"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Permanently delete selected items?"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Permanently delete selected items?"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Permanently delete selected items?"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "永久删除所选项目？"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "永久刪除所选專案？"
+            }
+          }
+        }
+      },
+      "Administrator approval may be requested. Time Machine snapshots are deleted permanently; supported files are moved to Trash.": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Administrator approval may be requested. Time Machine snapshots are deleted permanently; supported files are moved to Trash."
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Administrator approval may be requested. Time Machine snapshots are deleted permanently; supported files are moved to Trash."
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Administrator approval may be requested. Time Machine snapshots are deleted permanently; supported files are moved to Trash."
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Administrator approval may be requested. Time Machine snapshots are deleted permanently; supported files are moved to Trash."
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Administrator approval may be requested. Time Machine snapshots are deleted permanently; supported files are moved to Trash."
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Administrator approval may be requested. Time Machine snapshots are deleted permanently; supported files are moved to Trash."
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Administrator approval may be requested. Time Machine snapshots are deleted permanently; supported files are moved to Trash."
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "可能会请求管理员批准。Time Machine 快照将被永久删除；支持的文件会移到废纸篓。"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "可能会要求管理員核准。Time Machine 快照将被永久刪除；支援的檔案会移到垃圾桶。"
+            }
+          }
+        }
+      },
+      "Local Time Machine snapshot": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local Time Machine snapshot"
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local Time Machine snapshot"
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local Time Machine snapshot"
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local Time Machine snapshot"
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local Time Machine snapshot"
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local Time Machine snapshot"
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Local Time Machine snapshot"
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Time Machine 本地快照"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Time Machine 本地快照"
+            }
+          }
+        }
+      },
+      "MachKit reads file metadata locally. Ordinary files move to Trash; snapshots are permanently deleted only after review.": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "MachKit reads file metadata locally. Ordinary files move to Trash; snapshots are permanently deleted only after review."
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "MachKit reads file metadata locally. Ordinary files move to Trash; snapshots are permanently deleted only after review."
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "MachKit reads file metadata locally. Ordinary files move to Trash; snapshots are permanently deleted only after review."
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "MachKit reads file metadata locally. Ordinary files move to Trash; snapshots are permanently deleted only after review."
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "MachKit reads file metadata locally. Ordinary files move to Trash; snapshots are permanently deleted only after review."
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "MachKit reads file metadata locally. Ordinary files move to Trash; snapshots are permanently deleted only after review."
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "MachKit reads file metadata locally. Ordinary files move to Trash; snapshots are permanently deleted only after review."
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "MachKit 仅在本地读取文件元数据。普通文件会移到废纸篓；快照仅在复核后永久删除。"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "MachKit 僅在本機讀取檔案中繼資料。一般檔案会移到垃圾桶；快照仅在檢查后永久刪除。"
+            }
+          }
+        }
+      },
+      "Safe groups are selected by default. Review orange groups; administrator actions stay unselected.": {
+        "extractionState": "manual",
+        "localizations": {
+          "de": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Safe groups are selected by default. Review orange groups; administrator actions stay unselected."
+            }
+          },
+          "es": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Safe groups are selected by default. Review orange groups; administrator actions stay unselected."
+            }
+          },
+          "fr": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Safe groups are selected by default. Review orange groups; administrator actions stay unselected."
+            }
+          },
+          "ja": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Safe groups are selected by default. Review orange groups; administrator actions stay unselected."
+            }
+          },
+          "ko": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Safe groups are selected by default. Review orange groups; administrator actions stay unselected."
+            }
+          },
+          "pt-BR": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Safe groups are selected by default. Review orange groups; administrator actions stay unselected."
+            }
+          },
+          "ru": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "Safe groups are selected by default. Review orange groups; administrator actions stay unselected."
+            }
+          },
+          "zh-Hans": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "安全分组默认选中。请复核橙色分组；需要管理员权限的操作默认不选中。"
+            }
+          },
+          "zh-Hant": {
+            "stringUnit": {
+              "state": "translated",
+              "value": "安全群組預設選取。请檢查橙色群組；需要管理員權限的操作預設不選取。"
+            }
+          }
+        }
+      },
     "—" : {
       "localizations" : {
         "de" : {

@@ -358,6 +358,78 @@ private final class LockedCleanupProgress: @unchecked Sendable {
     )
 }
 
+@Test func matchingDirectoryRulesSelectCachesButPreserveProfileData() async throws {
+    let root = FileManager.default.temporaryDirectory
+        .appending(path: "machkit-app-support-cache-\(UUID().uuidString)", directoryHint: .isDirectory)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let appRoot = root.appending(path: "Library/Application Support/Example", directoryHint: .isDirectory)
+    let cache = appRoot.appending(path: "Default/Code Cache", directoryHint: .isDirectory)
+    let cookies = appRoot.appending(path: "Default/Cookies", directoryHint: .isDirectory)
+    try FileManager.default.createDirectory(at: cache, withIntermediateDirectories: true)
+    try FileManager.default.createDirectory(at: cookies, withIntermediateDirectories: true)
+    try Data("cache".utf8).write(to: cache.appending(path: "entry.bin"))
+    try Data("cookie".utf8).write(to: cookies.appending(path: "database"))
+    let oldDate = Date(timeIntervalSinceNow: -10 * 24 * 60 * 60)
+    try FileManager.default.setAttributes([.modificationDate: oldDate], ofItemAtPath: cache.path)
+
+    let rule = ScanRule(
+        id: "support-cache",
+        title: "Support Cache",
+        relativePath: "Library/Application Support/Example",
+        minimumAgeDays: 7,
+        enumerationMode: .matchingDirectories,
+        matchedDirectoryNames: ["Code Cache"],
+        maximumDepth: 4,
+        risk: .safe,
+        explanation: ""
+    )
+    let items = await Scanner().scan(root: root, rules: [rule])
+
+    #expect(items.map(\.url.standardizedFileURL.path) == [cache.standardizedFileURL.path])
+    #expect(!items.contains { $0.url.standardizedFileURL.path == cookies.standardizedFileURL.path })
+}
+
+@Test func projectArtifactScanRequiresAProjectMarkerAndSkipsRecentOutput() async throws {
+    let root = FileManager.default.temporaryDirectory
+        .appending(path: "machkit-project-artifacts-\(UUID().uuidString)", directoryHint: .isDirectory)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let project = root.appending(path: "Project", directoryHint: .isDirectory)
+    let nodeModules = project.appending(path: "node_modules", directoryHint: .isDirectory)
+    let recentDist = project.appending(path: "dist", directoryHint: .isDirectory)
+    let unrelated = root.appending(path: "Archive/node_modules", directoryHint: .isDirectory)
+    try FileManager.default.createDirectory(at: nodeModules, withIntermediateDirectories: true)
+    try FileManager.default.createDirectory(at: recentDist, withIntermediateDirectories: true)
+    try FileManager.default.createDirectory(at: unrelated, withIntermediateDirectories: true)
+    try Data("{}".utf8).write(to: project.appending(path: "package.json"))
+    try Data("dependency".utf8).write(to: nodeModules.appending(path: "module.js"))
+    try Data("bundle".utf8).write(to: recentDist.appending(path: "app.js"))
+    try Data("keep".utf8).write(to: unrelated.appending(path: "module.js"))
+    let oldDate = Date(timeIntervalSinceNow: -10 * 24 * 60 * 60)
+    try FileManager.default.setAttributes([.modificationDate: oldDate], ofItemAtPath: nodeModules.path)
+
+    let items = await Scanner().scan(root: root, rules: [ProjectBuildArtifactsRule.rule])
+
+    #expect(items.map(\.url.standardizedFileURL.path) == [nodeModules.standardizedFileURL.path])
+    #expect(items.allSatisfy { $0.rule.risk == .review })
+}
+
+@Test func timeMachineSnapshotParserAcceptsOnlyDeletionSafeIdentifiers() {
+    let output = """
+    Snapshots for disk /:
+    com.apple.TimeMachine.2026-08-27-101112.local
+    com.apple.TimeMachine.2026-08-28-131415.local
+    com.apple.TimeMachine.invalid.local
+    ../../Library
+    """
+    let snapshots = TimeMachineSnapshotParser.parseList(output)
+
+    #expect(snapshots.map(\.identifier) == [
+        "2026-08-27-101112",
+        "2026-08-28-131415",
+    ])
+    #expect(snapshots.allSatisfy { TimeMachineSnapshotParser.isValidDeletionIdentifier($0.identifier) })
+}
+
 @Test func fileAnalysisNeverDefaultsToSafeDeletion() async throws {
     let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
     try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
@@ -1031,19 +1103,116 @@ private final class LockedCleanupProgress: @unchecked Sendable {
     try Data("settings".utf8).write(to: home.appending(path: "Library/Preferences/com.example.present.plist"))
     try makeDirectory("Library/Caches/com.example.lonely")
     try makeDirectory("Library/Containers/com.example.container")
+    try makeDirectory("Library/Containers/com.example.active-container/Data")
+    try Data("state".utf8).write(
+        to: home.appending(path: "Library/Containers/com.example.active-container/Data/state.db")
+    )
+    try makeDirectory("Library/Application Support/com.example.single-support")
+    try makeDirectory("Library/LaunchAgents")
+    let brokenLaunchAgent = try PropertyListSerialization.data(
+        fromPropertyList: [
+            "Label": "com.example.agent",
+            "ProgramArguments": [home.appending(path: "Missing/agent").path],
+        ],
+        format: .xml,
+        options: 0
+    )
+    try brokenLaunchAgent.write(to: home.appending(path: "Library/LaunchAgents/com.example.agent.plist"))
+    let liveAgentProgram = home.appending(path: "Library/Application Support/LiveAgent/agent")
+    try makeDirectory("Library/Application Support/LiveAgent")
+    try Data("executable".utf8).write(to: liveAgentProgram)
+    let liveLaunchAgent = try PropertyListSerialization.data(
+        fromPropertyList: [
+            "Label": "com.example.liveagent",
+            "Program": liveAgentProgram.path,
+        ],
+        format: .xml,
+        options: 0
+    )
+    try liveLaunchAgent.write(
+        to: home.appending(path: "Library/LaunchAgents/com.example.liveagent.plist")
+    )
+    try makeDirectory("Library/Caches/com.example.liveagent")
+    try Data("settings".utf8).write(
+        to: home.appending(path: "Library/Preferences/com.example.liveagent.plist")
+    )
     try makeDirectory("Library/Containers/com.apple.system-helper")
 
+    for identifier in [
+        "com.google.GoogleUpdater",
+        "com.microsoft.EdgeUpdater",
+        "com.tencent.wetype.InstallerApp",
+        "com.github.owner.removed",
+    ] {
+        try makeDirectory("Library/Caches/\(identifier)")
+        try Data("settings".utf8).write(
+            to: home.appending(path: "Library/Preferences/\(identifier).plist")
+        )
+    }
+
     let groups = await ApplicationScanner().orphanedResidues(
-        installedBundleIdentifiers: ["com.example.present"],
+        installedBundleIdentifiers: [
+            "com.example.present",
+            "com.google.Chrome",
+            "com.microsoft.edgemac",
+            "com.tencent.inputmethod.wetype",
+            "com.github.other.installed",
+        ],
         home: home
     )
 
     #expect(groups.contains { $0.identifier == "com.example.removed" && $0.residues.count == 2 })
     #expect(groups.contains { $0.identifier == "com.example.container" && $0.residues.count == 1 })
+    #expect(groups.contains {
+        $0.identifier == "com.example.agent"
+            && $0.residues.contains { $0.url.lastPathComponent == "com.example.agent.plist" }
+    })
     #expect(!groups.contains { $0.identifier == "com.example.present" })
     #expect(!groups.contains { $0.identifier == "com.example.lonely" })
+    #expect(!groups.contains { $0.identifier == "com.example.active-container" })
+    #expect(!groups.contains { $0.identifier == "com.example.single-support" })
+    #expect(!groups.contains { $0.identifier == "com.example.liveagent" })
+    #expect(!groups.contains { $0.identifier == "com.google.GoogleUpdater" })
+    #expect(!groups.contains { $0.identifier == "com.microsoft.EdgeUpdater" })
+    #expect(!groups.contains { $0.identifier == "com.tencent.wetype.InstallerApp" })
+    #expect(groups.contains { $0.identifier == "com.github.owner.removed" })
     #expect(!groups.contains { $0.identifier.hasPrefix("com.apple.") })
     #expect(groups.flatMap(\.residues).allSatisfy { $0.risk == .review })
+}
+
+@Test func installedComponentInventoryIncludesInputMethodsAndEmbeddedHelpers() async throws {
+    let root = FileManager.default.temporaryDirectory
+        .appending(path: "machkit-installed-components-\(UUID().uuidString)", directoryHint: .isDirectory)
+    defer { try? FileManager.default.removeItem(at: root) }
+
+    func makeBundle(_ relativePath: String, identifier: String) throws {
+        let bundle = root.appending(path: relativePath, directoryHint: .isDirectory)
+        try FileManager.default.createDirectory(
+            at: bundle.appending(path: "Contents", directoryHint: .isDirectory),
+            withIntermediateDirectories: true
+        )
+        let plist = try PropertyListSerialization.data(
+            fromPropertyList: [
+                "CFBundleIdentifier": identifier,
+                "CFBundlePackageType": "APPL",
+                "CFBundleExecutable": "placeholder",
+            ],
+            format: .xml,
+            options: 0
+        )
+        try plist.write(to: bundle.appending(path: "Contents/Info.plist"))
+    }
+
+    try makeBundle("WeType.app", identifier: "com.tencent.inputmethod.wetype")
+    try makeBundle(
+        "WeType.app/Contents/Helpers/WeTypeUpdater.app",
+        identifier: "com.tencent.WeTypeUpdater"
+    )
+
+    let identifiers = await ApplicationScanner().installedBundleIdentifiers(in: [root])
+
+    #expect(identifiers.contains("com.tencent.inputmethod.wetype"))
+    #expect(identifiers.contains("com.tencent.WeTypeUpdater"))
 }
 
 @Test func orphanedResidueSizingSkipsDirectoryEnumeration() async throws {

@@ -7,6 +7,7 @@ enum OldLogsRule: CleanupRuleDefinition {
         relativePath: "Library/Logs",
         minimumAgeDays: 14,
         allowedExtensions: ["log", "txt", "old"],
+        excludedRelativePaths: ["Homebrew"],
         risk: .safe,
         explanation: "Log files older than 14 days, excluding files currently being written."
     )

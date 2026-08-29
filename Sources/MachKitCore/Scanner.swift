@@ -132,13 +132,16 @@ public actor Scanner {
         tracker: RuleProgressTracker
     ) async -> RuleScanResult {
         await tracker.started(rule: rule)
+        let scanRoot: URL = rule.rootScope == .systemVolume
+            ? URL(fileURLWithPath: "/", isDirectory: true)
+            : root
         let result: RuleScanResult
         switch rule.enumerationMode {
         case .agedFiles:
             result = await scanAgedFiles(
                 rule,
                 ruleIndex: ruleIndex,
-                root: root,
+                root: scanRoot,
                 fileManager: fileManager,
                 tracker: tracker
             )
@@ -146,7 +149,7 @@ public actor Scanner {
             result = await scanTopLevelEntries(
                 rule,
                 ruleIndex: ruleIndex,
-                root: root,
+                root: scanRoot,
                 fileManager: fileManager,
                 tracker: tracker
             )
@@ -154,7 +157,37 @@ public actor Scanner {
             result = await scanUnavailableSimulatorDevices(
                 rule,
                 ruleIndex: ruleIndex,
+                root: scanRoot,
+                fileManager: fileManager,
+                tracker: tracker
+            )
+        case .matchingDirectories:
+            result = await scanMatchingDirectories(
+                rule,
+                ruleIndex: ruleIndex,
+                root: scanRoot,
+                fileManager: fileManager,
+                tracker: tracker
+            )
+        case .projectBuildArtifacts:
+            result = await scanProjectBuildArtifacts(
+                rule,
+                ruleIndex: ruleIndex,
                 root: root,
+                fileManager: fileManager,
+                tracker: tracker
+            )
+        case .incompleteTimeMachineBackups:
+            result = await scanIncompleteTimeMachineBackups(
+                rule,
+                ruleIndex: ruleIndex,
+                fileManager: fileManager,
+                tracker: tracker
+            )
+        case .timeMachineLocalSnapshots:
+            result = await scanTimeMachineLocalSnapshots(
+                rule,
+                ruleIndex: ruleIndex,
                 fileManager: fileManager,
                 tracker: tracker
             )
@@ -264,6 +297,279 @@ public actor Scanner {
         stats.matchedBytes = results.reduce(into: Int64(0)) { $0 += $1.bytes }
         await tracker.completed(rule: rule, stats: stats)
         return RuleScanResult(ruleIndex: ruleIndex, items: results)
+    }
+
+    private nonisolated static func scanMatchingDirectories(
+        _ rule: ScanRule,
+        ruleIndex: Int,
+        root: URL,
+        fileManager: SendableFileManager,
+        tracker: RuleProgressTracker
+    ) async -> RuleScanResult {
+        var stats = RuleScanStats()
+        var results: [ScanItem] = []
+        let names = Set(rule.matchedDirectoryNames.map { $0.lowercased() })
+        guard !names.isEmpty else {
+            await tracker.completed(rule: rule, stats: stats)
+            return RuleScanResult(ruleIndex: ruleIndex, items: [])
+        }
+        let targets = (try? SafetyPolicy.validateTargets(rule: rule, root: root)) ?? []
+        let cutoff = Calendar(identifier: .gregorian)
+            .date(byAdding: .day, value: -rule.minimumAgeDays, to: Date()) ?? .distantPast
+        let keys: Set<URLResourceKey> = [
+            .isDirectoryKey,
+            .isSymbolicLinkKey,
+            .contentModificationDateKey,
+        ]
+
+        for target in targets where fileManager.value.fileExists(atPath: target.path) {
+            guard !Task.isCancelled else { break }
+            guard let enumerator = fileManager.value.enumerator(
+                at: target,
+                includingPropertiesForKeys: Array(keys),
+                options: [.skipsPackageDescendants]
+            ) else { continue }
+
+            while let candidate = enumerator.nextObject() as? URL {
+                guard !Task.isCancelled else { break }
+                if enumerator.level > rule.maximumDepth {
+                    enumerator.skipDescendants()
+                    continue
+                }
+                stats.inspectedFiles += 1
+                if stats.inspectedFiles.isMultiple(of: 128) {
+                    await tracker.updated(rule: rule, stats: stats)
+                    await Task.yield()
+                }
+                guard names.contains(candidate.lastPathComponent.lowercased()),
+                      let values = try? candidate.resourceValues(forKeys: keys),
+                      values.isDirectory == true,
+                      values.isSymbolicLink != true else { continue }
+
+                // Treat the matched directory as one removable unit. Never inspect
+                // or select cookies, databases, sessions, or sibling profile data.
+                enumerator.skipDescendants()
+                let modified = values.contentModificationDate ?? .distantPast
+                guard modified < cutoff else { continue }
+                let summary = await entrySummary(at: candidate, isDirectory: true)
+                let item = ScanItem(
+                    url: candidate,
+                    bytes: summary.bytes,
+                    fileCount: summary.fileCount,
+                    modifiedAt: values.contentModificationDate,
+                    rule: rule
+                )
+                results.append(item)
+                stats.matchedFiles += 1
+                stats.matchedBytes += item.bytes
+            }
+        }
+
+        await tracker.completed(rule: rule, stats: stats)
+        return RuleScanResult(ruleIndex: ruleIndex, items: results.sorted { $0.bytes > $1.bytes })
+    }
+
+    private nonisolated static func scanProjectBuildArtifacts(
+        _ rule: ScanRule,
+        ruleIndex: Int,
+        root: URL,
+        fileManager: SendableFileManager,
+        tracker: RuleProgressTracker
+    ) async -> RuleScanResult {
+        var stats = RuleScanStats()
+        var results: [ScanItem] = []
+        let home = FileManager.default.homeDirectoryForCurrentUser.standardizedFileURL.resolvingSymlinksInPath()
+        let selected = root.standardizedFileURL.resolvingSymlinksInPath()
+        let targets: [URL]
+        if selected == home {
+            targets = (try? SafetyPolicy.validateTargets(rule: rule, root: root)) ?? []
+        } else if selected.path != "/", !SafetyPolicy.contains(selected, in: URL(fileURLWithPath: "/System", isDirectory: true), allowDirectoryItself: true) {
+            targets = [selected]
+        } else {
+            targets = []
+        }
+        let cutoff = Calendar(identifier: .gregorian)
+            .date(byAdding: .day, value: -rule.minimumAgeDays, to: Date()) ?? .distantPast
+        let keys: Set<URLResourceKey> = [
+            .isDirectoryKey,
+            .isSymbolicLinkKey,
+            .contentModificationDateKey,
+        ]
+
+        for target in targets where fileManager.value.fileExists(atPath: target.path) {
+            guard !Task.isCancelled else { break }
+            guard let enumerator = fileManager.value.enumerator(
+                at: target,
+                includingPropertiesForKeys: Array(keys),
+                options: [.skipsPackageDescendants]
+            ) else { continue }
+
+            while let candidate = enumerator.nextObject() as? URL {
+                guard !Task.isCancelled else { break }
+                stats.inspectedFiles += 1
+                if stats.inspectedFiles.isMultiple(of: 256) {
+                    await tracker.updated(rule: rule, stats: stats)
+                    await Task.yield()
+                }
+                guard let values = try? candidate.resourceValues(forKeys: keys),
+                      values.isDirectory == true,
+                      values.isSymbolicLink != true else { continue }
+
+                let name = candidate.lastPathComponent
+                if [".git", ".hg", ".svn"].contains(name) {
+                    enumerator.skipDescendants()
+                    continue
+                }
+                guard isRecognizedProjectArtifact(candidate, fileManager: fileManager.value) else { continue }
+                enumerator.skipDescendants()
+                let modified = values.contentModificationDate ?? .distantPast
+                guard modified < cutoff else { continue }
+                let summary = await entrySummary(at: candidate, isDirectory: true)
+                let item = ScanItem(
+                    url: candidate,
+                    bytes: summary.bytes,
+                    fileCount: summary.fileCount,
+                    modifiedAt: values.contentModificationDate,
+                    rule: rule
+                )
+                results.append(item)
+                stats.matchedFiles += 1
+                stats.matchedBytes += item.bytes
+            }
+        }
+
+        await tracker.completed(rule: rule, stats: stats)
+        return RuleScanResult(ruleIndex: ruleIndex, items: results.sorted { $0.bytes > $1.bytes })
+    }
+
+    private nonisolated static func isRecognizedProjectArtifact(
+        _ directory: URL,
+        fileManager: FileManager
+    ) -> Bool {
+        let name = directory.lastPathComponent
+        let requiredMarkers: Set<String>
+        switch name {
+        case "node_modules", ".next", ".nuxt", ".svelte-kit", ".turbo", "dist", "coverage":
+            requiredMarkers = ["package.json"]
+        case ".build":
+            requiredMarkers = ["Package.swift"]
+        case "target":
+            requiredMarkers = ["Cargo.toml", "pom.xml"]
+        case ".gradle":
+            requiredMarkers = ["build.gradle", "build.gradle.kts", "settings.gradle", "settings.gradle.kts"]
+        case "build":
+            requiredMarkers = [
+                "Package.swift", "package.json", "Cargo.toml", "pom.xml",
+                "build.gradle", "build.gradle.kts", "CMakeLists.txt", "pubspec.yaml",
+            ]
+        default:
+            return false
+        }
+        let project = directory.deletingLastPathComponent()
+        return requiredMarkers.contains {
+            fileManager.fileExists(atPath: project.appending(path: $0).path)
+        }
+    }
+
+    private nonisolated static func scanIncompleteTimeMachineBackups(
+        _ rule: ScanRule,
+        ruleIndex: Int,
+        fileManager: SendableFileManager,
+        tracker: RuleProgressTracker
+    ) async -> RuleScanResult {
+        var stats = RuleScanStats()
+        var results: [ScanItem] = []
+        let volumesRoot = URL(fileURLWithPath: "/Volumes", isDirectory: true)
+        let cutoff = Calendar(identifier: .gregorian)
+            .date(byAdding: .day, value: -rule.minimumAgeDays, to: Date()) ?? .distantPast
+        let keys: Set<URLResourceKey> = [
+            .isDirectoryKey,
+            .isSymbolicLinkKey,
+            .contentModificationDateKey,
+        ]
+        let volumes = (try? fileManager.value.contentsOfDirectory(
+            at: volumesRoot,
+            includingPropertiesForKeys: Array(keys),
+            options: [.skipsHiddenFiles]
+        )) ?? []
+
+        for volume in volumes {
+            let backupsRoot = volume.appending(path: "Backups.backupdb", directoryHint: .isDirectory)
+            guard fileManager.value.fileExists(atPath: backupsRoot.path),
+                  let enumerator = fileManager.value.enumerator(
+                    at: backupsRoot,
+                    includingPropertiesForKeys: Array(keys),
+                    options: [.skipsPackageDescendants]
+                  ) else { continue }
+
+            while let candidate = enumerator.nextObject() as? URL {
+                guard !Task.isCancelled else { break }
+                if enumerator.level > 3 {
+                    enumerator.skipDescendants()
+                    continue
+                }
+                stats.inspectedFiles += 1
+                guard candidate.lastPathComponent.hasSuffix(".inProgress"),
+                      let values = try? candidate.resourceValues(forKeys: keys),
+                      values.isDirectory == true,
+                      values.isSymbolicLink != true else { continue }
+                enumerator.skipDescendants()
+                let modified = values.contentModificationDate ?? .distantPast
+                guard modified < cutoff else { continue }
+                let summary = await entrySummary(at: candidate, isDirectory: true)
+                let item = ScanItem(
+                    url: candidate,
+                    bytes: summary.bytes,
+                    fileCount: summary.fileCount,
+                    modifiedAt: values.contentModificationDate,
+                    rule: rule
+                )
+                results.append(item)
+                stats.matchedFiles += 1
+                stats.matchedBytes += item.bytes
+                await tracker.updated(rule: rule, stats: stats)
+            }
+        }
+
+        await tracker.completed(rule: rule, stats: stats)
+        return RuleScanResult(ruleIndex: ruleIndex, items: results.sorted { $0.bytes > $1.bytes })
+    }
+
+    private nonisolated static func scanTimeMachineLocalSnapshots(
+        _ rule: ScanRule,
+        ruleIndex: Int,
+        fileManager: SendableFileManager,
+        tracker: RuleProgressTracker
+    ) async -> RuleScanResult {
+        var stats = RuleScanStats()
+        guard let output = try? SystemCommandRunner.run(
+            executable: "/usr/bin/tmutil",
+            arguments: ["listlocalsnapshots", "/"],
+            timeout: 15
+        ), output.status == 0 else {
+            await tracker.completed(rule: rule, stats: stats)
+            return RuleScanResult(ruleIndex: ruleIndex, items: [])
+        }
+
+        let cutoff = Calendar(identifier: .gregorian)
+            .date(byAdding: .day, value: -rule.minimumAgeDays, to: Date()) ?? .distantPast
+        let snapshots = TimeMachineSnapshotParser.parseList(output.text).filter {
+            guard let createdAt = $0.createdAt else { return false }
+            return createdAt < cutoff
+        }
+        let items = snapshots.map { snapshot in
+            ScanItem(
+                url: URL(fileURLWithPath: "/Time Machine/\(snapshot.identifier)"),
+                bytes: 0,
+                fileCount: 1,
+                modifiedAt: snapshot.createdAt,
+                rule: rule
+            )
+        }
+        stats.inspectedFiles = snapshots.count
+        stats.matchedFiles = snapshots.count
+        await tracker.completed(rule: rule, stats: stats)
+        return RuleScanResult(ruleIndex: ruleIndex, items: items)
     }
 
     /// Maps a nested file to the first-level entry under `target`

@@ -470,6 +470,32 @@ public enum ScanEnumerationMode: String, Codable, Sendable, Hashable {
     case topLevelEntries
     /// CoreSimulator device directories that `simctl` reports as unavailable.
     case unavailableSimulatorDevices
+    /// Named cache or log directories below a bounded set of known app roots.
+    case matchingDirectories
+    /// Rebuildable dependency and build directories inside recognized projects.
+    case projectBuildArtifacts
+    /// Incomplete Time Machine backup directories on mounted backup volumes.
+    case incompleteTimeMachineBackups
+    /// Local APFS Time Machine snapshots reported by `tmutil`.
+    case timeMachineLocalSnapshots
+}
+
+public enum ScanRootScope: String, Codable, Sendable, Hashable {
+    /// Paths are relative to the folder explicitly selected by the user.
+    case selectedRoot
+    /// Paths are relative to the system data volume. Only fixed allowlisted roots are valid.
+    case systemVolume
+    /// Discovery is restricted to mounted volumes and validated by its specialized scanner.
+    case mountedVolumes
+    /// The item represents a system-maintained object rather than a filesystem path.
+    case virtual
+}
+
+public enum CleanupDisposition: String, Codable, Sendable, Hashable {
+    case moveToTrash
+    case permanentlyDelete
+    case privilegedMoveToTrash
+    case deleteTimeMachineSnapshot
 }
 
 public struct ScanRule: Identifiable, Codable, Sendable, Hashable {
@@ -480,6 +506,10 @@ public struct ScanRule: Identifiable, Codable, Sendable, Hashable {
     public let allowedExtensions: Set<String>
     public let excludedRelativePaths: Set<String>
     public let enumerationMode: ScanEnumerationMode
+    public let matchedDirectoryNames: Set<String>
+    public let maximumDepth: Int
+    public let rootScope: ScanRootScope
+    public let cleanupDisposition: CleanupDisposition
     public let risk: RiskLevel
     public let explanation: String
 
@@ -494,6 +524,10 @@ public struct ScanRule: Identifiable, Codable, Sendable, Hashable {
         allowedExtensions: Set<String> = [],
         excludedRelativePaths: Set<String> = [],
         enumerationMode: ScanEnumerationMode = .agedFiles,
+        matchedDirectoryNames: Set<String> = [],
+        maximumDepth: Int = 4,
+        rootScope: ScanRootScope = .selectedRoot,
+        cleanupDisposition: CleanupDisposition = .moveToTrash,
         risk: RiskLevel,
         explanation: String
     ) {
@@ -505,6 +539,10 @@ public struct ScanRule: Identifiable, Codable, Sendable, Hashable {
             allowedExtensions: allowedExtensions,
             excludedRelativePaths: excludedRelativePaths,
             enumerationMode: enumerationMode,
+            matchedDirectoryNames: matchedDirectoryNames,
+            maximumDepth: maximumDepth,
+            rootScope: rootScope,
+            cleanupDisposition: cleanupDisposition,
             risk: risk,
             explanation: explanation
         )
@@ -518,6 +556,10 @@ public struct ScanRule: Identifiable, Codable, Sendable, Hashable {
         allowedExtensions: Set<String> = [],
         excludedRelativePaths: Set<String> = [],
         enumerationMode: ScanEnumerationMode = .agedFiles,
+        matchedDirectoryNames: Set<String> = [],
+        maximumDepth: Int = 4,
+        rootScope: ScanRootScope = .selectedRoot,
+        cleanupDisposition: CleanupDisposition = .moveToTrash,
         risk: RiskLevel,
         explanation: String
     ) {
@@ -529,6 +571,10 @@ public struct ScanRule: Identifiable, Codable, Sendable, Hashable {
         self.allowedExtensions = allowedExtensions
         self.excludedRelativePaths = excludedRelativePaths
         self.enumerationMode = enumerationMode
+        self.matchedDirectoryNames = matchedDirectoryNames
+        self.maximumDepth = max(1, maximumDepth)
+        self.rootScope = rootScope
+        self.cleanupDisposition = cleanupDisposition
         self.risk = risk
         self.explanation = explanation
     }

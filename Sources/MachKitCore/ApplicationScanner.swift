@@ -114,10 +114,15 @@ public actor ApplicationScanner {
         ) else { return }
 
         for child in children {
-            if child.pathExtension.lowercased() == "app" {
+            if recognizedBundleExtensions.contains(child.pathExtension.lowercased()) {
                 if let identifier = Bundle(url: child)?.bundleIdentifier {
                     identifiers.insert(identifier)
                 }
+                collectEmbeddedBundleIdentifiers(
+                    in: child,
+                    fileManager: fileManager,
+                    into: &identifiers
+                )
                 continue
             }
             let isDirectory = (try? child.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true
@@ -130,6 +135,72 @@ public actor ApplicationScanner {
                     into: &identifiers
                 )
             }
+        }
+    }
+
+    private nonisolated static let recognizedBundleExtensions: Set<String> = [
+        "app", "appex", "bundle", "inputplugin", "plugin", "prefpane", "xpc",
+    ]
+
+    /// Installed apps often own updater, Finder extension, XPC, and login-item
+    /// identifiers that do not share the main bundle identifier verbatim.
+    /// Inspect only known bundle-bearing subdirectories; never walk Resources.
+    private nonisolated static func collectEmbeddedBundleIdentifiers(
+        in bundle: URL,
+        fileManager: FileManager,
+        into identifiers: inout Set<String>
+    ) {
+        let embeddedRoots = [
+            "Contents/PlugIns",
+            "Contents/XPCServices",
+            "Contents/Library/LoginItems",
+            "Contents/Helpers",
+            "Contents/Frameworks",
+            "Contents/MacOS",
+        ]
+        for relativeRoot in embeddedRoots {
+            collectEmbeddedBundles(
+                in: bundle.appending(path: relativeRoot, directoryHint: .isDirectory),
+                depth: 0,
+                limit: 2,
+                fileManager: fileManager,
+                into: &identifiers
+            )
+        }
+    }
+
+    private nonisolated static func collectEmbeddedBundles(
+        in root: URL,
+        depth: Int,
+        limit: Int,
+        fileManager: FileManager,
+        into identifiers: inout Set<String>
+    ) {
+        guard depth <= limit,
+              let children = try? fileManager.contentsOfDirectory(
+                at: root,
+                includingPropertiesForKeys: [.isDirectoryKey],
+                options: [.skipsHiddenFiles]
+              ) else { return }
+
+        for child in children {
+            let ext = child.pathExtension.lowercased()
+            if recognizedBundleExtensions.contains(ext) {
+                if let identifier = Bundle(url: child)?.bundleIdentifier {
+                    identifiers.insert(identifier)
+                }
+                continue
+            }
+            guard (try? child.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true else {
+                continue
+            }
+            collectEmbeddedBundles(
+                in: child,
+                depth: depth + 1,
+                limit: limit,
+                fileManager: fileManager,
+                into: &identifiers
+            )
         }
     }
 
@@ -243,6 +314,12 @@ public actor ApplicationScanner {
         home: URL,
         onProgress: (@Sendable (ApplicationResidueScanProgress) -> Void)? = nil
     ) async -> [ApplicationResidueGroup] {
+        let knownOwnerIdentifiers = installedBundleIdentifiers.union(
+            liveLaunchdOwnerIdentifiers(home: home)
+        )
+        let knownVendorNamespaces = Set(
+            knownOwnerIdentifiers.compactMap { vendorNamespace(for: $0) }
+        )
         let locations: [(String, ResidueKind, String?)] = [
             ("Library/Caches", .cache, nil),
             ("Library/Preferences", .preferences, ".plist"),
@@ -252,6 +329,7 @@ public actor ApplicationScanner {
             ("Library/Containers", .container, nil),
             ("Library/Group Containers", .container, nil),
             ("Library/Application Scripts", .support, nil),
+            ("Library/LaunchAgents", .support, ".plist"),
             ("Library/HTTPStorages", .cache, nil),
             ("Library/WebKit", .cache, nil),
             ("Library/Cookies", .cache, ".binarycookies")
@@ -273,7 +351,11 @@ public actor ApplicationScanner {
                     identifier.removeLast(suffix.count)
                 }
                 guard looksLikeThirdPartyBundleIdentifier(identifier),
-                      !belongsToInstalledApplication(identifier, installed: installedBundleIdentifiers) else { continue }
+                      !belongsToInstalledApplication(
+                        identifier,
+                        installed: knownOwnerIdentifiers,
+                        vendorNamespaces: knownVendorNamespaces
+                      ) else { continue }
                 candidates[identifier, default: []].append((child, kind))
             }
         }
@@ -281,10 +363,9 @@ public actor ApplicationScanner {
         let qualifiedCandidates = candidates.compactMap { identifier, evidence -> (String, [(url: URL, kind: ResidueKind)])? in
             var seenPaths = Set<String>()
             let unique = evidence.filter { seenPaths.insert($0.url.standardizedFileURL.path).inserted }
-            let hasStrongEvidence = unique.contains {
-                $0.kind == .container || $0.kind == .state || $0.kind == .preferences || $0.kind == .support
+            guard unique.count >= 2 || qualifiesAsSingleOrphanEvidence(unique[0], home: home) else {
+                return nil
             }
-            guard unique.count >= 2 || hasStrongEvidence else { return nil }
             return (identifier, unique)
         }
         // Discovery is shallow (top-level paths only). Never enumerate inside
@@ -429,7 +510,11 @@ public actor ApplicationScanner {
         }
     }
 
-    private func belongsToInstalledApplication(_ identifier: String, installed: Set<String>) -> Bool {
+    private func belongsToInstalledApplication(
+        _ identifier: String,
+        installed: Set<String>,
+        vendorNamespaces: Set<String>
+    ) -> Bool {
         let identifier = identifier
             .replacingOccurrences(of: "group.", with: "", options: [.anchored])
             .replacingOccurrences(of: "systemgroup.", with: "", options: [.anchored])
@@ -441,7 +526,119 @@ public actor ApplicationScanner {
             if installed.contains(prefix) { return true }
         }
 
-        return installed.contains { $0.hasPrefix(identifier + ".") }
+        if installed.contains(where: { $0.hasPrefix(identifier + ".") }) { return true }
+        guard let namespace = vendorNamespace(for: identifier) else { return false }
+        return vendorNamespaces.contains(namespace)
+    }
+
+    /// Reverse-DNS vendor ownership is deliberately conservative: if another
+    /// installed component from the same specific vendor exists, data is not
+    /// called orphaned. Generic source-host namespaces are excluded.
+    private func vendorNamespace(for identifier: String) -> String? {
+        let normalized = identifier
+            .replacingOccurrences(of: "group.", with: "", options: [.anchored])
+            .replacingOccurrences(of: "systemgroup.", with: "", options: [.anchored])
+        let components = normalized.split(separator: ".").map { $0.lowercased() }
+        guard components.count >= 3,
+              ["com", "org", "net", "io"].contains(components[0]),
+              !["example", "github", "gitlab", "bitbucket", "sourceforge"].contains(components[1]) else {
+            return nil
+        }
+        return components.prefix(2).joined(separator: ".")
+    }
+
+    private func liveLaunchdOwnerIdentifiers(home: URL) -> Set<String> {
+        let roots = [
+            home.appending(path: "Library/LaunchAgents", directoryHint: .isDirectory),
+            URL(fileURLWithPath: "/Library/LaunchAgents", isDirectory: true),
+            URL(fileURLWithPath: "/Library/LaunchDaemons", isDirectory: true),
+        ]
+        var identifiers = Set<String>()
+        for root in roots {
+            guard let entries = try? fileManager.contentsOfDirectory(
+                at: root,
+                includingPropertiesForKeys: [.isRegularFileKey],
+                options: [.skipsHiddenFiles]
+            ) else { continue }
+            for plist in entries where plist.pathExtension.lowercased() == "plist" {
+                guard let dictionary = launchdDictionary(at: plist),
+                      launchdProgramExists(dictionary, home: home) else { continue }
+                let filenameIdentifier = plist.deletingPathExtension().lastPathComponent
+                if looksLikeThirdPartyBundleIdentifier(filenameIdentifier) {
+                    identifiers.insert(filenameIdentifier)
+                }
+                if let label = dictionary["Label"] as? String,
+                   looksLikeThirdPartyBundleIdentifier(label) {
+                    identifiers.insert(label)
+                }
+            }
+        }
+        return identifiers
+    }
+
+    private func qualifiesAsSingleOrphanEvidence(
+        _ evidence: (url: URL, kind: ResidueKind),
+        home: URL
+    ) -> Bool {
+        let parent = evidence.url.deletingLastPathComponent().lastPathComponent
+        switch parent {
+        case "Containers", "Group Containers":
+            return isContainerStub(evidence.url)
+        case "LaunchAgents":
+            return launchdProgramIsMissing(at: evidence.url, home: home)
+        default:
+            return false
+        }
+    }
+
+    private func isContainerStub(_ url: URL) -> Bool {
+        guard let children = try? fileManager.contentsOfDirectory(
+            at: url,
+            includingPropertiesForKeys: [.isDirectoryKey],
+            options: [.skipsHiddenFiles]
+        ) else { return false }
+        let meaningful = children.filter {
+            $0.lastPathComponent != ".com.apple.containermanagerd.metadata.plist"
+        }
+        if meaningful.isEmpty { return true }
+        guard meaningful.count == 1,
+              meaningful[0].lastPathComponent == "Data",
+              let dataChildren = try? fileManager.contentsOfDirectory(
+                at: meaningful[0],
+                includingPropertiesForKeys: nil,
+                options: [.skipsHiddenFiles]
+              ) else { return false }
+        return dataChildren.isEmpty
+    }
+
+    private func launchdProgramIsMissing(at plist: URL, home: URL) -> Bool {
+        guard let dictionary = launchdDictionary(at: plist),
+              let program = launchdProgramPath(dictionary, home: home) else { return false }
+        return !fileManager.fileExists(atPath: program.path)
+    }
+
+    private func launchdProgramExists(_ dictionary: [String: Any], home: URL) -> Bool {
+        guard let program = launchdProgramPath(dictionary, home: home) else { return false }
+        return fileManager.fileExists(atPath: program.path)
+    }
+
+    private func launchdProgramPath(_ dictionary: [String: Any], home: URL) -> URL? {
+        let rawProgram = dictionary["Program"] as? String
+            ?? (dictionary["ProgramArguments"] as? [String])?.first
+        guard let rawProgram, !rawProgram.isEmpty else { return nil }
+        if rawProgram.hasPrefix("~/") {
+            return home.appending(path: String(rawProgram.dropFirst(2))).standardizedFileURL
+        }
+        guard rawProgram.hasPrefix("/") else { return nil }
+        return URL(fileURLWithPath: rawProgram).standardizedFileURL
+    }
+
+    private func launchdDictionary(at plist: URL) -> [String: Any]? {
+        guard let data = try? Data(contentsOf: plist),
+              let object = try? PropertyListSerialization.propertyList(from: data, format: nil) else {
+            return nil
+        }
+        return object as? [String: Any]
     }
 
     private func packageDirectories(

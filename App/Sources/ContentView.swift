@@ -919,11 +919,13 @@ struct ContentView: View {
     var junkScanPreviews: [JunkScanPreview] {
         [
             .init(id: "trash", title: "Trash", icon: "trash", detail: "Items already in Trash", color: .red),
-            .init(id: "caches", title: "Caches", icon: "internaldrive", detail: "App, browser, and tool caches", color: .blue),
-            .init(id: "downloads", title: "Downloads & Mail", icon: "tray.and.arrow.down", detail: "Old installers and mail attachments", color: .cyan),
-            .init(id: "backups", title: "Device Backups", icon: "iphone", detail: "Local iPhone and iPad backups", color: .purple),
-            .init(id: "developer", title: "Developer Files", icon: "hammer", detail: "Xcode, simulators, and package caches", color: .mint),
-            .init(id: "leftovers", title: "Uninstall Leftovers", icon: "app.badge.minus", detail: "Support files from removed apps", color: .orange),
+            .init(id: "app-caches", title: "App Caches", icon: "internaldrive", detail: "Browser, editor, and communication caches", color: .blue),
+            .init(id: "developer-cleanup", title: "Developer Cleanup", icon: "hammer", detail: "Homebrew, Xcode, simulators, and project output", color: .green),
+            .init(id: "logs-diagnostics", title: "Logs & Diagnostics", icon: "doc.text.magnifyingglass", detail: "Old user and Application Support logs", color: .brown),
+            .init(id: "downloads-devices", title: "Downloads & Devices", icon: "tray.and.arrow.down", detail: "Installers, attachments, backups, and firmware", color: .cyan),
+            .init(id: "leftovers", title: "App Leftovers", icon: "app.fill", detail: "Containers, support files, and LaunchAgents", color: .yellow),
+            .init(id: "time-machine", title: "Time Machine", icon: "clock.arrow.circlepath", detail: "Failed backups and local snapshots", color: .orange),
+            .init(id: "system-cleanup", title: "System Cleanup", icon: "lock.shield", detail: "Administrator-reviewed system caches", color: .purple),
         ]
     }
 
@@ -962,7 +964,7 @@ struct ContentView: View {
                 .frame(width: 30)
             VStack(alignment: .leading, spacing: 3) {
                 Text("Review before cleaning".localized).font(.system(size: 12, weight: .semibold))
-                Text("MachKit only reads file metadata locally. Selected items move to Trash unless they are already in Trash.".localized)
+                Text("MachKit reads file metadata locally. Ordinary files move to Trash; snapshots are permanently deleted only after review.".localized)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -1181,7 +1183,7 @@ struct ContentView: View {
                         junkGroupSection(group)
                             .id(group.id)
                     }
-                    Text("Selected items move to Trash unless they are already in Trash. Review orange groups before cleaning.".localized)
+                    Text("Safe groups are selected by default. Review orange groups; administrator actions stay unselected.".localized)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -1346,26 +1348,24 @@ struct ContentView: View {
     func junkGroupChartColor(_ group: JunkScanGroup) -> Color {
         switch group.id {
         case "trash": .red
-        case "user-caches": .blue
-        case "browser-caches": .cyan
-        case "xdg-caches": .teal
-        case "temporary-files": .mint
-        case "language-support-caches": .indigo
-        case "downloads-archives": .purple
-        case "mail-downloads": .pink
-        case "device-backups": .orange
-        case "user-logs": .brown
-        case "developer-home-caches": .green
-        case "xcode-artifacts": .blue
-        case "simulator-cache": .cyan
-        case "unavailable-simulator-devices": .orange
-        case "uninstall-leftovers": .yellow
+        case "app-caches": .blue
+        case "developer-cleanup": .green
+        case "logs-diagnostics": .brown
+        case "downloads-devices": .cyan
+        case "leftovers": .yellow
+        case "time-machine": .orange
+        case "system-cleanup": .purple
         default: .accentColor
         }
     }
 
     func junkGroupSection(_ group: JunkScanGroup) -> some View {
         let chartColor = junkGroupChartColor(group)
+        let selectedCount = model.selectedCount(in: group)
+        let isFullySelected = selectedCount == group.totalCount
+        let selectionIcon = selectedCount == 0
+            ? "square"
+            : (isFullySelected ? "checkmark.square.fill" : "minus.square.fill")
 
         return VStack(spacing: 0) {
             DisclosureGroup(isExpanded: expansionBinding(group.id)) {
@@ -1393,7 +1393,15 @@ struct ContentView: View {
                 }
             } label: {
                 HStack(spacing: 12) {
-                    Toggle(isOn: groupSelectionBinding(group)) { EmptyView() }.labelsHidden()
+                    Button {
+                        model.setGroup(group, selected: !isFullySelected)
+                    } label: {
+                        Image(systemName: selectionIcon)
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundStyle(selectedCount == 0 ? Color.secondary : Color.accentColor)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(group.title.localized)
                     ZStack {
                         RoundedRectangle(cornerRadius: 8)
                             .fill(chartColor.opacity(0.12))
@@ -1413,6 +1421,17 @@ struct ContentView: View {
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
+                        HStack(spacing: 8) {
+                            if group.safeCount > 0 {
+                                Text(L10n.format("%lld safe", Int64(group.safeCount)))
+                                    .foregroundStyle(.green)
+                            }
+                            if group.reviewCount > 0 {
+                                Text(L10n.format("%lld to review", Int64(group.reviewCount)))
+                                    .foregroundStyle(.orange)
+                            }
+                        }
+                        .font(.caption2.weight(.medium))
                     }
                     Spacer()
                     Text(formatted(group.bytes))
@@ -1428,8 +1447,8 @@ struct ContentView: View {
     }
 
     var cleanConfirmationTitle: String {
-        if model.selectedIncludesTrashContents && !model.selectedIncludesNonTrashContents {
-            return L10n.string("Permanently delete selected Trash items?")
+        if model.selectedIncludesPermanentActions && !model.selectedIncludesMoveActions {
+            return L10n.string("Permanently delete selected items?")
         }
         if model.selectedIncludesTrashContents {
             return L10n.string("Clean selected items?")
@@ -1438,10 +1457,12 @@ struct ContentView: View {
     }
 
     var cleanConfirmationActionTitle: String {
-        if model.selectedIncludesTrashContents && !model.selectedIncludesNonTrashContents {
+        if model.selectedIncludesPermanentActions && !model.selectedIncludesMoveActions {
             return L10n.string("Delete Permanently")
         }
-        return L10n.string("Move to Trash")
+        return model.selectedIncludesPrivilegedActions
+            ? L10n.string("Clean Selected")
+            : L10n.string("Move to Trash")
     }
 
     var cleanConfirmationMessage: String {
@@ -1450,6 +1471,9 @@ struct ContentView: View {
             Int64(model.selectedCount),
             formatted(model.selectedBytes)
         )
+        if model.selectedIncludesPrivilegedActions {
+            return totals + " " + L10n.string("Administrator approval may be requested. Time Machine snapshots are deleted permanently; supported files are moved to Trash.")
+        }
         if model.selectedIncludesTrashContents && model.selectedIncludesNonTrashContents {
             return totals + " " + L10n.string("Trash items will be permanently deleted; other items will be moved to Trash.")
         }
@@ -1460,6 +1484,7 @@ struct ContentView: View {
     }
 
     func junkFileRow(_ item: ScanItem) -> some View {
+        let isVirtual = item.rule.rootScope == .virtual
         let isDirectory = item.fileCount > 1 || item.url.pathExtension.isEmpty
         let isEstimated = item.fileCount > 1
         return HStack(spacing: 12) {
@@ -1477,6 +1502,14 @@ struct ContentView: View {
                     Text(item.url.lastPathComponent)
                         .font(.system(size: 12, weight: .medium))
                         .lineLimit(1)
+                    if item.rule.risk == .review {
+                        Text("Review".localized)
+                            .font(.system(size: 9, weight: .semibold))
+                            .foregroundStyle(.orange)
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 2)
+                            .background(Color.orange.opacity(0.10), in: Capsule())
+                    }
                     if isEstimated {
                         Text("Estimated size".localized)
                             .font(.system(size: 9, weight: .semibold))
@@ -1486,13 +1519,15 @@ struct ContentView: View {
                             .background(Color.secondary.opacity(0.10), in: Capsule())
                     }
                 }
-                Text(item.url.path)
+                Text(isVirtual ? L10n.string("Local Time Machine snapshot") : item.url.path)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
-                Text(L10n.format("%lld files", Int64(item.fileCount)))
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
+                if !isVirtual {
+                    Text(L10n.format("%lld files", Int64(item.fileCount)))
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                }
             }
             Spacer()
             if let date = item.modifiedAt {
@@ -1500,20 +1535,26 @@ struct ContentView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            Text(formatted(item.bytes))
-                .font(.system(size: 12, weight: .medium))
-                .monospacedDigit()
-                .frame(width: 72, alignment: .trailing)
-            Image(systemName: "arrow.forward.circle")
-                .font(.caption)
-                .foregroundStyle(.tertiary)
+            if !isVirtual {
+                Text(formatted(item.bytes))
+                    .font(.system(size: 12, weight: .medium))
+                    .monospacedDigit()
+                    .frame(width: 72, alignment: .trailing)
+                Image(systemName: "arrow.forward.circle")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
         }
         .padding(.horizontal, MachKitLayout.rowPaddingHorizontal)
         .padding(.vertical, MachKitLayout.rowPaddingVertical)
         .contentShape(Rectangle())
-        .onTapGesture { revealJunkItem(item) }
+        .onTapGesture {
+            if !isVirtual { revealJunkItem(item) }
+        }
         .contextMenu {
-            Button("Show in Finder".localized) { revealJunkItem(item) }
+            if !isVirtual {
+                Button("Show in Finder".localized) { revealJunkItem(item) }
+            }
         }
     }
 
@@ -1532,10 +1573,4 @@ struct ContentView: View {
         )
     }
 
-    func groupSelectionBinding(_ group: JunkScanGroup) -> Binding<Bool> {
-        Binding(
-            get: { model.isGroupSelected(group) },
-            set: { model.setGroup(group, selected: $0) }
-        )
-    }
 }

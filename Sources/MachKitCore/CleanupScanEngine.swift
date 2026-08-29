@@ -233,7 +233,13 @@ public actor CleanupScanEngine {
         publish(0.02)
         let installed = await applicationScanner.installedBundleIdentifiers(in: [
             URL(fileURLWithPath: "/Applications", isDirectory: true),
-            home.appending(path: "Applications", directoryHint: .isDirectory)
+            home.appending(path: "Applications", directoryHint: .isDirectory),
+            URL(fileURLWithPath: "/System/Applications", isDirectory: true),
+            URL(fileURLWithPath: "/System/Library/CoreServices/Applications", isDirectory: true),
+            URL(fileURLWithPath: "/Library/Input Methods", isDirectory: true),
+            home.appending(path: "Library/Input Methods", directoryHint: .isDirectory),
+            URL(fileURLWithPath: "/Library/PreferencePanes", isDirectory: true),
+            home.appending(path: "Library/PreferencePanes", directoryHint: .isDirectory),
         ])
         guard !Task.isCancelled else { return [] }
         publish(0.08)

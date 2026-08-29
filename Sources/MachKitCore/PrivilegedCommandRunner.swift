@@ -24,8 +24,14 @@ enum PrivilegedCommandRunner {
     private static let allowedExecutables: Set<String> = [
         "/bin/cp",
         "/bin/mv",
+        "/usr/bin/tmutil",
         "/usr/bin/sfltool"
     ]
+
+    enum ProtectedCleanupDomain: Sendable {
+        case systemCache
+        case incompleteTimeMachineBackup
+    }
 
     static func replaceHostsFile(with source: URL) throws {
         let temporaryRoot = FileManager.default.temporaryDirectory
@@ -44,6 +50,82 @@ enum PrivilegedCommandRunner {
             throw PrivilegedCommandError.invalidRequest
         }
         return try run(executable: "/usr/bin/sfltool", arguments: [action])
+    }
+
+    static func deleteTimeMachineLocalSnapshot(identifier: String) throws {
+        guard TimeMachineSnapshotParser.isValidDeletionIdentifier(identifier) else {
+            throw PrivilegedCommandError.invalidRequest
+        }
+        _ = try run(
+            executable: "/usr/bin/tmutil",
+            arguments: ["deletelocalsnapshots", identifier]
+        )
+    }
+
+    static func moveProtectedCleanupItemToTrash(
+        _ source: URL,
+        domain: ProtectedCleanupDomain,
+        home: URL,
+        systemCacheRoot: URL = URL(fileURLWithPath: "/Library/Caches", isDirectory: true),
+        volumesRoot: URL = URL(fileURLWithPath: "/Volumes", isDirectory: true),
+        fileManager: FileManager = .default
+    ) throws -> URL {
+        let destination = try validatedProtectedCleanupTrashMove(
+            source: source,
+            domain: domain,
+            home: home,
+            systemCacheRoot: systemCacheRoot,
+            volumesRoot: volumesRoot,
+            fileManager: fileManager
+        )
+        _ = try run(executable: "/bin/mv", arguments: [source.path, destination.path])
+        return destination
+    }
+
+    static func validatedProtectedCleanupTrashMove(
+        source: URL,
+        domain: ProtectedCleanupDomain,
+        home: URL,
+        systemCacheRoot: URL = URL(fileURLWithPath: "/Library/Caches", isDirectory: true),
+        volumesRoot: URL = URL(fileURLWithPath: "/Volumes", isDirectory: true),
+        fileManager: FileManager = .default
+    ) throws -> URL {
+        let standardized = source.standardizedFileURL
+        switch domain {
+        case .systemCache:
+            guard SafetyPolicy.isDirectChild(standardized, of: systemCacheRoot) else {
+                throw PrivilegedCommandError.invalidRequest
+            }
+        case .incompleteTimeMachineBackup:
+            guard SafetyPolicy.isIncompleteTimeMachineBackup(
+                standardized,
+                under: volumesRoot
+            ) else {
+                throw PrivilegedCommandError.invalidRequest
+            }
+        }
+
+        let values = try? standardized.resourceValues(forKeys: [
+            .isRegularFileKey, .isSymbolicLinkKey, .isDirectoryKey,
+        ])
+        guard fileManager.fileExists(atPath: standardized.path),
+              values?.isSymbolicLink != true,
+              values?.isDirectory == true || values?.isRegularFile == true else {
+            throw PrivilegedCommandError.invalidRequest
+        }
+
+        let trash = home.appending(path: ".Trash", directoryHint: .isDirectory).standardizedFileURL
+        try fileManager.createDirectory(at: trash, withIntermediateDirectories: true)
+        var destination = trash.appending(path: standardized.lastPathComponent)
+        if fileManager.fileExists(atPath: destination.path) {
+            let suffix = String(UUID().uuidString.prefix(8))
+            destination = trash.appending(path: "\(standardized.lastPathComponent).\(suffix)")
+        }
+        guard SafetyPolicy.isDirectChild(destination, of: trash),
+              !fileManager.fileExists(atPath: destination.path) else {
+            throw PrivilegedCommandError.invalidRequest
+        }
+        return destination
     }
 
     /// Moves a validated `/Library/LaunchAgents|LaunchDaemons/*.plist` into the

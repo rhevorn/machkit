@@ -89,6 +89,7 @@ final class CleanerViewModel: ObservableObject {
         let summary: String
         let ruleIDs: [String]
         let scansLeftovers: Bool
+        let requiresHomeRoot: Bool
 
         init(
             id: String,
@@ -96,7 +97,8 @@ final class CleanerViewModel: ObservableObject {
             icon: String,
             summary: String,
             ruleIDs: [String] = [],
-            scansLeftovers: Bool = false
+            scansLeftovers: Bool = false,
+            requiresHomeRoot: Bool = false
         ) {
             self.id = id
             self.title = title
@@ -104,13 +106,12 @@ final class CleanerViewModel: ObservableObject {
             self.summary = summary
             self.ruleIDs = ruleIDs
             self.scansLeftovers = scansLeftovers
+            self.requiresHomeRoot = requiresHomeRoot
         }
     }
 
     var visibleCleanupScanPhases: [CleanupScanPhase] {
-        Self.cleanupScanPhases.filter { phase in
-            phase.id != "leftovers" || showsLeftoverScanPhase
-        }
+        Self.cleanupScanPhases.filter { !$0.requiresHomeRoot || showsLeftoverScanPhase }
     }
     @Published var inspectedFileCount = 0
     @Published var discoveredFileCount = 0
@@ -144,9 +145,7 @@ final class CleanerViewModel: ObservableObject {
     private var hasScannedLoginApplications = false
     private var hasScannedBackgroundItems = false
     private var hasScannedExtensions = false
-    private var selectedCountByGroup: [String: Int] = [:]
     private var itemByID: [UUID: ScanItem] = [:]
-    private var itemIDsByRuleID: [String: [UUID]] = [:]
     private var cleanupRoot = FileManager.default.homeDirectoryForCurrentUser
     private var cleanupIncludesResidues = false
     var selectedCount: Int { selectedIDs.count }
@@ -270,10 +269,8 @@ final class CleanerViewModel: ObservableObject {
         selectedIDs = []
         junkGroups = []
         itemByID = [:]
-        itemIDsByRuleID = [:]
         totalBytes = 0
         selectedBytes = 0
-        selectedCountByGroup = [:]
         safeCleanableBytes = 0
         reviewCleanableBytes = 0
         safeItemCount = 0
@@ -293,7 +290,7 @@ final class CleanerViewModel: ObservableObject {
         discoveredBytes = 0
         status = L10n.string("Scanning…")
         let includeResidues = cleanupIncludesResidues
-        let phases = Self.cleanupScanPhases.filter { $0.id != "leftovers" || includeResidues }
+        let phases = Self.cleanupScanPhases.filter { !$0.requiresHomeRoot || includeResidues }
         scanTask = Task { [scanMode, generation] in
             let (stream, continuation) = AsyncStream.makeStream(of: CleanupScanProgressEvent.self)
             let worker = Task.detached(priority: .userInitiated) {
@@ -413,10 +410,8 @@ final class CleanerViewModel: ObservableObject {
         let selectedIDs: Set<UUID>
         let junkGroups: [JunkScanGroup]
         let itemByID: [UUID: ScanItem]
-        let itemIDsByRuleID: [String: [UUID]]
         let totalBytes: Int64
         let selectedBytes: Int64
-        let selectedCountByGroup: [String: Int]
         let safeCleanableBytes: Int64
         let reviewCleanableBytes: Int64
         let safeItemCount: Int
@@ -433,10 +428,8 @@ final class CleanerViewModel: ObservableObject {
         var safeCount = 0
         var reviewCount = 0
         var selectedIDs = Set<UUID>()
-        var itemIDsByRuleID: [String: [UUID]] = [:]
 
         for item in found {
-            itemIDsByRuleID[item.rule.id, default: []].append(item.id)
             switch item.rule.risk {
             case .safe:
                 safeBytes += item.bytes
@@ -450,29 +443,44 @@ final class CleanerViewModel: ObservableObject {
             }
         }
 
-        var ruleOrder = Dictionary(uniqueKeysWithValues: DefaultRules.conservative.enumerated().map { ($0.element.id, $0.offset + 1) })
-        ruleOrder[DefaultRules.uninstallLeftovers.id] = 0
-        let grouped = Dictionary(grouping: found, by: \.rule.id)
-        let junkGroups: [JunkScanGroup] = grouped.values.compactMap { groupItems in
+        let phasesByID = Dictionary(uniqueKeysWithValues: cleanupScanPhases.map { ($0.id, $0) })
+        var categoryIDByRuleID: [String: String] = [:]
+        for phase in cleanupScanPhases {
+            for ruleID in phase.ruleIDs {
+                categoryIDByRuleID[ruleID] = phase.id
+            }
+            if phase.scansLeftovers {
+                categoryIDByRuleID[DefaultRules.uninstallLeftovers.id] = phase.id
+            }
+        }
+        let categoryOrder = Dictionary(
+            uniqueKeysWithValues: cleanupScanPhases.enumerated().map { ($0.element.id, $0.offset) }
+        )
+        let grouped = Dictionary(grouping: found) {
+            categoryIDByRuleID[$0.rule.id] ?? $0.rule.id
+        }
+        let junkGroups: [JunkScanGroup] = grouped.map { categoryID, groupItems in
             guard let first = groupItems.first else { return nil }
             let sorted = groupItems.sorted { $0.bytes > $1.bytes }
+            let phase = phasesByID[categoryID]
+            let reviewCount = sorted.count { $0.rule.risk == .review }
+            let safeCount = sorted.count { $0.rule.risk == .safe }
             return JunkScanGroup(
-                id: first.rule.id,
-                title: first.rule.title,
-                explanation: first.rule.explanation,
-                risk: first.rule.risk,
+                id: categoryID,
+                title: phase?.title ?? first.rule.title,
+                explanation: phase?.summary ?? first.rule.explanation,
+                risk: reviewCount > 0 ? .review : first.rule.risk,
+                itemIDs: sorted.map(\.id),
                 items: Array(sorted.prefix(maxJunkItemsPerGroup)),
                 totalCount: sorted.count,
-                bytes: sorted.reduce(into: Int64(0)) { $0 += $1.bytes }
+                bytes: sorted.reduce(into: Int64(0)) { $0 += $1.bytes },
+                safeCount: safeCount,
+                reviewCount: reviewCount
             )
-        }.sorted {
-            (ruleOrder[$0.id] ?? .max) < (ruleOrder[$1.id] ?? .max)
+        }.compactMap { $0 }.sorted {
+            (categoryOrder[$0.id] ?? .max) < (categoryOrder[$1.id] ?? .max)
         }
 
-        let selectedCountByGroup = Dictionary(
-            grouping: selectedIDs.compactMap { itemByID[$0]?.rule.id },
-            by: { $0 }
-        ).mapValues(\.count)
         let selectedBytes = selectedIDs.reduce(into: Int64(0)) { partial, id in
             partial += itemByID[id]?.bytes ?? 0
         }
@@ -482,10 +490,8 @@ final class CleanerViewModel: ObservableObject {
             selectedIDs: selectedIDs,
             junkGroups: junkGroups,
             itemByID: itemByID,
-            itemIDsByRuleID: itemIDsByRuleID,
             totalBytes: totalBytes,
             selectedBytes: selectedBytes,
-            selectedCountByGroup: selectedCountByGroup,
             safeCleanableBytes: safeBytes,
             reviewCleanableBytes: reviewBytes,
             safeItemCount: safeCount,
@@ -498,10 +504,8 @@ final class CleanerViewModel: ObservableObject {
         selectedIDs = prepared.selectedIDs
         junkGroups = prepared.junkGroups
         itemByID = prepared.itemByID
-        itemIDsByRuleID = prepared.itemIDsByRuleID
         totalBytes = prepared.totalBytes
         selectedBytes = prepared.selectedBytes
-        selectedCountByGroup = prepared.selectedCountByGroup
         safeCleanableBytes = prepared.safeCleanableBytes
         reviewCleanableBytes = prepared.reviewCleanableBytes
         safeItemCount = prepared.safeItemCount
@@ -1005,7 +1009,7 @@ final class CleanerViewModel: ObservableObject {
         }
     }
 
-    private static let cleanupScanPhases: [CleanupScanPhase] = [
+    private nonisolated static let cleanupScanPhases: [CleanupScanPhase] = [
         .init(
             id: "trash",
             title: "Trash",
@@ -1014,54 +1018,83 @@ final class CleanerViewModel: ObservableObject {
             ruleIDs: ["trash"]
         ),
         .init(
-            id: "caches",
-            title: "Caches",
+            id: "app-caches",
+            title: "App caches",
             icon: "internaldrive",
-            summary: "App caches, browser website caches, shared tool caches, temporary files, and language modeling caches.",
+            summary: "App, browser, editor, communication, temporary, and language modeling caches.",
             ruleIDs: [
                 "user-caches",
                 "browser-caches",
-                "xdg-caches",
+                "browser-application-support-caches",
+                "editor-caches",
+                "communication-app-caches",
                 "temporary-files",
                 "language-support-caches",
             ]
         ),
         .init(
-            id: "downloads",
-            title: "Downloads & mail",
-            icon: "tray.and.arrow.down",
-            summary: "Old installers and archives in Downloads, plus Mail attachment downloads.",
-            ruleIDs: [
-                "downloads-archives",
-                "mail-downloads",
-            ]
-        ),
-        .init(
-            id: "backups",
-            title: "Device backups",
-            icon: "iphone",
-            summary: "Local iPhone and iPad backups stored on this Mac.",
-            ruleIDs: ["device-backups"]
-        ),
-        .init(
-            id: "developer",
-            title: "Developer files",
+            id: "developer-cleanup",
+            title: "Developer cleanup",
             icon: "hammer",
-            summary: "Developer logs, package-manager caches, Xcode build artifacts, and unavailable simulator devices.",
+            summary: "Homebrew, package managers, Xcode, simulators, and recognized project build output.",
             ruleIDs: [
-                "user-logs",
+                "homebrew-cleanup",
+                "xdg-caches",
                 "developer-home-caches",
                 "xcode-artifacts",
                 "simulator-cache",
                 "unavailable-simulator-devices",
+                "project-build-artifacts",
+            ]
+        ),
+        .init(
+            id: "logs-diagnostics",
+            title: "Logs & diagnostics",
+            icon: "doc.text.magnifyingglass",
+            summary: "Old user logs and logs embedded inside Application Support.",
+            ruleIDs: [
+                "user-logs",
+                "application-support-logs",
+            ]
+        ),
+        .init(
+            id: "downloads-devices",
+            title: "Downloads & devices",
+            icon: "tray.and.arrow.down",
+            summary: "Old installers, Mail attachments, device backups, and downloaded firmware.",
+            ruleIDs: [
+                "downloads-archives",
+                "mail-downloads",
+                "device-backups",
+                "device-firmware-caches",
             ]
         ),
         .init(
             id: "leftovers",
-            title: "Leftover apps",
-            icon: "app.badge",
+            title: "App leftovers",
+            icon: "app.fill",
             summary: "Preferences, containers, and support files left behind after apps were uninstalled.",
-            scansLeftovers: true
+            scansLeftovers: true,
+            requiresHomeRoot: true
+        ),
+        .init(
+            id: "time-machine",
+            title: "Time Machine",
+            icon: "clock.arrow.circlepath",
+            summary: "Failed mounted backups and local snapshots; always review before deletion.",
+            ruleIDs: [
+                "incomplete-time-machine-backups",
+                "time-machine-local-snapshots",
+            ],
+            requiresHomeRoot: true
+        ),
+        .init(
+            id: "system-cleanup",
+            title: "System cleanup",
+            icon: "lock.shield",
+            summary: "Administrator-reviewed caches under /Library/Caches.",
+            ruleIDs: ["system-caches"],
+            requiresHomeRoot: true
         ),
     ]
 
@@ -1070,16 +1103,20 @@ final class CleanerViewModel: ObservableObject {
         switch phaseID {
         case "trash":
             return L10n.string("Checking Trash…")
-        case "caches":
+        case "app-caches":
             return L10n.string("Scanning caches…")
-        case "downloads":
-            return L10n.string("Checking downloads and mail…")
-        case "backups":
-            return L10n.string("Checking device backups…")
-        case "developer":
-            return L10n.string("Scanning developer files…")
+        case "developer-cleanup":
+            return L10n.string("Scanning developer cleanup…")
+        case "logs-diagnostics":
+            return L10n.string("Checking old logs…")
+        case "downloads-devices":
+            return L10n.string("Checking device backups and firmware…")
+        case "time-machine":
+            return L10n.string("Checking Time Machine data…")
         case "leftovers":
             return L10n.string("Looking for leftover app data…")
+        case "system-cleanup":
+            return L10n.string("Checking system-level caches…")
         default:
             return L10n.string("Looking around…")
         }
@@ -1618,6 +1655,27 @@ final class CleanerViewModel: ObservableObject {
         }
     }
 
+    var selectedIncludesPermanentActions: Bool {
+        items.contains { item in
+            selectedIDs.contains(item.id)
+                && [.permanentlyDelete, .deleteTimeMachineSnapshot].contains(item.rule.cleanupDisposition)
+        }
+    }
+
+    var selectedIncludesPrivilegedActions: Bool {
+        items.contains { item in
+            selectedIDs.contains(item.id)
+                && [.privilegedMoveToTrash, .deleteTimeMachineSnapshot].contains(item.rule.cleanupDisposition)
+        }
+    }
+
+    var selectedIncludesMoveActions: Bool {
+        items.contains { item in
+            selectedIDs.contains(item.id)
+                && [.moveToTrash, .privilegedMoveToTrash].contains(item.rule.cleanupDisposition)
+        }
+    }
+
     func cleanConfirmed() {
         let selected = items.filter { selectedIDs.contains($0.id) }
         guard !selected.isEmpty, !isCleaning else { return }
@@ -1693,8 +1751,8 @@ final class CleanerViewModel: ObservableObject {
         )
     }
 
-    func isGroupSelected(_ group: JunkScanGroup) -> Bool {
-        group.totalCount > 0 && selectedCountByGroup[group.id] == group.totalCount
+    func selectedCount(in group: JunkScanGroup) -> Int {
+        group.itemIDs.count { selectedIDs.contains($0) }
     }
 
     func selectAllJunkItems() {
@@ -1710,9 +1768,8 @@ final class CleanerViewModel: ObservableObject {
     }
 
     func setGroup(_ group: JunkScanGroup, selected: Bool) {
-        let ids = itemIDsByRuleID[group.id] ?? items.lazy.filter { $0.rule.id == group.id }.map(\.id)
-        if selected { selectedIDs.formUnion(ids) }
-        else { selectedIDs.subtract(ids) }
+        if selected { selectedIDs.formUnion(group.itemIDs) }
+        else { selectedIDs.subtract(group.itemIDs) }
         recalculateSelectionSummary()
     }
 
@@ -1725,11 +1782,9 @@ final class CleanerViewModel: ObservableObject {
         if selected {
             selectedIDs.insert(item.id)
             selectedBytes += item.bytes
-            selectedCountByGroup[item.rule.id, default: 0] += 1
         } else {
             selectedIDs.remove(item.id)
             selectedBytes -= item.bytes
-            selectedCountByGroup[item.rule.id, default: 0] -= 1
         }
     }
 
@@ -1762,9 +1817,5 @@ final class CleanerViewModel: ObservableObject {
 
     private func recalculateSelectionSummary() {
         selectedBytes = selectedIDs.reduce(0) { $0 + (itemByID[$1]?.bytes ?? 0) }
-        selectedCountByGroup = Dictionary(
-            grouping: selectedIDs.compactMap { itemByID[$0]?.rule.id },
-            by: { $0 }
-        ).mapValues(\.count)
     }
 }

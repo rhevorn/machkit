@@ -6,10 +6,13 @@ struct JunkScanGroup: Identifiable, Sendable {
     let title: String
     let explanation: String
     let risk: RiskLevel
+    let itemIDs: [UUID]
     /// Largest items kept for the disclosure list (capped). Selection uses `totalCount`.
     let items: [ScanItem]
     let totalCount: Int
     let bytes: Int64
+    let safeCount: Int
+    let reviewCount: Int
 }
 
 enum ApplicationCategory: String, CaseIterable, Sendable {

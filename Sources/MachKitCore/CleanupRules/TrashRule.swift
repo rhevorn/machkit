@@ -7,6 +7,7 @@ enum TrashRule: CleanupRuleDefinition {
         relativePath: ".Trash",
         minimumAgeDays: 0,
         enumerationMode: .topLevelEntries,
+        cleanupDisposition: .permanentlyDelete,
         risk: .review,
         explanation: "Items already in Trash. Emptying them permanently deletes files and cannot be undone."
     )
