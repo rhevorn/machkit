@@ -41,13 +41,19 @@ export function parseCron(expression) {
     [0, 23],
     [1, 31],
     [1, 12],
-    [0, 6],
+    [0, 7], // 0–6 plus 7 as Sunday synonym
   ];
   const fields = {};
   for (let index = 0; index < 5; index += 1) {
     const values = parseList(parts[index], ranges[index][0], ranges[index][1]);
     if (!values) return { ok: false, error: "invalid-field", fields: null };
-    fields[FIELD_NAMES[index]] = values;
+    if (FIELD_NAMES[index] === "dayOfWeek") {
+      fields.dayOfWeek = [...new Set(values.map((value) => (value === 7 ? 0 : value)))].sort(
+        (left, right) => left - right,
+      );
+    } else {
+      fields[FIELD_NAMES[index]] = values;
+    }
   }
   return { ok: true, error: null, expression: text, fields };
 }
@@ -69,8 +75,9 @@ export function nextCronRuns(expression, { count = 5, from = new Date() } = {}) 
   cursor.setSeconds(0, 0);
   cursor.setMinutes(cursor.getMinutes() + 1);
 
-  // Cap search to ~2 years of minutes.
-  for (let guard = 0; guard < 60 * 24 * 370 * 2 && runs.length < count; guard += 1) {
+  // Cap search far enough for sparse schedules (e.g. monthly × 100).
+  const searchMinutes = Math.max(60 * 24 * 370 * 2, count * 60 * 24 * 40);
+  for (let guard = 0; guard < searchMinutes && runs.length < count; guard += 1) {
     if (matchesDate(parsed.fields, cursor)) runs.push(new Date(cursor.getTime()));
     cursor.setMinutes(cursor.getMinutes() + 1);
   }

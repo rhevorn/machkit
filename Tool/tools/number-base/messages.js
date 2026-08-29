@@ -1,7 +1,6 @@
 export const messages = {
   en: {
     title: "Unit Converter",
-    info: "Convert number bases, data sizes, time, length, mass, temperature, angle, speed, and area locally.",
     category: "Category",
     tab_bases: "Bases",
     tab_bytes: "Bytes",
@@ -29,7 +28,6 @@ export const messages = {
   },
   "zh-Hans": {
     title: "单位换算",
-    info: "本地换算进制、字节、时间、长度、质量、温度、角度、速度与面积。",
     category: "类别",
     tab_bases: "进制",
     tab_bytes: "字节",
@@ -57,7 +55,6 @@ export const messages = {
   },
   "zh-Hant": {
     title: "單位換算",
-    info: "本機換算進位、位元組、時間、長度、質量、溫度、角度、速度與面積。",
     category: "類別",
     tab_bases: "進位",
     tab_bytes: "位元組",
@@ -85,7 +82,6 @@ export const messages = {
   },
   ja: {
     title: "単位変換",
-    info: "基数・バイト・時間・長さ・質量・温度・角度・速度・面積をローカル変換します。",
     category: "カテゴリ",
     tab_bases: "基数",
     tab_bytes: "バイト",
@@ -113,7 +109,6 @@ export const messages = {
   },
   ko: {
     title: "단위 변환",
-    info: "진법, 바이트, 시간, 길이, 질량, 온도, 각도, 속도, 면적을 로컬에서 변환합니다.",
     category: "분류",
     tab_bases: "진법",
     tab_bytes: "바이트",
@@ -141,7 +136,6 @@ export const messages = {
   },
   es: {
     title: "Conversor de unidades",
-    info: "Convierte bases, bytes, tiempo, longitud, masa, temperatura, ángulo, velocidad y área.",
     category: "Categoría",
     tab_bases: "Bases",
     tab_bytes: "Bytes",
@@ -169,7 +163,6 @@ export const messages = {
   },
   fr: {
     title: "Convertisseur d’unités",
-    info: "Convertissez bases, octets, temps, longueur, masse, température, angle, vitesse et surface.",
     category: "Catégorie",
     tab_bases: "Bases",
     tab_bytes: "Octets",
@@ -197,7 +190,6 @@ export const messages = {
   },
   de: {
     title: "Einheitenrechner",
-    info: "Wandeln Sie Basen, Bytes, Zeit, Länge, Masse, Temperatur, Winkel, Geschwindigkeit und Fläche um.",
     category: "Kategorie",
     tab_bases: "Basen",
     tab_bytes: "Bytes",
@@ -225,7 +217,6 @@ export const messages = {
   },
   "pt-BR": {
     title: "Conversor de unidades",
-    info: "Converta bases, bytes, tempo, comprimento, massa, temperatura, ângulo, velocidade e área.",
     category: "Categoria",
     tab_bases: "Bases",
     tab_bytes: "Bytes",
@@ -253,7 +244,6 @@ export const messages = {
   },
   ru: {
     title: "Конвертер единиц",
-    info: "Локально переводите основания, байты, время, длину, массу, температуру, угол, скорость и площадь.",
     category: "Категория",
     tab_bases: "Базы",
     tab_bytes: "Байты",

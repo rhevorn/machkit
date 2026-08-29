@@ -6,7 +6,7 @@ import {
   generateId,
   generateIds,
   generateNanoId,
-  generatePassword,
+  generateString,
   generateUlid,
   generateUuidV1,
   generateUuidV3,
@@ -72,21 +72,21 @@ test("generateId supports format options", async () => {
   assert.match(await generateId("uuid-v6"), /-6[0-9a-f]{3}-/);
 });
 
-test("generates passwords with required character classes", () => {
-  const password = generatePassword({
+test("generates strings with required character classes", () => {
+  const value = generateString({
     length: 20,
     upper: true,
     lower: true,
     digits: true,
     symbols: true,
   });
-  assert.equal(password.length, 20);
-  assert.match(password, /[A-Z]/);
-  assert.match(password, /[a-z]/);
-  assert.match(password, /[0-9]/);
-  assert.match(password, /[!@#$%^&*()\-_=+[\]{};:,.?/]/);
+  assert.equal(value.length, 20);
+  assert.match(value, /[A-Z]/);
+  assert.match(value, /[a-z]/);
+  assert.match(value, /[0-9]/);
+  assert.match(value, /[!@#$%^&*()\-_=+[\]{};:,.?/]/);
 
-  const digitsOnly = generatePassword({
+  const digitsOnly = generateString({
     length: 8,
     upper: false,
     lower: false,
@@ -95,7 +95,7 @@ test("generates passwords with required character classes", () => {
   });
   assert.match(digitsOnly, /^[0-9]{8}$/);
 
-  const unambiguous = generatePassword({
+  const unambiguous = generateString({
     length: 24,
     upper: true,
     lower: true,
@@ -104,7 +104,7 @@ test("generates passwords with required character classes", () => {
     excludeAmbiguous: true,
   });
   assert.equal(/[0OIl1]/.test(unambiguous), false);
-  assert.throws(() => generatePassword({ upper: false, lower: false, digits: false, symbols: false }));
+  assert.throws(() => generateString({ upper: false, lower: false, digits: false, symbols: false }));
 });
 
 test("validates UUID, ULID, ObjectId, and rejects junk", () => {
@@ -113,7 +113,7 @@ test("validates UUID, ULID, ObjectId, and rejects junk", () => {
   assert.equal(validateId("018f3b4c-7c2a-7a3d-9f1e-2b3c4d5e6f70").version, 7);
   assert.equal(validateId("01ARZ3NDEKTSV4RRFFQ69G5FAV").kind, "ulid");
   assert.equal(validateId("507f1f77bcf86cd799439011").kind, "object-id");
-  assert.equal(validateId("Str0ng!Pass").kind, "password-like");
+  assert.equal(validateId("Str0ng!Pass").kind, "string-like");
   assert.equal(validateId("not an id").ok, false);
   assert.equal(validateId("").error, "empty");
 });

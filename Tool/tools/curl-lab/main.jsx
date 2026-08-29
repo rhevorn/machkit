@@ -1,16 +1,18 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { BracketsCurly, CopySimple, Eraser, FolderOpen, GearSix, Play, Plus, Trash, X } from "@phosphor-icons/react";
 import {
+  ActionGroup,
   Button,
   CheckboxField,
-  InlineMessage,
   Input,
+  ResultPanel,
   SegmentedControl,
   SelectControl,
+  StatusStrip,
   Textarea,
   ToolContent,
-  ToolInfoButton,
   ToolPage,
+  ToolToolbar,
 } from "@/ui/index.js";
 import { useToolMessages } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
@@ -151,14 +153,15 @@ function FormFieldEditor({ label, rows, onChange, text, allowFile }) {
               spellCheck={false}
             />
             {allowFile ? (
-              <button
-                type="button"
-                className="shrink-0 rounded-md border border-border px-2 py-1 font-mono text-[11px] text-secondary hover:bg-surface-secondary"
+              <Button
+                variant="secondary"
+                size="compact"
+                className="shrink-0 px-2 font-mono text-[11px] font-normal"
                 onClick={() => updateRow(row.id, { kind: row.kind === "file" ? "text" : "file" })}
                 title={text.fieldType}
               >
                 {row.kind === "file" ? text.fieldFile : text.fieldText}
-              </button>
+              </Button>
             ) : null}
             <Input
               className="min-w-0 flex-1 font-mono text-[12px]"
@@ -211,42 +214,41 @@ function OptionsDialog({ open, onClose, request, patchRequest, text }) {
       role="presentation"
       onClick={onClose}
     >
-      <div
-        className="machkit-panel w-full max-w-[360px] shadow-popover"
+      <ResultPanel
+        className="w-full max-w-[360px] shadow-popover"
         role="dialog"
         aria-modal="true"
         aria-label={text.optionsTitle}
-        onClick={(event) => event.stopPropagation()}
-      >
-        <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <span className="text-[13px] font-medium text-foreground">{text.optionsTitle}</span>
+        title={text.optionsTitle}
+        actions={
           <Button variant="ghost" size="sm" onClick={onClose} aria-label={text.close}>
             <X size={16} />
           </Button>
-        </div>
-        <div className="flex flex-col gap-3 px-4 py-4">
-          <CheckboxField
-            checked={Boolean(request.insecure)}
-            onCheckedChange={(checked) => patchRequest({ insecure: Boolean(checked) })}
-            label={text.insecure}
-          />
-          <CheckboxField
-            checked={Boolean(request.followRedirects)}
-            onCheckedChange={(checked) => patchRequest({ followRedirects: Boolean(checked) })}
-            label={text.followRedirects}
-          />
-          <CheckboxField
-            checked={Boolean(request.compressed)}
-            onCheckedChange={(checked) => patchRequest({ compressed: Boolean(checked) })}
-            label={text.compressed}
-          />
-        </div>
-        <div className="flex justify-end border-t border-border px-4 py-3">
-          <Button variant="default" size="sm" onClick={onClose}>
+        }
+        bodyClassName="flex flex-col gap-3 px-4 py-4"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <CheckboxField
+          checked={Boolean(request.insecure)}
+          onCheckedChange={(checked) => patchRequest({ insecure: Boolean(checked) })}
+          label={text.insecure}
+        />
+        <CheckboxField
+          checked={Boolean(request.followRedirects)}
+          onCheckedChange={(checked) => patchRequest({ followRedirects: Boolean(checked) })}
+          label={text.followRedirects}
+        />
+        <CheckboxField
+          checked={Boolean(request.compressed)}
+          onCheckedChange={(checked) => patchRequest({ compressed: Boolean(checked) })}
+          label={text.compressed}
+        />
+        <div className="-mx-4 -mb-4 mt-1 flex justify-end border-t border-border px-4 py-3">
+          <Button variant="secondary" size="sm" onClick={onClose}>
             {text.close}
           </Button>
         </div>
-      </div>
+      </ResultPanel>
     </div>
   );
 }
@@ -360,12 +362,20 @@ function CurlLabTool() {
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [bodyFormatError, setBodyFormatError] = useState(null);
   const runLock = useRef(false);
+  const runGeneration = useRef(0);
 
   const fetchSnippet = useMemo(() => buildFetch(request), [request]);
   const bodyMode = bodyModes.includes(request.bodyMode) ? request.bodyMode : "none";
   const codeText = codeMode === "fetch" ? fetchSnippet : curlText;
   const enabledFlagCount = [request.insecure, request.followRedirects, request.compressed].filter(Boolean)
     .length;
+
+  useEffect(() => () => {
+    runGeneration.current += 1;
+    if (machkit.isEmbedded) {
+      machkit.curlLab("cancel").catch(() => {});
+    }
+  }, []);
 
   useEffect(() => {
     if (editSource !== "form") return;
@@ -446,6 +456,7 @@ function CurlLabTool() {
       return;
     }
 
+    const generation = ++runGeneration.current;
     runLock.current = true;
     setRunning(true);
     setRunError(null);
@@ -466,6 +477,7 @@ function CurlLabTool() {
         followRedirects: Boolean(request.followRedirects),
         compressed: Boolean(request.compressed),
       });
+      if (generation !== runGeneration.current) return;
       if (result?.error && !result?.ok && result?.statusCode == null) {
         setRunResult(result);
         setRunError(String(result.error));
@@ -474,11 +486,27 @@ function CurlLabTool() {
         setRunError(null);
       }
     } catch (error) {
+      if (generation !== runGeneration.current) return;
       setRunResult(null);
       setRunError(error instanceof Error ? error.message : "run-failed");
     } finally {
-      setRunning(false);
-      runLock.current = false;
+      if (generation === runGeneration.current) {
+        setRunning(false);
+        runLock.current = false;
+      }
+    }
+  }
+
+  async function cancelRequest() {
+    if (!running) return;
+    runGeneration.current += 1;
+    runLock.current = false;
+    setRunning(false);
+    setRunError("canceled");
+    try {
+      await machkit.curlLab("cancel");
+    } catch {
+      // Native cancel is best-effort; UI already reflects canceled state.
     }
   }
 
@@ -522,14 +550,14 @@ function CurlLabTool() {
   return (
     <ToolPage title={text.title} adaptiveHeight={false}>
       <ToolContent className="flex h-full min-h-0 flex-col gap-2 pt-3 pb-4">
-        {status ? <InlineMessage tone={status.tone}>{status.label}</InlineMessage> : null}
+        {status ? <StatusStrip tone={status.tone}>{status.label}</StatusStrip> : null}
 
         <HorizontalSplit
-          label={text.splitResize || "Resize panels"}
+          label={text.splitResize}
           left={
             <section className="flex min-h-0 flex-1 flex-col overflow-hidden">
               <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pt-0.5">
-                <div className="flex items-center gap-2">
+                <ToolToolbar className="gap-2">
                   <SelectControl
                     value={request.method}
                     onChange={(method) => patchRequest({ method })}
@@ -544,17 +572,30 @@ function CurlLabTool() {
                     placeholder="https://"
                     spellCheck={false}
                   />
-                  <Button
-                    variant="default"
-                    size="sm"
-                    className="shrink-0"
-                    onClick={runRequest}
-                    disabled={running}
-                  >
-                    <Play size={15} weight="fill" />
-                    {running ? text.running : text.run}
-                  </Button>
-                </div>
+                  <ActionGroup>
+                    {running ? (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="shrink-0"
+                        onClick={cancelRequest}
+                      >
+                        <X size={15} />
+                        {text.cancel}
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="shrink-0"
+                        onClick={runRequest}
+                      >
+                        <Play size={15} weight="fill" />
+                        {text.run}
+                      </Button>
+                    )}
+                  </ActionGroup>
+                </ToolToolbar>
 
                 <div className="flex flex-col gap-1.5">
                   <span className="machkit-control-label">{text.bodyMode}</span>
@@ -579,7 +620,7 @@ function CurlLabTool() {
                         onClick={formatBody}
                       >
                         <BracketsCurly size={15} />
-                        {text.formatBody || "Format"}
+                        {text.formatBody}
                       </Button>
                     </div>
                     <Textarea
@@ -670,9 +711,12 @@ function CurlLabTool() {
                     spellCheck={false}
                   />
                 ) : (
-                  <pre className="min-h-0 flex-1 overflow-auto rounded-control border border-border bg-field px-3 py-2.5 font-mono text-[12px] leading-relaxed whitespace-pre-wrap break-all">
-                    {fetchSnippet}
-                  </pre>
+                  <ResultPanel
+                    className="min-h-0 flex-1"
+                    bodyClassName="h-full min-h-0 overflow-auto px-3 py-2.5 font-mono text-[12px] leading-relaxed whitespace-pre-wrap break-all"
+                  >
+                    <pre className="m-0 font-inherit whitespace-pre-wrap break-all">{fetchSnippet}</pre>
+                  </ResultPanel>
                 )}
               </section>
 
@@ -684,7 +728,7 @@ function CurlLabTool() {
                       <span className="shrink-0 text-[11px] text-tertiary">{text.bodyTruncated}</span>
                     ) : null}
                   </div>
-                  <div className="flex shrink-0 items-center gap-1">
+                  <ActionGroup>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -712,12 +756,16 @@ function CurlLabTool() {
                       <CopySimple size={15} />
                       {text.copy}
                     </Button>
-                    <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
-                  </div>
+                  </ActionGroup>
                 </div>
-                <pre className="min-h-0 flex-1 overflow-auto rounded-control border border-border bg-field px-3 py-2.5 font-mono text-[12px] leading-relaxed whitespace-pre-wrap break-all text-secondary">
-                  {formatRunResult(runResult, text) || text.responseEmpty}
-                </pre>
+                <ResultPanel
+                  className="min-h-0 flex-1"
+                  bodyClassName="h-full min-h-0 overflow-auto px-3 py-2.5 font-mono text-[12px] leading-relaxed whitespace-pre-wrap break-all text-secondary"
+                >
+                  <pre className="m-0 font-inherit whitespace-pre-wrap break-all">
+                    {formatRunResult(runResult, text) || text.responseEmpty}
+                  </pre>
+                </ResultPanel>
               </section>
             </div>
           }

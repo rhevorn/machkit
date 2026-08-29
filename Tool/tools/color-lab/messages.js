@@ -1,7 +1,6 @@
 export const messages = {
   en: {
     title: "Color Lab",
-    info: "Convert colors between HEX, RGB, HSL, and HSV locally, with contrast checks against white and black.",
     input: "Color",
     placeholder: "#0A84FF or rgb(10, 132, 255)",
     picker: "Picker",
@@ -23,7 +22,6 @@ export const messages = {
   },
   "zh-Hans": {
     title: "颜色实验室",
-    info: "本地在 HEX、RGB、HSL、HSV 间转换，并检查相对黑白的对比度。",
     input: "颜色",
     placeholder: "#0A84FF 或 rgb(10, 132, 255)",
     picker: "取色",
@@ -45,7 +43,6 @@ export const messages = {
   },
   "zh-Hant": {
     title: "顏色實驗室",
-    info: "本機在 HEX、RGB、HSL、HSV 間轉換，並檢查相對黑白的對比度。",
     input: "顏色",
     placeholder: "#0A84FF 或 rgb(10, 132, 255)",
     picker: "取色",
@@ -67,7 +64,6 @@ export const messages = {
   },
   ja: {
     title: "カラーラボ",
-    info: "HEX / RGB / HSL / HSV をローカル変換し、白黒とのコントラストを確認します。",
     input: "色",
     placeholder: "#0A84FF または rgb(10, 132, 255)",
     picker: "ピッカー",
@@ -89,7 +85,6 @@ export const messages = {
   },
   ko: {
     title: "색상 랩",
-    info: "HEX, RGB, HSL, HSV를 로컬에서 변환하고 흑백 대비를 확인합니다.",
     input: "색상",
     placeholder: "#0A84FF 또는 rgb(10, 132, 255)",
     picker: "선택",
@@ -111,7 +106,6 @@ export const messages = {
   },
   es: {
     title: "Laboratorio de color",
-    info: "Convierte HEX, RGB, HSL y HSV en local, con contraste sobre blanco y negro.",
     input: "Color",
     placeholder: "#0A84FF o rgb(10, 132, 255)",
     picker: "Selector",
@@ -133,7 +127,6 @@ export const messages = {
   },
   fr: {
     title: "Labo couleur",
-    info: "Convertissez HEX, RGB, HSL et HSV en local, avec contraste sur blanc et noir.",
     input: "Couleur",
     placeholder: "#0A84FF ou rgb(10, 132, 255)",
     picker: "Pipette",
@@ -155,7 +148,6 @@ export const messages = {
   },
   de: {
     title: "Farblabor",
-    info: "Wandeln Sie HEX, RGB, HSL und HSV lokal um und prüfen Sie Kontrast zu Weiß/Schwarz.",
     input: "Farbe",
     placeholder: "#0A84FF oder rgb(10, 132, 255)",
     picker: "Wähler",
@@ -177,7 +169,6 @@ export const messages = {
   },
   "pt-BR": {
     title: "Lab de cores",
-    info: "Converta HEX, RGB, HSL e HSV localmente, com contraste em branco e preto.",
     input: "Cor",
     placeholder: "#0A84FF ou rgb(10, 132, 255)",
     picker: "Seletor",
@@ -199,7 +190,6 @@ export const messages = {
   },
   ru: {
     title: "Цветовая лаборатория",
-    info: "Локально конвертируйте HEX, RGB, HSL и HSV и проверяйте контраст с белым и чёрным.",
     input: "Цвет",
     placeholder: "#0A84FF или rgb(10, 132, 255)",
     picker: "Пипетка",

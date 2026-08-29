@@ -32,3 +32,14 @@ test("can ignore whitespace", () => {
   assert.equal(result.stats.equal, 1);
   assert.equal(result.stats.added + result.stats.removed, 0);
 });
+
+test("rejects oversized input and too many lines", () => {
+  assert.equal(diffLines("a".repeat(400_001), "b").error, "input-too-large");
+  assert.equal(diffLines("\n".repeat(8_001), "x").error, "too-many-lines");
+});
+
+test("diffs empty strings", () => {
+  const result = diffLines("", "");
+  assert.equal(result.ok, true);
+  assert.equal(result.stats.equal, 0);
+});

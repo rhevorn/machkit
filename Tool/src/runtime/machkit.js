@@ -112,11 +112,12 @@ export const machkit = Object.freeze({
     }
 
     let timeoutID = 0;
+    let timedOut = false;
     const deadline = new Promise((_, reject) => {
-      timeoutID = window.setTimeout(
-        () => reject(new Error(`The ${method} operation timed out.`)),
-        timeout,
-      );
+      timeoutID = window.setTimeout(() => {
+        timedOut = true;
+        reject(new Error(`The ${method} operation timed out.`));
+      }, timeout);
     });
 
     try {
@@ -124,6 +125,17 @@ export const machkit = Object.freeze({
         Promise.resolve(handler.postMessage({ protocolVersion: 1, method, params })),
         deadline,
       ]);
+    } catch (error) {
+      if (timedOut && method === "curlLab.run") {
+        try {
+          await Promise.resolve(
+            handler.postMessage({ protocolVersion: 1, method: "curlLab.cancel", params: {} }),
+          );
+        } catch {
+          // Best-effort cancel after the waiter already timed out.
+        }
+      }
+      throw error;
     } finally {
       window.clearTimeout(timeoutID);
     }
@@ -142,6 +154,19 @@ export const machkit = Object.freeze({
       const message = error instanceof Error ? error.message : "Unable to copy.";
       announceCopyResult(false, message);
       return false;
+    }
+  },
+
+  async readClipboard() {
+    try {
+      if (this.isEmbedded) {
+        const result = await this.request("clipboard.read");
+        return typeof result?.text === "string" ? result.text : "";
+      }
+      if (!navigator.clipboard?.readText) return "";
+      return await navigator.clipboard.readText();
+    } catch {
+      return "";
     }
   },
 
@@ -172,15 +197,6 @@ export const machkit = Object.freeze({
     return this.request(`hosts.${action}`, payload);
   },
 
-  connectionTrace(action, payload = {}, options = {}) {
-    if (!/^(probe)$/.test(action)) {
-      return Promise.reject(new Error(`Unsupported Connection Trace operation: ${action}`));
-    }
-    return this.request(`connectionTrace.${action}`, payload, {
-      timeout: options.timeout ?? 20_000,
-    });
-  },
-
   portScan(action, payload = {}, options = {}) {
     if (!/^(start|status|cancel)$/.test(action)) {
       return Promise.reject(new Error(`Unsupported Port Scan operation: ${action}`));
@@ -191,11 +207,11 @@ export const machkit = Object.freeze({
   },
 
   curlLab(action, payload = {}, options = {}) {
-    if (!/^(run)$/.test(action)) {
+    if (!/^(run|cancel)$/.test(action)) {
       return Promise.reject(new Error(`Unsupported cURL Lab operation: ${action}`));
     }
     return this.request(`curlLab.${action}`, payload, {
-      timeout: options.timeout ?? 45_000,
+      timeout: options.timeout ?? (action === "cancel" ? 10_000 : 45_000),
     });
   },
 
@@ -233,6 +249,48 @@ export const machkit = Object.freeze({
       input.addEventListener("cancel", () => resolve(null));
       input.click();
     });
+  },
+
+  /**
+   * Saves binary content via native save panel (embedded) or browser download.
+   * @returns {Promise<{ path?: string, name: string } | null>}
+   */
+  async saveFile(options = {}) {
+    const name = String(options.name ?? "download.bin").replace(/[/\\]/g, "_");
+    const dataBase64 = String(options.dataBase64 ?? "");
+    if (!name || !dataBase64) return null;
+
+    if (this.isEmbedded) {
+      const result = await this.request(
+        "files.save",
+        { name, dataBase64 },
+        { timeout: options.timeout ?? 120_000 },
+      );
+      if (!result || result.canceled) return null;
+      return {
+        path: typeof result.path === "string" ? result.path : undefined,
+        name: typeof result.name === "string" ? result.name : name,
+      };
+    }
+
+    const binary = atob(dataBase64);
+    const bytes = new Uint8Array(binary.length);
+    for (let index = 0; index < binary.length; index += 1) {
+      bytes[index] = binary.charCodeAt(index);
+    }
+    const mime =
+      typeof options.mimeType === "string" && options.mimeType
+        ? options.mimeType
+        : "application/octet-stream";
+    const url = URL.createObjectURL(new Blob([bytes], { type: mime }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = name;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    return { name };
   },
 
   async getItem(key) {

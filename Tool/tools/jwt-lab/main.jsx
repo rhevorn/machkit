@@ -1,15 +1,17 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { CopySimple, Eraser } from "@phosphor-icons/react";
 import {
+  ActionGroup,
   Button,
-  InlineMessage,
   Input,
   SegmentedControl,
   SelectControl,
+  SplitWorkspace,
+  StatusStrip,
   Textarea,
   ToolContent,
-  ToolInfoButton,
   ToolPage,
+  ToolToolbar,
 } from "@/ui/index.js";
 import { useToolMessages } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
@@ -25,30 +27,45 @@ import { messages } from "./messages.js";
 const SAMPLE =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJtYWNoa2l0IiwibmFtZSI6Ik1hY2hLaXQiLCJpYXQiOjE3MDAwMDAwMDAsImV4cCI6NDkwMDAwMDAwMH0.signature";
 
-function ClaimRow({ label, claim, none }) {
-  if (!claim) {
-    return (
-      <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2 text-[12px] last:border-b-0">
-        <span className="text-secondary">{label}</span>
-        <span className="text-tertiary">{none}</span>
-      </div>
-    );
-  }
+function JsonBlock({ label, value, copyLabel, onCopy }) {
   return (
-    <div className="flex flex-col gap-0.5 border-b border-border px-3 py-2 text-[12px] last:border-b-0">
+    <div className="flex min-w-0 flex-col gap-1.5">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-secondary">{label}</span>
-        <span className={claim.expired ? "text-danger" : "text-foreground"}>{claim.iso}</span>
+        <span className="machkit-control-label">{label}</span>
+        <Button variant="ghost" size="sm" onClick={onCopy}>
+          <CopySimple size={15} />
+          {copyLabel}
+        </Button>
       </div>
-      <span className="font-mono text-[11px] text-tertiary">{claim.local}</span>
+      <pre className="max-h-[132px] overflow-auto whitespace-pre-wrap break-all rounded-control bg-muted px-3 py-2 font-mono text-[12px] leading-relaxed text-foreground select-text">
+        {value}
+      </pre>
+    </div>
+  );
+}
+
+function ClaimChip({ label, claim, none }) {
+  return (
+    <div className="min-w-0 flex-1 rounded-control bg-muted px-2.5 py-2">
+      <div className="text-[11px] text-secondary">{label}</div>
+      {claim ? (
+        <>
+          <div className={`mt-0.5 truncate text-[12px] ${claim.expired ? "text-danger" : "text-foreground"}`}>
+            {claim.iso}
+          </div>
+          <div className="mt-0.5 truncate font-mono text-[10px] text-tertiary">{claim.local}</div>
+        </>
+      ) : (
+        <div className="mt-0.5 text-[12px] text-tertiary">{none}</div>
+      )}
     </div>
   );
 }
 
 function JwtLabTool() {
   const text = useToolMessages(messages);
-  const [mode, setMode] = useState("decode");
-  const [token, setToken] = useState(SAMPLE);
+  const [mode, setMode] = useState("generate");
+  const [token, setToken] = useState("");
   const [headerText, setHeaderText] = useState(JSON.stringify({ alg: "HS256", typ: "JWT" }, null, 2));
   const [payloadText, setPayloadText] = useState(() => JSON.stringify(defaultGeneratePayload(), null, 2));
   const [algorithm, setAlgorithm] = useState("HS256");
@@ -102,9 +119,7 @@ function JwtLabTool() {
                 ? text.generateEmpty
                 : text.invalidJson,
       }
-    : token.trim()
-      ? { tone: "info", label: `${text.generated} · ${algorithm}` }
-      : { tone: "neutral", label: text.generateEmpty };
+    : null;
 
   useEffect(() => {
     if (mode !== "generate") return;
@@ -118,6 +133,7 @@ function JwtLabTool() {
         setGenerateError(null);
       } else {
         setGenerateError(result.error);
+        setToken("");
       }
     });
     return () => {
@@ -138,19 +154,30 @@ function JwtLabTool() {
     }
   }
 
+  function switchMode(next) {
+    if (next === mode) return;
+    if (next === "decode") {
+      setToken(SAMPLE);
+    } else {
+      setToken("");
+      setGenerateError(null);
+    }
+    setMode(next);
+  }
+
   return (
     <ToolPage title={text.title}>
       <ToolContent className="flex flex-col gap-3 pt-3 pb-4">
-        <div className="flex w-full flex-wrap items-center gap-y-2">
+        <ToolToolbar className="flex-wrap gap-y-2">
           <SegmentedControl
             value={mode}
-            onChange={setMode}
+            onChange={switchMode}
             label={text.title}
             size="compact"
             className="w-[180px] flex-none"
             options={[
-              { value: "decode", label: text.tabDecode },
               { value: "generate", label: text.tabGenerate },
+              { value: "decode", label: text.tabDecode },
             ]}
           />
 
@@ -183,7 +210,7 @@ function JwtLabTool() {
 
           <div className="mx-3 h-5 w-px shrink-0 bg-border" aria-hidden="true" />
 
-          <div className="flex shrink-0 items-center gap-1">
+          <ActionGroup>
             <Button
               variant="ghost"
               size="sm"
@@ -197,75 +224,69 @@ function JwtLabTool() {
               variant="ghost"
               size="sm"
               onClick={() => {
-                setToken("");
-                setHeaderText(JSON.stringify({ alg: algorithm, typ: "JWT" }, null, 2));
-                setPayloadText(JSON.stringify(defaultGeneratePayload(), null, 2));
-                setGenerateError(null);
+                if (mode === "decode") {
+                  setToken("");
+                } else {
+                  setToken("");
+                  setHeaderText(JSON.stringify({ alg: algorithm, typ: "JWT" }, null, 2));
+                  setPayloadText(JSON.stringify(defaultGeneratePayload(), null, 2));
+                  setGenerateError(null);
+                }
               }}
             >
               <Eraser size={15} />
               {text.clear}
             </Button>
-            <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
-          </div>
-        </div>
-
-        <div className="flex min-w-0 flex-col gap-1.5">
-          <span className="machkit-control-label">{text.token}</span>
-          <Textarea
-            className="min-h-[96px] font-mono text-[12px]"
-            value={token}
-            onChange={(event) => {
-              if (mode === "generate") return;
-              setToken(event.target.value);
-            }}
-            readOnly={mode === "generate"}
-            placeholder={text.placeholder}
-            spellCheck={false}
-          />
-        </div>
+          </ActionGroup>
+        </ToolToolbar>
 
         {mode === "decode" ? (
           <>
-            <InlineMessage tone={decodeStatus.tone}>{decodeStatus.label}</InlineMessage>
-            {decoded.ok ? <p className="text-[11px] text-tertiary">{text.unverified}</p> : null}
+            <div className="flex min-w-0 flex-col gap-1.5">
+              <span className="machkit-control-label">{text.token}</span>
+              <Textarea
+                className="min-h-[72px] font-mono text-[12px]"
+                value={token}
+                onChange={(event) => setToken(event.target.value)}
+                placeholder={text.placeholder}
+                spellCheck={false}
+              />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <StatusStrip tone={decodeStatus.tone} className="min-w-0 flex-1">
+                {decodeStatus.label}
+              </StatusStrip>
+              {decoded.ok ? <span className="text-[11px] text-tertiary">{text.unverified}</span> : null}
+            </div>
 
             {decoded.ok ? (
-              <div className="grid gap-3 lg:grid-cols-2">
-                <div className="machkit-panel overflow-hidden">
-                  <div className="flex items-center justify-between border-b border-border px-3 py-2">
-                    <span className="text-[12px] font-medium">{text.header}</span>
-                    <Button variant="ghost" size="sm" onClick={() => machkit.copy(decoded.headerJson)}>
-                      <CopySimple size={15} />
-                      {text.copy}
-                    </Button>
-                  </div>
-                  <pre className="max-h-48 overflow-auto px-3 py-2 font-mono text-[12px] leading-relaxed">
-                    {decoded.headerJson}
-                  </pre>
+              <div className="flex flex-col gap-3">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <JsonBlock
+                    label={text.header}
+                    value={decoded.headerJson}
+                    copyLabel={text.copy}
+                    onCopy={() => machkit.copy(decoded.headerJson)}
+                  />
+                  <JsonBlock
+                    label={text.payload}
+                    value={decoded.payloadJson}
+                    copyLabel={text.copy}
+                    onCopy={() => machkit.copy(decoded.payloadJson)}
+                  />
                 </div>
 
-                <div className="machkit-panel overflow-hidden">
-                  <div className="flex items-center justify-between border-b border-border px-3 py-2">
-                    <span className="text-[12px] font-medium">{text.payload}</span>
-                    <Button variant="ghost" size="sm" onClick={() => machkit.copy(decoded.payloadJson)}>
-                      <CopySimple size={15} />
-                      {text.copy}
-                    </Button>
+                <div className="flex flex-col gap-1.5">
+                  <span className="machkit-control-label">{text.claims}</span>
+                  <div className="grid grid-cols-3 gap-2">
+                    <ClaimChip label={text.exp} claim={decoded.exp} none={text.none} />
+                    <ClaimChip label={text.iat} claim={decoded.iat} none={text.none} />
+                    <ClaimChip label={text.nbf} claim={decoded.nbf} none={text.none} />
                   </div>
-                  <pre className="max-h-48 overflow-auto px-3 py-2 font-mono text-[12px] leading-relaxed">
-                    {decoded.payloadJson}
-                  </pre>
-                </div>
-
-                <div className="machkit-panel overflow-hidden lg:col-span-2">
-                  <div className="border-b border-border px-3 py-2 text-[12px] font-medium">{text.claims}</div>
-                  <ClaimRow label={text.exp} claim={decoded.exp} none={text.none} />
-                  <ClaimRow label={text.iat} claim={decoded.iat} none={text.none} />
-                  <ClaimRow label={text.nbf} claim={decoded.nbf} none={text.none} />
-                  <div className="flex items-center justify-between gap-2 px-3 py-2 text-[12px]">
-                    <span className="text-secondary">{text.signature}</span>
-                    <code className="max-w-[70%] truncate font-mono text-[11px]">
+                  <div className="rounded-control bg-muted px-2.5 py-2">
+                    <div className="text-[11px] text-secondary">{text.signature}</div>
+                    <code className="mt-0.5 block break-all font-mono text-[11px] leading-snug text-foreground">
                       {decoded.parts.signature || text.none}
                     </code>
                   </div>
@@ -275,7 +296,7 @@ function JwtLabTool() {
           </>
         ) : (
           <>
-            <div className="grid gap-3 lg:grid-cols-2">
+            <SplitWorkspace>
               <div className="flex min-w-0 flex-col gap-1.5">
                 <span className="machkit-control-label">{text.header}</span>
                 <Textarea
@@ -294,11 +315,54 @@ function JwtLabTool() {
                   spellCheck={false}
                 />
               </div>
-            </div>
+            </SplitWorkspace>
 
-            <InlineMessage tone={generateStatus.tone}>
-              {busy ? text.generate : generateStatus.label}
-            </InlineMessage>
+            {generateError || busy ? (
+              <StatusStrip tone={generateError ? generateStatus.tone : "info"}>
+                {busy ? text.generate : generateStatus.label}
+              </StatusStrip>
+            ) : null}
+
+            <div className="flex min-w-0 flex-col gap-1.5">
+              <div className="flex items-center justify-between gap-2">
+                <span className="machkit-control-label">{text.token}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={!token.trim()}
+                  onClick={() => machkit.copy(token.trim())}
+                >
+                  <CopySimple size={15} />
+                  {text.copy}
+                </Button>
+              </div>
+              <div className="rounded-control bg-muted px-3 py-2.5">
+                {token.trim() ? (
+                  <pre className="whitespace-pre-wrap break-all font-mono text-[12px] leading-relaxed select-text">
+                    {token.trim().split(".").map((part, index, parts) => (
+                      <span key={`${index}-${part.slice(0, 8)}`}>
+                        <span
+                          className={
+                            index === 0
+                              ? "text-accent"
+                              : index === 1
+                                ? "text-foreground"
+                                : "text-secondary"
+                          }
+                        >
+                          {part}
+                        </span>
+                        {index < parts.length - 1 ? (
+                          <span className="text-tertiary">.</span>
+                        ) : null}
+                      </span>
+                    ))}
+                  </pre>
+                ) : (
+                  <p className="font-mono text-[12px] text-tertiary">{text.generateEmpty}</p>
+                )}
+              </div>
+            </div>
           </>
         )}
       </ToolContent>

@@ -1,7 +1,6 @@
 export const messages = {
   en: {
     title: "Port Scanner",
-    info: "Scan any TCP port from 1 to 65535 through MachKit’s native bridge. Full-range scans use controlled concurrency and can be cancelled.",
     authorizedOnly: "Scan only hosts you own or are authorized to test.",
     host: "Host", hostPlaceholder: "localhost, 192.168.1.1, or example.com",
     ports: "Ports", portsCount: "ports", preset: "Preset",
@@ -18,7 +17,7 @@ export const messages = {
     err_scan_not_found: "Scan no longer exists", err_failed: "Scan failed",
   },
   "zh-Hans": {
-    title: "端口扫描", info: "通过 MachKit 原生桥接扫描 1 到 65535 的任意 TCP 端口。全端口扫描使用受控并发，可随时取消。",
+    title: "端口扫描",
     authorizedOnly: "仅扫描你拥有或已获授权测试的主机。",
     host: "主机", hostPlaceholder: "localhost、192.168.1.1 或 example.com",
     ports: "端口", portsCount: "个端口", preset: "预设",
@@ -35,7 +34,7 @@ export const messages = {
     err_scan_not_found: "扫描任务已不存在", err_failed: "扫描失败",
   },
   "zh-Hant": {
-    title: "連接埠掃描", info: "透過 MachKit 原生橋接掃描 1 到 65535 的任意 TCP 連接埠。完整掃描採受控並行，可隨時取消。",
+    title: "連接埠掃描",
     authorizedOnly: "僅掃描你擁有或已獲授權測試的主機。",
     host: "主機", hostPlaceholder: "localhost、192.168.1.1 或 example.com",
     ports: "連接埠", portsCount: "個連接埠", preset: "預設",
@@ -52,7 +51,7 @@ export const messages = {
     err_scan_not_found: "掃描工作已不存在", err_failed: "掃描失敗",
   },
   ja: {
-    title: "ポートスキャナー", info: "MachKit のネイティブブリッジで 1〜65535 の任意の TCP ポートをスキャン。全範囲は制御された並行処理で、いつでも中止できます。",
+    title: "ポートスキャナー",
     authorizedOnly: "所有またはテスト許可を得たホストのみスキャンしてください。",
     host: "ホスト", hostPlaceholder: "localhost、192.168.1.1、example.com",
     ports: "ポート", portsCount: "ポート", preset: "プリセット",
@@ -69,7 +68,7 @@ export const messages = {
     err_scan_not_found: "スキャンが見つかりません", err_failed: "スキャン失敗",
   },
   ko: {
-    title: "포트 스캐너", info: "MachKit 네이티브 브리지로 1~65535의 모든 TCP 포트를 스캔합니다. 전체 범위는 제어된 동시성으로 실행되며 취소할 수 있습니다.",
+    title: "포트 스캐너",
     authorizedOnly: "소유하거나 테스트 권한이 있는 호스트만 스캔하세요.",
     host: "호스트", hostPlaceholder: "localhost, 192.168.1.1 또는 example.com",
     ports: "포트", portsCount: "개 포트", preset: "프리셋",
@@ -86,7 +85,7 @@ export const messages = {
     err_scan_not_found: "스캔을 찾을 수 없습니다", err_failed: "스캔 실패",
   },
   es: {
-    title: "Escáner de puertos", info: "Escanea cualquier puerto TCP del 1 al 65535 mediante el puente nativo de MachKit. El rango completo usa concurrencia controlada y se puede cancelar.",
+    title: "Escáner de puertos",
     authorizedOnly: "Escanea solo hosts propios o para los que tengas autorización.",
     host: "Host", hostPlaceholder: "localhost, 192.168.1.1 o example.com",
     ports: "Puertos", portsCount: "puertos", preset: "Preajuste",
@@ -103,7 +102,7 @@ export const messages = {
     err_scan_not_found: "Escaneo no encontrado", err_failed: "Falló el escaneo",
   },
   fr: {
-    title: "Scanner de ports", info: "Scannez tout port TCP de 1 à 65535 via le pont natif de MachKit. Le scan complet utilise une concurrence contrôlée et peut être annulé.",
+    title: "Scanner de ports",
     authorizedOnly: "Scannez uniquement les hôtes que vous possédez ou êtes autorisé à tester.",
     host: "Hôte", hostPlaceholder: "localhost, 192.168.1.1 ou example.com",
     ports: "Ports", portsCount: "ports", preset: "Préréglage",
@@ -120,7 +119,7 @@ export const messages = {
     err_scan_not_found: "Scan introuvable", err_failed: "Échec du scan",
   },
   de: {
-    title: "Portscanner", info: "Beliebige TCP-Ports von 1 bis 65535 über MachKits native Bridge scannen. Vollscans nutzen begrenzte Parallelität und sind abbrechbar.",
+    title: "Portscanner",
     authorizedOnly: "Nur eigene oder ausdrücklich freigegebene Hosts scannen.",
     host: "Host", hostPlaceholder: "localhost, 192.168.1.1 oder example.com",
     ports: "Ports", portsCount: "Ports", preset: "Vorgabe",
@@ -137,7 +136,7 @@ export const messages = {
     err_scan_not_found: "Scan nicht gefunden", err_failed: "Scan fehlgeschlagen",
   },
   "pt-BR": {
-    title: "Scanner de portas", info: "Escaneie qualquer porta TCP de 1 a 65535 pela ponte nativa do MachKit. O intervalo completo usa concorrência controlada e pode ser cancelado.",
+    title: "Scanner de portas",
     authorizedOnly: "Escaneie apenas hosts próprios ou autorizados para teste.",
     host: "Host", hostPlaceholder: "localhost, 192.168.1.1 ou example.com",
     ports: "Portas", portsCount: "portas", preset: "Predefinição",
@@ -154,7 +153,7 @@ export const messages = {
     err_scan_not_found: "Scan não encontrado", err_failed: "Falha no scan",
   },
   ru: {
-    title: "Сканер портов", info: "Сканируйте любые TCP-порты от 1 до 65535 через нативный мост MachKit. Полный диапазон использует ограниченный параллелизм и допускает отмену.",
+    title: "Сканер портов",
     authorizedOnly: "Сканируйте только свои хосты или хосты с разрешением на тестирование.",
     host: "Хост", hostPlaceholder: "localhost, 192.168.1.1 или example.com",
     ports: "Порты", portsCount: "портов", preset: "Набор",

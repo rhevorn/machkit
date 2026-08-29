@@ -174,8 +174,10 @@ export function formatBytes(bytes) {
 }
 
 export function ratioLabel(before, after) {
-  if (!before || !after) return "—";
-  const ratio = after / before;
+  const from = Number(before);
+  const to = Number(after);
+  if (!Number.isFinite(from) || !Number.isFinite(to) || from <= 0) return "—";
+  const ratio = to / from;
   const percent = Math.round((1 - ratio) * 100);
   if (percent > 0) return `−${percent}%`;
   if (percent < 0) return `+${Math.abs(percent)}%`;

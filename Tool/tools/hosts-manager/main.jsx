@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import CodeMirror from "@uiw/react-codemirror";
-import { Check, Desktop, HardDrives, Link, Plus, Power, Trash } from "@phosphor-icons/react";
-import * as ContextMenu from "@radix-ui/react-context-menu";
-import { Button, InlineMessage, ToolPage } from "@/ui/index.js";
+import { Desktop, HardDrives, Link, Plus } from "@phosphor-icons/react";
+import { Button, Input, RadioDot, SidebarNavItem, StatusStrip, ToolPage, ToolSidebar } from "@/ui/index.js";
+import { cn } from "@/lib/utils.js";
 import { useMachKitEditorTheme } from "@/ui/codemirror-theme.js";
 import { useToolMessages } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
@@ -10,6 +11,9 @@ import { mountTool } from "@/runtime/mount-tool.jsx";
 
 import { labels } from "./messages.js";
 import { createOperationQueue } from "./operation-queue.js";
+import { localizePresetEnvironmentName, shouldKeepLocalDrafts } from "./hosts.js";
+
+const SIDEBAR_ITEM_CLASS = "h-12 min-h-12 shrink-0 py-2";
 
 function HostsManager() {
   const text = useToolMessages(labels);
@@ -72,7 +76,7 @@ function HostsManager() {
         sharedContent: nextSharedContent,
         revision: dataRef.current?.revision,
       }));
-      const hasNewerLocalEdits = editRevisionRef.current !== localEditRevision;
+      const hasNewerLocalEdits = shouldKeepLocalDrafts(editRevisionRef.current, localEditRevision);
       if (hasNewerLocalEdits) {
         dataRef.current = {
           ...nextData,
@@ -139,34 +143,55 @@ function HostsManager() {
     await save(nextDrafts);
   };
 
-  const environmentName = (environment) => {
-    if (environment.id.endsWith("0001") && environment.name === "Development") return text.development;
-    if (environment.id.endsWith("0002") && environment.name === "Testing") return text.testing;
-    if (environment.id.endsWith("0003") && environment.name === "Production") return text.production;
-    return environment.name;
-  };
+  const environmentName = (environment) => localizePresetEnvironmentName(environment, text);
 
-  if (!data) return <ToolPage title="Hosts Manager"><div className="grid h-full place-items-center text-xs text-secondary">{message || "…"}</div></ToolPage>;
+  if (!data) {
+    return (
+      <ToolPage title={text.title}>
+        <div className="grid h-full place-items-center text-xs text-secondary">{message || "…"}</div>
+      </ToolPage>
+    );
+  }
 
   const rows = [
     { id: "system", name: text.systemHosts, hint: text.systemHint, icon: Desktop },
     { id: "shared", name: text.sharedName, hint: text.sharedHint, icon: Link },
-    ...drafts.map((environment) => ({ id: environment.id, name: environmentName(environment), hint: environment.id === data.activeEnvironmentID ? text.active : "", icon: HardDrives })),
+    ...drafts.map((environment) => ({ id: environment.id, name: environmentName(environment), hint: "", icon: HardDrives })),
   ];
 
   return (
-    <ToolPage title="Hosts Manager">
+    <ToolPage title={text.title}>
       <div className="flex min-h-0 flex-1 bg-surface">
-        <aside className="w-[220px] shrink-0 bg-surface p-3">
+        <ToolSidebar width={220} className="bg-surface py-3 pl-3 pr-1">
           <div className="machkit-sidebar-label px-2 pt-1 pb-1.5">{text.system}</div>
-          {rows.slice(0, 1).map((row) => <HostRow key={row.id} row={row} selected={selection === row.id} active={false} onSelect={setSelection} />)}
+          {rows.slice(0, 1).map((row) => (
+            <SidebarNavItem
+              key={row.id}
+              icon={row.icon}
+              label={row.name}
+              hint={row.hint}
+              active={selection === row.id}
+              onClick={() => setSelection(row.id)}
+              className={SIDEBAR_ITEM_CLASS}
+            />
+          ))}
           <div className="machkit-sidebar-label px-2 pt-3 pb-1.5">{text.shared}</div>
-          {rows.slice(1, 2).map((row) => <HostRow key={row.id} row={row} selected={selection === row.id} active={false} onSelect={setSelection} />)}
-          <div className="mt-3 flex items-center justify-between px-2.5 py-2">
-            <span className="machkit-sidebar-label">{text.environments}</span>
-            <Button variant="ghost" size="icon" className="size-7" onClick={addEnvironment} aria-label={text.add}><Plus size={14} /></Button>
+          {rows.slice(1, 2).map((row) => (
+            <SidebarNavItem
+              key={row.id}
+              icon={row.icon}
+              label={row.name}
+              hint={row.hint}
+              active={selection === row.id}
+              onClick={() => setSelection(row.id)}
+              className={SIDEBAR_ITEM_CLASS}
+            />
+          ))}
+          <div className="mt-3 flex h-9 shrink-0 items-center pl-2 pr-1.5">
+            <span className="machkit-sidebar-label min-w-0 flex-1">{text.environments}</span>
+            <Button variant="ghost" size="icon" className="size-5" onClick={addEnvironment} aria-label={text.add}><Plus size={14} /></Button>
           </div>
-          <div className="space-y-1 overflow-auto">
+          <div className="space-y-1.5 overflow-auto">
             {rows.slice(2).map((row) => (
               <EnvironmentRow
                 key={row.id}
@@ -181,28 +206,36 @@ function HostsManager() {
               />
             ))}
           </div>
-        </aside>
+        </ToolSidebar>
 
         <section className="flex min-w-0 flex-1 flex-col">
-          <header className="flex h-[62px] shrink-0 items-center px-5">
+          <header className="flex min-h-[var(--machkit-size-toolbar)] shrink-0 items-center px-5">
             <div className="min-w-0 flex-1">
               {selectedEnvironment ? (
-                <input
-                  value={selectedEnvironment.name}
+                <Input
+                  value={environmentName(selectedEnvironment)}
                   onChange={(event) => updateName(event.target.value)}
                   onBlur={() => save()}
-                  aria-label={selectedEnvironment.name}
-                  className="h-7 w-full rounded-[6px] bg-transparent px-1 text-sm font-semibold outline-none hover:bg-muted focus:bg-muted"
+                  aria-label={environmentName(selectedEnvironment)}
+                  className="h-7 border-transparent bg-transparent px-1 text-sm font-semibold shadow-none hover:bg-muted focus:border-transparent focus:bg-muted focus:ring-0"
                 />
-              ) : <div className="truncate px-1 text-sm font-semibold">{rows.find((row) => row.id === selection)?.name}</div>}
-              <div className="truncate px-1 text-xs text-secondary">{rows.find((row) => row.id === selection)?.hint}</div>
+              ) : (
+                <div className="truncate px-1 text-sm font-semibold">
+                  {rows.find((row) => row.id === selection)?.name}
+                </div>
+              )}
+              {rows.find((row) => row.id === selection)?.hint ? (
+                <div className="truncate px-1 text-xs text-secondary">
+                  {rows.find((row) => row.id === selection)?.hint}
+                </div>
+              ) : null}
             </div>
           </header>
           <div className="min-h-0 flex-1 px-5 pb-5">
             <CodeMirror
               value={editorValue}
               height="100%"
-              theme={editorTheme}
+              extensions={editorTheme}
               readOnly={selection === "system"}
               editable={selection !== "system"}
               basicSetup={{
@@ -220,61 +253,100 @@ function HostsManager() {
               className="hosts-code-editor machkit-panel h-full min-h-0"
             />
           </div>
-          {message ? <div className="px-3 pb-3"><InlineMessage tone="danger">{message}</InlineMessage></div> : null}
+          {message ? <div className="px-3 pb-3"><StatusStrip tone="danger">{message}</StatusStrip></div> : null}
         </section>
       </div>
     </ToolPage>
   );
 }
 
-function HostRow({ row, selected, active, onSelect }) {
-  const Icon = row.icon;
-  return (
-    <button type="button" onClick={() => onSelect(row.id)} className={`flex h-12 w-full items-center gap-3 rounded-control px-2.5 text-left ${selected ? "bg-foreground/[0.075] text-foreground" : "text-foreground hover:bg-foreground/[0.045]"}`}>
-      <Icon size={16} className="shrink-0" />
-      <span className="min-w-0 flex-1"><span className="block truncate text-xs font-medium">{row.name}</span>{row.hint ? <span className="mt-0.5 block truncate text-[11px] text-secondary">{row.hint}</span> : null}</span>
-      {active ? <span className="size-1.5 rounded-full bg-green-500" /> : null}
-    </button>
-  );
-}
-
 function EnvironmentRow({ row, text, busy, selected, active, onSelect, onActivate, onDelete }) {
+  const [menu, setMenu] = useState(null);
+  const canDelete = !active && !busy;
   const Icon = row.icon;
+
+  useEffect(() => {
+    if (!menu) return undefined;
+    const close = () => setMenu(null);
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") close();
+    };
+    window.addEventListener("mousedown", close);
+    window.addEventListener("scroll", close, true);
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("mousedown", close);
+      window.removeEventListener("scroll", close, true);
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [menu]);
+
   return (
-    <ContextMenu.Root>
-      <ContextMenu.Trigger asChild>
-        <div className={`group flex h-12 w-full items-center rounded-control pr-2.5 ${selected ? "bg-foreground/[0.075]" : "hover:bg-foreground/[0.045]"}`}>
-          <button type="button" onClick={() => onSelect(row.id)} className="flex min-w-0 flex-1 items-center gap-3 self-stretch px-2.5 text-left text-foreground">
-            <Icon size={16} className="shrink-0 text-secondary" />
-            <span className="min-w-0 flex-1">
-              <span className="block truncate text-xs font-medium">{row.name}</span>
-              {active ? <span className="mt-0.5 block truncate text-[11px] text-secondary">{text.active}</span> : null}
-            </span>
-          </button>
-          <button
-            type="button"
-            role="radio"
-            aria-checked={active}
-            aria-label={`${text.activate} ${row.name}`}
-            disabled={active || busy}
-            onClick={() => onActivate(row.id)}
-            className={`grid size-[15px] shrink-0 place-items-center rounded-full border outline-none transition-colors focus-visible:ring-2 focus-visible:ring-accent/30 ${active ? "border-accent bg-accent" : "border-tertiary hover:border-accent"}`}
+    <div
+      className={cn(
+        "relative flex h-12 w-full shrink-0 items-center rounded-control pr-1.5 transition-colors",
+        selected ? "bg-accent-soft text-accent" : "text-secondary hover:bg-foreground/[0.04] hover:text-foreground",
+      )}
+      onContextMenu={(event) => {
+        event.preventDefault();
+        if (!canDelete) return;
+        setMenu({ x: event.clientX, y: event.clientY });
+      }}
+    >
+      {selected ? (
+        <span
+          className="absolute top-1.5 bottom-1.5 left-0 w-0.5 rounded-full bg-accent"
+          aria-hidden="true"
+        />
+      ) : null}
+      <Button
+        variant="ghost"
+        onClick={() => onSelect(row.id)}
+        aria-current={selected ? "page" : undefined}
+        className={cn(
+          "h-auto min-h-12 min-w-0 flex-1 justify-start gap-2 px-2 text-left font-normal",
+          selected
+            ? "bg-transparent text-accent hover:bg-transparent hover:text-accent"
+            : "text-secondary hover:bg-transparent hover:text-foreground",
+        )}
+      >
+        {Icon ? (
+          <Icon size={16} className={cn("shrink-0", selected ? "text-accent" : "text-secondary")} />
+        ) : null}
+        <span className={cn("min-w-0 flex-1 truncate text-left text-[12.5px]", selected && "font-medium")}>
+          {row.name}
+        </span>
+      </Button>
+      <RadioDot
+        checked={active}
+        disabled={active || busy}
+        label={`${text.activate} ${row.name}`}
+        onClick={() => onActivate(row.id)}
+      />
+      {menu
+        ? createPortal(
+          <div
+            role="menu"
+            className="fixed z-50 min-w-[132px] rounded-control border border-border bg-surface py-1 shadow-md"
+            style={{ left: menu.x, top: menu.y }}
+            onMouseDown={(event) => event.stopPropagation()}
           >
-            {active ? <span className="size-[5px] rounded-full bg-white" /> : null}
-          </button>
-        </div>
-      </ContextMenu.Trigger>
-      <ContextMenu.Portal>
-        <ContextMenu.Content className="z-50 min-w-36 rounded-panel border border-border bg-surface p-1 shadow-popover outline-none">
-          <ContextMenu.Item disabled={active || busy} onSelect={() => onActivate(row.id)} className="flex h-8 cursor-default items-center gap-2 rounded-[6px] px-2.5 text-xs outline-none data-[highlighted]:bg-muted data-[disabled]:opacity-40">
-            {active ? <Check size={14} /> : <Power size={14} />}{active ? text.active : text.activate}
-          </ContextMenu.Item>
-          <ContextMenu.Item disabled={active || busy} onSelect={() => onDelete(row.id)} className="flex h-8 cursor-default items-center gap-2 rounded-[6px] px-2.5 text-xs text-danger outline-none data-[highlighted]:bg-danger/10 data-[disabled]:opacity-40">
-            <Trash size={14} />{text.delete}
-          </ContextMenu.Item>
-        </ContextMenu.Content>
-      </ContextMenu.Portal>
-    </ContextMenu.Root>
+            <Button
+              variant="ghost"
+              role="menuitem"
+              className="h-auto w-full justify-start rounded-none px-3 py-1.5 text-xs font-normal text-danger hover:bg-danger/10 hover:text-danger"
+              onClick={() => {
+                setMenu(null);
+                onDelete(row.id);
+              }}
+            >
+              {text.delete}
+            </Button>
+          </div>,
+          document.body,
+        )
+        : null}
+    </div>
   );
 }
 

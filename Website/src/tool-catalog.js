@@ -130,21 +130,21 @@ export const websiteToolCatalog = Object.freeze([
     category: "text-data",
     en: {
       title: "String Generator",
-      summary: "Generate UUID v1–v7, ULIDs, Nano IDs, Object IDs, hex strings, and configurable passwords locally.",
-      introduction: "String Generator creates identifiers and passwords on the Mac instead of in a browser tab. Choose UUID versions, ULID, Nano ID, Object ID, hex strings, or configurable passwords when scaffolding data, filling forms, or preparing test fixtures.",
+      summary: "Generate UUID v1–v7, ULIDs, Nano IDs, Object IDs, hex strings, and configurable random strings locally.",
+      introduction: "String Generator creates identifiers and random strings on the Mac instead of in a browser tab. Choose UUID versions, ULID, Nano ID, Object ID, hex strings, or configurable random strings when scaffolding data, filling forms, or preparing test fixtures.",
       highlights: [
         "UUID v1–v7, ULID, Nano ID, and Object ID",
-        "Hex strings and configurable passwords",
+        "Hex strings and configurable random strings",
         "Everything generated locally",
       ],
     },
     "zh-CN": {
       title: "字符串生成",
-      summary: "在本地生成 UUID v1–v7、ULID、Nano ID、Object ID、十六进制字符串和可配置密码。",
-      introduction: "字符串生成在 Mac 本机创建标识符和密码，不必打开浏览器标签。可选择 UUID 版本、ULID、Nano ID、Object ID、十六进制字符串或可配置密码，方便搭数据、填表单或准备测试样例。",
+      summary: "在本地生成 UUID v1–v7、ULID、Nano ID、Object ID、十六进制字符串和可配置随机字符串。",
+      introduction: "字符串生成在 Mac 本机创建标识符和随机字符串，不必打开浏览器标签。可选择 UUID 版本、ULID、Nano ID、Object ID、十六进制字符串或可配置随机字符串，方便搭数据、填表单或准备测试样例。",
       highlights: [
         "UUID v1–v7、ULID、Nano ID、Object ID",
-        "十六进制字符串与可配置密码",
+        "十六进制字符串与可配置随机字符串",
         "全部在本地生成",
       ],
     },
@@ -222,30 +222,6 @@ export const websiteToolCatalog = Object.freeze([
     },
   }),
   tool({
-    id: "data-format",
-    category: "text-data",
-    en: {
-      title: "Data Format",
-      summary: "Convert structured data between JSON, YAML, and TOML locally.",
-      introduction: "Data Format converts structured content between JSON, YAML, and TOML on the Mac. Keep configuration experiments and data hand-offs local when you need a quick format change without installing another CLI or opening an upload form.",
-      highlights: [
-        "JSON, YAML, and TOML conversion",
-        "Local structured-data transforms",
-        "No upload or extra CLI required",
-      ],
-    },
-    "zh-CN": {
-      title: "数据格式",
-      summary: "在本地转换 JSON、YAML 和 TOML 结构化数据。",
-      introduction: "数据格式在本机完成 JSON、YAML、TOML 之间的转换。做配置试验或数据交接时，不必再装额外 CLI，也不必把内容上传到网页表单。",
-      highlights: [
-        "JSON、YAML、TOML 互转",
-        "本地结构化数据转换",
-        "无需上传或额外命令行工具",
-      ],
-    },
-  }),
-  tool({
     id: "number-base",
     category: "text-data",
     en: {
@@ -297,47 +273,23 @@ export const websiteToolCatalog = Object.freeze([
     id: "ip-cidr",
     category: "network",
     en: {
-      title: "IP / CIDR Calculator",
-      summary: "Calculate IPv4 network details, address ranges, and membership.",
-      introduction: "IP / CIDR Calculator turns a network or address into readable details. See ranges, masks, and membership checks when you are reviewing firewall rules, VPN assignments, or local network plans.",
+      title: "IP / CIDR",
+      summary: "Inspect IPv4 and IPv6 addresses or calculate IPv4 CIDR ranges.",
+      introduction: "IP / CIDR explains a single IPv4 or IPv6 address and calculates IPv4 network ranges in one place. Identify address kinds, integer and reverse DNS forms, or inspect masks, ranges, and membership when reviewing logs, firewall rules, and network plans.",
       highlights: [
-        "IPv4 network details",
-        "Address ranges and masks",
-        "Membership checks",
-      ],
-    },
-    "zh-CN": {
-      title: "IP / CIDR 计算器",
-      summary: "计算 IPv4 网段详情、地址范围和归属关系。",
-      introduction: "IP / CIDR 计算器把网段或地址变成可读信息。查看范围、掩码和归属关系，方便核对防火墙规则、VPN 分配或本机网络规划。",
-      highlights: [
-        "IPv4 网段详情",
-        "地址范围与掩码",
-        "归属关系检查",
-      ],
-    },
-  }),
-  tool({
-    id: "ip-inspector",
-    category: "network",
-    en: {
-      title: "IP Inspector",
-      summary: "Inspect IPv4 and IPv6 types, integer forms, and reverse DNS labels.",
-      introduction: "IP Inspector explains what an address is before you act on it. Identify IPv4 and IPv6 kinds, integer forms, and reverse DNS labels when logs, packet captures, or configuration files only give you a raw address.",
-      highlights: [
-        "IPv4 and IPv6 classification",
+        "IPv4 and IPv6 address inspection",
         "Integer and reverse DNS forms",
-        "Local address inspection",
+        "IPv4 CIDR ranges and membership",
       ],
     },
     "zh-CN": {
-      title: "IP 解析",
-      summary: "检查 IPv4 和 IPv6 类型、整数形式与反向 DNS 标签。",
-      introduction: "IP 解析在你动手处理地址前先说明它是什么。识别 IPv4 / IPv6 类型、整数形式和反向 DNS 标签，适合面对日志、抓包或配置里只有原始地址的情况。",
+      title: "IP / CIDR",
+      summary: "查看 IPv4 / IPv6 地址，或计算 IPv4 CIDR 范围。",
+      introduction: "IP / CIDR 在一个入口里解释单个 IPv4 / IPv6 地址，并计算 IPv4 网段范围。可识别地址类型、整数与反向 DNS 形式，也可查看掩码、范围和归属关系，适合检查日志、防火墙规则和网络规划。",
       highlights: [
-        "IPv4 与 IPv6 分类",
+        "IPv4 与 IPv6 地址查看",
         "整数与反向 DNS 形式",
-        "本地地址检查",
+        "IPv4 CIDR 范围与归属",
       ],
     },
   }),
@@ -386,30 +338,6 @@ export const websiteToolCatalog = Object.freeze([
         "本地格式转换",
         "质量、大小与尺寸控制",
         "无需上传云端",
-      ],
-    },
-  }),
-  tool({
-    id: "xml-plist",
-    category: "text-data",
-    en: {
-      title: "XML / Plist",
-      summary: "Format XML and convert Apple XML property lists to JSON.",
-      introduction: "XML / Plist helps with Apple-centric and general XML chores. Format XML for readability, or convert Apple XML property lists to JSON when inspecting preferences, manifests, and configuration that still lives in plist form.",
-      highlights: [
-        "XML formatting",
-        "Apple XML plist to JSON",
-        "Local preference and manifest inspection",
-      ],
-    },
-    "zh-CN": {
-      title: "XML / Plist",
-      summary: "格式化 XML，并将 Apple XML 属性列表转换为 JSON。",
-      introduction: "XML / Plist 处理通用 XML 和 Apple 相关配置。可格式化 XML 便于阅读，或把 Apple XML 属性列表转成 JSON，方便检查偏好设置、清单和仍以 plist 存在的配置。",
-      highlights: [
-        "XML 格式化",
-        "Apple XML plist 转 JSON",
-        "本机检查偏好与清单",
       ],
     },
   }),
@@ -510,30 +438,6 @@ export const websiteToolCatalog = Object.freeze([
     },
   }),
   tool({
-    id: "text-lab",
-    category: "text-data",
-    en: {
-      title: "Text Lab",
-      summary: "Clean, transform, sort, count, and reshape text in one workspace.",
-      introduction: "Text Lab gathers everyday text cleanup into one workspace. Trim, dedupe, sort, count, and reshape lines when a pasted list, CSV fragment, or notes dump needs to become usable without opening a spreadsheet.",
-      highlights: [
-        "Trim, dedupe, sort, and count",
-        "Reshape lines in one place",
-        "Local text cleanup",
-      ],
-    },
-    "zh-CN": {
-      title: "文本实验室",
-      summary: "在一个工作区中清理、转换、排序、统计和重组文本。",
-      introduction: "文本实验室把日常文本清理集中到一个工作区。修剪、去重、排序、统计和重组行内容，让粘贴列表、CSV 片段或笔记草稿更快变成可用文本，不必打开表格软件。",
-      highlights: [
-        "修剪、去重、排序与统计",
-        "在一处重组文本行",
-        "本地文本清理",
-      ],
-    },
-  }),
-  tool({
     id: "curl-lab",
     category: "network",
     en: {
@@ -554,30 +458,6 @@ export const websiteToolCatalog = Object.freeze([
         "可视化编辑请求",
         "与 cURL 互相转换",
         "需要时可在本地运行请求",
-      ],
-    },
-  }),
-  tool({
-    id: "connection-trace",
-    category: "network",
-    en: {
-      title: "Connection Trace",
-      summary: "Trace DNS resolution, routes, proxies, and connection timing for a host.",
-      introduction: "Connection Trace follows what happens when your Mac reaches a host. Review DNS resolution, routing, proxy influence, and connection timing so intermittent network issues become a sequence of facts instead of a vague timeout.",
-      highlights: [
-        "DNS resolution and route context",
-        "Proxy visibility",
-        "Connection timing diagnostics",
-      ],
-    },
-    "zh-CN": {
-      title: "连接追踪",
-      summary: "追踪目标主机的 DNS 解析、路由、代理和连接耗时。",
-      introduction: "连接追踪跟进 Mac 访问某个主机时发生了什么。查看 DNS 解析、路由、代理影响和连接耗时，让间歇性网络问题变成一串可核对的事实，而不是模糊的超时。",
-      highlights: [
-        "DNS 解析与路由上下文",
-        "代理状态可见",
-        "连接耗时诊断",
       ],
     },
   }),

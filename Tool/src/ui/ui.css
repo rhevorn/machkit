@@ -1,24 +1,119 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/*
+ * MachKit tool themes — light + dark.
+ * Tokens follow the shadcn/ui CSS-variable model so shared components stay
+ * themeable. Native shell sets `data-appearance` to light | dark, or leaves
+ * it unset for system preference.
+ */
+
 :root {
-  --machkit-bg: transparent;
-  --machkit-surface: #ffffff;
-  --machkit-surface-muted: #f7f7f8;
-  --machkit-field: #ffffff;
-  --machkit-text: #1f2023;
-  --machkit-secondary: #696b73;
-  --machkit-tertiary: #93959d;
-  --machkit-border: rgb(28 30 34 / 12%);
-  --machkit-accent: #087fff;
-  --machkit-accent-soft: rgb(8 127 255 / 10%);
-  --machkit-danger: #d83b3b;
+  /* Light theme (default) */
+  --background: transparent;
+  --foreground: #1f2023;
+  --card: #ffffff;
+  --card-foreground: #1f2023;
+  --popover: #ffffff;
+  --popover-foreground: #1f2023;
+  --primary: #087fff;
+  --primary-foreground: #ffffff;
+  --secondary: #696b73;
+  --secondary-foreground: #1f2023;
+  --muted: #f7f7f8;
+  --muted-foreground: #696b73;
+  --accent: #087fff;
+  --accent-foreground: #ffffff;
+  --accent-soft: rgb(8 127 255 / 10%);
+  --destructive: #d83b3b;
+  --destructive-foreground: #ffffff;
+  --border: rgb(28 30 34 / 12%);
+  --input: #ffffff;
+  --ring: rgb(8 127 255 / 35%);
+  --tertiary: #93959d;
+  --radius: 8px;
+  --radius-panel: 10px;
+
+  /*
+   * MachKit brand contract
+   *
+   * Tone: calm, precise, compact, and native to macOS. Blue is reserved for
+   * focus, selection, primary actions, and useful results. Ordinary structure
+   * is expressed with neutral surfaces and 1px borders instead of decoration.
+   * Shared UI components consume these roles; tools do not invent new scales.
+   */
+
+  /* Semantic color roles */
+  --machkit-bg: var(--background);
+  --machkit-surface: var(--card);
+  --machkit-surface-muted: var(--muted);
+  --machkit-surface-elevated: var(--popover);
+  --machkit-field: var(--input);
+  --machkit-text: var(--foreground);
+  --machkit-secondary: var(--secondary);
+  --machkit-tertiary: var(--tertiary);
+  --machkit-border: var(--border);
+  --machkit-border-subtle: color-mix(in srgb, var(--foreground) 8%, transparent);
+  --machkit-border-strong: color-mix(in srgb, var(--foreground) 18%, transparent);
+  --machkit-accent: var(--accent);
+  --machkit-accent-soft: var(--accent-soft);
+  --machkit-info: var(--accent);
+  --machkit-info-soft: var(--accent-soft);
+  --machkit-success: #248a3d;
+  --machkit-success-soft: rgb(36 138 61 / 10%);
+  --machkit-warning: #9a6700;
+  --machkit-warning-soft: rgb(154 103 0 / 11%);
+  --machkit-danger: var(--destructive);
+  --machkit-danger-soft: rgb(216 59 59 / 10%);
+
+  /* 4px spacing scale. Prefer 4 / 8 / 12 / 16 / 24 / 32. */
+  --machkit-space-0: 0;
+  --machkit-space-1: 4px;
+  --machkit-space-2: 8px;
+  --machkit-space-3: 12px;
+  --machkit-space-4: 16px;
+  --machkit-space-6: 24px;
+  --machkit-space-8: 32px;
+
+  /* Compact desktop control and layout metrics */
+  --machkit-size-control-compact: 28px;
+  --machkit-size-control-small: 30px;
+  /* Default field / select / segmented / button height for compact tools */
+  --machkit-size-control: 34px;
+  --machkit-size-toolbar: 54px;
+  --machkit-size-icon-small: 14px;
+  --machkit-size-icon: 16px;
+  --machkit-size-icon-large: 18px;
+  --machkit-layout-min-width: 420px;
+  --machkit-layout-content-padding: 28px;
+  --machkit-layout-content-padding-compact: 24px;
+  --machkit-layout-section-gap: 12px;
+
+  /* Typography roles */
   --machkit-font-size-caption: 11px;
   --machkit-font-size-label: 12px;
   --machkit-font-size-body: 13px;
   --machkit-font-size-title: 14px;
-  --machkit-radius-control: 8px;
-  --machkit-radius-panel: 10px;
+  --machkit-line-height-tight: 1.25;
+  --machkit-line-height-body: 1.45;
+  --machkit-line-height-relaxed: 1.65;
+  --machkit-font-weight-regular: 400;
+  --machkit-font-weight-medium: 500;
+  --machkit-font-weight-semibold: 600;
+
+  /* Shape, border, focus, and elevation */
+  --machkit-radius-xs: 4px;
+  --machkit-radius-sm: 6px;
+  --machkit-radius-control: var(--radius);
+  --machkit-radius-panel: var(--radius-panel);
+  --machkit-radius-overlay: 12px;
+  --machkit-border-width: 1px;
+  --machkit-focus-ring-width: 3px;
+  --machkit-disabled-opacity: 0.45;
+  --machkit-motion-fast: 120ms;
+  --machkit-motion-normal: 180ms;
+  --machkit-motion-slow: 240ms;
+  --machkit-ease-standard: cubic-bezier(0.2, 0, 0, 1);
   /*
    * Match SwiftUI Font.system / AppKit .systemFont on macOS.
    * Use only system UI families — named "SF Pro Text" / "Helvetica Neue"
@@ -28,7 +123,7 @@
   --machkit-font-mono: ui-monospace, Menlo, monospace;
   color-scheme: light;
   font-family: var(--machkit-font-sans);
-  color: var(--machkit-text);
+  color: var(--foreground);
   background: transparent;
   font-synthesis: none;
   text-rendering: auto;
@@ -37,19 +132,47 @@
 }
 
 @theme inline {
-  --color-background: var(--machkit-bg);
-  --color-surface: var(--machkit-surface);
-  --color-muted: var(--machkit-surface-muted);
-  --color-field: var(--machkit-field);
-  --color-foreground: var(--machkit-text);
-  --color-secondary: var(--machkit-secondary);
-  --color-tertiary: var(--machkit-tertiary);
-  --color-border: var(--machkit-border);
-  --color-accent: var(--machkit-accent);
-  --color-accent-soft: var(--machkit-accent-soft);
-  --color-danger: var(--machkit-danger);
-  --radius-control: var(--machkit-radius-control);
-  --radius-panel: var(--machkit-radius-panel);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-surface: var(--card);
+  --color-field: var(--input);
+  --color-tertiary: var(--tertiary);
+  --color-danger: var(--destructive);
+  --color-danger-soft: var(--machkit-danger-soft);
+  --color-success: var(--machkit-success);
+  --color-success-soft: var(--machkit-success-soft);
+  --color-warning: var(--machkit-warning);
+  --color-warning-soft: var(--machkit-warning-soft);
+  --color-info: var(--machkit-info);
+  --color-info-soft: var(--machkit-info-soft);
+  --color-border-subtle: var(--machkit-border-subtle);
+  --color-border-strong: var(--machkit-border-strong);
+  --color-surface-elevated: var(--machkit-surface-elevated);
+  --radius-control: var(--radius);
+  --radius-panel: var(--radius-panel);
+  --radius-xs: var(--machkit-radius-xs);
+  --radius-sm: var(--machkit-radius-sm);
+  --radius-md: var(--radius);
+  --radius-lg: var(--radius-panel);
+  --radius-overlay: var(--machkit-radius-overlay);
   --text-xs: var(--machkit-font-size-label);
   --text-xs--line-height: 1.5;
   --text-sm: var(--machkit-font-size-title);
@@ -61,45 +184,66 @@
 }
 
 @layer base {
-  * { box-sizing: border-box; }
+  * {
+    box-sizing: border-box;
+    overscroll-behavior: none;
+  }
   html, body, #root {
     width: 100%;
-    min-width: 420px;
+    min-width: var(--machkit-layout-min-width);
     height: 100%;
     min-height: 100%;
     margin: 0;
+    overflow: hidden;
+    overscroll-behavior: none;
     font-family: var(--machkit-font-sans);
     font-size: var(--machkit-font-size-body);
   }
   body {
-    background: var(--machkit-surface);
+    background: var(--card);
+    color: var(--foreground);
     font-family: var(--machkit-font-sans);
     font-size: var(--machkit-font-size-body);
-    line-height: 1.45;
+    line-height: var(--machkit-line-height-body);
   }
   button, input, select, textarea { font: inherit; letter-spacing: inherit; }
   button { color: inherit; }
   code, kbd, pre, samp { font-family: var(--machkit-font-mono); }
-  ::selection { background: color-mix(in srgb, var(--machkit-accent) 24%, transparent); }
+  ::selection { background: color-mix(in srgb, var(--accent) 24%, transparent); }
 }
 
 @layer components {
+  .machkit-calendar table {
+    width: 16rem;
+    table-layout: fixed;
+    border-collapse: collapse;
+  }
+
+  .machkit-calendar th,
+  .machkit-calendar td {
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    text-align: center;
+    vertical-align: middle;
+  }
+
   .machkit-toolbar {
     display: flex;
-    min-height: 54px;
+    min-height: var(--machkit-size-toolbar);
     align-items: center;
-    gap: 8px;
-    border-bottom: 1px solid var(--machkit-border);
+    gap: var(--machkit-space-2);
+    border-bottom: var(--machkit-border-width) solid var(--border);
   }
   .machkit-control-label {
     flex: none;
-    color: var(--machkit-secondary);
+    color: var(--secondary);
     font-size: var(--machkit-font-size-label);
     font-weight: 500;
     line-height: 1.25;
   }
   .machkit-sidebar-label {
-    color: var(--machkit-secondary);
+    color: var(--secondary);
     font-size: var(--machkit-font-size-caption);
     font-weight: 600;
     letter-spacing: 0.04em;
@@ -108,27 +252,95 @@
   }
   .machkit-panel {
     overflow: hidden;
-    border: 1px solid var(--machkit-border);
-    border-radius: var(--machkit-radius-control);
-    background: var(--machkit-field);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--input);
+  }
+  .machkit-slider {
+    appearance: none;
+    background: transparent;
+  }
+  .machkit-slider:focus-visible {
+    outline: none;
+  }
+  .machkit-slider::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 999px;
+    background: var(--muted);
+  }
+  .machkit-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    margin-top: -5px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--border));
+    background: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  .machkit-slider:disabled::-webkit-slider-thumb {
+    background: var(--secondary);
+    border-color: var(--border);
+    box-shadow: none;
+  }
+  .machkit-slider::-moz-range-track {
+    height: 4px;
+    border: none;
+    border-radius: 999px;
+    background: var(--muted);
+  }
+  .machkit-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--border));
+    background: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  .machkit-slider:disabled::-moz-range-thumb {
+    background: var(--secondary);
+    border-color: var(--border);
+    box-shadow: none;
   }
   .hosts-code-editor .cm-editor,
   .json-code-editor .cm-editor {
+    width: 100%;
+    max-width: 100%;
     height: 100%;
-    background: var(--machkit-field);
-    color: var(--machkit-text);
+    overflow: hidden;
+    background: var(--input);
+    color: var(--foreground);
   }
   .hosts-code-editor .cm-scroller,
   .json-code-editor .cm-scroller {
+    overflow: auto !important;
+    overscroll-behavior: none;
     font-family: var(--machkit-font-mono);
     font-size: var(--machkit-font-size-label);
     line-height: 1.65;
   }
+  .json-code-editor .cm-scroller {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior: none;
+  }
+  .json-code-editor {
+    max-width: 100%;
+  }
+  .json-code-editor .cm-editor,
+  .json-code-editor .cm-scroller {
+    min-width: 0;
+  }
+  .json-code-editor .cm-content {
+    flex-shrink: 1;
+    min-width: 0;
+    width: 100%;
+  }
   .hosts-code-editor .cm-gutters,
   .json-code-editor .cm-gutters {
     border: 0 !important;
-    background-color: var(--machkit-field) !important;
-    color: var(--machkit-tertiary) !important;
+    background-color: var(--input) !important;
+    color: var(--tertiary) !important;
   }
   .hosts-code-editor .cm-gutter,
   .json-code-editor .cm-gutter {
@@ -137,104 +349,188 @@
   .hosts-code-editor .cm-lineNumbers .cm-gutterElement,
   .json-code-editor .cm-lineNumbers .cm-gutterElement { min-width: 34px; padding: 0 9px 0 5px; }
   .hosts-code-editor .cm-content,
-  .json-code-editor .cm-content { padding: 12px 0 20px; caret-color: var(--machkit-accent); }
+  .json-code-editor .cm-content {
+    padding: 12px 0 20px;
+    caret-color: var(--accent);
+  }
   .hosts-code-editor .cm-line,
-  .json-code-editor .cm-line { padding: 0 12px; }
+  .json-code-editor .cm-line {
+    padding: 0 12px;
+  }
+  .json-code-editor .cm-line {
+    white-space: pre;
+  }
   .hosts-code-editor .cm-placeholder,
-  .json-code-editor .cm-placeholder { color: var(--machkit-tertiary); }
+  .json-code-editor .cm-placeholder { color: var(--tertiary); }
+  .json-code-editor .cm-placeholder {
+    white-space: pre-wrap;
+    max-width: 100%;
+  }
   .hosts-code-editor .cm-cursor,
-  .json-code-editor .cm-cursor { border-left-color: var(--machkit-accent); }
+  .json-code-editor .cm-cursor { border-left-color: var(--accent); }
   .hosts-code-editor .cm-activeLine,
   .hosts-code-editor .cm-activeLineGutter,
   .json-code-editor .cm-activeLine,
-  .json-code-editor .cm-activeLineGutter { background: color-mix(in srgb, var(--machkit-text) 4%, transparent); }
+  .json-code-editor .cm-activeLineGutter { background: color-mix(in srgb, var(--foreground) 4%, transparent); }
   .hosts-code-editor .cm-selectionBackground,
   .hosts-code-editor .cm-content ::selection,
   .json-code-editor .cm-selectionBackground,
-  .json-code-editor .cm-content ::selection { background: color-mix(in srgb, var(--machkit-accent) 22%, transparent) !important; }
+  .json-code-editor .cm-content ::selection { background: color-mix(in srgb, var(--accent) 22%, transparent) !important; }
   .hosts-code-editor .cm-focused,
   .json-code-editor .cm-focused { outline: none; }
-  .hosts-code-editor { border: 1px solid var(--machkit-border); background: var(--machkit-field); }
+  .hosts-code-editor { border: 1px solid var(--border); background: var(--input); }
   .json-code-editor .cm-editor { min-height: 360px; }
-  .json-code-editor .cm-foldGutter .cm-gutterElement { color: var(--machkit-tertiary); }
-  .machkit-date-segment-literal,
-  .machkit-date-segment-dayPeriod { display: none; }
-  .machkit-date-segment-year { order: 1; }
-  .machkit-date-segment-month { order: 2; }
-  .machkit-date-segment-day { order: 3; margin-right: 0.55rem; }
-  .machkit-date-segment-hour { order: 4; }
-  .machkit-date-segment-minute { order: 5; }
-  .machkit-date-segment-second { order: 6; }
-  .machkit-date-segment-year::after,
-  .machkit-date-segment-month::after { content: "-"; color: var(--machkit-secondary); }
-  .machkit-date-segment-hour::after,
-  .machkit-date-segment-minute::after { content: ":"; color: var(--machkit-secondary); }
+  .json-code-editor .cm-foldGutter .cm-gutterElement { color: var(--tertiary); }
+  .json-code-editor > .cm-theme,
+  .json-code-editor > div {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    height: 100%;
+  }
   .machkit-callout {
     width: 100%;
     margin: 12px 0 0;
     padding: 12px 14px;
-    border: 1px solid var(--machkit-border);
-    border-radius: var(--machkit-radius-control);
-    background: color-mix(in srgb, var(--machkit-accent) 4%, var(--machkit-surface));
-    color: var(--machkit-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--accent) 4%, var(--card));
+    color: var(--secondary);
     font-size: var(--machkit-font-size-label);
     line-height: 1.65;
   }
 
   .regex-match-mark {
-    color: var(--machkit-text);
-    background: color-mix(in srgb, var(--machkit-accent) 28%, transparent);
+    color: var(--foreground);
+    background: color-mix(in srgb, var(--accent) 28%, transparent);
   }
 
   .diff-row-equal { background: transparent; }
   .diff-row-delete { background: color-mix(in srgb, #ff3b30 14%, transparent); }
   .diff-row-insert { background: color-mix(in srgb, #34c759 16%, transparent); }
-  .diff-row-blank { background: color-mix(in srgb, var(--machkit-secondary) 6%, transparent); }
+  .diff-row-blank { background: color-mix(in srgb, var(--secondary) 6%, transparent); }
+
+  .json-highlight .json-token-key { color: #087fff; }
+  .json-highlight .json-token-string { color: #1a7f37; }
+  .json-highlight .json-token-number { color: #9a6700; }
+  .json-highlight .json-token-bool,
+  .json-highlight .json-token-null { color: #8250df; }
+  .json-highlight .json-token-punct { color: #696b73; }
 }
 
 @media (prefers-color-scheme: dark) {
+  :root:not([data-appearance="light"]) .json-highlight .json-token-key { color: #6cb6ff; }
+  :root:not([data-appearance="light"]) .json-highlight .json-token-string { color: #7ee787; }
+  :root:not([data-appearance="light"]) .json-highlight .json-token-number { color: #e3b341; }
+  :root:not([data-appearance="light"]) .json-highlight .json-token-bool,
+  :root:not([data-appearance="light"]) .json-highlight .json-token-null { color: #d2a8ff; }
+  :root:not([data-appearance="light"]) .json-highlight .json-token-punct { color: #a2a2a8; }
+}
+
+:root[data-appearance="dark"] .json-highlight .json-token-key { color: #6cb6ff; }
+:root[data-appearance="dark"] .json-highlight .json-token-string { color: #7ee787; }
+:root[data-appearance="dark"] .json-highlight .json-token-number { color: #e3b341; }
+:root[data-appearance="dark"] .json-highlight .json-token-bool,
+:root[data-appearance="dark"] .json-highlight .json-token-null { color: #d2a8ff; }
+:root[data-appearance="dark"] .json-highlight .json-token-punct { color: #a2a2a8; }
+
+:root[data-appearance="light"] .json-highlight .json-token-key { color: #087fff; }
+:root[data-appearance="light"] .json-highlight .json-token-string { color: #1a7f37; }
+:root[data-appearance="light"] .json-highlight .json-token-number { color: #9a6700; }
+:root[data-appearance="light"] .json-highlight .json-token-bool,
+:root[data-appearance="light"] .json-highlight .json-token-null { color: #8250df; }
+:root[data-appearance="light"] .json-highlight .json-token-punct { color: #696b73; }
+
+/* Dark theme — system preference when appearance is unset */
+@media (prefers-color-scheme: dark) {
   :root:not([data-appearance="light"]) {
-    --machkit-bg: transparent;
-    --machkit-surface: #2a2a2d;
-    --machkit-surface-muted: #323236;
-    --machkit-field: #2a2a2d;
-    --machkit-text: #f2f2f4;
-    --machkit-secondary: #a2a2a8;
-    --machkit-tertiary: #707076;
-    --machkit-border: rgb(255 255 255 / 10%);
-    --machkit-accent: #0a84ff;
-    --machkit-accent-soft: rgb(10 132 255 / 15%);
-    --machkit-danger: #ff6961;
+    --background: transparent;
+    --foreground: #f2f2f4;
+    --card: #2a2a2d;
+    --card-foreground: #f2f2f4;
+    --popover: #2a2a2d;
+    --popover-foreground: #f2f2f4;
+    --primary: #0a84ff;
+    --primary-foreground: #ffffff;
+    --secondary: #a2a2a8;
+    --secondary-foreground: #f2f2f4;
+    --muted: #323236;
+    --muted-foreground: #a2a2a8;
+    --accent: #0a84ff;
+    --accent-foreground: #ffffff;
+    --accent-soft: rgb(10 132 255 / 15%);
+    --destructive: #ff6961;
+    --destructive-foreground: #ffffff;
+    --border: rgb(255 255 255 / 10%);
+    --input: #2a2a2d;
+    --ring: rgb(10 132 255 / 35%);
+    --tertiary: #707076;
+    --machkit-success: #32d74b;
+    --machkit-success-soft: rgb(50 215 75 / 14%);
+    --machkit-warning: #e3b341;
+    --machkit-warning-soft: rgb(227 179 65 / 14%);
+    --machkit-danger-soft: rgb(255 105 97 / 14%);
+    --machkit-border-subtle: color-mix(in srgb, var(--foreground) 10%, transparent);
+    --machkit-border-strong: color-mix(in srgb, var(--foreground) 22%, transparent);
     color-scheme: dark;
   }
 }
 
+/* Dark theme — explicit preference from native shell / Dev dock */
 :root[data-appearance="dark"] {
-  --machkit-bg: transparent;
-  --machkit-surface: #2a2a2d;
-  --machkit-surface-muted: #323236;
-  --machkit-field: #2a2a2d;
-  --machkit-text: #f2f2f4;
-  --machkit-secondary: #a2a2a8;
-  --machkit-tertiary: #707076;
-  --machkit-border: rgb(255 255 255 / 10%);
-  --machkit-accent: #0a84ff;
-  --machkit-accent-soft: rgb(10 132 255 / 15%);
-  --machkit-danger: #ff6961;
+  --background: transparent;
+  --foreground: #f2f2f4;
+  --card: #2a2a2d;
+  --card-foreground: #f2f2f4;
+  --popover: #2a2a2d;
+  --popover-foreground: #f2f2f4;
+  --primary: #0a84ff;
+  --primary-foreground: #ffffff;
+  --secondary: #a2a2a8;
+  --secondary-foreground: #f2f2f4;
+  --muted: #323236;
+  --muted-foreground: #a2a2a8;
+  --accent: #0a84ff;
+  --accent-foreground: #ffffff;
+  --accent-soft: rgb(10 132 255 / 15%);
+  --destructive: #ff6961;
+  --destructive-foreground: #ffffff;
+  --border: rgb(255 255 255 / 10%);
+  --input: #2a2a2d;
+  --ring: rgb(10 132 255 / 35%);
+  --tertiary: #707076;
+  --machkit-success: #32d74b;
+  --machkit-success-soft: rgb(50 215 75 / 14%);
+  --machkit-warning: #e3b341;
+  --machkit-warning-soft: rgb(227 179 65 / 14%);
+  --machkit-danger-soft: rgb(255 105 97 / 14%);
+  --machkit-border-subtle: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --machkit-border-strong: color-mix(in srgb, var(--foreground) 22%, transparent);
   color-scheme: dark;
 }
 
+/* Light theme — explicit preference (overrides system dark) */
 :root[data-appearance="light"] {
-  --machkit-bg: transparent;
-  --machkit-surface: #ffffff;
-  --machkit-surface-muted: #f7f7f8;
-  --machkit-field: #ffffff;
-  --machkit-text: #1f2023;
-  --machkit-secondary: #696b73;
-  --machkit-tertiary: #93959d;
-  --machkit-border: rgb(28 30 34 / 12%);
-  --machkit-accent: #087fff;
-  --machkit-accent-soft: rgb(8 127 255 / 10%);
-  --machkit-danger: #d83b3b;
+  --background: transparent;
+  --foreground: #1f2023;
+  --card: #ffffff;
+  --card-foreground: #1f2023;
+  --popover: #ffffff;
+  --popover-foreground: #1f2023;
+  --primary: #087fff;
+  --primary-foreground: #ffffff;
+  --secondary: #696b73;
+  --secondary-foreground: #1f2023;
+  --muted: #f7f7f8;
+  --muted-foreground: #696b73;
+  --accent: #087fff;
+  --accent-foreground: #ffffff;
+  --accent-soft: rgb(8 127 255 / 10%);
+  --destructive: #d83b3b;
+  --destructive-foreground: #ffffff;
+  --border: rgb(28 30 34 / 12%);
+  --input: #ffffff;
+  --ring: rgb(8 127 255 / 35%);
+  --tertiary: #93959d;
   color-scheme: light;
 }

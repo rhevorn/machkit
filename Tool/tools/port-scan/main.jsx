@@ -1,13 +1,15 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { CopySimple, Eraser, Play, X } from "@phosphor-icons/react";
 import {
+  ActionGroup,
   Button,
-  InlineMessage,
   Input,
+  ResultPanel,
   SegmentedControl,
+  StatusStrip,
   ToolContent,
-  ToolInfoButton,
   ToolPage,
+  ToolToolbar,
 } from "@/ui/index.js";
 import { useToolMessages } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
@@ -146,7 +148,7 @@ function PortScanTool() {
   return (
     <ToolPage title={text.title}>
       <ToolContent className="flex flex-col gap-3 pt-3 pb-4">
-        <div className="machkit-toolbar flex-wrap gap-2">
+        <ToolToolbar className="flex-wrap gap-2">
           <Input
             className="min-w-[180px] flex-1 font-mono text-[12px]"
             value={host}
@@ -170,23 +172,24 @@ function PortScanTool() {
               { value: "1000", label: text.deep },
             ]}
           />
-          {running ? (
-            <Button variant="secondary" size="sm" onClick={cancelScan}>
-              <X size={15} />
-              {text.cancel}
+          <ActionGroup>
+            {running ? (
+              <Button variant="secondary" size="sm" onClick={cancelScan}>
+                <X size={15} />
+                {text.cancel}
+              </Button>
+            ) : (
+              <Button variant="default" size="sm" onClick={startScan}>
+                <Play size={15} />
+                {text.scan}
+              </Button>
+            )}
+            <Button variant="ghost" size="sm" onClick={clearAll} disabled={running}>
+              <Eraser size={15} />
+              {text.clear}
             </Button>
-          ) : (
-            <Button variant="secondary" size="sm" onClick={startScan}>
-              <Play size={15} />
-              {text.scan}
-            </Button>
-          )}
-          <Button variant="ghost" size="sm" onClick={clearAll} disabled={running}>
-            <Eraser size={15} />
-            {text.clear}
-          </Button>
-          <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
-        </div>
+          </ActionGroup>
+        </ToolToolbar>
 
         <div className="flex flex-wrap items-center gap-2">
           <span className="machkit-control-label">{text.preset}</span>
@@ -225,11 +228,11 @@ function PortScanTool() {
           </span>
         </div>
 
-        {preset === "all" ? <InlineMessage tone="neutral">{text.allHint}</InlineMessage> : null}
-        <InlineMessage tone={status.tone}>{status.label}</InlineMessage>
+        {preset === "all" ? <StatusStrip tone="neutral">{text.allHint}</StatusStrip> : null}
+        <StatusStrip tone={status.tone}>{status.label}</StatusStrip>
 
         {running || result ? (
-          <div className="machkit-panel flex flex-col gap-2 px-3 py-3">
+          <ResultPanel bodyClassName="flex flex-col gap-2 px-3 py-3">
             <div className="flex items-center justify-between text-[11px] text-secondary">
               <span>{result?.completed ?? 0} / {result?.total ?? portInspection.count}</span>
               <span>{percent}%</span>
@@ -249,11 +252,11 @@ function PortScanTool() {
               <span>{text.timedOut}: {result?.timedOut ?? 0}</span>
               {result?.durationMs != null ? <span>{text.duration}: {formatDuration(result.durationMs)}</span> : null}
             </div>
-          </div>
+          </ResultPanel>
         ) : null}
 
         {openPorts.length ? (
-          <div className="machkit-panel overflow-hidden">
+          <ResultPanel>
             <div className="grid grid-cols-[7rem_minmax(0,1fr)_7rem] border-b border-border px-3 py-2 text-[11px] text-secondary">
               <span>{text.port}</span>
               <span>{text.service}</span>
@@ -281,9 +284,11 @@ function PortScanTool() {
                 {text.copy}
               </Button>
             </div>
-          </div>
+          </ResultPanel>
         ) : result?.state === "completed" ? (
-          <div className="machkit-panel px-3 py-5 text-center text-[12px] text-tertiary">{text.noOpen}</div>
+          <ResultPanel bodyClassName="px-3 py-5 text-center text-[12px] text-tertiary">
+            {text.noOpen}
+          </ResultPanel>
         ) : null}
 
         <p className="text-[11px] leading-relaxed text-tertiary">{text.authorizedOnly}</p>

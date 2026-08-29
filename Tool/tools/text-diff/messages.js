@@ -1,7 +1,6 @@
 export const messages = {
   en: {
     title: "Text Diff",
-    info: "Compare two texts side by side with line-level highlighting. Useful next to JSON formatting.",
     left: "Original",
     right: "Modified",
     diff: "Diff",
@@ -20,7 +19,6 @@ export const messages = {
   },
   "zh-Hans": {
     title: "文本 Diff",
-    info: "左右对比两段文本并高亮行级差异，常与 JSON 格式化一起使用。",
     left: "原文",
     right: "修改后",
     diff: "差异",
@@ -39,7 +37,6 @@ export const messages = {
   },
   "zh-Hant": {
     title: "文字 Diff",
-    info: "左右比對兩段文字並高亮行級差異，常與 JSON 格式化一起使用。",
     left: "原文",
     right: "修改後",
     diff: "差異",
@@ -58,7 +55,6 @@ export const messages = {
   },
   ja: {
     title: "テキスト Diff",
-    info: "2 つのテキストを左右比較し、行単位で差分を強調。JSON 整形と併用しやすいです。",
     left: "元",
     right: "変更後",
     diff: "差分",
@@ -77,7 +73,6 @@ export const messages = {
   },
   ko: {
     title: "텍스트 Diff",
-    info: "두 텍스트를 좌우로 비교하고 행 단위로 강조합니다. JSON 포맷터와 함께 쓰기 좋습니다.",
     left: "원본",
     right: "수정본",
     diff: "차이",
@@ -96,7 +91,6 @@ export const messages = {
   },
   es: {
     title: "Diff de texto",
-    info: "Compara dos textos en paralelo con resaltado por líneas. Encaja bien con el formateador JSON.",
     left: "Original",
     right: "Modificado",
     diff: "Diff",
@@ -115,7 +109,6 @@ export const messages = {
   },
   fr: {
     title: "Diff de texte",
-    info: "Comparez deux textes côte à côte avec surlignage par ligne. Pratique avec le formateur JSON.",
     left: "Original",
     right: "Modifié",
     diff: "Diff",
@@ -134,7 +127,6 @@ export const messages = {
   },
   de: {
     title: "Text-Diff",
-    info: "Vergleiche zwei Texte nebeneinander mit zeilenweiser Hervorhebung. Passt gut zum JSON-Formatierer.",
     left: "Original",
     right: "Geändert",
     diff: "Diff",
@@ -153,7 +145,6 @@ export const messages = {
   },
   "pt-BR": {
     title: "Diff de texto",
-    info: "Compare dois textos lado a lado com destaque por linha. Combina bem com o formatador JSON.",
     left: "Original",
     right: "Modificado",
     diff: "Diff",
@@ -172,7 +163,6 @@ export const messages = {
   },
   ru: {
     title: "Diff текста",
-    info: "Сравнивайте два текста рядом с подсветкой по строкам. Удобно вместе с JSON-форматтером.",
     left: "Исходный",
     right: "Изменённый",
     diff: "Diff",

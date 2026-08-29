@@ -19,11 +19,19 @@ test("serializes operations even when an earlier operation fails", async () => {
 
   await Promise.resolve();
   assert.deepEqual(events, ["pending:1", "first:start"]);
+  assert.equal(queue.pending(), 1);
   releaseFirst();
   await assert.rejects(first, /expected/);
   assert.equal(await second, "saved");
+  assert.equal(queue.pending(), 0);
   assert.deepEqual(events, [
     "pending:1", "first:start", "first:end", "pending:0",
     "pending:1", "second:start", "pending:0",
   ]);
+});
+
+test("works without a pending callback", async () => {
+  const queue = createOperationQueue();
+  assert.equal(await queue.run(async () => "ok"), "ok");
+  assert.equal(queue.pending(), 0);
 });

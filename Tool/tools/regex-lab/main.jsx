@@ -1,14 +1,19 @@
 import React, { useMemo, useState } from "react";
 import { CopySimple, Eraser } from "@phosphor-icons/react";
 import {
+  ActionGroup,
   Button,
+  ExampleChips,
   Input,
+  ResultPanel,
   SegmentedControl,
+  StatusStrip,
   Textarea,
   ToolContent,
-  ToolInfoButton,
   ToolPage,
+  ToolToolbar,
 } from "@/ui/index.js";
+import { cn } from "@/lib/utils.js";
 import { useToolMessages } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
 import { mountTool } from "@/runtime/mount-tool.jsx";
@@ -47,6 +52,33 @@ function toggleFlag(flags, key, enabled) {
   return normalizeFlags([...set].join(""));
 }
 
+function Seg({ children }) {
+  return (
+    <span className="shrink-0 select-none font-mono text-[13px] text-tertiary" aria-hidden="true">
+      {children}
+    </span>
+  );
+}
+
+function FlagChip({ active, label, title, onClick }) {
+  return (
+    <Button
+      type="button"
+      title={title}
+      aria-pressed={active}
+      variant={active ? "secondary" : "ghost"}
+      size="compact"
+      className={cn(
+        "h-7 min-w-7 px-2 font-mono text-xs",
+        active && "border-transparent bg-accent-soft font-semibold text-accent hover:bg-accent-soft",
+      )}
+      onClick={onClick}
+    >
+      {label}
+    </Button>
+  );
+}
+
 function RegexLab() {
   const text = useToolMessages(messages);
   const [mode, setMode] = useState("test");
@@ -74,14 +106,15 @@ function RegexLab() {
     setReplacement(preset.replacement ?? "");
   };
 
-  const status = !pattern
+  const patternInvalid = Boolean(pattern) && !matchResult.ok;
+  const statusLabel = !pattern
     ? text.emptyPattern
     : !matchResult.ok
-      ? (matchResult.error === "input-too-large"
+      ? matchResult.error === "input-too-large"
         ? text.tooLarge
         : matchResult.error === "empty-pattern"
           ? text.emptyPattern
-          : `${text.invalid}: ${matchResult.error}`)
+          : `${text.invalid}: ${matchResult.error}`
       : !input
         ? text.emptyInput
         : matchResult.matches.length
@@ -90,8 +123,8 @@ function RegexLab() {
 
   return (
     <ToolPage title={text.title}>
-      <ToolContent className="flex flex-col gap-3 pt-3 pb-4">
-        <div className="machkit-toolbar gap-2">
+      <ToolContent className="flex flex-col gap-4 pt-4 pb-6">
+        <ToolToolbar className="gap-2">
           <SegmentedControl
             value={mode}
             onChange={setMode}
@@ -103,7 +136,7 @@ function RegexLab() {
               { value: "replace", label: text.tabReplace },
             ]}
           />
-          <div className="ml-auto flex items-center gap-1">
+          <ActionGroup>
             <Button
               variant="ghost"
               size="sm"
@@ -117,184 +150,193 @@ function RegexLab() {
               <Eraser size={15} />
               {text.clear}
             </Button>
-            <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
-          </div>
-        </div>
+          </ActionGroup>
+        </ToolToolbar>
 
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="regex-pattern" className="machkit-control-label">
-            {text.pattern}
-          </label>
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-2">
+          <span className="machkit-sidebar-label">{text.pattern}</span>
+          <div
+            className={cn(
+              "flex items-center gap-1 rounded-panel border bg-surface px-2.5 py-1.5",
+              patternInvalid ? "border-danger/40" : "border-border",
+            )}
+          >
+            <Seg>/</Seg>
             <Input
               id="regex-pattern"
-              className="min-w-0 flex-1 font-mono"
+              className="h-8 min-w-0 flex-1 border-transparent bg-transparent px-1.5 font-mono shadow-none focus:border-accent focus:bg-field focus:ring-2 focus:ring-accent/25"
               value={pattern}
               onChange={(event) => setPattern(event.target.value)}
               placeholder={text.emptyPattern}
               spellCheck={false}
+              aria-label={text.pattern}
+              invalid={patternInvalid}
             />
+            <Seg>/</Seg>
             <div
-              className="flex h-9.5 shrink-0 items-center gap-0.5 rounded-control bg-muted p-0.5"
+              className="ml-0.5 flex shrink-0 items-center gap-0.5"
               role="group"
               aria-label={text.flags}
             >
-              {FLAG_OPTIONS.map((flag) => {
-                const active = flags.includes(flag.key);
-                return (
-                  <button
-                    key={flag.key}
-                    type="button"
-                    title={text[flag.labelKey]}
-                    aria-pressed={active}
-                    className={
-                      active
-                        ? "h-full min-w-7 rounded-[6px] bg-surface px-2 font-mono text-xs font-semibold text-accent shadow-segment"
-                        : "h-full min-w-7 rounded-[6px] px-2 font-mono text-xs font-medium text-secondary hover:text-foreground"
-                    }
-                    onClick={() => setFlags(toggleFlag(flags, flag.key, !active))}
-                  >
-                    {flag.key}
-                  </button>
-                );
-              })}
+              {FLAG_OPTIONS.map((flag) => (
+                <FlagChip
+                  key={flag.key}
+                  active={flags.includes(flag.key)}
+                  label={flag.key}
+                  title={text[flag.labelKey]}
+                  onClick={() => setFlags(toggleFlag(flags, flag.key, !flags.includes(flag.key)))}
+                />
+              ))}
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] leading-4 text-tertiary">
-            <span>{text.presets}</span>
-            {regexPresets.map((preset) => (
-              <button
-                key={preset.id}
-                type="button"
-                className="text-secondary hover:text-accent"
-                onClick={() => applyPreset(preset)}
-              >
-                {text[PRESET_LABELS[preset.id]] || preset.id}
-              </button>
-            ))}
-          </div>
+          <ExampleChips
+            label={text.presets}
+            options={regexPresets.map((preset) => ({
+              id: preset.id,
+              value: preset.id,
+              label: text[PRESET_LABELS[preset.id]] || preset.id,
+            }))}
+            onSelect={(id) => {
+              const preset = regexPresets.find((item) => item.id === id);
+              if (preset) applyPreset(preset);
+            }}
+          />
         </div>
 
-        {mode === "test" ? (
-          <>
-            <div className="grid min-h-0 gap-2.5 lg:grid-cols-2">
-              <label className="flex min-w-0 flex-col gap-1.5">
-                <span className="machkit-control-label">{text.test}</span>
-                <Textarea
-                  value={input}
-                  onChange={(event) => setInput(event.target.value)}
-                  placeholder={text.emptyInput}
-                  className="h-[150px] min-h-[150px] w-full resize-y font-mono text-[12px]"
-                  spellCheck={false}
-                />
-              </label>
+        {patternInvalid ? (
+          <StatusStrip tone="danger">{statusLabel}</StatusStrip>
+        ) : (
+          <StatusStrip tone="info">{statusLabel}</StatusStrip>
+        )}
 
-              <div className="flex min-w-0 flex-col gap-1.5">
-                <div className="flex items-center gap-2">
-                  <span className="machkit-control-label">{text.preview}</span>
-                  <span className="truncate text-[11px] text-tertiary">{status}</span>
-                </div>
-                <div className="machkit-panel h-[150px] min-h-[150px] overflow-auto whitespace-pre-wrap break-words p-2.5 font-mono text-[12px] leading-5">
-                  {segments.map((segment, index) => (
+        {mode === "replace" ? (
+          <div className="flex flex-col gap-2">
+            <span className="machkit-sidebar-label">{text.replace}</span>
+            <div className="flex items-center gap-1 rounded-panel border border-border bg-surface px-2.5 py-1.5">
+              <Input
+                id="regex-replace"
+                className="h-8 min-w-0 flex-1 border-transparent bg-transparent px-1.5 font-mono shadow-none focus:border-accent focus:bg-field focus:ring-2 focus:ring-accent/25"
+                value={replacement}
+                onChange={(event) => setReplacement(event.target.value)}
+                spellCheck={false}
+                aria-label={text.replace}
+                placeholder="$1"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 shrink-0 px-2 text-secondary"
+                disabled={!replaceResult.ok || !replaceResult.value}
+                aria-label={text.copy}
+                title={text.copy}
+                onClick={() => machkit.copy(replaceResult.value)}
+              >
+                <CopySimple size={15} />
+                <span className="max-[520px]:hidden">{text.copy}</span>
+              </Button>
+            </div>
+          </div>
+        ) : null}
+
+        <div className="grid min-w-0 gap-3 sm:grid-cols-2">
+          <div className="flex min-w-0 flex-col gap-2">
+            <span className="machkit-sidebar-label">{text.test}</span>
+            <Textarea
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
+              placeholder={text.emptyInput}
+              className="h-[150px] min-h-[150px] w-full resize-y font-mono text-[12px]"
+              spellCheck={false}
+            />
+          </div>
+
+          {mode === "test" ? (
+            <div className="flex min-w-0 flex-col gap-2">
+              <span className="machkit-sidebar-label">{text.preview}</span>
+              <ResultPanel
+                className="h-[150px] min-h-[150px] bg-surface"
+                bodyClassName="h-full overflow-auto px-3 py-2.5 font-mono text-[12px] leading-5 whitespace-pre-wrap break-words"
+              >
+                {input ? (
+                  segments.map((segment, index) =>
                     segment.type === "match" ? (
-                      <mark key={`${segment.matchIndex}-${index}`} className="regex-match-mark rounded-[3px] px-0.5">
+                      <mark
+                        key={`${segment.matchIndex}-${index}`}
+                        className="regex-match-mark rounded-[3px] px-0.5"
+                      >
                         {segment.value}
                       </mark>
                     ) : (
                       <span key={`text-${index}`}>{segment.value}</span>
-                    )
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex min-h-0 flex-col gap-1.5">
-              <span className="machkit-control-label">{text.matches}</span>
-              <div className="machkit-panel max-h-[160px] overflow-auto">
-                {matchResult.ok && matchResult.matches.length ? (
-                  <ul className="divide-y divide-border">
-                    {matchResult.matches.map((match, index) => (
-                      <li key={`${match.index}-${index}`} className="px-3 py-1.5 font-mono text-[12px]">
-                        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
-                          <span className="text-tertiary">#{index + 1}</span>
-                          <span className="text-accent">{match.text}</span>
-                          <span className="text-tertiary">@{match.index}</span>
-                          {match.groups.length ? (
-                            <span className="text-secondary">
-                              {match.groups.map((group) => (
-                                <span key={group.index} className="mr-2">
-                                  ${group.index}={JSON.stringify(group.value)}
-                                </span>
-                              ))}
-                            </span>
-                          ) : null}
-                          {Object.keys(match.named).length ? (
-                            <span className="text-secondary">
-                              {Object.entries(match.named).map(([name, value]) => (
-                                <span key={name} className="mr-2">
-                                  {`<${name}>`}={JSON.stringify(value)}
-                                </span>
-                              ))}
-                            </span>
-                          ) : null}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
+                    ),
+                  )
                 ) : (
-                  <p className="px-3 py-4 text-center text-xs text-tertiary">{text.noMatches}</p>
+                  <span className="text-tertiary">{text.emptyInput}</span>
                 )}
-              </div>
+              </ResultPanel>
             </div>
-          </>
-        ) : (
-          <>
-            <div className="machkit-toolbar gap-2">
-              <div className="flex min-w-0 flex-1 items-center gap-2">
-                <label htmlFor="regex-replace" className="machkit-control-label whitespace-nowrap">
-                  {text.replace}
-                </label>
-                <Input
-                  id="regex-replace"
-                  className="min-w-0 flex-1 font-mono"
-                  value={replacement}
-                  onChange={(event) => setReplacement(event.target.value)}
-                  spellCheck={false}
-                />
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                disabled={!replaceResult.ok || !replaceResult.value}
-                onClick={() => machkit.copy(replaceResult.value)}
-              >
-                <CopySimple size={15} />
-                {text.copy}
-              </Button>
+          ) : (
+            <div className="flex min-w-0 flex-col gap-2">
+              <span className="machkit-sidebar-label">{text.result}</span>
+              <Textarea
+                readOnly
+                value={replaceResult.ok ? replaceResult.value : ""}
+                placeholder={text.result}
+                className="h-[150px] min-h-[150px] w-full resize-y bg-accent-soft/40 font-mono text-[12px]"
+              />
             </div>
+          )}
+        </div>
 
-            <div className="grid min-h-0 gap-2.5 lg:grid-cols-2">
-              <label className="flex min-w-0 flex-col gap-1.5">
-                <span className="machkit-control-label">{text.test}</span>
-                <Textarea
-                  value={input}
-                  onChange={(event) => setInput(event.target.value)}
-                  placeholder={text.emptyInput}
-                  className="h-[220px] min-h-[220px] w-full resize-y font-mono text-[12px]"
-                  spellCheck={false}
-                />
-              </label>
-              <div className="flex min-w-0 flex-col gap-1.5">
-                <span className="machkit-control-label">{text.result}</span>
-                <Textarea
-                  readOnly
-                  value={replaceResult.ok ? replaceResult.value : ""}
-                  className="h-[220px] min-h-[220px] w-full resize-y font-mono text-[12px] bg-field"
-                />
-              </div>
-            </div>
-          </>
-        )}
+        {mode === "test" ? (
+          <div className="flex flex-col gap-2">
+            <span className="machkit-sidebar-label">{text.matches}</span>
+            <ResultPanel className="max-h-[180px] overflow-auto bg-surface">
+              {matchResult.ok && matchResult.matches.length ? (
+                <ul>
+                  {matchResult.matches.map((match, index) => (
+                    <li
+                      key={`${match.index}-${index}`}
+                      className="flex min-w-0 items-baseline gap-2 border-b border-border/60 px-3.5 py-2 last:border-b-0"
+                    >
+                      <span className="w-7 shrink-0 text-[11px] tabular-nums text-tertiary">
+                        #{index + 1}
+                      </span>
+                      <div className="min-w-0 flex-1 font-mono text-[12px]">
+                        <div className="truncate text-accent">{match.text}</div>
+                        <div className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 text-[11px] text-secondary">
+                          <span className="text-tertiary">@{match.index}</span>
+                          {match.groups.map((group) => (
+                            <span key={group.index}>
+                              ${group.index}={JSON.stringify(group.value)}
+                            </span>
+                          ))}
+                          {Object.entries(match.named).map(([name, value]) => (
+                            <span key={name}>
+                              {`<${name}>`}={JSON.stringify(value)}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 shrink-0 px-2 text-secondary"
+                        aria-label={text.copy}
+                        title={text.copy}
+                        onClick={() => machkit.copy(match.text)}
+                      >
+                        <CopySimple size={14} />
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="px-3 py-6 text-center text-xs text-tertiary">{text.noMatches}</p>
+              )}
+            </ResultPanel>
+          </div>
+        ) : null}
       </ToolContent>
     </ToolPage>
   );

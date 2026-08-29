@@ -43,11 +43,18 @@ function unwrapJSONLayers(data) {
   return { data: current, unwrapped };
 }
 
-export function parseJSON(raw) {
+export function parseJSON(raw, { unwrap = true } = {}) {
   const value = String(raw ?? "").trim();
   if (!value) return { ok: false, error: "empty", data: null, unwrapped: false };
 
   let parsed = tryParse(value);
+
+  if (!unwrap) {
+    return parsed.ok
+      ? { ok: true, error: null, data: parsed.data, unwrapped: false }
+      : { ...parsed, unwrapped: false };
+  }
+
   let unwrapped = false;
 
   // e.g. {\"a\":1} — escaped JSON body without outer quotes
@@ -78,6 +85,33 @@ export function formatJSON(data, space = 2) {
 
 export function minifyJSON(data) {
   return JSON.stringify(data);
+}
+
+/** Encode the editor text as a JSON string literal (with quotes). */
+export function escapeJSONText(text) {
+  return JSON.stringify(String(text ?? ""));
+}
+
+/**
+ * Decode a JSON string literal or an escaped JSON body without outer quotes.
+ * e.g. "{\"a\":1}" or {\"a\":1} → {"a":1}
+ */
+export function unescapeJSONText(text) {
+  const value = String(text ?? "").trim();
+  if (!value) throw new Error("empty");
+
+  if (value.startsWith('"')) {
+    const parsed = tryParse(value);
+    if (!parsed.ok) throw new Error(parsed.error || "Unable to unescape");
+    if (typeof parsed.data !== "string") throw new Error("Not a JSON string");
+    return parsed.data;
+  }
+
+  const wrapped = tryParse(`"${value}"`);
+  if (!wrapped.ok || typeof wrapped.data !== "string") {
+    throw new Error(wrapped.error || "Unable to unescape");
+  }
+  return wrapped.data;
 }
 
 export function sortKeysDeep(value) {
@@ -269,6 +303,182 @@ export function queryPath(data, rawPath) {
       error: error instanceof Error ? error.message : "Invalid path",
       matches: [],
     };
+  }
+}
+
+/**
+ * Resolve the JSONPath for the value (or object key) under a document offset.
+ */
+export function pathAtOffset(source, offset) {
+  const text = String(source ?? "");
+  if (!text.trim()) return { ok: false, path: "" };
+
+  const target = Math.max(0, Math.min(Number(offset) || 0, text.length));
+  let index = 0;
+  let best = null;
+
+  function consider(path, start, end) {
+    if (target < start || target > end) return;
+    const span = end - start;
+    if (!best || span < best.span || (span === best.span && start >= best.start)) {
+      best = { path, start, span };
+    }
+  }
+
+  function skipWhitespace() {
+    while (index < text.length && /\s/.test(text[index])) index += 1;
+  }
+
+  function parseString() {
+    const start = index;
+    if (text[index] !== '"') throw new Error("Expected string");
+    index += 1;
+    while (index < text.length) {
+      const char = text[index];
+      if (char === '"') {
+        index += 1;
+        return { start, end: index, raw: text.slice(start, index) };
+      }
+      if (char === "\\") {
+        index += index + 1 < text.length ? 2 : 1;
+        continue;
+      }
+      index += 1;
+    }
+    throw new Error("Unterminated string");
+  }
+
+  function parseNumber() {
+    const start = index;
+    if (text[index] === "-") index += 1;
+    while (index < text.length && /[0-9]/.test(text[index])) index += 1;
+    if (text[index] === ".") {
+      index += 1;
+      while (index < text.length && /[0-9]/.test(text[index])) index += 1;
+    }
+    if (text[index] === "e" || text[index] === "E") {
+      index += 1;
+      if (text[index] === "+" || text[index] === "-") index += 1;
+      while (index < text.length && /[0-9]/.test(text[index])) index += 1;
+    }
+    if (index === start || (index === start + 1 && text[start] === "-")) {
+      throw new Error("Invalid number");
+    }
+    return { start, end: index };
+  }
+
+  function parseLiteral(word) {
+    const start = index;
+    if (text.slice(index, index + word.length) !== word) throw new Error(`Expected ${word}`);
+    index += word.length;
+    return { start, end: index };
+  }
+
+  function parseValue(path) {
+    skipWhitespace();
+    const start = index;
+    const char = text[index];
+    if (char === undefined) throw new Error("Unexpected end of JSON");
+
+    if (char === "{") {
+      index += 1;
+      skipWhitespace();
+      if (text[index] === "}") {
+        index += 1;
+        consider(path, start, index);
+        return;
+      }
+      while (true) {
+        skipWhitespace();
+        const keyToken = parseString();
+        let key = "";
+        try {
+          key = JSON.parse(keyToken.raw);
+        } catch {
+          key = keyToken.raw.slice(1, -1);
+        }
+        const childPath = `${path}${quoteKey(key)}`;
+        consider(childPath, keyToken.start, keyToken.end);
+        skipWhitespace();
+        if (text[index] !== ":") throw new Error("Expected ':'");
+        index += 1;
+        parseValue(childPath);
+        skipWhitespace();
+        if (text[index] === ",") {
+          index += 1;
+          continue;
+        }
+        if (text[index] === "}") {
+          index += 1;
+          break;
+        }
+        throw new Error("Expected ',' or '}'");
+      }
+      consider(path, start, index);
+      return;
+    }
+
+    if (char === "[") {
+      index += 1;
+      skipWhitespace();
+      if (text[index] === "]") {
+        index += 1;
+        consider(path, start, index);
+        return;
+      }
+      let itemIndex = 0;
+      while (true) {
+        parseValue(`${path}[${itemIndex}]`);
+        skipWhitespace();
+        if (text[index] === ",") {
+          index += 1;
+          itemIndex += 1;
+          continue;
+        }
+        if (text[index] === "]") {
+          index += 1;
+          break;
+        }
+        throw new Error("Expected ',' or ']'");
+      }
+      consider(path, start, index);
+      return;
+    }
+
+    if (char === '"') {
+      const stringToken = parseString();
+      consider(path, stringToken.start, stringToken.end);
+      return;
+    }
+    if (char === "-" || /[0-9]/.test(char)) {
+      const numberToken = parseNumber();
+      consider(path, numberToken.start, numberToken.end);
+      return;
+    }
+    if (char === "t") {
+      const literal = parseLiteral("true");
+      consider(path, literal.start, literal.end);
+      return;
+    }
+    if (char === "f") {
+      const literal = parseLiteral("false");
+      consider(path, literal.start, literal.end);
+      return;
+    }
+    if (char === "n") {
+      const literal = parseLiteral("null");
+      consider(path, literal.start, literal.end);
+      return;
+    }
+    throw new Error(`Unexpected character: ${char}`);
+  }
+
+  try {
+    parseValue("$");
+    skipWhitespace();
+    return { ok: Boolean(best), path: best?.path || "$" };
+  } catch {
+    return { ok: false, path: "" };
   }
 }
 

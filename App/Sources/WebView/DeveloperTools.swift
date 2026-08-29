@@ -10,7 +10,6 @@ enum DeveloperToolCapability: String, Hashable {
     case clipboard
     case hosts
     case storage
-    case connectionTrace
     case portScan
     case files
     case curlLab
@@ -23,7 +22,7 @@ enum WebToolWidthClass: String, Equatable {
     case wide
 
     /// Bump to invalidate remembered frames after sizing policy changes.
-    static let frameEpoch = 8
+    static let frameEpoch = 12
 
     var width: CGFloat {
         switch self {
@@ -117,14 +116,14 @@ enum DeveloperToolRegistry {
                 "encode", "decode", "md5", "sha", "编码", "解码", "哈希", "实体", "转义", "反转义"
             ],
             icon: "lock.rectangle.on.rectangle",
-            widthClass: .wide,
+            widthClass: .compact,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/codec/index.html")
         ),
         DeveloperTool(
             id: "string-generator",
             title: "String Generator",
-            description: "Generate UUIDs, random IDs, and passwords locally",
+            description: "Generate UUIDs, random IDs, and strings locally",
             keywords: [
                 "uuid", "ulid", "nanoid", "guid", "random", "id", "hex", "objectid", "string",
                 "password", "passwd", "secret", "生成", "随机", "密码", "字符串", "字串"
@@ -153,7 +152,7 @@ enum DeveloperToolRegistry {
                 "链接", "网址", "参数"
             ],
             icon: "link",
-            widthClass: .wide,
+            widthClass: .compact,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/url-lab/index.html")
         ),
@@ -166,7 +165,7 @@ enum DeveloperToolRegistry {
                 "正则", "正則", "匹配", "替换", "取代", "分组", "捕获"
             ],
             icon: "text.magnifyingglass",
-            widthClass: .wide,
+            widthClass: .compact,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/regex-lab/index.html")
         ),
@@ -182,19 +181,6 @@ enum DeveloperToolRegistry {
             widthClass: .wide,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/text-diff/index.html")
-        ),
-        DeveloperTool(
-            id: "data-format",
-            title: "Data Format",
-            description: "Convert between JSON, YAML, and TOML locally",
-            keywords: [
-                "json", "yaml", "yml", "toml", "convert", "format",
-                "转换", "格式", "数据"
-            ],
-            icon: "arrow.left.arrow.right",
-            widthClass: .wide,
-            capabilities: [.clipboard],
-            presentation: .bundledWeb(entryFile: "WebTools/tools/data-format/index.html")
         ),
         DeveloperTool(
             id: "number-base",
@@ -219,35 +205,22 @@ enum DeveloperToolRegistry {
                 "定时", "计划任务", "表达式"
             ],
             icon: "calendar.badge.clock",
-            widthClass: .regular,
+            widthClass: .compact,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/cron-expression/index.html")
         ),
         DeveloperTool(
             id: "ip-cidr",
-            title: "IP / CIDR Calculator",
-            description: "Calculate IPv4 network details, ranges, and membership checks",
+            title: "IP / CIDR",
+            description: "Inspect IPv4 and IPv6 addresses or calculate IPv4 CIDR ranges locally",
             keywords: [
-                "ip", "cidr", "subnet", "netmask", "network", "broadcast",
-                "网段", "掩码", "子网", "地址"
+                "ip", "ipv4", "ipv6", "cidr", "subnet", "netmask", "network", "broadcast",
+                "integer", "arpa", "reverse dns", "网段", "掩码", "子网", "地址", "反向"
             ],
             icon: "point.3.connected.trianglepath.dotted",
             widthClass: .regular,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/ip-cidr/index.html")
-        ),
-        DeveloperTool(
-            id: "ip-inspector",
-            title: "IP Inspector",
-            description: "Inspect IPv4 and IPv6 addresses, kinds, and reverse DNS labels",
-            keywords: [
-                "ip", "ipv4", "ipv6", "address", "arpa", "inspector",
-                "解析", "地址"
-            ],
-            icon: "network",
-            widthClass: .regular,
-            capabilities: [.clipboard],
-            presentation: .bundledWeb(entryFile: "WebTools/tools/ip-inspector/index.html")
         ),
         DeveloperTool(
             id: "color-lab",
@@ -273,21 +246,8 @@ enum DeveloperToolRegistry {
             ],
             icon: "photo.on.rectangle.angled",
             widthClass: .wide,
-            capabilities: [.clipboard],
+            capabilities: [.clipboard, .files],
             presentation: .bundledWeb(entryFile: "WebTools/tools/image-process/index.html")
-        ),
-        DeveloperTool(
-            id: "xml-plist",
-            title: "XML / Plist",
-            description: "Format XML and convert Apple XML plists to JSON locally",
-            keywords: [
-                "xml", "plist", "property list", "pretty", "minify",
-                "格式化", "属性列表"
-            ],
-            icon: "doc.text",
-            widthClass: .wide,
-            capabilities: [.clipboard],
-            presentation: .bundledWeb(entryFile: "WebTools/tools/xml-plist/index.html")
         ),
         DeveloperTool(
             id: "qr-code",
@@ -299,7 +259,7 @@ enum DeveloperToolRegistry {
             ],
             icon: "qrcode",
             widthClass: .compact,
-            capabilities: [.clipboard],
+            capabilities: [.clipboard, .files],
             presentation: .bundledWeb(entryFile: "WebTools/tools/qr-code/index.html")
         ),
         DeveloperTool(
@@ -342,19 +302,6 @@ enum DeveloperToolRegistry {
             presentation: .bundledWeb(entryFile: "WebTools/tools/cert-lab/index.html")
         ),
         DeveloperTool(
-            id: "text-lab",
-            title: "Text Lab",
-            description: "Trim, dedupe, sort, and transform text lines locally",
-            keywords: [
-                "text", "dedupe", "sort", "trim", "lines", "case",
-                "文本", "去重", "排序"
-            ],
-            icon: "text.alignleft",
-            widthClass: .regular,
-            capabilities: [.clipboard],
-            presentation: .bundledWeb(entryFile: "WebTools/tools/text-lab/index.html")
-        ),
-        DeveloperTool(
             id: "curl-lab",
             title: "cURL Lab",
             description: "Visually edit HTTP requests and convert to or from cURL",
@@ -366,19 +313,6 @@ enum DeveloperToolRegistry {
             widthClass: .wide,
             capabilities: [.clipboard, .files, .curlLab],
             presentation: .bundledWeb(entryFile: "WebTools/tools/curl-lab/index.html")
-        ),
-        DeveloperTool(
-            id: "connection-trace",
-            title: "Connection Trace",
-            description: "Trace DNS lookup and HTTP/TLS connection timing for a host",
-            keywords: [
-                "dns", "resolve", "tls", "http", "latency", "curl", "trace", "connect",
-                "域名", "解析", "连接", "耗时"
-            ],
-            icon: "antenna.radiowaves.left.and.right",
-            widthClass: .regular,
-            capabilities: [.clipboard, .connectionTrace],
-            presentation: .bundledWeb(entryFile: "WebTools/tools/connection-trace/index.html")
         ),
         DeveloperTool(
             id: "port-scan",

@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
+import { tags as t } from "@lezer/highlight";
 import { EditorView } from "@codemirror/view";
 import { machkit } from "@/runtime/machkit.js";
 
@@ -23,11 +25,41 @@ export function useEditorDark() {
   return preferences.appearance === "dark" || (preferences.appearance !== "light" && systemDark);
 }
 
+const lightHighlight = HighlightStyle.define([
+  { tag: t.propertyName, color: "#087fff" },
+  { tag: t.string, color: "#1a7f37" },
+  { tag: t.number, color: "#9a6700" },
+  { tag: t.bool, color: "#8250df" },
+  { tag: t.null, color: "#8250df" },
+  { tag: t.keyword, color: "#8250df" },
+  { tag: t.punctuation, color: "#696b73" },
+  { tag: t.bracket, color: "#696b73" },
+  { tag: t.squareBracket, color: "#696b73" },
+  { tag: t.brace, color: "#696b73" },
+  { tag: t.separator, color: "#93959d" },
+  { tag: t.invalid, color: "#d83b3b" },
+]);
+
+const darkHighlight = HighlightStyle.define([
+  { tag: t.propertyName, color: "#6cb6ff" },
+  { tag: t.string, color: "#7ee787" },
+  { tag: t.number, color: "#e3b341" },
+  { tag: t.bool, color: "#d2a8ff" },
+  { tag: t.null, color: "#d2a8ff" },
+  { tag: t.keyword, color: "#d2a8ff" },
+  { tag: t.punctuation, color: "#a2a2a8" },
+  { tag: t.bracket, color: "#a2a2a8" },
+  { tag: t.squareBracket, color: "#a2a2a8" },
+  { tag: t.brace, color: "#a2a2a8" },
+  { tag: t.separator, color: "#707076" },
+  { tag: t.invalid, color: "#ff6961" },
+]);
+
 export function useMachKitEditorTheme() {
   const dark = useEditorDark();
 
   return useMemo(
-    () =>
+    () => [
       EditorView.theme(
         {
           "&": {
@@ -57,6 +89,8 @@ export function useMachKitEditorTheme() {
         },
         { dark },
       ),
+      syntaxHighlighting(dark ? darkHighlight : lightHighlight),
+    ],
     [dark],
   );
 }

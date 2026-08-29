@@ -76,6 +76,19 @@ private struct ToolWindowConfigurator: NSViewRepresentable {
     }
 }
 
+private final class ContextMenuDisabledWebView: WKWebView {
+    override func menu(for event: NSEvent) -> NSMenu? {
+        nil
+    }
+
+    override func willOpenMenu(_ menu: NSMenu, with event: NSEvent) {
+        // Strip Reload / Inspect / Autofill / Writing Tools, then cancel so an
+        // empty menu never flashes on right-click inside editors.
+        menu.removeAllItems()
+        menu.cancelTracking()
+    }
+}
+
 private struct BundledWebView: NSViewRepresentable {
     let toolID: String
     let entryFile: String
@@ -99,16 +112,19 @@ private struct BundledWebView: NSViewRepresentable {
                 forMainFrameOnly: true
             )
         )
-        let webView = WKWebView(frame: .zero, configuration: configuration)
+        let webView = ContextMenuDisabledWebView(frame: .zero, configuration: configuration)
         webView.underPageBackgroundColor = .clear
         webView.navigationDelegate = context.coordinator
+        webView.uiDelegate = context.coordinator
+        Self.disableElasticScrolling(in: webView)
         context.coordinator.localeIdentifier = localeIdentifier
         context.coordinator.appearance = appearance
-        context.coordinator.loadInitialPage(in: webView)
+        context.coordinator.attachContentRulesThenLoad(in: webView)
         return webView
     }
 
     func updateNSView(_ webView: WKWebView, context: Context) {
+        Self.disableElasticScrolling(in: webView)
         context.coordinator.applyPreferencesIfNeeded(
             in: webView,
             localeIdentifier: localeIdentifier,
@@ -116,8 +132,20 @@ private struct BundledWebView: NSViewRepresentable {
         )
     }
 
+    /// Trackpad rubber-banding on the page chrome feels like the whole tool is
+    /// sliding even when there is nothing to scroll. Keep real overflow scrollers.
+    private static func disableElasticScrolling(in root: NSView) {
+        if let scrollView = root as? NSScrollView {
+            scrollView.horizontalScrollElasticity = .none
+            scrollView.verticalScrollElasticity = .none
+        }
+        for subview in root.subviews {
+            disableElasticScrolling(in: subview)
+        }
+    }
+
     static func dismantleNSView(_ webView: WKWebView, coordinator: Coordinator) {
-        webView.configuration.userContentController.removeScriptMessageHandler(forName: "bridge")
+        coordinator.teardown(webView: webView)
     }
 
     func makeCoordinator() -> Coordinator {
@@ -130,7 +158,7 @@ private struct BundledWebView: NSViewRepresentable {
     }
 
     private static func sanitized(_ value: String) -> String {
-        value.filter { $0.isLetter || $0.isNumber || $0 == "-" || $0 == "_" }
+        WebToolBridgePolicy.sanitizedBootstrapToken(value)
     }
 
     private static func bootstrapScript(localeIdentifier: String, appearance: String) -> String {
@@ -150,22 +178,29 @@ private struct BundledWebView: NSViewRepresentable {
             delete root.dataset.appearance;
             root.style.colorScheme = '';
           }
+          // Block WebKit's page context menu (Reload / Autofill / Inspect, etc.)
+          // so embedded tool editors stay chrome-free.
+          var blockContextMenu = function (event) { event.preventDefault(); };
+          document.addEventListener('contextmenu', blockContextMenu, true);
+          window.addEventListener('contextmenu', blockContextMenu, true);
         })();
         """
     }
 
-    final class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandlerWithReply, WKURLSchemeHandler {
+    final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandlerWithReply, WKURLSchemeHandler {
         private let toolID: String
         private let allowedRoot: URL?
         private let entryFile: String
         private let capabilities: Set<DeveloperToolCapability>
         private var isUsingDevelopmentServer = false
         private let hostsBridge = HostsWebBridge.shared
-        private let connectionTraceBridge = ConnectionTraceWebBridge.shared
         private let portScanBridge = PortScanWebBridge.shared
         private let curlLabBridge = CurlLabWebBridge.shared
+        private var contentRuleList: WKContentRuleList?
         var localeIdentifier = "en"
         var appearance = AppAppearance.system.rawValue
+
+        private static var contentRuleListTask: Task<WKContentRuleList?, Never>?
 
         init(
             toolID: String,
@@ -177,6 +212,57 @@ private struct BundledWebView: NSViewRepresentable {
             self.allowedRoot = allowedRoot?.standardizedFileURL
             self.entryFile = entryFile
             self.capabilities = capabilities
+        }
+
+        func teardown(webView: WKWebView) {
+            if capabilities.contains(.curlLab) {
+                curlLabBridge.cancelActive(for: toolID)
+            }
+            if capabilities.contains(.portScan) {
+                portScanBridge.cancelRunning(for: toolID)
+            }
+            let controller = webView.configuration.userContentController
+            controller.removeScriptMessageHandler(forName: "bridge", contentWorld: .page)
+            if let contentRuleList {
+                controller.remove(contentRuleList)
+            }
+        }
+
+        func attachContentRulesThenLoad(in webView: WKWebView) {
+            Task { @MainActor [weak self, weak webView] in
+                guard let self, let webView else { return }
+                if let list = await Self.sharedContentRuleList() {
+                    self.contentRuleList = list
+                    webView.configuration.userContentController.add(list)
+                }
+                self.loadInitialPage(in: webView)
+            }
+        }
+
+        private static func sharedContentRuleList() async -> WKContentRuleList? {
+            if let contentRuleListTask {
+                return await contentRuleListTask.value
+            }
+            #if DEBUG
+            let allowDevelopmentServer = true
+            #else
+            let allowDevelopmentServer = false
+            #endif
+            let task = Task<WKContentRuleList?, Never> {
+                let rules = WebToolBridgePolicy.contentBlockerRulesJSON(
+                    allowDevelopmentServer: allowDevelopmentServer
+                )
+                return await withCheckedContinuation { continuation in
+                    WKContentRuleListStore.default().compileContentRuleList(
+                        forIdentifier: "machkit.webview.local-only.v1",
+                        encodedContentRuleList: rules
+                    ) { list, _ in
+                        continuation.resume(returning: list)
+                    }
+                }
+            }
+            contentRuleListTask = task
+            return await task.value
         }
 
         func applyPreferencesIfNeeded(in webView: WKWebView, localeIdentifier: String, appearance: String) {
@@ -265,12 +351,27 @@ private struct BundledWebView: NSViewRepresentable {
                     replyHandler(nil, "Clipboard access is not available to this tool.")
                     return
                 }
+                guard text.utf8.count <= WebToolBridgePolicy.maxClipboardUTF8Bytes else {
+                    replyHandler(nil, "Clipboard content is too large.")
+                    return
+                }
                 NSPasteboard.general.clearContents()
                 guard NSPasteboard.general.setString(text, forType: .string) else {
                     replyHandler(nil, "Unable to write to the clipboard.")
                     return
                 }
                 replyHandler(["ok": true], nil)
+            case "clipboard.read":
+                guard capabilities.contains(.clipboard) else {
+                    replyHandler(nil, "Clipboard access is not available to this tool.")
+                    return
+                }
+                let text = NSPasteboard.general.string(forType: .string) ?? ""
+                guard text.utf8.count <= WebToolBridgePolicy.maxClipboardUTF8Bytes else {
+                    replyHandler(nil, "Clipboard content is too large.")
+                    return
+                }
+                replyHandler(["text": text], nil)
             case "window.fitContentHeight":
                 guard let height = parameters["height"] as? NSNumber,
                       let webView = message.webView else {
@@ -282,7 +383,7 @@ private struct BundledWebView: NSViewRepresentable {
             case "storage.get":
                 guard capabilities.contains(.storage),
                       let key = parameters["key"] as? String,
-                      Self.isSafeStorageKey(key) else {
+                      WebToolBridgePolicy.isSafeStorageKey(key) else {
                     replyHandler(nil, "Storage access is not available to this tool.")
                     return
                 }
@@ -294,9 +395,9 @@ private struct BundledWebView: NSViewRepresentable {
             case "storage.set":
                 guard capabilities.contains(.storage),
                       let key = parameters["key"] as? String,
-                      Self.isSafeStorageKey(key),
+                      WebToolBridgePolicy.isSafeStorageKey(key),
                       let value = parameters["value"] as? String,
-                      value.utf8.count <= 8_192 else {
+                      value.utf8.count <= WebToolBridgePolicy.maxStorageUTF8Bytes else {
                     replyHandler(nil, "Storage access is not available to this tool.")
                     return
                 }
@@ -316,15 +417,58 @@ private struct BundledWebView: NSViewRepresentable {
                 if let prompt = parameters["prompt"] as? String, !prompt.isEmpty {
                     panel.prompt = prompt
                 }
-                let response = panel.runModal()
-                if response == .OK, let url = panel.url {
-                    replyHandler([
-                        "canceled": false,
-                        "path": url.path,
-                        "name": url.lastPathComponent
-                    ], nil)
-                } else {
-                    replyHandler(["canceled": true], nil)
+                panel.begin { response in
+                    Task { @MainActor in
+                        if response == .OK, let url = panel.url {
+                            replyHandler([
+                                "canceled": false,
+                                "path": url.path,
+                                "name": url.lastPathComponent
+                            ], nil)
+                        } else {
+                            replyHandler(["canceled": true], nil)
+                        }
+                    }
+                }
+            case "files.save":
+                guard capabilities.contains(.files) else {
+                    replyHandler(nil, "File saving is not available to this tool.")
+                    return
+                }
+                guard let name = parameters["name"] as? String,
+                      let base64 = parameters["dataBase64"] as? String,
+                      let data = Data(base64Encoded: base64),
+                      !data.isEmpty,
+                      data.count <= WebToolBridgePolicy.maxSaveFileBytes else {
+                    replyHandler(nil, "Invalid file payload.")
+                    return
+                }
+                let safeName = URL(fileURLWithPath: name).lastPathComponent
+                guard !safeName.isEmpty, safeName != "/", !safeName.hasPrefix(".") else {
+                    replyHandler(nil, "Invalid file name.")
+                    return
+                }
+                let panel = NSSavePanel()
+                panel.canCreateDirectories = true
+                panel.isExtensionHidden = false
+                panel.nameFieldStringValue = safeName
+                panel.begin { response in
+                    Task { @MainActor in
+                        if response == .OK, let url = panel.url {
+                            do {
+                                try data.write(to: url, options: .atomic)
+                                replyHandler([
+                                    "canceled": false,
+                                    "path": url.path,
+                                    "name": url.lastPathComponent
+                                ], nil)
+                            } catch {
+                                replyHandler(nil, error.localizedDescription)
+                            }
+                        } else {
+                            replyHandler(["canceled": true], nil)
+                        }
+                    }
                 }
             case let method where method.hasPrefix("hosts."):
                 guard capabilities.contains(.hosts) else {
@@ -334,6 +478,7 @@ private struct BundledWebView: NSViewRepresentable {
                 var payload = parameters
                 payload["action"] = String(method.dropFirst("hosts.".count))
                 payload["requestID"] = "bridge-reply"
+                payload["toolID"] = toolID
                 Task { @MainActor [weak self] in
                     guard let self else {
                         replyHandler(nil, "The tool bridge is no longer available.")
@@ -346,26 +491,6 @@ private struct BundledWebView: NSViewRepresentable {
                         replyHandler(nil, response["error"] as? String ?? "Hosts operation failed.")
                     }
                 }
-            case let method where method.hasPrefix("connectionTrace."):
-                guard capabilities.contains(.connectionTrace) else {
-                    replyHandler(nil, "Connection tracing is not available to this tool.")
-                    return
-                }
-                var payload = parameters
-                payload["action"] = String(method.dropFirst("connectionTrace.".count))
-                payload["requestID"] = "bridge-reply"
-                Task { @MainActor [weak self] in
-                    guard let self else {
-                        replyHandler(nil, "The tool bridge is no longer available.")
-                        return
-                    }
-                    let response = await connectionTraceBridge.handle(payload)
-                    if response["ok"] as? Bool == true {
-                        replyHandler(response["result"], nil)
-                    } else {
-                        replyHandler(nil, response["error"] as? String ?? "Connection trace failed.")
-                    }
-                }
             case let method where method.hasPrefix("portScan."):
                 guard capabilities.contains(.portScan) else {
                     replyHandler(nil, "Port scanning is not available to this tool.")
@@ -374,6 +499,7 @@ private struct BundledWebView: NSViewRepresentable {
                 var payload = parameters
                 payload["action"] = String(method.dropFirst("portScan.".count))
                 payload["requestID"] = "bridge-reply"
+                payload["toolID"] = toolID
                 Task { @MainActor [weak self] in
                     guard let self else {
                         replyHandler(nil, "The tool bridge is no longer available.")
@@ -394,6 +520,7 @@ private struct BundledWebView: NSViewRepresentable {
                 var payload = parameters
                 payload["action"] = String(method.dropFirst("curlLab.".count))
                 payload["requestID"] = "bridge-reply"
+                payload["toolID"] = toolID
                 Task { @MainActor [weak self] in
                     guard let self else {
                         replyHandler(nil, "The tool bridge is no longer available.")
@@ -415,33 +542,17 @@ private struct BundledWebView: NSViewRepresentable {
             "machkit.webTool.\(toolID).\(key)"
         }
 
-        private static func isSafeStorageKey(_ key: String) -> Bool {
-            guard (1...64).contains(key.count) else { return false }
-            return key.unicodeScalars.allSatisfy { scalar in
-                CharacterSet.alphanumerics.contains(scalar)
-                    || scalar == "."
-                    || scalar == "_"
-                    || scalar == "-"
-            }
-        }
-
         private func isTrusted(url: URL?) -> Bool {
-            guard let url else { return false }
-            if url.scheme == "machkit-tool", url.host == "app" {
-                let expectedPath = "/" + entryFile
-                return url.path == expectedPath
-            }
             #if DEBUG
-            let developmentPath = entryFile.hasPrefix("WebTools/")
-                ? String(entryFile.dropFirst("WebTools/".count))
-                : entryFile
-            return url.scheme == "http"
-                && url.host == "127.0.0.1"
-                && url.port == 4174
-                && url.path == "/\(developmentPath)"
+            let allowDevelopmentServer = true
             #else
-            return false
+            let allowDevelopmentServer = false
             #endif
+            return WebToolBridgePolicy.isTrustedToolPage(
+                url: url,
+                entryFile: entryFile,
+                allowDevelopmentServer: allowDevelopmentServer
+            )
         }
 
         @MainActor
@@ -482,8 +593,13 @@ private struct BundledWebView: NSViewRepresentable {
                 return
             }
 
-            let relativePath = requestURL.path.drop(while: { $0 == "/" })
-            let fileURL = allowedRoot.appendingPathComponent(String(relativePath)).standardizedFileURL
+            let relativePath = String(requestURL.path.drop(while: { $0 == "/" }))
+            guard WebToolBridgePolicy.isAllowedBundledResourcePath(relativePath, toolID: toolID) else {
+                fail(urlSchemeTask, code: 403)
+                return
+            }
+
+            let fileURL = allowedRoot.appendingPathComponent(relativePath).standardizedFileURL
             guard fileURL.path.hasPrefix(allowedRoot.path + "/"),
                   let data = try? Data(contentsOf: fileURL) else {
                 fail(urlSchemeTask, code: 404)
@@ -510,6 +626,33 @@ private struct BundledWebView: NSViewRepresentable {
         ) {
             guard isUsingDevelopmentServer else { return }
             loadBundledPage(in: webView)
+        }
+
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            BundledWebView.disableElasticScrolling(in: webView)
+        }
+
+        /// WKWebView will not open `<input type="file">` unless the UI delegate
+        /// presents an open panel and always completes the handler.
+        func webView(
+            _ webView: WKWebView,
+            runOpenPanelWith parameters: WKOpenPanelParameters,
+            initiatedByFrame frame: WKFrameInfo,
+            completionHandler: @escaping @MainActor @Sendable ([URL]?) -> Void
+        ) {
+            let panel = NSOpenPanel()
+            panel.canChooseFiles = true
+            panel.canChooseDirectories = parameters.allowsDirectories
+            panel.allowsMultipleSelection = parameters.allowsMultipleSelection
+            panel.resolvesAliases = true
+            panel.treatsFilePackagesAsDirectories = false
+            panel.begin { response in
+                if response == .OK {
+                    completionHandler(panel.urls)
+                } else {
+                    completionHandler(nil)
+                }
+            }
         }
 
         private func fail(_ task: any WKURLSchemeTask, code: Int) {
@@ -552,12 +695,27 @@ private struct BundledWebView: NSViewRepresentable {
             let isDevelopmentURL = false
             #endif
 
-            if url.scheme == "about" || url.scheme == "machkit-tool" || isDevelopmentURL {
+            if url.scheme == "about" {
+                decisionHandler(.allow)
+            } else if url.scheme == "machkit-tool" {
+                let relative = String(url.path.drop(while: { $0 == "/" }))
+                if url.host == "app",
+                   WebToolBridgePolicy.isAllowedBundledResourcePath(relative, toolID: toolID) {
+                    decisionHandler(.allow)
+                } else {
+                    decisionHandler(.cancel)
+                }
+            } else if isDevelopmentURL {
                 decisionHandler(.allow)
             } else if url.isFileURL,
                       let allowedRoot,
                       url.standardizedFileURL.path.hasPrefix(allowedRoot.path + "/") {
-                decisionHandler(.allow)
+                let relative = String(url.standardizedFileURL.path.dropFirst(allowedRoot.path.count + 1))
+                if WebToolBridgePolicy.isAllowedBundledResourcePath(relative, toolID: toolID) {
+                    decisionHandler(.allow)
+                } else {
+                    decisionHandler(.cancel)
+                }
             } else {
                 decisionHandler(.cancel)
             }

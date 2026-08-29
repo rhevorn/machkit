@@ -1,15 +1,16 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowsClockwise, CopySimple, Eraser } from "@phosphor-icons/react";
 import {
+  ActionGroup,
   Button,
   CheckboxField,
-  InlineMessage,
   Input,
   SegmentedControl,
   SelectControl,
+  StatusStrip,
   ToolContent,
-  ToolInfoButton,
   ToolPage,
+  ToolToolbar,
 } from "@/ui/index.js";
 import { useToolMessages } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
@@ -17,17 +18,17 @@ import { mountTool } from "@/runtime/mount-tool.jsx";
 import {
   defaultHexBytes,
   defaultNanoLength,
-  defaultPasswordLength,
+  defaultStringLength,
   generateIds,
   maxBatchCount,
-  passwordAlphabet,
+  stringAlphabet,
   uuidNamespaces,
 } from "./id.js";
 import { messages } from "./messages.js";
 
 const PREFS_KEY = "string-generator.prefs";
 const DEFAULT_COUNT = 3;
-const formats = new Set(["uuid", "ulid", "nanoid", "hex", "password"]);
+const formats = new Set(["uuid", "ulid", "nanoid", "hex", "string"]);
 const uuidVersions = new Set(["v1", "v3", "v4", "v5", "v6", "v7"]);
 const namespaceKeys = new Set(["dns", "url", "oid", "x500"]);
 
@@ -36,7 +37,7 @@ const defaultPrefs = {
   uuidVersion: "v4",
   count: String(DEFAULT_COUNT),
   length: String(defaultNanoLength),
-  passwordLength: String(defaultPasswordLength),
+  stringLength: String(defaultStringLength),
   byteLength: String(defaultHexBytes),
   uppercase: false,
   hyphens: true,
@@ -61,12 +62,14 @@ function asBoolean(value, fallback) {
 
 function normalizePrefs(raw) {
   if (!raw || typeof raw !== "object") return { ...defaultPrefs };
+  const formatRaw = raw.format === "string" ? "string" : raw.format;
+  const stringLengthRaw = raw.stringLength ?? raw.passwordLength;
   return {
-    format: formats.has(raw.format) ? raw.format : defaultPrefs.format,
+    format: formats.has(formatRaw) ? formatRaw : defaultPrefs.format,
     uuidVersion: uuidVersions.has(raw.uuidVersion) ? raw.uuidVersion : defaultPrefs.uuidVersion,
     count: String(clampInt(raw.count, 1, maxBatchCount, DEFAULT_COUNT)),
     length: String(clampInt(raw.length, 1, 128, defaultNanoLength)),
-    passwordLength: String(clampInt(raw.passwordLength, 4, 128, defaultPasswordLength)),
+    stringLength: String(clampInt(stringLengthRaw, 4, 128, defaultStringLength)),
     byteLength: String(clampInt(raw.byteLength, 1, 64, defaultHexBytes)),
     uppercase: asBoolean(raw.uppercase, defaultPrefs.uppercase),
     hyphens: asBoolean(raw.hyphens, defaultPrefs.hyphens),
@@ -194,7 +197,7 @@ function StringGenerator() {
   const [uuidVersion, setUuidVersion] = useState(defaultPrefs.uuidVersion);
   const [count, setCount] = useState(defaultPrefs.count);
   const [length, setLength] = useState(defaultPrefs.length);
-  const [passwordLength, setPasswordLength] = useState(defaultPrefs.passwordLength);
+  const [stringLength, setStringLength] = useState(defaultPrefs.stringLength);
   const [byteLength, setByteLength] = useState(defaultPrefs.byteLength);
   const [uppercase, setUppercase] = useState(defaultPrefs.uppercase);
   const [hyphens, setHyphens] = useState(defaultPrefs.hyphens);
@@ -216,7 +219,7 @@ function StringGenerator() {
       { value: "ulid", label: text.ulid },
       { value: "nanoid", label: text.nanoid },
       { value: "hex", label: text.hex },
-      { value: "password", label: text.password },
+      { value: "string", label: text.string },
     ],
     [text],
   );
@@ -245,7 +248,7 @@ function StringGenerator() {
 
   const resultText = results.join("\n");
   const isNameBased = format === "uuid" && (uuidVersion === "v3" || uuidVersion === "v5");
-  const hasPasswordAlphabet = passwordAlphabet({
+  const hasStringAlphabet = stringAlphabet({
     upper: charsetUpper,
     lower: charsetLower,
     digits: charsetDigits,
@@ -258,7 +261,7 @@ function StringGenerator() {
     uuidVersion,
     count: String(clampInt(count, 1, maxBatchCount, DEFAULT_COUNT)),
     length: String(clampInt(length, 1, 128, defaultNanoLength)),
-    passwordLength: String(clampInt(passwordLength, 4, 128, defaultPasswordLength)),
+    stringLength: String(clampInt(stringLength, 4, 128, defaultStringLength)),
     byteLength: String(clampInt(byteLength, 1, 64, defaultHexBytes)),
     uppercase,
     hyphens,
@@ -276,7 +279,7 @@ function StringGenerator() {
     setUuidVersion(prefs.uuidVersion);
     setCount(prefs.count);
     setLength(prefs.length);
-    setPasswordLength(prefs.passwordLength);
+    setStringLength(prefs.stringLength);
     setByteLength(prefs.byteLength);
     setUppercase(prefs.uppercase);
     setHyphens(prefs.hyphens);
@@ -295,8 +298,8 @@ function StringGenerator() {
     const options = {
       uppercase: prefs.uppercase,
       hyphens: prefs.hyphens,
-      length: prefs.format === "password"
-        ? clampInt(prefs.passwordLength, 4, 128, defaultPasswordLength)
+      length: prefs.format === "string"
+        ? clampInt(prefs.stringLength, 4, 128, defaultStringLength)
         : clampInt(prefs.length, 1, 128, defaultNanoLength),
       byteLength: clampInt(prefs.byteLength, 1, 64, defaultHexBytes),
       upper: prefs.charsetUpper,
@@ -307,7 +310,7 @@ function StringGenerator() {
       namespace: uuidNamespaces[prefs.namespaceKey] || uuidNamespaces.dns,
       name: prefs.name,
     };
-    if (prefs.format === "password" && !passwordAlphabet(options).length) {
+    if (prefs.format === "string" && !stringAlphabet(options).length) {
       if (generationID !== generationIDRef.current) return;
       setError("alphabet-empty");
       setResults([]);
@@ -357,7 +360,7 @@ function StringGenerator() {
     uuidVersion,
     count,
     length,
-    passwordLength,
+    stringLength,
     byteLength,
     uppercase,
     hyphens,
@@ -379,7 +382,7 @@ function StringGenerator() {
   return (
     <ToolPage title={text.title}>
       <ToolContent className="flex flex-col gap-3 pt-4 pb-5">
-        <div className="machkit-toolbar gap-2">
+        <ToolToolbar className="gap-2">
           <SegmentedControl
             value={format}
             onChange={setFormat}
@@ -388,10 +391,9 @@ function StringGenerator() {
             className="min-w-0 w-full"
             options={formatOptions}
           />
-          <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
-        </div>
+          </ToolToolbar>
 
-        <div className="machkit-toolbar flex-wrap gap-x-4 gap-y-2">
+        <ToolToolbar className="flex-wrap gap-x-4 gap-y-2">
           {format === "uuid" ? (
             <SegmentedControl
               value={uuidVersion}
@@ -419,13 +421,13 @@ function StringGenerator() {
             />
           ) : null}
 
-          {format === "password" ? (
+          {format === "string" ? (
             <OptionNumber
               label={text.length}
-              id="string-password-length"
-              value={passwordLength}
-              onChange={(event) => setPasswordLength(event.target.value)}
-              onBlur={() => setPasswordLength(String(clampInt(passwordLength, 4, 128, defaultPasswordLength)))}
+              id="string-random-length"
+              value={stringLength}
+              onChange={(event) => setStringLength(event.target.value)}
+              onBlur={() => setStringLength(String(clampInt(stringLength, 4, 128, defaultStringLength)))}
             />
           ) : null}
 
@@ -439,21 +441,21 @@ function StringGenerator() {
             />
           ) : null}
 
-          <div className="ml-auto">
+          <ActionGroup>
             <Button
               variant="secondary"
               size="sm"
-              disabled={format === "password" && !hasPasswordAlphabet}
+              disabled={format === "string" && !hasStringAlphabet}
               onClick={regenerateNow}
             >
               <ArrowsClockwise size={15} />
               {text.regenerate}
             </Button>
-          </div>
-        </div>
+          </ActionGroup>
+        </ToolToolbar>
 
-        {isNameBased || format === "password" || (format !== "nanoid" && format !== "password") ? (
-          <div className="machkit-toolbar flex-wrap gap-x-4 gap-y-2">
+        {isNameBased || format === "string" || (format !== "nanoid" && format !== "string") ? (
+          <ToolToolbar className="flex-wrap gap-x-4 gap-y-2">
             {isNameBased ? (
               <>
                 <div className="flex min-w-0 items-center gap-2">
@@ -481,7 +483,7 @@ function StringGenerator() {
               </>
             ) : null}
 
-            {format === "password" ? (
+            {format === "string" ? (
               <>
                 <CheckboxField
                   checked={charsetUpper}
@@ -511,7 +513,7 @@ function StringGenerator() {
               </>
             ) : null}
 
-            {format !== "nanoid" && format !== "password" ? (
+            {format !== "nanoid" && format !== "string" ? (
               <>
                 <CheckboxField
                   checked={uppercase}
@@ -527,11 +529,11 @@ function StringGenerator() {
                 ) : null}
               </>
             ) : null}
-          </div>
+          </ToolToolbar>
         ) : null}
 
         {error === "alphabet-empty" ? (
-          <InlineMessage tone="danger">{text.alphabetEmpty}</InlineMessage>
+          <StatusStrip tone="danger">{text.alphabetEmpty}</StatusStrip>
         ) : null}
 
         <div className="flex w-full flex-col gap-2">
@@ -539,7 +541,7 @@ function StringGenerator() {
             <span className="machkit-control-label">{text.results}</span>
             {results.length ? <span className="text-xs text-tertiary">{results.length}</span> : null}
             <span className="text-xs text-tertiary">{text.clickToCopy}</span>
-            <div className="ml-auto flex gap-1">
+            <ActionGroup>
               <Button
                 variant="ghost"
                 size="sm"
@@ -558,7 +560,7 @@ function StringGenerator() {
                 <Eraser size={16} />
                 {text.clear}
               </Button>
-            </div>
+            </ActionGroup>
           </div>
 
           {results.length ? (
@@ -568,23 +570,24 @@ function StringGenerator() {
             >
               {results.map((value, index) => (
                 <li key={`${index}-${value}`} className="border-b border-border last:border-b-0">
-                  <button
+                  <Button
                     type="button"
-                    className="flex w-full cursor-pointer items-center gap-3 px-3.5 py-2.5 text-left hover:bg-muted focus-visible:bg-muted focus-visible:outline-none"
+                    variant="ghost"
+                    className="flex h-auto w-full items-center justify-start gap-3 rounded-none px-3.5 py-2.5 text-left font-normal hover:bg-muted"
                     title={text.clickToCopy}
                     onClick={() => machkit.copy(value)}
                   >
                     <span className="w-7 shrink-0 text-xs tabular-nums text-tertiary">{index + 1}</span>
                     <span className="min-w-0 flex-1 truncate font-mono text-[13px] text-foreground">{value}</span>
                     <CopySimple size={14} className="shrink-0 text-tertiary" />
-                  </button>
+                  </Button>
                 </li>
               ))}
             </ol>
           ) : (
-            <InlineMessage tone="neutral">
+            <StatusStrip tone="neutral">
               {error === "alphabet-empty" ? text.alphabetEmpty : text.empty}
-            </InlineMessage>
+            </StatusStrip>
           )}
         </div>
       </ToolContent>

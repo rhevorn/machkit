@@ -1054,17 +1054,19 @@ struct ContentView: View {
                     junkScanPhaseTimeline(phases: phases)
                         .onChange(of: model.activeCleanupPhaseID) { _, phaseID in
                             guard let phaseID else { return }
-                            withAnimation(.easeInOut(duration: 0.22)) {
-                                proxy.scrollTo(phaseID, anchor: .center)
-                            }
+                            // Instant jump — animated scroll thrashing during a fast
+                            // re-scan (warm filesystem cache) makes the timeline flicker.
+                            proxy.scrollTo(phaseID, anchor: .center)
                         }
                 }
             }
             .padding(18)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .animation(.easeInOut(duration: 0.22), value: model.currentScanCategory)
-        .animation(.easeInOut(duration: 0.25), value: model.scanProgress)
+        // Animate only discrete category changes — never the high-frequency scanProgress
+        // stream, or the whole panel re-layouts and flickers on every progress tick.
+        .animation(.easeInOut(duration: 0.2), value: model.currentScanCategory)
+        .animation(.easeInOut(duration: 0.2), value: model.activeCleanupPhaseID)
     }
 
     func junkScanInlineStat(title: String, value: String, icon: String, color: Color) -> some View {

@@ -45,6 +45,10 @@ Browser choices are remembered in `localStorage` and synced into the URL.
    `.bundledWeb(entryFile: "WebTools/tools/<tool-id>/index.html")`, pick a
    `WebToolWidthClass` (`.compact` / `.regular` / `.wide`), and grant only the
    native capabilities the tool needs (`clipboard`, `hosts`, or `storage`).
+   The `clipboard` capability covers both **read and write**
+   (`machkit.readClipboard()` / `machkit.copy()`). Prefer reading the clipboard
+   only on intentional tool open or user actions, and keep large-paste size
+   caps in the tool itself.
    Each width class sets both default and minimum width/height; pages that
    enable adaptive height can still grow up to a screen cap.
 4. Run `npm run build:app` to build all H5 tools into the app's
@@ -58,16 +62,22 @@ the H5 sources and skips Vite when the bundled output is already current.
 ## Shared UI
 
 All tools use the shared component layer in `src/ui`. It follows the shadcn/ui
-model: component source stays in this repository, Radix Primitives provide
-accessible interaction behavior, Tailwind CSS provides layout and visual
-states, and `class-variance-authority` defines reusable component variants.
+model: component source stays in this repository (one file per component),
+Radix Primitives provide accessible interaction behavior, Tailwind CSS provides
+layout and visual states, and `class-variance-authority` defines reusable
+component variants. Use `components.json` when adding new shadcn primitives.
+
+Two themes ship in `src/ui/ui.css`: **light** and **dark**. The native shell
+(or the Dev dock) sets `data-appearance` to `light` / `dark`, or leaves it
+unset to follow system preference.
 
 - Import components from `@/ui/index.js`.
 - Reuse `ToolPage`, `ToolContent`, `Section`, `Field`, `Input`, `Textarea`,
   `CheckboxField`, `Button`, `SelectControl`, `SegmentedControl`, `ValueField`,
   and `InlineMessage` before adding new UI.
-- Keep MachKit theme tokens and light/dark colors in `src/ui/ui.css`.
-- Use Phosphor icons so native and web tools keep one icon language.
+- Keep theme tokens (shadcn CSS variables + MachKit aliases) in `src/ui/ui.css`.
+- Use Phosphor icons so native and web tools keep one icon language. When adding
+  shadcn primitives via CLI, replace any Lucide imports with Phosphor equivalents.
 - Add tool-specific CSS only for a layout or visualization that cannot be
   expressed cleanly with the shared components and Tailwind utilities.
 
@@ -87,6 +97,9 @@ popover on `ToolPage`, and let the primary tool content start immediately.
   Native calls use the versioned request/reply bridge and time out rather than
   leaving a tool pending forever. A method only works when its capability is
   explicitly granted in `DeveloperToolRegistry`.
+- The `clipboard` capability is read/write: use `machkit.copy(text)` and
+  `machkit.readClipboard()`. Prefer clipboard reads on tool open or explicit
+  user actions, and keep size caps in the tool.
 - Mount tools with `mountTool()` so root validation and the shared error boundary
   are applied consistently.
 - Keep each tool's translations in its own `messages.js`; use

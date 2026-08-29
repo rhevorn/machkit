@@ -1,16 +1,17 @@
 import React, { useMemo, useState } from "react";
-import { CopySimple, Eraser } from "@phosphor-icons/react";
+import { Eraser } from "@phosphor-icons/react";
 import {
+  ActionGroup,
   Button,
-  InlineMessage,
-  Input,
-  SelectControl,
-  ToolContent,
-  ToolInfoButton,
+  Field,
+  PropertyList,
+  PropertyRow,
+  SidebarNavItem,
   ToolPage,
+  ToolSidebar,
+  ValueUnitField,
 } from "@/ui/index.js";
 import { useToolMessages } from "@/i18n.js";
-import { machkit } from "@/runtime/machkit.js";
 import { mountTool } from "@/runtime/mount-tool.jsx";
 import {
   convertCategory,
@@ -20,34 +21,12 @@ import {
 } from "./number.js";
 import { messages } from "./messages.js";
 
-function FormatRow({ label, value, copyLabel }) {
-  return (
-    <div className="flex min-w-0 items-center gap-2 border-b border-border px-3 py-2 last:border-b-0">
-      <span className="w-24 shrink-0 text-[12px] text-secondary">{label}</span>
-      <code className="min-w-0 flex-1 truncate font-mono text-[12px]">{value}</code>
-      <Button variant="ghost" size="sm" className="shrink-0" onClick={() => machkit.copy(value)}>
-        <CopySimple size={15} />
-        {copyLabel}
-      </Button>
-    </div>
-  );
-}
-
 function NumberBaseTool() {
   const text = useToolMessages(messages);
   const [category, setCategory] = useState("bases");
   const [input, setInput] = useState("255");
   const [unit, setUnit] = useState(defaultUnits.bytes);
   const [unitByCategory, setUnitByCategory] = useState(() => ({ ...defaultUnits }));
-
-  const categoryOptions = useMemo(
-    () =>
-      unitCategories.map((id) => ({
-        value: id,
-        label: text[`tab_${id}`] || id,
-      })),
-    [text],
-  );
 
   const unitOptions = useMemo(() => {
     if (category === "bases") return [];
@@ -62,24 +41,12 @@ function NumberBaseTool() {
     [category, input, unit],
   );
 
-  const status = !input.trim()
-    ? { tone: "neutral", label: text.empty }
-    : !result.ok
-      ? {
-          tone: "danger",
-          label: result.error === "too-large" ? text.tooLarge : text.invalid,
-        }
-      : {
-          tone: "info",
-          label:
-            category === "bases"
-              ? result.formats.dec
-              : category === "bytes"
-                ? `${result.formats.B} B`
-                : result.rows?.[0]
-                  ? `${result.rows[0].value} ${result.rows[0].label}`
-                  : text.empty,
-        };
+  const statusError = Boolean(input.trim()) && !result.ok;
+  const errorLabel = !result.ok
+    ? result.error === "too-large"
+      ? text.tooLarge
+      : text.invalid
+    : null;
 
   function onCategoryChange(next) {
     setCategory(next);
@@ -121,65 +88,77 @@ function NumberBaseTool() {
 
   return (
     <ToolPage title={text.title}>
-      <ToolContent className="flex flex-col gap-3 pt-3 pb-4">
-        <div className="machkit-toolbar gap-2">
-          <SelectControl
-            value={category}
-            onChange={onCategoryChange}
-            label={text.category}
-            className="w-[140px] flex-none"
-            options={categoryOptions}
-          />
-          <div className="ml-auto flex items-center gap-1">
-            <Button variant="ghost" size="sm" onClick={() => setInput("")}>
-              <Eraser size={15} />
-              {text.clear}
-            </Button>
-            <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
+      <div className="flex min-h-0 flex-1 bg-surface">
+        <ToolSidebar width={136} className="px-2 py-3">
+          <div className="machkit-sidebar-label px-2.5 pb-2">{text.category}</div>
+          <nav className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-auto" aria-label={text.category}>
+            {unitCategories.map((id) => (
+              <SidebarNavItem
+                key={id}
+                active={category === id}
+                label={text[`tab_${id}`] || id}
+                onClick={() => onCategoryChange(id)}
+              />
+            ))}
+          </nav>
+        </ToolSidebar>
+
+        <section className="flex min-w-0 flex-1 flex-col border-l border-border/60">
+          <header className="flex h-[var(--machkit-size-toolbar)] shrink-0 items-center gap-2 px-5">
+            <span className="truncate text-sm font-semibold">
+              {text[`tab_${category}`] || category}
+            </span>
+            <ActionGroup>
+              <Button variant="ghost" size="sm" onClick={() => setInput("")}>
+                <Eraser size={15} />
+                {text.clear}
+              </Button>
+            </ActionGroup>
+          </header>
+
+          <div className="flex min-h-0 flex-1 flex-col px-5 pb-5">
+            <Field label={text.input} htmlFor="unit-input">
+              <ValueUnitField
+                id="unit-input"
+                value={input}
+                onChange={setInput}
+                placeholder={
+                  category === "bases"
+                    ? text.placeholder
+                    : category === "bytes"
+                      ? text.bytesPlaceholder
+                      : text.valuePlaceholder
+                }
+                invalid={statusError}
+                unit={unit}
+                unitLabel={text.unit}
+                unitOptions={unitOptions}
+                onUnitChange={onUnitChange}
+              />
+              {statusError ? (
+                <p className="mt-2 text-[12px] text-danger">{errorLabel}</p>
+              ) : null}
+            </Field>
+
+            <PropertyList className="mt-5 min-h-0 flex-1 overflow-auto">
+              {rows.length ? (
+                rows.map((row) => (
+                  <PropertyRow
+                    key={row.id}
+                    label={row.label}
+                    value={row.value}
+                    copyLabel={text.copy}
+                    labelClassName="w-[5.5rem]"
+                    className="px-0"
+                  />
+                ))
+              ) : (
+                <p className="py-10 text-center text-xs text-tertiary">{text.empty}</p>
+              )}
+            </PropertyList>
           </div>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <label htmlFor="unit-input" className="machkit-control-label whitespace-nowrap">
-            {text.input}
-          </label>
-          <Input
-            id="unit-input"
-            className="min-w-0 flex-1 font-mono"
-            value={input}
-            onChange={(event) => setInput(event.target.value)}
-            placeholder={
-              category === "bases"
-                ? text.placeholder
-                : category === "bytes"
-                  ? text.bytesPlaceholder
-                  : text.valuePlaceholder
-            }
-            spellCheck={false}
-          />
-          {category !== "bases" ? (
-            <SelectControl
-              value={unit}
-              onChange={onUnitChange}
-              label={text.unit}
-              className="w-[110px] flex-none"
-              options={unitOptions}
-            />
-          ) : null}
-        </div>
-
-        <InlineMessage tone={status.tone}>{status.label}</InlineMessage>
-
-        <div className="machkit-panel">
-          {rows.length ? (
-            rows.map((row) => (
-              <FormatRow key={row.id} label={row.label} value={row.value} copyLabel={text.copy} />
-            ))
-          ) : (
-            <p className="px-3 py-8 text-center text-xs text-tertiary">{text.empty}</p>
-          )}
-        </div>
-      </ToolContent>
+        </section>
+      </div>
     </ToolPage>
   );
 }

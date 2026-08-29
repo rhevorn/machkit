@@ -1,4 +1,4 @@
-import { formatXML } from "../xml-plist/xml.js";
+import { formatXML } from "./xml.js";
 
 export const maxCurlInput = 100_000;
 export const httpMethods = Object.freeze(["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]);

@@ -12138,61 +12138,61 @@
         }
       }
     },
-    "Calculate IPv4 network details, ranges, and membership checks": {
+    "Inspect IPv4 and IPv6 addresses or calculate IPv4 CIDR ranges locally": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "IPv4-Netzdetails, Bereiche und Zugehörigkeit berechnen"
+            "value": "IPv4- und IPv6-Adressen prüfen oder IPv4-CIDR-Bereiche lokal berechnen"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Calcula detalles, rangos y pertenencia de redes IPv4"
+            "value": "Inspecciona direcciones IPv4 e IPv6 o calcula rangos CIDR IPv4 en local"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Calculez détails, plages et appartenance des réseaux IPv4"
+            "value": "Inspectez les adresses IPv4 et IPv6 ou calculez localement les plages CIDR IPv4"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "IPv4 の網情報・範囲・所属判定を計算"
+            "value": "IPv4 / IPv6 アドレスの確認と IPv4 CIDR 範囲の計算をローカルで実行"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "IPv4 네트워크 정보·범위·포함 여부를 계산"
+            "value": "IPv4 및 IPv6 주소를 확인하거나 IPv4 CIDR 범위를 로컬에서 계산"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Calcule detalhes, intervalos e pertencimento de redes IPv4"
+            "value": "Inspecione endereços IPv4 e IPv6 ou calcule intervalos CIDR IPv4 localmente"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Расчёт деталей, диапазонов и вхождения IPv4"
+            "value": "Локально проверяйте адреса IPv4 и IPv6 или рассчитывайте диапазоны IPv4 CIDR"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "计算 IPv4 网段、范围与归属判断"
+            "value": "本地查看 IPv4 / IPv6 地址或计算 IPv4 CIDR 范围"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "計算 IPv4 網段、範圍與歸屬判斷"
+            "value": "本機檢視 IPv4 / IPv6 位址或計算 IPv4 CIDR 範圍"
           }
         }
       }
@@ -16912,65 +16912,6 @@
         }
       }
     },
-    "Connection Trace": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connection Trace"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connection Trace"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connection Trace"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "接続トレース"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "연결 추적"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connection Trace"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connection Trace"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "连接追踪"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "連線追蹤"
-          }
-        }
-      }
-    },
     "Connections": {
       "extractionState": "manual",
       "localizations": {
@@ -17380,65 +17321,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "本機換算進位、位元組、時間、長度、質量、溫度等"
-          }
-        }
-      }
-    },
-    "Convert between JSON, YAML, and TOML locally": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "JSON, YAML und TOML lokal umwandeln"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Convierte JSON, YAML y TOML en local"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Convertissez JSON, YAML et TOML en local"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "JSON・YAML・TOML をローカル変換"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "JSON, YAML, TOML을 로컬에서 변환"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Converta JSON, YAML e TOML localmente"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Локально конвертируйте JSON, YAML и TOML"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "本地转换 JSON、YAML 与 TOML"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "本機轉換 JSON、YAML 與 TOML"
           }
         }
       }
@@ -19651,65 +19533,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "資料"
-          }
-        }
-      }
-    },
-    "Data Format": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Datenformat"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Formato de datos"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Format de données"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "データ形式"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "데이터 형식"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Formato de dados"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Формат данных"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "数据格式"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "資料格式"
           }
         }
       }
@@ -25734,65 +25557,6 @@
         }
       }
     },
-    "Format XML and convert Apple XML plists to JSON locally": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "XML formatieren und Apple-XML-plists lokal nach JSON wandeln"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Formatea XML y convierte plists XML de Apple a JSON en local"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Formatez du XML et convertissez les plists XML Apple en JSON en local"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "XML を整形し Apple XML plist を JSON にローカル変換"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "XML을 정렬하고 Apple XML plist를 JSON으로 로컬 변환"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Formate XML e converta plists XML da Apple para JSON localmente"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Форматируйте XML и конвертируйте XML-plist Apple в JSON локально"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "本地格式化 XML，并将 Apple XML plist 转为 JSON"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "本機格式化 XML，並將 Apple XML plist 轉為 JSON"
-          }
-        }
-      }
-    },
     "Format, minify, and query JSON with path expressions": {
       "extractionState": "manual",
       "localizations": {
@@ -26554,65 +26318,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "本機從文字或 URL 產生 QR 碼"
-          }
-        }
-      }
-    },
-    "Generate UUIDs, random IDs, and passwords locally": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "UUIDs, Zufalls-IDs und Passwörter lokal erzeugen"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Genera UUID, ID aleatorios y contraseñas en local"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Générez UUID, ID aléatoires et mots de passe localement"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "UUID・ランダム ID・パスワードをローカル生成"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "UUID, 임의 ID, 비밀번호를 로컬에서 생성"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gere UUIDs, IDs aleatórios e senhas localmente"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Локально создавайте UUID, случайные ID и пароли"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "本地生成 UUID、随机 ID 与密码"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "本機產生 UUID、隨機 ID 與密碼"
           }
         }
       }
@@ -29040,65 +28745,6 @@
         }
       }
     },
-    "Inspect IPv4 and IPv6 addresses, kinds, and reverse DNS labels": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "IPv4-/IPv6-Adressen, Typen und Reverse-DNS-Labels prüfen"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Inspecciona direcciones IPv4/IPv6, tipos y etiquetas DNS inverso"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Inspectez adresses IPv4/IPv6, types et libellés DNS inverse"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "IPv4 / IPv6 のアドレス・種別・逆引きラベルを確認"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "IPv4/IPv6 주소·유형·역방향 DNS 라벨 검사"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Inspecione endereços IPv4/IPv6, tipos e rótulos de DNS reverso"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Проверяйте адреса IPv4/IPv6, типы и метки reverse DNS"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "查看 IPv4 / IPv6 地址、类型与反向 DNS 标签"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "檢視 IPv4 / IPv6 位址、類型與反向 DNS 標籤"
-          }
-        }
-      }
-    },
     "Inspect live traffic, connections, ports, routes, and proxies": {
       "extractionState": "manual",
       "localizations": {
@@ -29923,120 +29569,61 @@
         }
       }
     },
-    "IP / CIDR Calculator": {
+    "IP / CIDR": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "IP-/CIDR-Rechner"
+            "value": "IP / CIDR"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Calculadora IP / CIDR"
+            "value": "IP / CIDR"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Calculateur IP / CIDR"
+            "value": "IP / CIDR"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "IP / CIDR 計算機"
+            "value": "IP / CIDR"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "IP / CIDR 계산기"
+            "value": "IP / CIDR"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Calculadora IP / CIDR"
+            "value": "IP / CIDR"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Калькулятор IP / CIDR"
+            "value": "IP / CIDR"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "IP / CIDR 计算器"
+            "value": "IP / CIDR"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "IP / CIDR 計算器"
-          }
-        }
-      }
-    },
-    "IP Inspector": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "IP-Inspektor"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Inspector IP"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Inspecteur IP"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "IP インスペクタ"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "IP 검사기"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Inspetor IP"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "IP-инспектор"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "IP 解析"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "IP 解析"
+            "value": "IP / CIDR"
           }
         }
       }
@@ -57208,65 +56795,6 @@
         }
       }
     },
-    "Text Lab": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Text Lab"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Text Lab"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Text Lab"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "テキストラボ"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "텍스트 랩"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Text Lab"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Text Lab"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "文本处理"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "文字處理"
-          }
-        }
-      }
-    },
     "The app and selected related files will be moved to Trash.": {
       "localizations": {
         "de": {
@@ -61048,65 +60576,6 @@
         }
       }
     },
-    "Trace DNS lookup and HTTP/TLS connection timing for a host": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DNS- und HTTP/TLS-Verbindungszeiten eines Hosts verfolgen"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rastrea DNS y tiempos de conexión HTTP/TLS de un host"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tracez DNS et timings de connexion HTTP/TLS d’un hôte"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ホストの DNS と HTTP/TLS 接続タイミングを追跡"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "호스트의 DNS·HTTP/TLS 연결 시간을 추적"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rastreie DNS e tempos de conexão HTTP/TLS de um host"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Трассировка DNS и времени HTTP/TLS-подключения хоста"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "追踪主机的 DNS 解析与 HTTP/TLS 连接耗时"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "追蹤主機的 DNS 解析與 HTTP/TLS 連線耗時"
-          }
-        }
-      }
-    },
     "Traditional Chinese": {
       "extractionState": "manual",
       "localizations": {
@@ -61397,65 +60866,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "廢紙簍記錄"
-          }
-        }
-      }
-    },
-    "Trim, dedupe, sort, and transform text lines locally": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zeilen lokal trimmen, deduplizieren, sortieren und umwandeln"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Recorta, deduplica, ordena y transforma líneas en local"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nettoyez, dédupliquez, triez et transformez des lignes en local"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "テキスト行の整形・重複削除・ソートをローカル実行"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "텍스트 줄 정리·중복 제거·정렬을 로컬에서 처리"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ajuste, remova duplicatas, ordene e transforme linhas localmente"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Локально чистите, дедуплицируйте и сортируйте строки текста"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "本地对文本行去空白、去重、排序与大小写转换"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "本機對文字行去空白、去重、排序與大小寫轉換"
           }
         }
       }
@@ -68135,65 +67545,6 @@
         }
       }
     },
-    "XML / Plist": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "XML / Plist"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "XML / Plist"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "XML / Plist"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "XML / Plist"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "XML / Plist"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "XML / Plist"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "XML / Plist"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "XML / Plist"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "XML / Plist"
-          }
-        }
-      }
-    },
     "Yarn Download Cache": {
       "extractionState": "manual",
       "localizations": {
@@ -68426,6 +67777,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mac 儲存空間不足"
+          }
+        }
+      }
+    },
+    "Generate UUIDs, random IDs, and strings locally": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UUIDs, Zufalls-IDs und Zeichenketten lokal erzeugen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Genera UUID, ID aleatorios y cadenas en local"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Générez UUID, ID aléatoires et chaînes localement"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UUID・ランダム ID・文字列をローカル生成"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UUID, 임의 ID, 문자열을 로컬에서 생성"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gere UUIDs, IDs aleatórios e strings localmente"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Локально создавайте UUID, случайные ID и строки"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本地生成 UUID、随机 ID 与字符串"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本機產生 UUID、隨機 ID 與字串"
           }
         }
       }
