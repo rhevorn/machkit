@@ -258,7 +258,11 @@ export const machkit = Object.freeze({
     if (!name || !dataBase64) return null;
 
     if (this.isEmbedded) {
-      const result = await this.request("files.save", { name, dataBase64 });
+      const result = await this.request(
+        "files.save",
+        { name, dataBase64 },
+        { timeout: options.timeout ?? 120_000 },
+      );
       if (!result || result.canceled) return null;
       return {
         path: typeof result.path === "string" ? result.path : undefined,

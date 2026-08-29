@@ -247,7 +247,7 @@ enum DeveloperToolRegistry {
             ],
             icon: "photo.on.rectangle.angled",
             widthClass: .wide,
-            capabilities: [.clipboard],
+            capabilities: [.clipboard, .files],
             presentation: .bundledWeb(entryFile: "WebTools/tools/image-process/index.html")
         ),
         DeveloperTool(

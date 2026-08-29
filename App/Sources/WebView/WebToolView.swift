@@ -375,11 +375,13 @@ private struct BundledWebView: NSViewRepresentable {
                     replyHandler(nil, "File saving is not available to this tool.")
                     return
                 }
+                // Allow batch image ZIPs / large exports (base64 arrives via bridge).
+                let maxSaveBytes = 100 * 1024 * 1024
                 guard let name = parameters["name"] as? String,
                       let base64 = parameters["dataBase64"] as? String,
                       let data = Data(base64Encoded: base64),
                       !data.isEmpty,
-                      data.count <= 8_388_608 else {
+                      data.count <= maxSaveBytes else {
                     replyHandler(nil, "Invalid file payload.")
                     return
                 }
