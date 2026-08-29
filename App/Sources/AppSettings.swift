@@ -187,9 +187,9 @@ struct AppSettingsView: View {
                         .stroke(Color(nsColor: .separatorColor).opacity(0.45), lineWidth: 0.5)
                 }
             }
-            .padding(.horizontal, 18)
+            .padding(.horizontal, 16)
             .padding(.top, 14)
-            .padding(.bottom, 18)
+            .padding(.bottom, 16)
             .frame(maxWidth: .infinity, alignment: .top)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -266,7 +266,7 @@ struct AppSettingsView: View {
             Spacer(minLength: 24)
             control()
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 14)
         .frame(minHeight: 72)
     }
 

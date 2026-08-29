@@ -305,49 +305,54 @@ struct ContentView: View {
     }
 
     var homeView: some View {
-        ScrollView {
-            LazyVStack(alignment: .leading, spacing: 16) {
-                header(title: "Overview", subtitle: "Live status and everyday tools for this Mac")
-                homeStorageOverview
-                if !permissions.hasFullDiskAccess {
-                    permissionCard
+        VStack(spacing: 0) {
+            header(title: "Overview", subtitle: "Live status and everyday tools for this Mac")
+                .padding(18)
+
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 16) {
+                    homeStorageOverview
+                    if !permissions.hasFullDiskAccess {
+                        permissionCard
+                    }
+
+                    Text("Live Status").font(.system(size: 14, weight: .semibold))
+
+                    homeMetrics
+                    homeQuickAction
+
+                    Text("Common Tools").font(.system(size: 14, weight: .semibold))
+
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                        homeToolTile(
+                            title: "Cleanup", subtitle: "Scan caches, logs, uninstall leftovers, and developer junk",
+                            icon: "paintbrush.fill", color: .blue, mode: .junk
+                        )
+                        homeToolTile(
+                            title: "Storage", subtitle: "Analyze disk categories, folder usage, large files, and free space",
+                            icon: "chart.pie.fill", color: .indigo, mode: .files
+                        )
+                        homeToolTile(
+                            title: "Apps", subtitle: "Uninstall apps, remove related files, and manage command-line tools",
+                            icon: "app.badge.checkmark", color: .purple, mode: .uninstall
+                        )
+                        homeToolTile(
+                            title: "Performance", subtitle: "Monitor CPU, memory pressure, thermal state, and resource-heavy apps",
+                            icon: "gauge.with.dots.needle.67percent", color: .mint, mode: .performance
+                        )
+                        homeToolTile(
+                            title: "Network", subtitle: L10n.string("Inspect live traffic, connections, ports, routes, and proxies"),
+                            icon: "network", color: .orange, mode: .network
+                        )
+                        homeToolTile(
+                            title: "Tools", subtitle: "Hosts, timestamps, JSON, codecs, and other developer utilities",
+                            icon: "wrench.and.screwdriver.fill", color: .cyan, mode: .tools
+                        )
+                    }
                 }
-
-                Text("Live Status").font(.system(size: 14, weight: .semibold))
-
-                homeMetrics
-                homeQuickAction
-
-                Text("Common Tools").font(.system(size: 14, weight: .semibold))
-
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                    homeToolTile(
-                        title: "Cleanup", subtitle: "Scan caches, logs, uninstall leftovers, and developer junk",
-                        icon: "paintbrush.fill", color: .blue, mode: .junk
-                    )
-                    homeToolTile(
-                        title: "Storage", subtitle: "Analyze disk categories, folder usage, large files, and free space",
-                        icon: "chart.pie.fill", color: .indigo, mode: .files
-                    )
-                    homeToolTile(
-                        title: "Apps", subtitle: "Uninstall apps, remove related files, and manage command-line tools",
-                        icon: "app.badge.checkmark", color: .purple, mode: .uninstall
-                    )
-                    homeToolTile(
-                        title: "Performance", subtitle: "Monitor CPU, memory pressure, thermal state, and resource-heavy apps",
-                        icon: "gauge.with.dots.needle.67percent", color: .mint, mode: .performance
-                    )
-                    homeToolTile(
-                        title: "Network", subtitle: L10n.string("Inspect live traffic, connections, ports, routes, and proxies"),
-                        icon: "network", color: .orange, mode: .network
-                    )
-                    homeToolTile(
-                        title: "Tools", subtitle: "Hosts, timestamps, JSON, codecs, and other developer utilities",
-                        icon: "wrench.and.screwdriver.fill", color: .cyan, mode: .tools
-                    )
-                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
             }
-            .padding(18)
         }
     }
 
@@ -831,7 +836,8 @@ struct ContentView: View {
                 .controlSize(.large)
                 .keyboardShortcut(.return, modifiers: [])
             }
-            .padding(18)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 16)
         }
     }
 
@@ -1060,7 +1066,8 @@ struct ContentView: View {
                         }
                 }
             }
-            .padding(18)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 16)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         // Animate only discrete category changes — never the high-frequency scanProgress

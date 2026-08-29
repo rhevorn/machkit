@@ -124,7 +124,7 @@ extension ContentView {
                 }
             }
             .pickerStyle(.segmented)
-            .padding(.horizontal, 18)
+            .padding(.horizontal, 16)
             .padding(.bottom, 12)
 
             ScrollView {
@@ -169,8 +169,8 @@ extension ContentView {
                     Text("Sizes summarize readable content. Protected or cloud-only items may be undercounted. Storage analysis never deletes files — use Cleanup for safe removals.".localized)
                         .font(.caption).foregroundStyle(.secondary)
                 }
-                .padding(.horizontal, 18)
-                .padding(.bottom, 18)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
             }
         }
     }
@@ -194,7 +194,7 @@ extension ContentView {
             .buttonStyle(.bordered)
             .controlSize(.small)
         }
-        .padding(12)
+        .padding(14)
         .background(Color.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
     }
 
@@ -407,7 +407,7 @@ extension ContentView {
                     .font(.system(size: 12, weight: .medium)).monospacedDigit()
                 Image(systemName: "arrow.forward.circle").font(.caption).foregroundStyle(.tertiary)
             }
-            .padding(.horizontal, 13).frame(minHeight: 56)
+            .padding(.horizontal, 14).padding(.vertical, 9).frame(minHeight: 56)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -460,7 +460,7 @@ extension ContentView {
             Text(detail.localized).font(.caption).foregroundStyle(.secondary).multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
-        .padding(28)
+        .padding(14)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
     }
 
@@ -489,7 +489,7 @@ extension ContentView {
                     .font(.system(size: 12, weight: .medium)).monospacedDigit()
                 Image(systemName: "chevron.right").font(.caption2).foregroundStyle(.tertiary)
             }
-            .padding(.horizontal, 13).frame(minHeight: 56)
+            .padding(.horizontal, 14).padding(.vertical, 9).frame(minHeight: 56)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -552,7 +552,7 @@ extension ContentView {
             }
             .font(.caption).foregroundStyle(.secondary)
         }
-        .padding(15)
+        .padding(14)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
     }
 
@@ -582,7 +582,7 @@ extension ContentView {
             Spacer()
             Text(formatted(usage.bytes)).font(.system(size: 12, weight: .medium)).monospacedDigit()
         }
-        .padding(.horizontal, 13).frame(minHeight: 55)
+        .padding(.horizontal, 14).padding(.vertical, 9).frame(minHeight: 55)
     }
 
     func storageCategoryIcon(_ category: StorageCategoryKind) -> String {

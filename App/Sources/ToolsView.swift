@@ -39,9 +39,9 @@ struct ToolsView: View {
                         }
                     }
                 }
-                .padding(.horizontal, 18)
+                .padding(.horizontal, 16)
                 .padding(.top, 14)
-                .padding(.bottom, 18)
+                .padding(.bottom, 16)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
             }
         }

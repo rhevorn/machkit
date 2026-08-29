@@ -175,7 +175,7 @@ extension ContentView {
                 Text("\(group.applications.count) · \(formatted(group.bytes))")
                     .font(.caption).foregroundStyle(.secondary).monospacedDigit()
             }
-            .padding(.horizontal, 14).padding(.vertical, 11)
+            .padding(.horizontal, 14).padding(.vertical, 9)
             Divider()
             ForEach(group.applications) { app in
                 applicationRow(app)
@@ -228,7 +228,7 @@ extension ContentView {
                 Text("\(tools.count) · \(formatted(tools.reduce(0) { $0 + $1.bytes }))")
                     .font(.caption).foregroundStyle(.secondary).monospacedDigit()
             }
-            .padding(.horizontal, 14).padding(.vertical, 11)
+            .padding(.horizontal, 14).padding(.vertical, 9)
             Divider()
             ForEach(tools) { tool in
                 HStack(spacing: 12) {
@@ -881,7 +881,7 @@ extension ContentView {
                 Spacer()
             }
             .frame(maxWidth: .infinity)
-            .padding(15)
+            .padding(14)
             .background(Color.secondary.opacity(0.055), in: RoundedRectangle(cornerRadius: 10))
             .padding(.horizontal, 16)
             Spacer(minLength: 0)
@@ -897,7 +897,7 @@ extension ContentView {
             Spacer()
             Text("\(count)").font(.caption).foregroundStyle(.secondary).monospacedDigit()
         }
-        .padding(.horizontal, 14).padding(.vertical, 11)
+        .padding(.horizontal, 14).padding(.vertical, 9)
     }
 
     /// Text-based row actions avoid ButtonStyle (especially BorderlessButtonStyle),

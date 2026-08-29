@@ -45,7 +45,7 @@ extension ContentView {
                 .controlSize(.small)
                 .disabled(model.isLoading(.network))
             }
-            .padding(.horizontal, 18).padding(.bottom, 14)
+            .padding(.horizontal, 16).padding(.bottom, 14)
 
             if model.isLoading(.network), model.networkSnapshot == nil {
                 VStack(spacing: 13) {
@@ -145,7 +145,7 @@ extension ContentView {
                         .frame(minHeight: 280)
                 }
             }
-            .padding(.horizontal, 18).padding(.bottom, 18)
+            .padding(.horizontal, 16).padding(.bottom, 16)
         }
     }
 
@@ -199,7 +199,7 @@ extension ContentView {
             .font(.caption.monospacedDigit()).labelStyle(.titleAndIcon)
             .frame(width: 108, alignment: .trailing)
         }
-        .padding(.horizontal, 13).frame(minHeight: 58)
+        .padding(.horizontal, 14).frame(minHeight: 58)
     }
 
     var networkTraffic: some View {
@@ -223,7 +223,7 @@ extension ContentView {
                             Text("Connections").frame(width: 82, alignment: .trailing)
                         }
                         .font(.caption).foregroundStyle(.secondary)
-                        .padding(.horizontal, 13).frame(height: 34)
+                        .padding(.horizontal, 14).frame(height: 34)
                         Divider()
                         ForEach(filteredNetworkProcesses) { process in
                             HStack(spacing: 10) {
@@ -242,14 +242,14 @@ extension ContentView {
                                 Text(String(process.connectionCount)).frame(width: 82, alignment: .trailing)
                             }
                             .font(.system(size: 11, design: .monospaced))
-                            .padding(.horizontal, 13).frame(minHeight: 52)
+                            .padding(.horizontal, 14).frame(minHeight: 52)
                             Divider().padding(.leading, 13)
                         }
                     }
                     .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
                 }
             }
-            .padding(.horizontal, 18).padding(.bottom, 18)
+            .padding(.horizontal, 16).padding(.bottom, 16)
         }
     }
 
@@ -279,7 +279,7 @@ extension ContentView {
                             Text("State").frame(width: 86, alignment: .leading)
                         }
                         .font(.caption).foregroundStyle(.secondary)
-                        .padding(.horizontal, 13).frame(height: 34)
+                        .padding(.horizontal, 14).frame(height: 34)
                         Divider()
                         ForEach(visibleConnections) { connection in
                             HStack(spacing: 10) {
@@ -296,7 +296,7 @@ extension ContentView {
                                 Text(connection.interfaceName ?? "—").frame(width: 72, alignment: .leading)
                                 Text(connection.state ?? "UDP").frame(width: 86, alignment: .leading)
                             }
-                            .font(.system(size: 10.5, design: .monospaced)).padding(.horizontal, 13).frame(minHeight: 50)
+                            .font(.system(size: 10.5, design: .monospaced)).padding(.horizontal, 14).frame(minHeight: 50)
                             Divider().padding(.leading, 13)
                         }
                     }
@@ -310,7 +310,7 @@ extension ContentView {
                     }
                 }
             }
-            .padding(.horizontal, 18).padding(.bottom, 18)
+            .padding(.horizontal, 16).padding(.bottom, 16)
         }
     }
 
@@ -399,7 +399,7 @@ extension ContentView {
                             Text("Flags").frame(width: 90, alignment: .leading)
                         }
                         .font(.caption).foregroundStyle(.secondary)
-                        .padding(.horizontal, 13).frame(height: 34)
+                        .padding(.horizontal, 14).frame(height: 34)
                         Divider()
                         ForEach(Array(snapshot.routes.prefix(300).enumerated()), id: \.element.id) { index, route in
                             HStack {
@@ -410,14 +410,14 @@ extension ContentView {
                                 Text(route.flags).frame(width: 90, alignment: .leading)
                             }
                             .font(.system(size: 10.5, design: .monospaced))
-                            .padding(.horizontal, 13).frame(minHeight: 34)
+                            .padding(.horizontal, 14).frame(minHeight: 34)
                             if index < min(snapshot.routes.count, 300) - 1 { Divider().padding(.leading, 13) }
                         }
                     }
                     .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
                 }
             }
-            .padding(.horizontal, 18).padding(.bottom, 18)
+            .padding(.horizontal, 16).padding(.bottom, 16)
         }
     }
 
@@ -600,7 +600,7 @@ extension ContentView {
                             Color.clear.frame(width: 74)
                         }
                         .font(.caption).foregroundStyle(.secondary)
-                        .padding(.horizontal, 13).frame(height: 34)
+                        .padding(.horizontal, 14).frame(height: 34)
                         Divider()
                         ForEach(Array(filteredPorts.enumerated()), id: \.element.id) { index, port in
                             portRow(port)
@@ -617,8 +617,8 @@ extension ContentView {
                 .font(.caption).foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
             }
-            .padding(.horizontal, 18)
-            .padding(.bottom, 18)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 16)
         }
     }
 
@@ -718,7 +718,7 @@ extension ContentView {
                 .help((port.protectionReason ?? "Quit the process using this port").localized)
                 .frame(width: 74, alignment: .trailing)
         }
-        .padding(.horizontal, 13)
+        .padding(.horizontal, 14)
         .frame(minHeight: 68)
         .contextMenu {
             Button("View Process Details") { selectedPort = port }
@@ -825,7 +825,7 @@ extension ContentView {
             Text(value).font(.system(size: 12, design: .monospaced))
                 .textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(.horizontal, 13).padding(.vertical, 11)
+        .padding(.horizontal, 14).padding(.vertical, 9)
     }
 
     var portTerminationMessage: String {
@@ -884,8 +884,8 @@ extension ContentView {
                 Text("Data updates locally every 2 seconds. GPU and Neural Engine metrics use SoCMetrics (IOReport) on Apple Silicon; per-GPU-core bars reflect chip-level active residency because macOS does not expose per-core utilization. Neural Engine percentage is estimated from power draw, not a system utilization counter. App CPU is shown as a share of total system capacity; network rates aggregate helper processes into their parent app. Sampling stops when you leave this page. App rankings include identifiable graphical app processes only.")
                     .font(.caption).foregroundStyle(.secondary)
             }
-            .padding(.horizontal, 18)
-            .padding(.bottom, 18)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 16)
         }
     }
 
@@ -1006,7 +1006,7 @@ extension ContentView {
             .foregroundStyle(.secondary)
             .monospacedDigit()
         }
-        .padding(15)
+        .padding(14)
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
     }
@@ -1067,7 +1067,7 @@ extension ContentView {
             }
             .font(.caption).foregroundStyle(.secondary).monospacedDigit()
         }
-        .padding(15)
+        .padding(14)
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
     }
@@ -1226,7 +1226,7 @@ extension ContentView {
                 Spacer(minLength: 0)
             }
         }
-        .padding(15)
+        .padding(14)
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
     }
@@ -1275,7 +1275,7 @@ extension ContentView {
                 Spacer(minLength: 0)
             }
         }
-        .padding(15)
+        .padding(14)
         .frame(maxWidth: .infinity, minHeight: 170, alignment: .topLeading)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
     }
@@ -1469,7 +1469,7 @@ extension ContentView {
             }
             .frame(height: 138)
         }
-        .padding(15)
+        .padding(14)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
     }
 
@@ -1504,7 +1504,7 @@ extension ContentView {
                     Text("Network").frame(width: 88, alignment: .trailing)
                 }
                 .font(.caption).foregroundStyle(.secondary)
-                .padding(.horizontal, 13).frame(height: 32)
+                .padding(.horizontal, 14).frame(height: 32)
                 Divider()
                 ForEach(Array(applications.prefix(12).enumerated()), id: \.element.id) { index, application in
                     resourceApplicationRow(application)
@@ -1539,7 +1539,7 @@ extension ContentView {
                 .font(.system(size: 12)).monospacedDigit().frame(width: 88, alignment: .trailing)
                 .foregroundStyle(application.networkBytesPerSecond > 0 ? Color.blue : .secondary)
         }
-        .padding(.horizontal, 13).frame(minHeight: 48)
+        .padding(.horizontal, 14).frame(minHeight: 48)
         .contextMenu {
             if let url = application.bundleURL { Button("Show in Finder") { reveal(url) } }
         }
