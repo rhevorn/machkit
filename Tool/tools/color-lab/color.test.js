@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { contrastRatio, parseColor, rgbToHex, rgbToHsl } from "./color.js";
+import { contrastRatio, hsvToRgb, parseColor, rgbToHex, rgbToHsl, rgbToHsv } from "./color.js";
 
 test("parses hex and expands short form", () => {
   const result = parseColor("#0af");
@@ -19,6 +19,16 @@ test("parses rgb and hsl strings", () => {
 test("converts rgb to hsl and hex", () => {
   assert.deepEqual(rgbToHsl({ r: 255, g: 0, b: 0 }), { h: 0, s: 100, l: 50 });
   assert.equal(rgbToHex({ r: 16, g: 32, b: 48 }), "#102030");
+});
+
+test("round-trips hsv conversions", () => {
+  const source = { r: 10, g: 132, b: 255 };
+  const hsv = rgbToHsv(source);
+  const rgb = hsvToRgb(hsv);
+  assert.equal(Math.abs(rgb.r - source.r) <= 1, true);
+  assert.equal(Math.abs(rgb.g - source.g) <= 1, true);
+  assert.equal(Math.abs(rgb.b - source.b) <= 1, true);
+  assert.equal(rgbToHex(hsvToRgb({ h: 0, s: 100, v: 100 })), "#FF0000");
 });
 
 test("computes contrast ratios", () => {
