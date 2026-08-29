@@ -4,23 +4,22 @@ import { json } from "@codemirror/lang-json";
 import { EditorView, ViewPlugin } from "@codemirror/view";
 import * as Popover from "@radix-ui/react-popover";
 import {
+  ArrowLeft,
   BracketsCurly,
   ClockCounterClockwise,
   CopySimple,
-  MagnifyingGlass,
   Quotes,
   TextAa,
   Trash,
   TreeStructure,
+  X,
 } from "@phosphor-icons/react";
 import {
   ActionGroup,
   Button,
   IconButton,
-  Input,
   ToolContent,
   ToolPage,
-  ToolToolbar,
 } from "@/ui/index.js";
 import { useToolMessages } from "@/i18n.js";
 import { useMachKitEditorTheme } from "@/ui/codemirror-theme.js";
@@ -33,6 +32,7 @@ import {
   minifyJSON,
   parseJSON,
   queryPath,
+  resolvePreviewValue,
   sortKeysDeep,
   stringifyValue,
   unescapeJSONText,
@@ -176,6 +176,12 @@ function prepareHistorySource(raw) {
   } catch {
     return String(raw ?? "");
   }
+}
+
+function formatByteCount(bytes) {
+  if (bytes < 1_024) return `${bytes} B`;
+  if (bytes < 1_048_576) return `${(bytes / 1_024).toFixed(bytes < 10_240 ? 1 : 0)} KB`;
+  return `${(bytes / 1_048_576).toFixed(1)} MB`;
 }
 
 const SPLIT_STORAGE_KEY = "machkit.json-formatter.leftRatio.v2";
@@ -475,6 +481,13 @@ function JsonFormatter() {
   };
 
   const showResults = Boolean(path.trim()) && parsed.ok && pathQuery.ok && pathQuery.matches.length > 0;
+  const sourceSize = useMemo(() => formatByteCount(byteSize(source)), [source]);
+  const promotableResult = useMemo(() => {
+    if (pathQuery.matches.length !== 1) return null;
+    const resolved = resolvePreviewValue(pathQuery.matches[0].value);
+    if (resolved === null || typeof resolved !== "object") return null;
+    return resolved;
+  }, [pathQuery.matches]);
 
   const copySource = () => {
     if (!source) return;
@@ -486,10 +499,76 @@ function JsonFormatter() {
     machkit.copy(pathQuery.matches.map((match) => stringifyValue(match.value)).join("\n\n"));
   };
 
+  const promoteResultToEditor = () => {
+    if (!promotableResult) return;
+    try {
+      setSource(formatJSON(promotableResult));
+      setPath("");
+    } catch {
+      setSource(stringifyValue(promotableResult));
+      setPath("");
+    }
+  };
+
+  const historyControl = (
+    <Popover.Root open={historyOpen} onOpenChange={setHistoryOpen}>
+      <Popover.Trigger asChild>
+        <Button variant="secondary" size="compact">
+          <ClockCounterClockwise size={14} />
+          {text.history}
+        </Button>
+      </Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Content
+          side="bottom"
+          align="end"
+          sideOffset={6}
+          className="z-50 w-[min(420px,calc(100vw-32px))] overflow-hidden rounded-overlay border border-border bg-popover text-popover-foreground shadow-popover"
+        >
+          <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
+            <span className="text-xs font-medium text-secondary">{text.history}</span>
+            <Button
+              variant="ghost"
+              size="compact"
+              className="h-auto px-1.5 py-0.5 text-[11px] font-normal"
+              disabled={!history.length}
+              onClick={() => persistHistory([])}
+            >
+              <Trash size={13} />
+              {text.clearHistory}
+            </Button>
+          </div>
+          {history.length === 0 ? (
+            <p className="px-3 py-6 text-center text-xs text-secondary">{text.historyEmpty}</p>
+          ) : (
+            <ul className="max-h-72 overflow-y-auto py-1">
+              {history.map((entry) => (
+                <li key={entry.id}>
+                  <Button
+                    variant="ghost"
+                    className="h-auto w-full justify-start rounded-none px-3 py-2 text-left font-normal"
+                    onClick={() => {
+                      setSource(entry.source);
+                      setPath("");
+                      setHistoryOpen(false);
+                    }}
+                  >
+                    <span className="flex min-w-0 flex-col items-start gap-0.5">
+                      <span className="line-clamp-2 font-mono text-[11px] text-foreground">{entry.preview}</span>
+                      <span className="text-[10px] text-tertiary">{formatHistoryTime(entry.savedAt)}</span>
+                    </span>
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover.Root>
+  );
+
   const editorPane = (
-    <div
-      className={`json-pane json-code-editor relative min-h-[360px] min-w-0 overflow-hidden ${showResults ? "h-full" : "flex-1"}`}
-    >
+    <div className="json-pane json-code-editor relative min-h-[360px] min-w-0 flex-1 overflow-hidden">
       <div className="json-cm-host h-full min-h-[360px] min-w-0">
         <CodeMirror
           value={source}
@@ -526,15 +605,33 @@ function JsonFormatter() {
 
   const resultsPane = (
     <div className="json-pane relative flex h-full min-h-[360px] min-w-0 flex-col overflow-hidden">
-      <div className="pointer-events-none absolute top-2 right-2 z-20">
-        <IconButton
-          label={text.copy}
-          disabled={!pathQuery.matches.length}
-          className="pointer-events-auto size-7 bg-surface/90 text-secondary shadow-sm backdrop-blur-sm hover:bg-muted hover:text-foreground"
-          onClick={copyResults}
-        >
-          <CopySimple size={15} />
-        </IconButton>
+      <div className="pointer-events-none absolute top-2 right-2 z-20 flex items-center gap-0.5">
+        <div className="pointer-events-auto flex items-center gap-0.5 rounded-control bg-surface/90 p-0.5 shadow-sm backdrop-blur-sm">
+          <IconButton
+            label={text.copy}
+            disabled={!pathQuery.matches.length}
+            className="size-7"
+            onClick={copyResults}
+          >
+            <CopySimple size={15} />
+          </IconButton>
+          {promotableResult ? (
+            <IconButton
+              label={text.applyToEditor}
+              className="size-7"
+              onClick={promoteResultToEditor}
+            >
+              <ArrowLeft size={15} />
+            </IconButton>
+          ) : null}
+          <IconButton
+            label={text.close}
+            className="size-7"
+            onClick={() => setPath("")}
+          >
+            <X size={15} />
+          </IconButton>
+        </div>
       </div>
       <div className="min-h-0 min-w-0 flex-1 space-y-4 overflow-y-auto px-3 py-2.5 pr-11">
         {pathQuery.matches.map((match) => {
@@ -548,14 +645,15 @@ function JsonFormatter() {
                   : "json-result-surface flex max-h-64 min-w-0 shrink-0 flex-col overflow-hidden"
               }
             >
-              <button
-                type="button"
-                className="mb-1.5 min-w-0 shrink-0 truncate text-left font-mono text-[11px] text-accent hover:underline"
+              <Button
+                variant="ghost"
+                size="compact"
+                className="mb-1.5 h-auto min-w-0 max-w-full justify-start truncate px-0 py-0 font-mono text-[11px] font-normal text-accent hover:bg-transparent hover:underline"
                 title={text.usePath}
                 onClick={() => setPath(match.path)}
               >
                 {match.path}
-              </button>
+              </Button>
               <div className="min-h-0 min-w-0 flex-1 overflow-hidden">
                 <JsonHighlight value={match.value} />
               </div>
@@ -568,128 +666,75 @@ function JsonFormatter() {
 
   return (
     <ToolPage title={text.title}>
-      <ToolContent className="flex min-h-0 min-w-0 flex-1 flex-col gap-2 overflow-x-hidden pt-3">
-        <div className="flex flex-col rounded-panel border border-border/80 bg-muted/55">
-        <ToolToolbar className="min-h-[var(--machkit-size-control-compact)] flex-wrap gap-0.5 border-b-0 px-1.5 py-0.5">
-          <Button
-            variant="ghost"
-            size="compact"
-            disabled={!parsed.ok || isSourceAnalyzing}
-            onClick={() => mutate("format")}
-          >
-            <BracketsCurly size={14} />
-            {text.format}
-          </Button>
-          <Button
-            variant="ghost"
-            size="compact"
-            disabled={!parsed.ok || isSourceAnalyzing}
-            onClick={() => mutate("minify")}
-          >
-            <TextAa size={14} />
-            {text.minify}
-          </Button>
-          <Button
-            variant="ghost"
-            size="compact"
-            disabled={!parsed.ok || isSourceAnalyzing}
-            onClick={() => mutate("sort")}
-          >
-            <TreeStructure size={14} />
-            {text.sort}
-          </Button>
-          <span className="mx-1 hidden h-3.5 w-px shrink-0 self-center bg-border sm:block" aria-hidden />
-          <Button variant="ghost" size="compact" disabled={!source} onClick={escapeSource}>
-            <Quotes size={14} />
-            {text.escape}
-          </Button>
-          <Button variant="ghost" size="compact" disabled={!source.trim()} onClick={unescapeSource}>
-            <Quotes size={14} weight="duotone" />
-            {text.unescape}
-          </Button>
-          <ActionGroup>
-            <Popover.Root open={historyOpen} onOpenChange={setHistoryOpen}>
-              <Popover.Trigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-[var(--machkit-size-control-compact)]"
-                  aria-label={text.history}
-                  title={text.history}
-                >
-                  <ClockCounterClockwise size={15} />
-                </Button>
-              </Popover.Trigger>
-              <Popover.Portal>
-                <Popover.Content
-                  side="bottom"
-                  align="end"
-                  sideOffset={6}
-                  className="z-50 w-[min(420px,calc(100vw-32px))] overflow-hidden rounded-panel border border-border bg-popover text-popover-foreground shadow-popover"
-                >
-                  <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
-                    <span className="text-xs font-medium text-secondary">{text.history}</span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="compact"
-                      className="h-auto px-1.5 py-0.5 text-[11px] font-normal"
-                      disabled={!history.length}
-                      onClick={() => persistHistory([])}
-                    >
-                      <Trash size={13} />
-                      {text.clearHistory}
-                    </Button>
-                  </div>
-                  {history.length === 0 ? (
-                    <p className="px-3 py-6 text-center text-xs text-secondary">{text.historyEmpty}</p>
-                  ) : (
-                    <ul className="max-h-72 overflow-y-auto py-1">
-                      {history.map((entry) => (
-                        <li key={entry.id}>
-                          <button
-                            type="button"
-                            className="flex w-full flex-col gap-0.5 px-3 py-2 text-left hover:bg-accent-soft"
-                            onClick={() => {
-                              setSource(entry.source);
-                              setHistoryOpen(false);
-                            }}
-                          >
-                            <span className="line-clamp-2 font-mono text-[11px] text-foreground">{entry.preview}</span>
-                            <span className="text-[10px] text-tertiary">{formatHistoryTime(entry.savedAt)}</span>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </Popover.Content>
-              </Popover.Portal>
-            </Popover.Root>
+      <ToolContent className="flex min-h-0 min-w-0 flex-1 flex-col gap-1.5 overflow-x-hidden pt-1">
+        <div className="machkit-toolbar min-h-0 flex-wrap gap-x-2 gap-y-1.5 border-b-0 px-0.5 py-0.5">
+          <ActionGroup className="ml-0 gap-1.5">
+            <Button
+              variant="secondary"
+              size="compact"
+              onClick={() => mutate("format")}
+            >
+              <BracketsCurly size={14} />
+              {text.format}
+            </Button>
+            <Button
+              variant="secondary"
+              size="compact"
+              onClick={() => mutate("minify")}
+            >
+              <TextAa size={14} />
+              {text.minify}
+            </Button>
+            <Button
+              variant="secondary"
+              size="compact"
+              onClick={() => mutate("sort")}
+            >
+              <TreeStructure size={14} />
+              {text.sort}
+            </Button>
+            <Button
+              variant="secondary"
+              size="compact"
+              onClick={escapeSource}
+            >
+              <Quotes size={14} />
+              {text.escape}
+            </Button>
+            <Button
+              variant="secondary"
+              size="compact"
+              onClick={unescapeSource}
+            >
+              <Quotes size={14} weight="duotone" />
+              {text.unescape}
+            </Button>
+            {historyControl}
           </ActionGroup>
-        </ToolToolbar>
 
-        <ToolToolbar className="min-h-[var(--machkit-size-control)] min-w-0 gap-2 border-b-0 px-2.5 pt-0.5 pb-1.5">
-          <div className="relative min-w-0 flex-1">
-            <MagnifyingGlass
-              size={15}
-              className="pointer-events-none absolute top-1/2 left-2.5 z-10 -translate-y-1/2 text-secondary"
-              aria-hidden
-            />
-            <Input
-              value={path}
-              onChange={(event) => setPath(event.target.value)}
-              placeholder={text.pathPlaceholder}
-              aria-label={text.path}
-              invalid={Boolean(path.trim()) && parsed.ok && !pathQuery.ok}
-              className="min-w-0 pl-8"
-            />
+          <div className="ml-auto flex min-w-0 items-center gap-2 text-[11px] text-secondary" role="status" aria-live="polite">
+            {pathStatus ? (
+              <span className="truncate text-danger" role="alert">{pathStatus}</span>
+            ) : (
+              <>
+                <span className={source.trim() && !isSourceAnalyzing && !parsed.ok ? "text-danger" : "text-secondary"}>
+                  {!source.trim()
+                    ? text.empty
+                    : isSourceAnalyzing
+                      ? sourceSize
+                      : parsed.ok
+                        ? text.valid
+                        : text.invalid}
+                </span>
+                {source.trim() && !isSourceAnalyzing ? (
+                  <>
+                    <span className="text-tertiary" aria-hidden>·</span>
+                    <span className="font-mono text-tertiary">{sourceSize}</span>
+                  </>
+                ) : null}
+              </>
+            )}
           </div>
-          {pathStatus ? (
-            <span className="shrink-0 text-xs text-danger">
-              {pathStatus}
-            </span>
-          ) : null}
-        </ToolToolbar>
         </div>
 
         <div className="json-workspace machkit-panel flex min-h-0 min-w-0 flex-1 overflow-hidden">
