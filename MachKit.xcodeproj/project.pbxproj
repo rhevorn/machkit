@@ -24,6 +24,8 @@
 		A1000000000000000000000F /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000011 /* AppSettings.swift */; };
 		A10000000000000000000010 /* OperationResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000012 /* OperationResultView.swift */; };
 		A10000000000000000000013 /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000015 /* AppPreferences.swift */; };
+		E10000000000000000000001 /* AppUpdateChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000001 /* AppUpdateChecker.swift */; };
+		E10000000000000000000002 /* AppUpdateCheckTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000002 /* AppUpdateCheckTests.swift */; };
 		A10000000000000000000014 /* FeatureModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000016 /* FeatureModels.swift */; };
 		A10000000000000000000015 /* StatusBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000017 /* StatusBar.swift */; };
 		A10000000000000000000016 /* SystemMonitorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20000000000000000000001 /* SystemMonitorService.swift */; };
@@ -74,6 +76,8 @@
 		A20000000000000000000011 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		A20000000000000000000012 /* OperationResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationResultView.swift; sourceTree = "<group>"; };
 		A20000000000000000000015 /* AppPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferences.swift; sourceTree = "<group>"; };
+		E20000000000000000000001 /* AppUpdateChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdateChecker.swift; sourceTree = "<group>"; };
+		E20000000000000000000002 /* AppUpdateCheckTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdateCheckTests.swift; sourceTree = "<group>"; };
 		A20000000000000000000016 /* FeatureModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureModels.swift; sourceTree = "<group>"; };
 		D20000000000000000000001 /* SystemMonitorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMonitorService.swift; sourceTree = "<group>"; };
 		A20000000000000000000017 /* StatusBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBar.swift; sourceTree = "<group>"; };
@@ -162,6 +166,7 @@
 				A20000000000000000000011 /* AppSettings.swift */,
 				A20000000000000000000012 /* OperationResultView.swift */,
 				A20000000000000000000015 /* AppPreferences.swift */,
+				E20000000000000000000001 /* AppUpdateChecker.swift */,
 				A20000000000000000000016 /* FeatureModels.swift */,
 				A20000000000000000000017 /* StatusBar.swift */,
 				A20000000000000000000019 /* ToolsView.swift */,
@@ -229,6 +234,7 @@
 				B20000000000000000000003 /* CurlLabRunnerTests.swift */,
 				B20000000000000000000004 /* TCPPortScanTests.swift */,
 				B20000000000000000000005 /* PrivilegedCommandRunnerTests.swift */,
+				E20000000000000000000002 /* AppUpdateCheckTests.swift */,
 			);
 			path = Tests/MachKitCoreTests;
 			sourceTree = "<group>";
@@ -385,6 +391,7 @@
 				A1000000000000000000000F /* AppSettings.swift in Sources */,
 				A10000000000000000000010 /* OperationResultView.swift in Sources */,
 				A10000000000000000000013 /* AppPreferences.swift in Sources */,
+				E10000000000000000000001 /* AppUpdateChecker.swift in Sources */,
 				A10000000000000000000014 /* FeatureModels.swift in Sources */,
 				A10000000000000000000015 /* StatusBar.swift in Sources */,
 				A1000000000000000000001C /* HostsWebBridge.swift in Sources */,
@@ -416,6 +423,7 @@
 				B10000000000000000000003 /* CurlLabRunnerTests.swift in Sources */,
 				B10000000000000000000004 /* TCPPortScanTests.swift in Sources */,
 				B10000000000000000000005 /* PrivilegedCommandRunnerTests.swift in Sources */,
+				E10000000000000000000002 /* AppUpdateCheckTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

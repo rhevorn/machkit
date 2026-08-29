@@ -662,6 +662,14 @@ struct MachKitCommands: Commands {
     @Environment(\.openWindow) private var openWindow
 
     var body: some Commands {
+        CommandGroup(after: .appInfo) {
+            Button {
+                AppUpdateChecker.shared.checkForUpdates()
+            } label: {
+                Label("Check for Updates…", systemImage: "arrow.triangle.2.circlepath")
+            }
+        }
+
         CommandGroup(replacing: .appSettings) {
             Button("Settings") {
                 model.changeMode(.settings)
