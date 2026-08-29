@@ -41,13 +41,19 @@ export function parseCron(expression) {
     [0, 23],
     [1, 31],
     [1, 12],
-    [0, 6],
+    [0, 7], // 0–6 plus 7 as Sunday synonym
   ];
   const fields = {};
   for (let index = 0; index < 5; index += 1) {
     const values = parseList(parts[index], ranges[index][0], ranges[index][1]);
     if (!values) return { ok: false, error: "invalid-field", fields: null };
-    fields[FIELD_NAMES[index]] = values;
+    if (FIELD_NAMES[index] === "dayOfWeek") {
+      fields.dayOfWeek = [...new Set(values.map((value) => (value === 7 ? 0 : value)))].sort(
+        (left, right) => left - right,
+      );
+    } else {
+      fields[FIELD_NAMES[index]] = values;
+    }
   }
   return { ok: true, error: null, expression: text, fields };
 }

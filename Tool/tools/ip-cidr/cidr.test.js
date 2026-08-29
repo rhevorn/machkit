@@ -25,6 +25,13 @@ test("calculates cidr details", () => {
   assert.equal(result.hostCount, 254);
 });
 
+test("handles host routes and slashless addresses", () => {
+  assert.equal(parseCIDR("10.0.0.1/31").hostCount, 2);
+  assert.equal(parseCIDR("10.0.0.1/32").hostCount, 1);
+  assert.equal(parseCIDR("10.0.0.1").prefix, 32);
+  assert.equal(parseCIDR("").ok, false);
+});
+
 test("checks membership", () => {
   assert.equal(ipInCIDR("192.168.1.20", "192.168.1.0/24").inside, true);
   assert.equal(ipInCIDR("10.0.0.1", "192.168.1.0/24").inside, false);

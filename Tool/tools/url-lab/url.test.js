@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { buildURL, parseURL } from "./url.js";
+import {
+  buildURL,
+  decodeURIComponentSafe,
+  encodeURIComponentSafe,
+  maxURLInput,
+  parseURL,
+} from "./url.js";
 
 test("parses absolute URLs and query pairs", () => {
   const result = parseURL("https://user:pass@example.com:8443/path?x=1&y=2#hash");
@@ -13,6 +19,14 @@ test("parses absolute URLs and query pairs", () => {
   ]);
 });
 
+test("parses hostnames without scheme by assuming https", () => {
+  const result = parseURL("example.com/path");
+  assert.equal(result.ok, true);
+  assert.equal(result.parts.protocol, "https");
+  assert.equal(result.parts.hostname, "example.com");
+  assert.equal(result.parts.pathname, "/path");
+});
+
 test("builds URL from parts and query", () => {
   const built = buildURL(
     { protocol: "https", hostname: "machkit.app", pathname: "/tools", hash: "qr" },
@@ -22,7 +36,16 @@ test("builds URL from parts and query", () => {
   assert.equal(built.href, "https://machkit.app/tools?lang=zh#qr");
 });
 
-test("rejects empty and invalid input", () => {
+test("rejects empty invalid and oversized input", () => {
   assert.equal(parseURL("").error, "empty");
   assert.equal(parseURL("://not-a-url").error, "invalid");
+  assert.equal(parseURL("x".repeat(maxURLInput + 1)).error, "too-large");
+  assert.equal(buildURL({ hostname: "" }).error, "missing-host");
+});
+
+test("encodes and decodes URI components safely", () => {
+  assert.equal(encodeURIComponentSafe("a b&中"), "a%20b%26%E4%B8%AD");
+  assert.deepEqual(decodeURIComponentSafe("a%20b"), { ok: true, text: "a b" });
+  assert.equal(decodeURIComponentSafe("a+b").text, "a b");
+  assert.equal(decodeURIComponentSafe("%E0%A4%A").ok, false);
 });

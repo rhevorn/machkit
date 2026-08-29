@@ -27,9 +27,16 @@ test("rejects invalid ports", () => {
 
 test("formats progress and duration", () => {
   assert.equal(progressPercent(50, 200), 25);
+  assert.equal(progressPercent(1, 0), 0);
   assert.equal(formatDuration(750), "750 ms");
   assert.equal(formatDuration(2_500), "2.5 s");
   assert.equal(formatDuration(65_000), "1m 5s");
+});
+
+test("accepts chinese commas and web preset", () => {
+  assert.equal(inspectPortExpression("80，443").count, 2);
+  assert.equal(inspectPortExpression(presets.web).ok, true);
+  assert.equal(inspectPortExpression("80,").error, "invalid-port");
 });
 
 test("normalizes host and terminal states", () => {

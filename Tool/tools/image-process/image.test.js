@@ -64,6 +64,8 @@ test("resolves output names and formats", () => {
   assert.equal(outputFileName("Photo.PNG", "jpeg"), "Photo.jpg");
   assert.equal(formatBytes(1536), "1.5 KB");
   assert.equal(ratioLabel(1000, 700), "−30%");
+  assert.equal(ratioLabel(1000, 0), "−100%");
+  assert.equal(ratioLabel(0, 100), "—");
 });
 
 test("validates batch limits", () => {

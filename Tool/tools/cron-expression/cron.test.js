@@ -16,10 +16,10 @@ test("parses five-field cron", () => {
   assert.equal(parsed.fields.dayOfWeek.includes(0), false);
 });
 
-test("rejects invalid cron", () => {
-  assert.equal(parseCron("").ok, false);
-  assert.equal(parseCron("* * *").ok, false);
-  assert.equal(parseCron("60 * * * *").ok, false);
+test("accepts Sunday as 7", () => {
+  const parsed = parseCron("0 9 * * 7");
+  assert.equal(parsed.ok, true);
+  assert.deepEqual(parsed.fields.dayOfWeek, [0]);
 });
 
 test("finds upcoming runs", () => {

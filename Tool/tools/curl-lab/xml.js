@@ -28,14 +28,13 @@ export function formatXML(input, indentSize = 2) {
   for (const raw of tokens) {
     const line = raw.trim();
     if (!line) continue;
-    if (/^<\/\w/.test(line)) depth = Math.max(depth - 1, 0);
+    const isClosing = /^<\//.test(line);
+    const isDeclaration = /^<\?/.test(line) || /^<!/.test(line);
+    const isSelfClosing = /\/>$/.test(line);
+    const isInlinePair = /^<[^>]+>.*<\/\w/.test(line);
+    if (isClosing) depth = Math.max(depth - 1, 0);
     lines.push(`${pad.repeat(depth)}${line}`);
-    if (
-      /^<\w[^>]*[^/]>$/.test(line) &&
-      !/^<\?/.test(line) &&
-      !/^<!/.test(line) &&
-      !/^<.*<\/\w/.test(line)
-    ) {
+    if (!isClosing && !isDeclaration && !isSelfClosing && !isInlinePair && /^<\w/.test(line)) {
       depth += 1;
     }
   }

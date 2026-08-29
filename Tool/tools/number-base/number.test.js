@@ -3,9 +3,11 @@ import { test } from "node:test";
 import {
   convertBases,
   convertBytes,
+  convertCategory,
   convertLinear,
   convertTemperature,
   formatNumber,
+  unitsForCategory,
 } from "./number.js";
 
 test("converts decimal to other bases", () => {
@@ -70,4 +72,23 @@ test("converts angle and speed", () => {
 test("formats small numbers", () => {
   assert.equal(formatNumber(0), "0");
   assert.match(formatNumber(1e-9), /e-/i);
+});
+
+test("routes categories and lists units", () => {
+  const mass = convertCategory("mass", "1", "kg");
+  assert.equal(mass.ok, true);
+  assert.equal(mass.formats.g, "1000");
+
+  const area = convertCategory("area", "1", "ha");
+  assert.equal(area.ok, true);
+  assert.equal(area.formats.m2, "10000");
+
+  assert.ok(unitsForCategory("temperature").some((unit) => unit.id === "C"));
+  assert.equal(convertCategory("nope", "1", "x").ok, false);
+});
+
+test("accepts negative decimal bases", () => {
+  const result = convertBases("-10");
+  assert.equal(result.ok, true);
+  assert.equal(result.formats.hex, "-0xA");
 });

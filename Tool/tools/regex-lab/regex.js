@@ -103,10 +103,12 @@ export function findMatches(pattern, flags, input, { maxMatches = maxRegexMatche
     return { ok: false, error: "input-too-large", matches: [], truncated: false };
   }
 
-  let compiled = compileRegex(pattern, flags.includes("d") ? flags : `${normalizeFlags(flags)}d`);
+  const normalizedFlags = normalizeFlags(flags);
+  const flagsWithIndices = normalizedFlags.includes("d") ? normalizedFlags : `${normalizedFlags}d`;
+  let compiled = compileRegex(pattern, flagsWithIndices);
   if (!compiled.ok && compiled.error !== "empty-pattern") {
     // Some engines reject 'd' with certain flags; retry without indices.
-    compiled = compileRegex(pattern, flags);
+    compiled = compileRegex(pattern, normalizedFlags);
   }
   if (!compiled.ok) return { ok: false, error: compiled.error, matches: [], truncated: false };
 
@@ -162,7 +164,7 @@ export function replaceMatches(pattern, flags, input, replacement = "") {
   if (text.length > maxRegexInput) {
     return { ok: false, error: "input-too-large", value: "" };
   }
-  const compiled = compileRegex(pattern, flags);
+  const compiled = compileRegex(pattern, normalizeFlags(flags));
   if (!compiled.ok) return { ok: false, error: compiled.error, value: "" };
   try {
     return { ok: true, error: null, value: text.replace(compiled.regex, String(replacement ?? "")) };
