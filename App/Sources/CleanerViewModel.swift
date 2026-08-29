@@ -128,6 +128,8 @@ final class CleanerViewModel: ObservableObject {
     private var storageAnalysisTask: Task<Void, Never>?
     private var storageAnalysisGeneration = UUID()
     private var cleanupScanGeneration = UUID()
+    private var lastCleanupProgressUIUpdate = Date.distantPast
+    private static let cleanupProgressUIMinInterval: TimeInterval = 1.0 / 12.0
     private var featureTasks: [FeatureMode: Task<Void, Never>] = [:]
     private var performanceTask: Task<Void, Never>?
     private var networkMonitoringTask: Task<Void, Never>?
@@ -262,6 +264,21 @@ final class CleanerViewModel: ObservableObject {
         cleanupScanGeneration = generation
         isCleanupScanning = true
         isPreparingCleanupResults = false
+        // Drop previous results immediately so a re-scan never flashes old groups
+        // under the scanning chrome.
+        items = []
+        selectedIDs = []
+        junkGroups = []
+        itemByID = [:]
+        itemIDsByRuleID = [:]
+        totalBytes = 0
+        selectedBytes = 0
+        selectedCountByGroup = [:]
+        safeCleanableBytes = 0
+        reviewCleanableBytes = 0
+        safeItemCount = 0
+        reviewItemCount = 0
+        cleanableBytes = 0
         scanProgress = 0
         cleanupIncludesResidues = selectedRoot.resolvingSymlinksInPath()
             == FileManager.default.homeDirectoryForCurrentUser.standardizedFileURL.resolvingSymlinksInPath()
@@ -269,6 +286,7 @@ final class CleanerViewModel: ObservableObject {
         completedCleanupPhases = []
         activeCleanupPhaseID = nil
         activeCleanupPhaseProgress = 0
+        lastCleanupProgressUIUpdate = .distantPast
         currentScanCategory = L10n.string("Getting ready…")
         inspectedFileCount = 0
         discoveredFileCount = 0
@@ -289,23 +307,19 @@ final class CleanerViewModel: ObservableObject {
                 continuation.finish()
                 return items
             }
+            defer {
+                worker.cancel()
+                continuation.finish()
+            }
 
             for await event in stream {
-                guard cleanupScanGeneration == generation else {
-                    worker.cancel()
-                    return
-                }
-                guard !Task.isCancelled else {
-                    worker.cancel()
-                    return
-                }
+                guard cleanupScanGeneration == generation else { return }
+                guard !Task.isCancelled else { return }
                 applyCleanupProgress(event, generation: generation)
             }
 
-            guard cleanupScanGeneration == generation else {
-                worker.cancel()
-                return
-            }
+            guard cleanupScanGeneration == generation else { return }
+            guard !Task.isCancelled else { return }
 
             let found = await worker.value
             guard cleanupScanGeneration == generation, !Task.isCancelled else { return }
@@ -497,6 +511,16 @@ final class CleanerViewModel: ObservableObject {
 
     private func applyCleanupProgress(_ event: CleanupScanProgressEvent, generation: UUID) {
         guard cleanupScanGeneration == generation else { return }
+        let phaseChanged = activeCleanupPhaseID != event.categoryID
+        let categoryFinished = event.categoryFraction >= 0.999
+        let now = Date()
+        let intervalElapsed = now.timeIntervalSince(lastCleanupProgressUIUpdate)
+            >= Self.cleanupProgressUIMinInterval
+        // Always publish phase boundaries; throttle in-phase ticks so a warm
+        // re-scan does not rebuild the scanning UI dozens of times per second.
+        guard phaseChanged || categoryFinished || intervalElapsed else { return }
+        lastCleanupProgressUIUpdate = now
+
         activeCleanupPhaseID = event.categoryID
         activeCleanupPhaseProgress = event.categoryFraction
         completedCleanupPhases = Set(event.completedCategoryIDs)
