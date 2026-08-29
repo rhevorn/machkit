@@ -399,7 +399,7 @@ struct ScreenshotAnnotatorView: View {
             .foregroundStyle(.primary)
             .padding(.horizontal, 8)
             .frame(height: 28)
-            .background(Color.primary.opacity(0.08), in: RoundedRectangle(cornerRadius: 6))
+            .background(Color.primary.opacity(0.08), in: RoundedRectangle(cornerRadius: 4))
             .contentShape(Rectangle())
         }
         .menuStyle(.borderlessButton)
@@ -432,7 +432,7 @@ struct ScreenshotAnnotatorView: View {
                     isSelected && model.tool != .mosaic
                         ? Color.accentColor.opacity(0.16)
                         : Color.clear,
-                    in: RoundedRectangle(cornerRadius: 6)
+                    in: RoundedRectangle(cornerRadius: 4)
                 )
                 .contentShape(Rectangle())
         }
@@ -527,7 +527,7 @@ struct ScreenshotAnnotatorView: View {
                     isSelected && mode == .brush
                         ? Color.accentColor.opacity(0.16)
                         : Color.clear,
-                    in: RoundedRectangle(cornerRadius: 6)
+                    in: RoundedRectangle(cornerRadius: 4)
                 )
                 .contentShape(Rectangle())
         }
@@ -581,7 +581,7 @@ struct ScreenshotAnnotatorView: View {
                 .frame(width: 28, height: 28)
                 .background(
                     model.tool == tool ? Color.accentColor.opacity(0.18) : Color.clear,
-                    in: RoundedRectangle(cornerRadius: 6)
+                    in: RoundedRectangle(cornerRadius: 4)
                 )
                 .contentShape(Rectangle())
         }
@@ -760,10 +760,10 @@ private extension View {
             .padding(.vertical, 6)
             .background(
                 Color(nsColor: .windowBackgroundColor),
-                in: RoundedRectangle(cornerRadius: 12, style: .continuous)
+                in: RoundedRectangle(cornerRadius: 8, style: .continuous)
             )
             .overlay {
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
                     .strokeBorder(
                         Color(nsColor: .separatorColor).opacity(0.9),
                         lineWidth: 1
