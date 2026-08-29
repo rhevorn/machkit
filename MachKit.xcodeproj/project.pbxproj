@@ -28,6 +28,7 @@
 		A10000000000000000000015 /* StatusBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000017 /* StatusBar.swift */; };
 		A10000000000000000000016 /* SystemMonitorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20000000000000000000001 /* SystemMonitorService.swift */; };
 		A10000000000000000000017 /* ToolsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000019 /* ToolsView.swift */; };
+		G10000000000000000000001 /* ToolPinStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = G20000000000000000000001 /* ToolPinStore.swift */; };
 		F10000000000000000000001 /* MachKitLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000001 /* MachKitLayout.swift */; };
 		A10000000000000000000019 /* DeveloperTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000021 /* DeveloperTools.swift */; };
 		A1000000000000000000001A /* WebToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000022 /* WebToolView.swift */; };
@@ -82,6 +83,7 @@
 		A20000000000000000000016 /* FeatureModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureModels.swift; sourceTree = "<group>"; };
 		A20000000000000000000017 /* StatusBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBar.swift; sourceTree = "<group>"; };
 		A20000000000000000000019 /* ToolsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsView.swift; sourceTree = "<group>"; };
+		G20000000000000000000001 /* ToolPinStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolPinStore.swift; sourceTree = "<group>"; };
 		A20000000000000000000021 /* DeveloperTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperTools.swift; sourceTree = "<group>"; };
 		A20000000000000000000022 /* WebToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebToolView.swift; sourceTree = "<group>"; };
 		A20000000000000000000023 /* WebTools */ = {isa = PBXFileReference; lastKnownFileType = folder; path = WebTools; sourceTree = "<group>"; };
@@ -175,6 +177,7 @@
 				A20000000000000000000016 /* FeatureModels.swift */,
 				A20000000000000000000017 /* StatusBar.swift */,
 				A20000000000000000000019 /* ToolsView.swift */,
+				G20000000000000000000001 /* ToolPinStore.swift */,
 				A40000000000000000000008 /* Screenshot */,
 				A40000000000000000000007 /* WebView */,
 			);
@@ -413,6 +416,7 @@
 				A10000000000000000000029 /* ScreenshotAnnotatorView.swift in Sources */,
 				A10000000000000000000024 /* ScreenshotEditorController.swift in Sources */,
 				A10000000000000000000017 /* ToolsView.swift in Sources */,
+				G10000000000000000000001 /* ToolPinStore.swift in Sources */,
 				A10000000000000000000019 /* DeveloperTools.swift in Sources */,
 				A1000000000000000000001A /* WebToolView.swift in Sources */,
 			);

@@ -76,6 +76,34 @@ struct DeveloperTool: Identifiable, Equatable {
     var defaultWindowSize: CGSize { widthClass.defaultSize }
     var minimumWindowSize: CGSize { widthClass.minimumSize }
 
+    /// Semantic accent for the tool icon badge only (card chrome stays neutral).
+    var accentColor: Color {
+        switch id {
+        case "json-formatter", "string-generator":
+            .blue
+        case "codec", "text-diff":
+            .indigo
+        case "regex-lab", "jwt-lab":
+            .purple
+        case "timestamp-converter", "cron-expression":
+            .orange
+        case "number-base":
+            .mint
+        case "hosts-manager", "url-lab", "ip-cidr":
+            .cyan
+        case "curl-lab", "port-scan":
+            .teal
+        case "color-lab", "image-process":
+            .pink
+        case "qr-code":
+            .purple
+        case "chmod-lab", "cert-lab":
+            .green
+        default:
+            .accentColor
+        }
+    }
+
     func matches(_ query: String) -> Bool {
         let query = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else { return true }
