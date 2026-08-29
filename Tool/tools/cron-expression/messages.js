@@ -1,7 +1,6 @@
 export const messages = {
   en: {
     title: "Cron Expression",
-    info: "Build and inspect five-field cron schedules locally, with presets and upcoming runs.",
     expression: "Expression",
     placeholder: "0 9 * * 1-5",
     clear: "Clear",
@@ -27,7 +26,6 @@ export const messages = {
   },
   "zh-Hans": {
     title: "Cron 表达式",
-    info: "本地编写与检查五段 cron：常用预设与接下来的执行时间。",
     expression: "表达式",
     placeholder: "0 9 * * 1-5",
     clear: "清空",
@@ -53,7 +51,6 @@ export const messages = {
   },
   "zh-Hant": {
     title: "Cron 運算式",
-    info: "本機編寫與檢查五段 cron：常用預設與接下來的執行時間。",
     expression: "運算式",
     placeholder: "0 9 * * 1-5",
     clear: "清除",
@@ -79,7 +76,6 @@ export const messages = {
   },
   ja: {
     title: "Cron 式",
-    info: "5 フィールドの cron をローカルで確認。プリセットと次回実行時刻付き。",
     expression: "式",
     placeholder: "0 9 * * 1-5",
     clear: "クリア",
@@ -105,7 +101,6 @@ export const messages = {
   },
   ko: {
     title: "Cron 표현식",
-    info: "5필드 cron을 로컬에서 작성·확인합니다. 프리셋과 다음 실행 시각 포함.",
     expression: "표현식",
     placeholder: "0 9 * * 1-5",
     clear: "지우기",
@@ -131,7 +126,6 @@ export const messages = {
   },
   es: {
     title: "Expresión cron",
-    info: "Crea e inspecciona cron de cinco campos en local, con presets y próximas ejecuciones.",
     expression: "Expresión",
     placeholder: "0 9 * * 1-5",
     clear: "Borrar",
@@ -157,7 +151,6 @@ export const messages = {
   },
   fr: {
     title: "Expression cron",
-    info: "Créez et inspectez des cron à cinq champs en local, avec préréglages et prochaines exécutions.",
     expression: "Expression",
     placeholder: "0 9 * * 1-5",
     clear: "Effacer",
@@ -183,7 +176,6 @@ export const messages = {
   },
   de: {
     title: "Cron-Ausdruck",
-    info: "Fünf-Feld-Cron lokal erstellen und prüfen, mit Vorlagen und nächsten Läufen.",
     expression: "Ausdruck",
     placeholder: "0 9 * * 1-5",
     clear: "Leeren",
@@ -209,7 +201,6 @@ export const messages = {
   },
   "pt-BR": {
     title: "Expressão cron",
-    info: "Crie e inspecione cron de cinco campos localmente, com presets e próximas execuções.",
     expression: "Expressão",
     placeholder: "0 9 * * 1-5",
     clear: "Limpar",
@@ -235,7 +226,6 @@ export const messages = {
   },
   ru: {
     title: "Cron-выражение",
-    info: "Создавайте и проверяйте пятиполевой cron локально: пресеты и ближайшие запуски.",
     expression: "Выражение",
     placeholder: "0 9 * * 1-5",
     clear: "Очистить",

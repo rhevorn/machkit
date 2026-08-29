@@ -1,7 +1,6 @@
 export const messages = {
   en: {
     title: "JSON Formatter",
-    info: "Format, minify, escape, or unescape JSON, then query values with paths such as $.store.book[0].author, store.book[*].price, or $..author.",
     path: "Path",
     pathPlaceholder: "$.store.book[*].author",
     format: "Format",
@@ -25,7 +24,6 @@ export const messages = {
   },
   "zh-Hans": {
     title: "JSON 格式化",
-    info: "格式化、压缩、转义或去除转义 JSON，并用路径查询值，例如 $.store.book[0].author、store.book[*].price 或 $..author。",
     path: "路径",
     pathPlaceholder: "$.store.book[*].author",
     format: "格式化",
@@ -49,7 +47,6 @@ export const messages = {
   },
   "zh-Hant": {
     title: "JSON 格式化",
-    info: "格式化、壓縮、跳脫或去除跳脫 JSON，並用路徑查詢值，例如 $.store.book[0].author、store.book[*].price 或 $..author。",
     path: "路徑",
     pathPlaceholder: "$.store.book[*].author",
     format: "格式化",
@@ -73,7 +70,6 @@ export const messages = {
   },
   ja: {
     title: "JSON フォーマッタ",
-    info: "JSON の整形・圧縮・エスケープ・アンエスケープに加え、$.store.book[0].author、store.book[*].price、$..author などのパスで値を検索できます。",
     path: "パス",
     pathPlaceholder: "$.store.book[*].author",
     format: "整形",
@@ -97,7 +93,6 @@ export const messages = {
   },
   ko: {
     title: "JSON 포맷터",
-    info: "JSON을 포맷·압축·이스케이프·언이스케이프하고, $.store.book[0].author, store.book[*].price, $..author 같은 경로로 값을 조회합니다.",
     path: "경로",
     pathPlaceholder: "$.store.book[*].author",
     format: "포맷",
@@ -121,7 +116,6 @@ export const messages = {
   },
   es: {
     title: "Formateador JSON",
-    info: "Formatea, minimiza, escapa o desescapa JSON y consulta valores con rutas como $.store.book[0].author, store.book[*].price o $..author.",
     path: "Ruta",
     pathPlaceholder: "$.store.book[*].author",
     format: "Formatear",
@@ -145,7 +139,6 @@ export const messages = {
   },
   fr: {
     title: "Formateur JSON",
-    info: "Formatez, minifiez, échappez ou déséchappez du JSON, puis interrogez des valeurs avec des chemins comme $.store.book[0].author, store.book[*].price ou $..author.",
     path: "Chemin",
     pathPlaceholder: "$.store.book[*].author",
     format: "Formater",
@@ -169,7 +162,6 @@ export const messages = {
   },
   de: {
     title: "JSON-Formatierer",
-    info: "JSON formatieren, komprimieren, escapen oder unescapen und Werte mit Pfaden wie $.store.book[0].author, store.book[*].price oder $..author abfragen.",
     path: "Pfad",
     pathPlaceholder: "$.store.book[*].author",
     format: "Formatieren",
@@ -193,7 +185,6 @@ export const messages = {
   },
   "pt-BR": {
     title: "Formatador JSON",
-    info: "Formate, compacte, escape ou desescape JSON e consulte valores com caminhos como $.store.book[0].author, store.book[*].price ou $..author.",
     path: "Caminho",
     pathPlaceholder: "$.store.book[*].author",
     format: "Formatar",
@@ -217,7 +208,6 @@ export const messages = {
   },
   ru: {
     title: "Форматирование JSON",
-    info: "Форматируйте, сжимайте, экранируйте или снимайте экранирование JSON и запрашивайте значения по путям вроде $.store.book[0].author, store.book[*].price или $..author.",
     path: "Путь",
     pathPlaceholder: "$.store.book[*].author",
     format: "Форматировать",

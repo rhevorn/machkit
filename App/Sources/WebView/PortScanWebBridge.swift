@@ -14,6 +14,7 @@ final class PortScanWebBridge {
 
     private struct Job {
         let id: String
+        let toolID: String?
         let host: String
         let total: Int
         let startedAt: Date
@@ -48,6 +49,19 @@ final class PortScanWebBridge {
         }
     }
 
+    /// Cancels running scans owned by a tool window (or all when toolID is nil).
+    func cancelRunning(for toolID: String? = nil) {
+        for scanID in Array(jobs.keys) {
+            guard var job = jobs[scanID], job.state == .running else { continue }
+            if let toolID, job.toolID != toolID { continue }
+            job.task?.cancel()
+            job.state = .cancelled
+            job.updatedAt = Date()
+            job.durationMs = Date().timeIntervalSince(job.startedAt) * 1_000
+            jobs[scanID] = job
+        }
+    }
+
     private func start(payload: [String: Any], requestID: String) -> [String: Any] {
         let rawHost = payload["host"] as? String ?? ""
         let portExpression = payload["ports"] as? String ?? ""
@@ -55,6 +69,8 @@ final class PortScanWebBridge {
             ?? TCPPortScan.defaultTimeoutMilliseconds
         let concurrency = (payload["concurrency"] as? NSNumber)?.intValue
             ?? TCPPortScan.defaultConcurrency
+        let toolID = (payload["toolID"] as? String)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
 
         do {
             let host = try TCPPortScan.normalizeHost(rawHost)
@@ -64,6 +80,7 @@ final class PortScanWebBridge {
             let scanID = UUID().uuidString.lowercased()
             jobs[scanID] = Job(
                 id: scanID,
+                toolID: (toolID?.isEmpty == false) ? toolID : nil,
                 host: host,
                 total: ports.count,
                 startedAt: Date(),

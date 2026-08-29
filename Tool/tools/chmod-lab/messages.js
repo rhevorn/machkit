@@ -1,7 +1,6 @@
 export const messages = {
   en: {
     title: "chmod Lab",
-    info: "Convert Unix file modes between octal, symbolic, and permission bits locally.",
     input: "Mode",
     placeholder: "755 or rwxr-xr-x",
     clear: "Clear",
@@ -25,7 +24,6 @@ export const messages = {
   },
   "zh-Hans": {
     title: "权限换算",
-    info: "本地在八进制、符号表示与权限位之间换算 Unix 文件权限。",
     input: "权限",
     placeholder: "755 或 rwxr-xr-x",
     clear: "清空",
@@ -49,7 +47,6 @@ export const messages = {
   },
   "zh-Hant": {
     title: "權限換算",
-    info: "本機在八進位、符號表示與權限位之間換算 Unix 檔案權限。",
     input: "權限",
     placeholder: "755 或 rwxr-xr-x",
     clear: "清除",
@@ -73,7 +70,6 @@ export const messages = {
   },
   ja: {
     title: "chmod ラボ",
-    info: "Unix ファイル権限を 8 進・記号・ビットでローカル変換します。",
     input: "モード",
     placeholder: "755 または rwxr-xr-x",
     clear: "クリア",
@@ -97,7 +93,6 @@ export const messages = {
   },
   ko: {
     title: "chmod 랩",
-    info: "Unix 파일 권한을 8진수·기호·비트로 로컬 변환합니다.",
     input: "모드",
     placeholder: "755 또는 rwxr-xr-x",
     clear: "지우기",
@@ -121,7 +116,6 @@ export const messages = {
   },
   es: {
     title: "chmod Lab",
-    info: "Convierte modos Unix entre octal, simbólico y bits de permiso en local.",
     input: "Modo",
     placeholder: "755 o rwxr-xr-x",
     clear: "Borrar",
@@ -145,7 +139,6 @@ export const messages = {
   },
   fr: {
     title: "chmod Lab",
-    info: "Convertissez les modes Unix entre octal, symbolique et bits de permission.",
     input: "Mode",
     placeholder: "755 ou rwxr-xr-x",
     clear: "Effacer",
@@ -169,7 +162,6 @@ export const messages = {
   },
   de: {
     title: "chmod Lab",
-    info: "Unix-Dateimodi lokal zwischen oktal, symbolisch und Bits umwandeln.",
     input: "Modus",
     placeholder: "755 oder rwxr-xr-x",
     clear: "Leeren",
@@ -193,7 +185,6 @@ export const messages = {
   },
   "pt-BR": {
     title: "chmod Lab",
-    info: "Converta modos Unix entre octal, simbólico e bits de permissão localmente.",
     input: "Modo",
     placeholder: "755 ou rwxr-xr-x",
     clear: "Limpar",
@@ -217,7 +208,6 @@ export const messages = {
   },
   ru: {
     title: "chmod Lab",
-    info: "Локально переводите Unix-права между восьмеричным, символьным видом и битами.",
     input: "Режим",
     placeholder: "755 или rwxr-xr-x",
     clear: "Очистить",

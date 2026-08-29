@@ -119,9 +119,7 @@ function JwtLabTool() {
                 ? text.generateEmpty
                 : text.invalidJson,
       }
-    : token.trim()
-      ? { tone: "info", label: `${text.generated} · ${algorithm}` }
-      : { tone: "neutral", label: text.generateEmpty };
+    : null;
 
   useEffect(() => {
     if (mode !== "generate") return;
@@ -320,7 +318,7 @@ function JwtLabTool() {
             </SplitWorkspace>
 
             {generateError || busy ? (
-              <StatusStrip tone={generateStatus.tone}>
+              <StatusStrip tone={generateError ? generateStatus.tone : "info"}>
                 {busy ? text.generate : generateStatus.label}
               </StatusStrip>
             ) : null}

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { cn } from "@/lib/utils.js";
-import { hsvToRgb, parseColor, rgbToHex } from "./color.js";
+import { hsvToRgb, parseColor, rgbToHex } from "../../tools/color-lab/color.js";
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));

@@ -1,7 +1,6 @@
 export const messages = {
   en: {
     title: 'Image Tools',
-    info: 'Process images locally: convert formats, then control output by quality, target file size, or dimensions (px / % / cm / mm / in at 96 DPI). Batch up to 50 files. Nothing is uploaded.',
     drop: 'Drop images here, or choose files',
     choose: 'Choose images',
     convertTo: 'Format',
@@ -42,7 +41,6 @@ export const messages = {
   },
   "zh-Hans": {
     title: '图片处理',
-    info: '本地处理图片：转换格式，并按质量、目标文件大小或尺寸（px / % / cm / mm / in，96 DPI）控制输出。最多批量 50 张，不会上传。',
     drop: '拖放图片到这里，或选择文件',
     choose: '选择图片',
     convertTo: '转换格式',
@@ -83,7 +81,6 @@ export const messages = {
   },
   "zh-Hant": {
     title: '圖片處理',
-    info: '本機處理圖片：轉換格式，並依品質、目標檔案大小或尺寸（px / % / cm / mm / in，96 DPI）控制輸出。最多批次 50 張，不會上傳。',
     drop: '拖放圖片到這裡，或選擇檔案',
     choose: '選擇圖片',
     convertTo: '轉換格式',
@@ -124,7 +121,6 @@ export const messages = {
   },
   ja: {
     title: '画像ツール',
-    info: '形式変換に加え、品質・目標サイズ・寸法で出力を制御。最大 50 枚。アップロードしません。',
     drop: '画像をドロップ、またはファイルを選択',
     choose: '画像を選択',
     convertTo: '変換先',
@@ -165,7 +161,6 @@ export const messages = {
   },
   ko: {
     title: '이미지 도구',
-    info: '형식 변환과 함께 품질·목표 용량·크기로 출력을 제어합니다. 최대 50장. 업로드하지 않습니다.',
     drop: '이미지를 놓거나 파일을 선택',
     choose: '이미지 선택',
     convertTo: '변환',
@@ -206,7 +201,6 @@ export const messages = {
   },
   es: {
     title: 'Herramientas de imagen',
-    info: 'Convierte formatos y controla la salida por calidad, tamaño objetivo o dimensiones. Hasta 50 archivos. No se sube nada.',
     drop: 'Suelta imágenes aquí o elige archivos',
     choose: 'Elegir imágenes',
     convertTo: 'Convertir a',
@@ -247,7 +241,6 @@ export const messages = {
   },
   fr: {
     title: 'Outils image',
-    info: 'Convertissez les formats et contrôlez la sortie par qualité, taille cible ou dimensions. Jusqu’à 50 fichiers. Rien n’est envoyé.',
     drop: 'Déposez des images ici ou choisissez des fichiers',
     choose: 'Choisir des images',
     convertTo: 'Convertir en',
@@ -288,7 +281,6 @@ export const messages = {
   },
   de: {
     title: 'Bildwerkzeuge',
-    info: 'Formate konvertieren und Ausgabe per Qualität, Zielgröße oder Abmessungen steuern. Bis 50 Dateien. Nichts wird hochgeladen.',
     drop: 'Bilder hierher ziehen oder Dateien wählen',
     choose: 'Bilder wählen',
     convertTo: 'Konvertieren zu',
@@ -329,7 +321,6 @@ export const messages = {
   },
   "pt-BR": {
     title: 'Ferramentas de imagem',
-    info: 'Converta formatos e controle a saída por qualidade, tamanho alvo ou dimensões. Até 50 arquivos. Nada é enviado.',
     drop: 'Solte imagens aqui ou escolha arquivos',
     choose: 'Escolher imagens',
     convertTo: 'Converter para',
@@ -370,7 +361,6 @@ export const messages = {
   },
   ru: {
     title: 'Инструменты изображений',
-    info: 'Конвертация форматов и управление выводом по качеству, целевому размеру или размерам. До 50 файлов. Ничего не загружается.',
     drop: 'Перетащите изображения или выберите файлы',
     choose: 'Выбрать изображения',
     convertTo: 'Конвертировать в',

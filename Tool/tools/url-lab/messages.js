@@ -1,7 +1,6 @@
 export const messages = {
   en: {
     title: 'URL Lab',
-    info: 'Parse and rebuild URLs locally: scheme, host, path, query, and hash.',
     input: 'URL',
     placeholder: 'https://example.com/path?x=1#hash',
     protocol: 'Protocol',
@@ -29,7 +28,6 @@ export const messages = {
   },
   "zh-Hans": {
     title: 'URL 实验室',
-    info: '本地解析与拼装 URL：协议、主机、路径、查询参数与哈希。',
     input: 'URL',
     placeholder: 'https://example.com/path?x=1#hash',
     protocol: '协议',
@@ -57,7 +55,6 @@ export const messages = {
   },
   "zh-Hant": {
     title: 'URL 實驗室',
-    info: '本機解析與組裝 URL：協定、主機、路徑、查詢參數與雜湊。',
     input: 'URL',
     placeholder: 'https://example.com/path?x=1#hash',
     protocol: '協定',
@@ -85,7 +82,6 @@ export const messages = {
   },
   "ja": {
     title: 'URL ラボ',
-    info: 'スキーム・ホスト・パス・クエリ・ハッシュをローカルで解析・再構成します。',
     input: 'URL',
     placeholder: 'https://example.com/path?x=1#hash',
     protocol: 'プロトコル',
@@ -113,7 +109,6 @@ export const messages = {
   },
   "ko": {
     title: 'URL 랩',
-    info: '스킴, 호스트, 경로, 쿼리, 해시를 로컬에서 파싱하고 다시 조립합니다.',
     input: 'URL',
     placeholder: 'https://example.com/path?x=1#hash',
     protocol: '프로토콜',
@@ -141,7 +136,6 @@ export const messages = {
   },
   "es": {
     title: 'Lab URL',
-    info: 'Analiza y reconstruye URLs en local: esquema, host, ruta, query y hash.',
     input: 'URL',
     placeholder: 'https://example.com/path?x=1#hash',
     protocol: 'Protocolo',
@@ -169,7 +163,6 @@ export const messages = {
   },
   "fr": {
     title: 'Labo URL',
-    info: 'Analysez et reconstruisez des URL en local : schéma, hôte, chemin, requête et hash.',
     input: 'URL',
     placeholder: 'https://example.com/path?x=1#hash',
     protocol: 'Protocole',
@@ -197,7 +190,6 @@ export const messages = {
   },
   "de": {
     title: 'URL-Labor',
-    info: 'URLs lokal zerlegen und neu bauen: Schema, Host, Pfad, Query und Hash.',
     input: 'URL',
     placeholder: 'https://example.com/path?x=1#hash',
     protocol: 'Protokoll',
@@ -225,7 +217,6 @@ export const messages = {
   },
   "pt-BR": {
     title: 'Lab URL',
-    info: 'Analise e remonte URLs localmente: esquema, host, caminho, query e hash.',
     input: 'URL',
     placeholder: 'https://example.com/path?x=1#hash',
     protocol: 'Protocolo',
@@ -253,7 +244,6 @@ export const messages = {
   },
   "ru": {
     title: 'URL-лаборатория',
-    info: 'Локально разбирайте и собирайте URL: схема, хост, путь, query и hash.',
     input: 'URL',
     placeholder: 'https://example.com/path?x=1#hash',
     protocol: 'Протокол',

@@ -3,7 +3,6 @@ import { messages as inspectionMessages } from "./ip-details-messages.js";
 const cidrMessages = {
   en: {
     title: "IP / CIDR",
-    info: "Inspect IPv4 and IPv6 addresses, or calculate IPv4 CIDR masks, ranges, hosts, and membership locally.",
     input: "Address or CIDR",
     placeholder: "192.168.1.10/24",
     checkIP: "Check IP",
@@ -29,7 +28,6 @@ const cidrMessages = {
   },
   "zh-Hans": {
     title: "IP / CIDR",
-    info: "本地查看 IPv4 / IPv6 地址，或计算 IPv4 CIDR 掩码、范围、主机数与归属。",
     input: "地址或 CIDR",
     placeholder: "192.168.1.10/24",
     checkIP: "检查 IP",
@@ -55,7 +53,6 @@ const cidrMessages = {
   },
   "zh-Hant": {
     title: "IP / CIDR",
-    info: "本機檢視 IPv4 / IPv6 位址，或計算 IPv4 CIDR 遮罩、範圍、主機數與歸屬。",
     input: "位址或 CIDR",
     placeholder: "192.168.1.10/24",
     checkIP: "檢查 IP",
@@ -81,7 +78,6 @@ const cidrMessages = {
   },
   ja: {
     title: "IP / CIDR",
-    info: "IPv4 / IPv6 アドレスの確認と IPv4 CIDR のマスク・範囲・ホスト数・所属判定をローカルで行います。",
     input: "アドレスまたは CIDR",
     placeholder: "192.168.1.10/24",
     checkIP: "IP を確認",
@@ -107,7 +103,6 @@ const cidrMessages = {
   },
   ko: {
     title: "IP / CIDR",
-    info: "IPv4/IPv6 주소를 확인하거나 IPv4 CIDR 마스크, 범위, 호스트 수, 포함 여부를 로컬에서 계산합니다.",
     input: "주소 또는 CIDR",
     placeholder: "192.168.1.10/24",
     checkIP: "IP 확인",
@@ -133,7 +128,6 @@ const cidrMessages = {
   },
   es: {
     title: "IP / CIDR",
-    info: "Inspecciona direcciones IPv4/IPv6 o calcula máscaras, rangos, hosts y pertenencia CIDR IPv4 en local.",
     input: "Dirección o CIDR",
     placeholder: "192.168.1.10/24",
     checkIP: "Comprobar IP",
@@ -159,7 +153,6 @@ const cidrMessages = {
   },
   fr: {
     title: "IP / CIDR",
-    info: "Inspectez IPv4/IPv6 ou calculez localement les masques, plages, hôtes et appartenances CIDR IPv4.",
     input: "Adresse ou CIDR",
     placeholder: "192.168.1.10/24",
     checkIP: "Vérifier l’IP",
@@ -185,7 +178,6 @@ const cidrMessages = {
   },
   de: {
     title: "IP / CIDR",
-    info: "IPv4/IPv6-Adressen prüfen oder IPv4-CIDR-Masken, Bereiche, Hosts und Zugehörigkeit lokal berechnen.",
     input: "Adresse oder CIDR",
     placeholder: "192.168.1.10/24",
     checkIP: "IP prüfen",
@@ -211,7 +203,6 @@ const cidrMessages = {
   },
   "pt-BR": {
     title: "IP / CIDR",
-    info: "Inspecione IPv4/IPv6 ou calcule máscaras, intervalos, hosts e pertencimento CIDR IPv4 localmente.",
     input: "Endereço ou CIDR",
     placeholder: "192.168.1.10/24",
     checkIP: "Verificar IP",
@@ -237,7 +228,6 @@ const cidrMessages = {
   },
   ru: {
     title: "IP / CIDR",
-    info: "Локальная проверка IPv4/IPv6 и расчёт масок, диапазонов, хостов и вхождения IPv4 CIDR.",
     input: "Адрес или CIDR",
     placeholder: "192.168.1.10/24",
     checkIP: "Проверить IP",

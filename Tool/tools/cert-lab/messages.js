@@ -1,7 +1,6 @@
 export const messages = {
   en: {
     title: "Certificate Lab",
-    info: "Inspect X.509 certificates from PEM locally. Nothing is uploaded.",
     pem: "PEM",
     placeholder: "-----BEGIN CERTIFICATE-----",
     import: "Import",
@@ -33,7 +32,6 @@ export const messages = {
   },
   "zh-Hans": {
     title: "证书查看",
-    info: "本地解析 PEM 中的 X.509 证书，不会上传。",
     pem: "PEM",
     placeholder: "-----BEGIN CERTIFICATE-----",
     import: "导入",
@@ -65,7 +63,6 @@ export const messages = {
   },
   "zh-Hant": {
     title: "憑證檢視",
-    info: "本機解析 PEM 中的 X.509 憑證，不上傳。",
     pem: "PEM",
     placeholder: "-----BEGIN CERTIFICATE-----",
     import: "匯入",
@@ -97,7 +94,6 @@ export const messages = {
   },
   ja: {
     title: "証明書ラボ",
-    info: "PEM の X.509 証明書をローカルで検査。送信しません。",
     pem: "PEM",
     placeholder: "-----BEGIN CERTIFICATE-----",
     import: "読込",
@@ -129,7 +125,6 @@ export const messages = {
   },
   ko: {
     title: "인증서 랩",
-    info: "PEM X.509 인증서를 로컬에서 검사합니다. 업로드하지 않습니다.",
     pem: "PEM",
     placeholder: "-----BEGIN CERTIFICATE-----",
     import: "가져오기",
@@ -161,7 +156,6 @@ export const messages = {
   },
   es: {
     title: "Certificate Lab",
-    info: "Inspecciona certificados X.509 PEM en local. No se sube nada.",
     pem: "PEM",
     placeholder: "-----BEGIN CERTIFICATE-----",
     import: "Importar",
@@ -193,7 +187,6 @@ export const messages = {
   },
   fr: {
     title: "Certificate Lab",
-    info: "Inspectez des certificats X.509 PEM en local. Rien n’est envoyé.",
     pem: "PEM",
     placeholder: "-----BEGIN CERTIFICATE-----",
     import: "Importer",
@@ -225,7 +218,6 @@ export const messages = {
   },
   de: {
     title: "Certificate Lab",
-    info: "X.509-Zertifikate aus PEM lokal prüfen. Nichts wird hochgeladen.",
     pem: "PEM",
     placeholder: "-----BEGIN CERTIFICATE-----",
     import: "Import",
@@ -257,7 +249,6 @@ export const messages = {
   },
   "pt-BR": {
     title: "Certificate Lab",
-    info: "Inspecione certificados X.509 PEM localmente. Nada é enviado.",
     pem: "PEM",
     placeholder: "-----BEGIN CERTIFICATE-----",
     import: "Importar",
@@ -289,7 +280,6 @@ export const messages = {
   },
   ru: {
     title: "Certificate Lab",
-    info: "Локальный разбор X.509 из PEM. Ничего не загружается.",
     pem: "PEM",
     placeholder: "-----BEGIN CERTIFICATE-----",
     import: "Импорт",

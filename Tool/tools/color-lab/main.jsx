@@ -3,6 +3,7 @@ import { Eraser } from "@phosphor-icons/react";
 import {
   ActionGroup,
   Button,
+  ColorPicker,
   ExampleChips,
   Input,
   PropertyList,
@@ -16,7 +17,6 @@ import {
 import { useToolMessages } from "@/i18n.js";
 import { mountTool } from "@/runtime/mount-tool.jsx";
 import { parseColor } from "./color.js";
-import { ColorPicker } from "./color-picker.jsx";
 import { messages } from "./messages.js";
 
 const EXAMPLES = ["#0A84FF", "rgb(255, 149, 0)", "hsl(280, 60%, 45%)", "#34C759"];

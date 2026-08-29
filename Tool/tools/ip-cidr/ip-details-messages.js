@@ -1,7 +1,6 @@
 export const messages = {
   en: {
     title: 'IP / CIDR',
-    info: 'Inspect IPv4 and IPv6 addresses locally: integer, hex, reverse DNS labels, and address kind. No network lookups.',
     input: 'Address',
     placeholder: '192.168.1.10 or 2001:db8::1',
     clear: 'Clear',
@@ -35,7 +34,6 @@ export const messages = {
   },
   "zh-Hans": {
     title: 'IP / CIDR',
-    info: '本地查看 IPv4 / IPv6：整数、十六进制、反向 DNS 标签与地址类型。不做网络查询。',
     input: '地址',
     placeholder: '192.168.1.10 或 2001:db8::1',
     clear: '清空',
@@ -69,7 +67,6 @@ export const messages = {
   },
   "zh-Hant": {
     title: 'IP / CIDR',
-    info: '本機檢視 IPv4 / IPv6：整數、十六進位、反向 DNS 標籤與位址類型。不做網路查詢。',
     input: '位址',
     placeholder: '192.168.1.10 或 2001:db8::1',
     clear: '清除',
@@ -103,7 +100,6 @@ export const messages = {
   },
   "ja": {
     title: 'IP / CIDR',
-    info: 'IPv4 / IPv6 をローカル検査：整数・16 進・逆引きラベル・種別。ネットワーク照会なし。',
     input: 'アドレス',
     placeholder: '192.168.1.10 または 2001:db8::1',
     clear: 'クリア',
@@ -137,7 +133,6 @@ export const messages = {
   },
   "ko": {
     title: 'IP / CIDR',
-    info: 'IPv4/IPv6를 로컬에서 검사: 정수, 16진, 역방향 DNS, 유형. 네트워크 조회 없음.',
     input: '주소',
     placeholder: '192.168.1.10 또는 2001:db8::1',
     clear: '지우기',
@@ -171,7 +166,6 @@ export const messages = {
   },
   "es": {
     title: 'IP / CIDR',
-    info: 'Inspecciona IPv4/IPv6 en local: entero, hex, DNS inverso y tipo. Sin consultas de red.',
     input: 'Dirección',
     placeholder: '192.168.1.10 o 2001:db8::1',
     clear: 'Borrar',
@@ -205,7 +199,6 @@ export const messages = {
   },
   "fr": {
     title: 'IP / CIDR',
-    info: 'Inspectez IPv4/IPv6 en local : entier, hex, DNS inverse et type. Sans requêtes réseau.',
     input: 'Adresse',
     placeholder: '192.168.1.10 ou 2001:db8::1',
     clear: 'Effacer',
@@ -239,7 +232,6 @@ export const messages = {
   },
   "de": {
     title: 'IP / CIDR',
-    info: 'IPv4/IPv6 lokal prüfen: Integer, Hex, Reverse-DNS und Typ. Keine Netzabfragen.',
     input: 'Adresse',
     placeholder: '192.168.1.10 oder 2001:db8::1',
     clear: 'Leeren',
@@ -273,7 +265,6 @@ export const messages = {
   },
   "pt-BR": {
     title: 'IP / CIDR',
-    info: 'Inspecione IPv4/IPv6 localmente: inteiro, hex, DNS reverso e tipo. Sem consultas de rede.',
     input: 'Endereço',
     placeholder: '192.168.1.10 ou 2001:db8::1',
     clear: 'Limpar',
@@ -307,7 +298,6 @@ export const messages = {
   },
   "ru": {
     title: 'IP / CIDR',
-    info: 'Локально разбирайте IPv4/IPv6: целое, hex, reverse DNS и тип. Без сетевых запросов.',
     input: 'Адрес',
     placeholder: '192.168.1.10 или 2001:db8::1',
     clear: 'Очистить',

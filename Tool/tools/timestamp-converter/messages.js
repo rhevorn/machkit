@@ -38,7 +38,6 @@ export const messages = {
     weeks: "Weeks",
     months: "Months",
     years: "Years",
-    info: "Unix timestamps measure elapsed time since January 1, 1970 UTC. Edit either field and the other updates automatically.",
   },
   "zh-Hans": {
     title: "时间戳转换",
@@ -79,7 +78,6 @@ export const messages = {
     weeks: "周",
     months: "月",
     years: "年",
-    info: "Unix 时间戳表示自 UTC 1970 年 1 月 1 日以来经过的时间。修改时间戳或日期中任意一项，另一项会自动同步。",
   },
   "zh-Hant": {
     title: "時間戳轉換",
@@ -120,7 +118,6 @@ export const messages = {
     weeks: "週",
     months: "月",
     years: "年",
-    info: "Unix 時間戳表示自 UTC 1970 年 1 月 1 日以來經過的時間。修改時間戳或日期中任意一項，另一項會自動同步。",
   },
   ja: {
     title: "タイムスタンプ変換",
@@ -161,7 +158,6 @@ export const messages = {
     weeks: "週",
     months: "月",
     years: "年",
-    info: "Unix タイムスタンプは 1970 年 1 月 1 日 UTC からの経過時間です。どちらかを編集すると、もう一方が自動更新されます。",
   },
   ko: {
     title: "타임스탬프 변환",
@@ -202,7 +198,6 @@ export const messages = {
     weeks: "주",
     months: "월",
     years: "년",
-    info: "Unix 타임스탬프는 1970년 1월 1일 UTC 이후 경과 시간을 나타냅니다. 한쪽을 수정하면 다른 쪽이 자동으로 동기화됩니다.",
   },
   es: {
     title: "Conversor de marcas de tiempo",
@@ -243,7 +238,6 @@ export const messages = {
     weeks: "Semanas",
     months: "Meses",
     years: "Años",
-    info: "Las marcas Unix miden el tiempo desde el 1 de enero de 1970 UTC. Edita cualquiera de los campos y el otro se actualiza solo.",
   },
   fr: {
     title: "Convertisseur d’horodatage",
@@ -284,7 +278,6 @@ export const messages = {
     weeks: "Semaines",
     months: "Mois",
     years: "Années",
-    info: "Les horodatages Unix mesurent le temps écoulé depuis le 1er janvier 1970 UTC. Modifiez l’un des champs et l’autre se met à jour automatiquement.",
   },
   de: {
     title: "Zeitstempel-Konverter",
@@ -325,7 +318,6 @@ export const messages = {
     weeks: "Wochen",
     months: "Monate",
     years: "Jahre",
-    info: "Unix-Zeitstempel messen die seit dem 1. Januar 1970 UTC vergangene Zeit. Ändern Sie eines der Felder, das andere aktualisiert sich automatisch.",
   },
   "pt-BR": {
     title: "Conversor de timestamp",
@@ -366,7 +358,6 @@ export const messages = {
     weeks: "Semanas",
     months: "Meses",
     years: "Anos",
-    info: "Timestamps Unix medem o tempo decorrido desde 1º de janeiro de 1970 UTC. Edite qualquer campo e o outro atualiza automaticamente.",
   },
   ru: {
     title: "Конвертер временных меток",
@@ -407,6 +398,5 @@ export const messages = {
     weeks: "Недели",
     months: "Месяцы",
     years: "Годы",
-    info: "Временные метки Unix измеряют время с 1 января 1970 года по UTC. Измените любое поле — второе обновится автоматически.",
   },
 };

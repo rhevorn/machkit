@@ -1,7 +1,6 @@
 export const messages = {
   en: {
     title: "Regex Lab",
-    info: "Test regular expressions locally: highlight matches, inspect capture groups, and try common replacements.",
     pattern: "Pattern",
     flags: "Flags",
     test: "Test string",
@@ -39,7 +38,6 @@ export const messages = {
   },
   "zh-Hans": {
     title: "正则实验室",
-    info: "在本地测试正则：高亮匹配、查看分组捕获，并试用常用替换。",
     pattern: "表达式",
     flags: "标志",
     test: "测试文本",
@@ -77,7 +75,6 @@ export const messages = {
   },
   "zh-Hant": {
     title: "正則實驗室",
-    info: "在本機測試正則：高亮符合項目、檢視分組擷取，並試用常用取代。",
     pattern: "運算式",
     flags: "旗標",
     test: "測試文字",
@@ -115,7 +112,6 @@ export const messages = {
   },
   ja: {
     title: "正規表現ラボ",
-    info: "正規表現をローカルで検証。一致箇所の強調、キャプチャ、よく使う置換に対応。",
     pattern: "パターン",
     flags: "フラグ",
     test: "テスト文字列",
@@ -153,7 +149,6 @@ export const messages = {
   },
   ko: {
     title: "정규식 랩",
-    info: "정규식을 로컬에서 테스트합니다. 일치 강조, 캡처 그룹, 자주 쓰는 치환을 지원합니다.",
     pattern: "패턴",
     flags: "플래그",
     test: "테스트 문자열",
@@ -191,7 +186,6 @@ export const messages = {
   },
   es: {
     title: "Laboratorio regex",
-    info: "Prueba expresiones regulares en local: resalta coincidencias, grupos de captura y sustituciones habituales.",
     pattern: "Patrón",
     flags: "Flags",
     test: "Texto de prueba",
@@ -229,7 +223,6 @@ export const messages = {
   },
   fr: {
     title: "Labo regex",
-    info: "Testez des expressions régulières en local : surlignage, groupes de capture et remplacements courants.",
     pattern: "Motif",
     flags: "Options",
     test: "Texte de test",
@@ -267,7 +260,6 @@ export const messages = {
   },
   de: {
     title: "Regex-Labor",
-    info: "Reguläre Ausdrücke lokal prüfen: Treffer hervorheben, Gruppen erfassen und gängige Ersetzungen testen.",
     pattern: "Muster",
     flags: "Flags",
     test: "Testtext",
@@ -305,7 +297,6 @@ export const messages = {
   },
   "pt-BR": {
     title: "Lab de regex",
-    info: "Teste expressões regulares localmente: destaque de matches, grupos de captura e substituições comuns.",
     pattern: "Padrão",
     flags: "Flags",
     test: "Texto de teste",
@@ -343,7 +334,6 @@ export const messages = {
   },
   ru: {
     title: "Лаборатория regex",
-    info: "Проверяйте регулярные выражения локально: подсветка совпадений, группы захвата и типичные замены.",
     pattern: "Шаблон",
     flags: "Флаги",
     test: "Тестовая строка",

@@ -1,7 +1,5 @@
 import React from "react";
 import { cva } from "class-variance-authority";
-import { Info } from "@phosphor-icons/react";
-import * as Popover from "@radix-ui/react-popover";
 import { cn } from "@/lib/utils.js";
 
 const buttonVariants = cva(
@@ -39,29 +37,5 @@ export function IconButton({ label, children, className, ...props }) {
     <Button variant="ghost" size="icon" aria-label={label} title={label} className={className} {...props}>
       {children}
     </Button>
-  );
-}
-
-export function ToolInfoButton({ info, className }) {
-  if (!info) return null;
-
-  return (
-    <Popover.Root>
-      <Popover.Trigger asChild>
-        <IconButton label={info} className={cn("text-tertiary", className)}>
-          <Info size={16} />
-        </IconButton>
-      </Popover.Trigger>
-      <Popover.Portal>
-        <Popover.Content
-          align="end"
-          sideOffset={8}
-          className="z-50 w-[294px] rounded-panel border border-border bg-surface p-3.5 text-xs leading-relaxed text-secondary shadow-popover outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
-        >
-          {info}
-          <Popover.Arrow className="fill-surface" />
-        </Popover.Content>
-      </Popover.Portal>
-    </Popover.Root>
   );
 }

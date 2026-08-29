@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { DownloadSimple, Image as ImageIcon } from "@phosphor-icons/react";
 import {
   Button,
+  ColorPicker,
   Input,
   SelectControl,
   Slider,
@@ -12,7 +13,6 @@ import {
 import { useToolMessages } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
 import { mountTool } from "@/runtime/mount-tool.jsx";
-import { ColorPicker } from "../color-lab/color-picker.jsx";
 import {
   defaultMargin,
   defaultSize,

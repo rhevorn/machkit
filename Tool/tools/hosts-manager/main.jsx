@@ -11,6 +11,7 @@ import { mountTool } from "@/runtime/mount-tool.jsx";
 
 import { labels } from "./messages.js";
 import { createOperationQueue } from "./operation-queue.js";
+import { localizePresetEnvironmentName, shouldKeepLocalDrafts } from "./hosts.js";
 
 const SIDEBAR_ITEM_CLASS = "h-12 min-h-12 shrink-0 py-2";
 
@@ -75,7 +76,7 @@ function HostsManager() {
         sharedContent: nextSharedContent,
         revision: dataRef.current?.revision,
       }));
-      const hasNewerLocalEdits = editRevisionRef.current !== localEditRevision;
+      const hasNewerLocalEdits = shouldKeepLocalDrafts(editRevisionRef.current, localEditRevision);
       if (hasNewerLocalEdits) {
         dataRef.current = {
           ...nextData,
@@ -142,12 +143,7 @@ function HostsManager() {
     await save(nextDrafts);
   };
 
-  const environmentName = (environment) => {
-    if (environment.id.endsWith("0001") && environment.name === "Development") return text.development;
-    if (environment.id.endsWith("0002") && environment.name === "Testing") return text.testing;
-    if (environment.id.endsWith("0003") && environment.name === "Production") return text.production;
-    return environment.name;
-  };
+  const environmentName = (environment) => localizePresetEnvironmentName(environment, text);
 
   if (!data) {
     return (
@@ -303,15 +299,18 @@ function EnvironmentRow({ row, text, busy, selected, active, onSelect, onActivat
           aria-hidden="true"
         />
       ) : null}
-      <button
-        type="button"
+      <Button
+        variant="ghost"
         onClick={() => onSelect(row.id)}
         aria-current={selected ? "page" : undefined}
-        className="flex min-h-12 min-w-0 flex-1 items-center gap-2 px-2 text-left outline-none focus-visible:ring-2 focus-visible:ring-accent/35"
+        className={cn(
+          "h-auto min-h-12 min-w-0 flex-1 justify-start gap-2 px-2 font-normal",
+          selected ? "bg-transparent text-accent hover:bg-transparent hover:text-accent" : "text-secondary hover:bg-transparent hover:text-foreground",
+        )}
       >
         {Icon ? <Icon size={16} className={cn("shrink-0", selected ? "text-accent" : "text-secondary")} /> : null}
         <span className={cn("min-w-0 flex-1 truncate text-[12.5px]", selected && "font-medium")}>{row.name}</span>
-      </button>
+      </Button>
       <RadioDot
         checked={active}
         disabled={active || busy}
@@ -326,17 +325,17 @@ function EnvironmentRow({ row, text, busy, selected, active, onSelect, onActivat
             style={{ left: menu.x, top: menu.y }}
             onMouseDown={(event) => event.stopPropagation()}
           >
-            <button
-              type="button"
+            <Button
+              variant="ghost"
               role="menuitem"
-              className="flex w-full items-center px-3 py-1.5 text-left text-xs text-danger outline-none hover:bg-danger/10"
+              className="h-auto w-full justify-start rounded-none px-3 py-1.5 text-xs font-normal text-danger hover:bg-danger/10 hover:text-danger"
               onClick={() => {
                 setMenu(null);
                 onDelete(row.id);
               }}
             >
               {text.delete}
-            </button>
+            </Button>
           </div>,
           document.body,
         )

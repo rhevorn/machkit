@@ -112,11 +112,12 @@ export const machkit = Object.freeze({
     }
 
     let timeoutID = 0;
+    let timedOut = false;
     const deadline = new Promise((_, reject) => {
-      timeoutID = window.setTimeout(
-        () => reject(new Error(`The ${method} operation timed out.`)),
-        timeout,
-      );
+      timeoutID = window.setTimeout(() => {
+        timedOut = true;
+        reject(new Error(`The ${method} operation timed out.`));
+      }, timeout);
     });
 
     try {
@@ -124,6 +125,17 @@ export const machkit = Object.freeze({
         Promise.resolve(handler.postMessage({ protocolVersion: 1, method, params })),
         deadline,
       ]);
+    } catch (error) {
+      if (timedOut && method === "curlLab.run") {
+        try {
+          await Promise.resolve(
+            handler.postMessage({ protocolVersion: 1, method: "curlLab.cancel", params: {} }),
+          );
+        } catch {
+          // Best-effort cancel after the waiter already timed out.
+        }
+      }
+      throw error;
     } finally {
       window.clearTimeout(timeoutID);
     }
@@ -195,11 +207,11 @@ export const machkit = Object.freeze({
   },
 
   curlLab(action, payload = {}, options = {}) {
-    if (!/^(run)$/.test(action)) {
+    if (!/^(run|cancel)$/.test(action)) {
       return Promise.reject(new Error(`Unsupported cURL Lab operation: ${action}`));
     }
     return this.request(`curlLab.${action}`, payload, {
-      timeout: options.timeout ?? 45_000,
+      timeout: options.timeout ?? (action === "cancel" ? 10_000 : 45_000),
     });
   },
 

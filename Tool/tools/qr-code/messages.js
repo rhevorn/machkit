@@ -1,7 +1,6 @@
 export const messages = {
   en: {
     title: "QR Code",
-    info: "Generate QR codes locally with colors, module shapes, and an optional center logo. Nothing is uploaded.",
     content: "Content",
     placeholder: "https://machkit.app or any text",
     style: "Style",
@@ -39,7 +38,6 @@ export const messages = {
   },
   "zh-Hans": {
     title: "二维码",
-    info: "本地生成二维码，可调颜色、码点形状，并可加中心 Logo，不会上传。",
     content: "内容",
     placeholder: "https://machkit.app 或任意文本",
     style: "样式",
@@ -77,7 +75,6 @@ export const messages = {
   },
   "zh-Hant": {
     title: "QR 碼",
-    info: "本機產生 QR 碼，可調顏色、模組形狀，並可加中心 Logo，不會上傳。",
     content: "內容",
     placeholder: "https://machkit.app 或任意文字",
     style: "樣式",
@@ -115,7 +112,6 @@ export const messages = {
   },
   ja: {
     title: "QR コード",
-    info: "色・モジュール形状・中央ロゴ付き QR をローカル生成。アップロードしません。",
     content: "内容",
     placeholder: "https://machkit.app または任意の文字",
     style: "スタイル",
@@ -153,7 +149,6 @@ export const messages = {
   },
   ko: {
     title: "QR 코드",
-    info: "색상·모듈 모양·중앙 로고 QR을 로컬에서 생성합니다. 업로드하지 않습니다.",
     content: "내용",
     placeholder: "https://machkit.app 또는 임의 텍스트",
     style: "스타일",
@@ -191,7 +186,6 @@ export const messages = {
   },
   es: {
     title: "Código QR",
-    info: "Genera QR locales con colores, formas de módulo y logo central opcional. No se sube nada.",
     content: "Contenido",
     placeholder: "https://machkit.app o cualquier texto",
     style: "Estilo",
@@ -229,7 +223,6 @@ export const messages = {
   },
   fr: {
     title: "Code QR",
-    info: "Générez des QR locaux avec couleurs, formes de modules et logo central. Rien n’est envoyé.",
     content: "Contenu",
     placeholder: "https://machkit.app ou tout texte",
     style: "Style",
@@ -267,7 +260,6 @@ export const messages = {
   },
   de: {
     title: "QR-Code",
-    info: "Erzeugen Sie QR lokal mit Farben, Modulformen und optionalem Logo. Nichts wird hochgeladen.",
     content: "Inhalt",
     placeholder: "https://machkit.app oder beliebiger Text",
     style: "Stil",
@@ -305,7 +297,6 @@ export const messages = {
   },
   "pt-BR": {
     title: "Código QR",
-    info: "Gere QR localmente com cores, formas de módulo e logo central. Nada é enviado.",
     content: "Conteúdo",
     placeholder: "https://machkit.app ou qualquer texto",
     style: "Estilo",
@@ -343,7 +334,6 @@ export const messages = {
   },
   ru: {
     title: "QR-код",
-    info: "Локально создавайте QR с цветами, формой модулей и логотипом. Ничего не загружается.",
     content: "Содержимое",
     placeholder: "https://machkit.app или любой текст",
     style: "Стиль",

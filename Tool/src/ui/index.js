@@ -1,5 +1,6 @@
-export { Button, IconButton, ToolInfoButton } from "./button.jsx";
+export { Button, IconButton } from "./button.jsx";
 export { CheckboxField } from "./checkbox.jsx";
+export { ColorPicker } from "./color-picker.jsx";
 export { DateTimePicker } from "./date-time-picker.jsx";
 export { EditorPane, SplitWorkspace } from "./editor-pane.jsx";
 export { ExampleChips } from "./example-chips.jsx";

@@ -362,12 +362,20 @@ function CurlLabTool() {
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [bodyFormatError, setBodyFormatError] = useState(null);
   const runLock = useRef(false);
+  const runGeneration = useRef(0);
 
   const fetchSnippet = useMemo(() => buildFetch(request), [request]);
   const bodyMode = bodyModes.includes(request.bodyMode) ? request.bodyMode : "none";
   const codeText = codeMode === "fetch" ? fetchSnippet : curlText;
   const enabledFlagCount = [request.insecure, request.followRedirects, request.compressed].filter(Boolean)
     .length;
+
+  useEffect(() => () => {
+    runGeneration.current += 1;
+    if (machkit.isEmbedded) {
+      machkit.curlLab("cancel").catch(() => {});
+    }
+  }, []);
 
   useEffect(() => {
     if (editSource !== "form") return;
@@ -448,6 +456,7 @@ function CurlLabTool() {
       return;
     }
 
+    const generation = ++runGeneration.current;
     runLock.current = true;
     setRunning(true);
     setRunError(null);
@@ -468,6 +477,7 @@ function CurlLabTool() {
         followRedirects: Boolean(request.followRedirects),
         compressed: Boolean(request.compressed),
       });
+      if (generation !== runGeneration.current) return;
       if (result?.error && !result?.ok && result?.statusCode == null) {
         setRunResult(result);
         setRunError(String(result.error));
@@ -476,11 +486,27 @@ function CurlLabTool() {
         setRunError(null);
       }
     } catch (error) {
+      if (generation !== runGeneration.current) return;
       setRunResult(null);
       setRunError(error instanceof Error ? error.message : "run-failed");
     } finally {
-      setRunning(false);
-      runLock.current = false;
+      if (generation === runGeneration.current) {
+        setRunning(false);
+        runLock.current = false;
+      }
+    }
+  }
+
+  async function cancelRequest() {
+    if (!running) return;
+    runGeneration.current += 1;
+    runLock.current = false;
+    setRunning(false);
+    setRunError("canceled");
+    try {
+      await machkit.curlLab("cancel");
+    } catch {
+      // Native cancel is best-effort; UI already reflects canceled state.
     }
   }
 
@@ -527,7 +553,7 @@ function CurlLabTool() {
         {status ? <StatusStrip tone={status.tone}>{status.label}</StatusStrip> : null}
 
         <HorizontalSplit
-          label={text.splitResize || "Resize panels"}
+          label={text.splitResize}
           left={
             <section className="flex min-h-0 flex-1 flex-col overflow-hidden">
               <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pt-0.5">
@@ -547,16 +573,27 @@ function CurlLabTool() {
                     spellCheck={false}
                   />
                   <ActionGroup>
-                    <Button
-                      variant="default"
-                      size="sm"
-                      className="shrink-0"
-                      onClick={runRequest}
-                      disabled={running}
-                    >
-                      <Play size={15} weight="fill" />
-                      {running ? text.running : text.run}
-                    </Button>
+                    {running ? (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="shrink-0"
+                        onClick={cancelRequest}
+                      >
+                        <X size={15} />
+                        {text.cancel}
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="shrink-0"
+                        onClick={runRequest}
+                      >
+                        <Play size={15} weight="fill" />
+                        {text.run}
+                      </Button>
+                    )}
                   </ActionGroup>
                 </ToolToolbar>
 
@@ -583,7 +620,7 @@ function CurlLabTool() {
                         onClick={formatBody}
                       >
                         <BracketsCurly size={15} />
-                        {text.formatBody || "Format"}
+                        {text.formatBody}
                       </Button>
                     </div>
                     <Textarea
