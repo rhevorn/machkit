@@ -362,7 +362,6 @@ struct MachKitApp: App {
     @AppStorage(AppPreferenceKey.appearance) private var appearanceRawValue = AppAppearance.system.rawValue
     @AppStorage(AppPreferenceKey.showMenuBar) private var showMenuBar = true
     @StateObject private var model = CleanerViewModel()
-    @StateObject private var statusBarMonitor = StatusBarMonitor()
 
     private var language: AppLanguage {
         AppLanguage(rawValue: languageRawValue) ?? .system
@@ -386,9 +385,7 @@ struct MachKitApp: App {
                 )
                 .environment(\.locale, language.locale)
                 .preferredColorScheme(appearance.colorScheme)
-                .task { statusBarMonitor.setEnabled(showMenuBar) }
                 .onChange(of: showMenuBar) { _, enabled in
-                    statusBarMonitor.setEnabled(enabled)
                     if !enabled { MachKitAppLifecycle.showInForeground() }
                 }
         }
@@ -428,10 +425,9 @@ struct MachKitApp: App {
             image: "MenuBarMark",
             isInserted: $showMenuBar
         ) {
-            StatusBarMenuView(monitor: statusBarMonitor, model: model)
-                .background(GlobalShortcutBridge(model: model))
+            StatusBarMenuView()
                 .environment(\.locale, language.locale)
         }
-        .menuBarExtraStyle(.window)
+        .menuBarExtraStyle(.menu)
     }
 }

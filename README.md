@@ -24,7 +24,7 @@ MachKit has no analytics service or cloud backend. Scans read local file metadat
 - **Monitor** — Follow CPU, memory pressure, thermal state, and busy apps ([monitoring details](docs/monitoring.md))
 - **Network** — Inspect traffic, connections, listening ports, routes, VPN/TUN, and proxies
 - **System** — Review login items, background activity, and extensions
-- **Menu bar** — Keep a lightweight monitor for CPU, memory, network speed, and quick actions
+- **Menu bar** — Keep MachKit in the menu bar for quick access to features and Quit
 - **Screenshot** — Capture any screen region from a global shortcut, freeze the desktop, annotate with rectangles, ellipses, arrows, pen, highlight, mosaic, and text, then copy or save—all on your Mac, without opening another window
 - **Utilities** — Open focused local tools from the Tools workspace, menu, or global shortcuts:
   - **Hosts Manager** — View `/etc/hosts` and switch shared / environment mappings safely

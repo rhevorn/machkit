@@ -1,7 +1,7 @@
 import Foundation
 import MachKitCore
 
-/// Shared sampling entry point so performance, home dashboard, and menu bar reuse
+/// Shared sampling entry point so performance and home dashboard reuse
 /// one monitor instance, consistent counter baselines, and short-lived nettop cache.
 actor SystemMonitorService {
     static let shared = SystemMonitorService()

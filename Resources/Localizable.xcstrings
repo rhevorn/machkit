@@ -57708,61 +57708,61 @@
         }
       }
     },
-    "Show CPU, memory, network speed, and quick actions in the menu bar" : {
+    "Keep MachKit available from the menu bar" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zeigt CPU, Arbeitsspeicher, Netzwerkgeschwindigkeit und Schnellaktionen in der Menüleiste"
+            "value" : "MachKit dauerhaft in der Menüleiste bereithalten"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Muestra CPU, memoria, velocidad de red y acciones rápidas en la barra de menús"
+            "value" : "Mantener MachKit disponible en la barra de menús"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Affiche le CPU, la mémoire, le débit réseau et des actions rapides dans la barre des menus"
+            "value" : "Garder MachKit disponible dans la barre des menus"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "メニューバーで CPU、メモリ、通信速度、クイック操作を表示します"
+            "value" : "メニューバーから MachKit をすばやく開けるようにする"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "메뉴 막대에서 CPU, 메모리, 네트워크 속도 및 빠른 작업을 표시합니다"
+            "value" : "메뉴 막대에서 MachKit에 빠르게 접근할 수 있게 유지합니다"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mostra CPU, memória, velocidade da rede e ações rápidas na barra de menus"
+            "value" : "Manter o MachKit disponível na barra de menus"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Показывает ЦП, память, скорость сети и быстрые действия в строке меню"
+            "value" : "Держать MachKit доступным в строке меню"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在菜单栏中查看 CPU、内存、网速和快捷操作"
+            "value" : "在菜单栏中保留 MachKit，方便快速打开"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在選單列中查看 CPU、記憶體、網速和快速操作"
+            "value" : "在選單列保留 MachKit，方便快速開啟"
           }
         }
       }

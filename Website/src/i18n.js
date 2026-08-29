@@ -68,7 +68,7 @@ export const messages = {
           items: [
             ["Network", "Traffic, connections, listening ports, routes, VPN/TUN, and proxies.", "./features/network-inspector/"],
             ["System", "Login items, background tasks, application extensions, and possible residues."],
-            ["Menu bar", "CPU, memory, network speed, and quick access without opening the main window."],
+            ["Menu bar", "Quick access to MachKit features without hunting for the dock icon."],
           ],
         },
         {
@@ -281,7 +281,7 @@ export const messages = {
           items: [
             ["网络", "流量、连接、监听端口、路由、VPN/TUN 和代理。", "./features/network-inspector/"],
             ["系统", "登录项、后台任务、应用扩展和可能的残留。"],
-            ["菜单栏", "无需打开主窗口即可查看 CPU、内存、网速和快捷操作。"],
+            ["菜单栏", "常驻菜单栏，快速打开功能，无需在程序坞里找图标。"],
           ],
         },
         {

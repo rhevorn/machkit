@@ -4,7 +4,7 @@ MachKit samples system metrics locally on your Mac. Nothing is uploaded to a ser
 
 ## Architecture
 
-- **`SystemMonitorService`** (app target) owns a single `PerformanceMonitor` and `NetworkScanner`, so the performance page, home dashboard, and menu bar share counter baselines and reuse short-lived `nettop` results.
+- **`SystemMonitorService`** (app target) owns a single `PerformanceMonitor` and `NetworkScanner`, so the performance page and home dashboard share counter baselines and reuse short-lived `nettop` results.
 - **`PerformanceMonitor`** (app target) reads Mach APIs, IOKit, and optional SoCMetrics on Apple Silicon.
 - **`NetworkScanner`** (`MachKitCore`) shells out to `nettop`, `lsof`, `netstat`, and related tools for network diagnostics.
 - **`PerformanceSamplingMath`** (`MachKitCore`) contains pure helpers for rates, memory pressure, and bundle aggregation. These are covered by unit tests.
@@ -15,9 +15,8 @@ MachKit samples system metrics locally on your Mac. Nothing is uploaded to a ser
 |---------|----------|----------------|
 | Performance page | 2 s (active app) / 30 s (inactive) | Full snapshot |
 | Home dashboard | 3 s (active) / 30 s (inactive) | CPU, memory pressure, thermal, primary interface speed |
-| Menu bar popover | 2 s while open | CPU, memory, primary interface speed |
 
-Sampling stops when you leave the relevant page or close the menu bar popover.
+Sampling stops when you leave the relevant page.
 
 ## Metrics and data sources
 

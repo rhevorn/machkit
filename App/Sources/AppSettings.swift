@@ -86,7 +86,7 @@ struct AppSettingsView: View {
                         icon: "menubar.rectangle",
                         color: .cyan,
                         title: "Keep in Menu Bar",
-                        detail: "Show CPU, memory, network speed, and quick actions in the menu bar"
+                        detail: "Keep MachKit available from the menu bar"
                     ) {
                         Toggle(isOn: $showMenuBar) { EmptyView() }
                             .labelsHidden()
