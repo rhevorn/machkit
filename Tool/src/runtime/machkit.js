@@ -248,6 +248,44 @@ export const machkit = Object.freeze({
     });
   },
 
+  /**
+   * Saves binary content via native save panel (embedded) or browser download.
+   * @returns {Promise<{ path?: string, name: string } | null>}
+   */
+  async saveFile(options = {}) {
+    const name = String(options.name ?? "download.bin").replace(/[/\\]/g, "_");
+    const dataBase64 = String(options.dataBase64 ?? "");
+    if (!name || !dataBase64) return null;
+
+    if (this.isEmbedded) {
+      const result = await this.request("files.save", { name, dataBase64 });
+      if (!result || result.canceled) return null;
+      return {
+        path: typeof result.path === "string" ? result.path : undefined,
+        name: typeof result.name === "string" ? result.name : name,
+      };
+    }
+
+    const binary = atob(dataBase64);
+    const bytes = new Uint8Array(binary.length);
+    for (let index = 0; index < binary.length; index += 1) {
+      bytes[index] = binary.charCodeAt(index);
+    }
+    const mime =
+      typeof options.mimeType === "string" && options.mimeType
+        ? options.mimeType
+        : "application/octet-stream";
+    const url = URL.createObjectURL(new Blob([bytes], { type: mime }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = name;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    return { name };
+  },
+
   async getItem(key) {
     const storageKey = String(key ?? "");
     if (this.isEmbedded) {

@@ -30,7 +30,7 @@ function readPoint(event, element) {
  * Popover color picker anchored to a swatch trigger.
  * Replaces native `<input type="color">`, which mis-positions in WKWebView.
  */
-export function ColorPicker({ value, onChange, label, className }) {
+export function ColorPicker({ value, onChange, label, className, side = "bottom", align = "end" }) {
   const [open, setOpen] = useState(false);
   const [hsv, setHsv] = useState(() => hsvFromValue(value));
   const svRef = useRef(null);
@@ -102,8 +102,8 @@ export function ColorPicker({ value, onChange, label, className }) {
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Content
-          side="bottom"
-          align="end"
+          side={side}
+          align={align}
           sideOffset={8}
           collisionPadding={16}
           avoidCollisions

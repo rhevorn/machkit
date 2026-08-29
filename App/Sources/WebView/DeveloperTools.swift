@@ -260,7 +260,7 @@ enum DeveloperToolRegistry {
             ],
             icon: "qrcode",
             widthClass: .compact,
-            capabilities: [.clipboard],
+            capabilities: [.clipboard, .files],
             presentation: .bundledWeb(entryFile: "WebTools/tools/qr-code/index.html")
         ),
         DeveloperTool(

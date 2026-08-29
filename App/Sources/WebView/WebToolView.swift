@@ -115,6 +115,7 @@ private struct BundledWebView: NSViewRepresentable {
         let webView = ContextMenuDisabledWebView(frame: .zero, configuration: configuration)
         webView.underPageBackgroundColor = .clear
         webView.navigationDelegate = context.coordinator
+        webView.uiDelegate = context.coordinator
         Self.disableElasticScrolling(in: webView)
         context.coordinator.localeIdentifier = localeIdentifier
         context.coordinator.appearance = appearance
@@ -186,7 +187,7 @@ private struct BundledWebView: NSViewRepresentable {
         """
     }
 
-    final class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandlerWithReply, WKURLSchemeHandler {
+    final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandlerWithReply, WKURLSchemeHandler {
         private let toolID: String
         private let allowedRoot: URL?
         private let entryFile: String
@@ -366,6 +367,43 @@ private struct BundledWebView: NSViewRepresentable {
                         "path": url.path,
                         "name": url.lastPathComponent
                     ], nil)
+                } else {
+                    replyHandler(["canceled": true], nil)
+                }
+            case "files.save":
+                guard capabilities.contains(.files) else {
+                    replyHandler(nil, "File saving is not available to this tool.")
+                    return
+                }
+                guard let name = parameters["name"] as? String,
+                      let base64 = parameters["dataBase64"] as? String,
+                      let data = Data(base64Encoded: base64),
+                      !data.isEmpty,
+                      data.count <= 8_388_608 else {
+                    replyHandler(nil, "Invalid file payload.")
+                    return
+                }
+                let safeName = URL(fileURLWithPath: name).lastPathComponent
+                guard !safeName.isEmpty, safeName != "/", !safeName.hasPrefix(".") else {
+                    replyHandler(nil, "Invalid file name.")
+                    return
+                }
+                let panel = NSSavePanel()
+                panel.canCreateDirectories = true
+                panel.isExtensionHidden = false
+                panel.nameFieldStringValue = safeName
+                let response = panel.runModal()
+                if response == .OK, let url = panel.url {
+                    do {
+                        try data.write(to: url, options: .atomic)
+                        replyHandler([
+                            "canceled": false,
+                            "path": url.path,
+                            "name": url.lastPathComponent
+                        ], nil)
+                    } catch {
+                        replyHandler(nil, error.localizedDescription)
+                    }
                 } else {
                     replyHandler(["canceled": true], nil)
                 }
@@ -557,6 +595,29 @@ private struct BundledWebView: NSViewRepresentable {
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             BundledWebView.disableElasticScrolling(in: webView)
+        }
+
+        /// WKWebView will not open `<input type="file">` unless the UI delegate
+        /// presents an open panel and always completes the handler.
+        func webView(
+            _ webView: WKWebView,
+            runOpenPanelWith parameters: WKOpenPanelParameters,
+            initiatedByFrame frame: WKFrameInfo,
+            completionHandler: @escaping @MainActor @Sendable ([URL]?) -> Void
+        ) {
+            let panel = NSOpenPanel()
+            panel.canChooseFiles = true
+            panel.canChooseDirectories = parameters.allowsDirectories
+            panel.allowsMultipleSelection = parameters.allowsMultipleSelection
+            panel.resolvesAliases = true
+            panel.treatsFilePackagesAsDirectories = false
+            panel.begin { response in
+                if response == .OK {
+                    completionHandler(panel.urls)
+                } else {
+                    completionHandler(nil)
+                }
+            }
         }
 
         private func fail(_ task: any WKURLSchemeTask, code: Int) {

@@ -1,98 +1,239 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { CopySimple, DownloadSimple, Eraser, Image as ImageIcon } from "@phosphor-icons/react";
+import { DownloadSimple, Image as ImageIcon } from "@phosphor-icons/react";
 import {
-  ActionGroup,
   Button,
   Input,
-  ResultPanel,
-  SegmentedControl,
+  SelectControl,
+  Slider,
   StatusStrip,
-  Textarea,
   ToolContent,
-  ToolInfoButton,
   ToolPage,
-  ToolToolbar,
 } from "@/ui/index.js";
 import { useToolMessages } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
 import { mountTool } from "@/runtime/mount-tool.jsx";
+import { ColorPicker } from "../color-lab/color-picker.jsx";
 import {
+  defaultMargin,
   defaultSize,
+  dotShapes,
+  errorLevelPercents,
   errorLevels,
+  eyeShapes,
   generateQRDataURL,
+  margins,
   maxSize,
   minSize,
+  normalizeHexColor,
+  qrStyles,
   resolveSize,
 } from "./qr.js";
 import { messages } from "./messages.js";
 
-/** Compact window ≈ 720px; content pad ~56 → ~664. Right 280 fits 256px QR + panel pad. */
-const PREVIEW_COLUMN = "280px";
-const PREVIEW_MAX = 248;
+const STYLE_LABEL_KEYS = {
+  classic: "styleClassic",
+  rounded: "styleRounded",
+  dots: "styleDots",
+  inverted: "styleInverted",
+};
+
+const DOT_LABEL_KEYS = {
+  square: "shapeSquare",
+  rounded: "shapeRounded",
+  circle: "shapeCircle",
+};
+
+const EYE_LABEL_KEYS = {
+  square: "shapeSquare",
+  rounded: "shapeRounded",
+  circle: "shapeCircle",
+};
+
+/** CSS display size; bitmap is generated at 2× for Retina sharpness. */
+const PREVIEW_SIDE = 200;
+const PREVIEW_BITMAP = PREVIEW_SIDE * 2;
+
+async function saveDataURL(dataURL, filename) {
+  const comma = String(dataURL || "").indexOf(",");
+  const dataBase64 = comma >= 0 ? dataURL.slice(comma + 1) : "";
+  if (!dataBase64) return false;
+  const saved = await machkit.saveFile({
+    name: filename,
+    dataBase64,
+    mimeType: "image/png",
+  });
+  return Boolean(saved);
+}
+
+function ColorField({ label, value, onChange }) {
+  const hex = normalizeHexColor(value, "#000000");
+  const [draft, setDraft] = useState(hex);
+
+  useEffect(() => {
+    setDraft(hex);
+  }, [hex]);
+
+  return (
+    <div className="flex min-w-0 flex-col gap-1">
+      <span className="machkit-control-label">{label}</span>
+      <div className="flex h-[var(--machkit-size-control)] items-center gap-2">
+        <ColorPicker label={label} value={hex} onChange={onChange} align="start" />
+        <Input
+          className="min-w-0 flex-1 font-mono text-[13px] uppercase"
+          value={draft}
+          onChange={(event) => {
+            const next = event.target.value;
+            setDraft(next);
+            if (/^#?[0-9a-fA-F]{6}$/.test(next.trim())) {
+              onChange(normalizeHexColor(next, hex));
+            }
+          }}
+          onBlur={() => {
+            const next = normalizeHexColor(draft, hex);
+            setDraft(next);
+            onChange(next);
+          }}
+          spellCheck={false}
+          aria-label={label}
+        />
+      </div>
+    </div>
+  );
+}
+
+function OptionRow({ children }) {
+  return <div className="grid grid-cols-2 gap-2.5 [&>*]:min-w-0">{children}</div>;
+}
+
+function ControlField({ label, children }) {
+  return (
+    <div className="flex min-w-0 flex-col gap-1">
+      <span className="machkit-control-label">{label}</span>
+      {children}
+    </div>
+  );
+}
 
 function QrCodeTool() {
   const text = useToolMessages(messages);
   const logoInputRef = useRef(null);
   const [content, setContent] = useState("https://machkit.app");
   const [sizeText, setSizeText] = useState(String(defaultSize));
+  const [styleId, setStyleId] = useState(qrStyles[0].id);
+  const [dark, setDark] = useState(qrStyles[0].dark);
+  const [light, setLight] = useState(qrStyles[0].light);
+  const [dotShape, setDotShape] = useState(qrStyles[0].dotShape);
+  const [eyeShape, setEyeShape] = useState(qrStyles[0].eyeShape);
+  const [eyeDark, setEyeDark] = useState(qrStyles[0].dark);
+  const [margin, setMargin] = useState(defaultMargin);
   const [errorLevel, setErrorLevel] = useState("M");
   const [logoDataURL, setLogoDataURL] = useState("");
   const [result, setResult] = useState({ ok: false, error: "empty" });
   const [busy, setBusy] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   const size = useMemo(() => resolveSize(sizeText), [sizeText]);
-  const levelOptions = useMemo(
-    () => errorLevels.map((value) => ({ value, label: value })),
+  const level = logoDataURL ? "H" : errorLevel;
+  const levelIndex = Math.max(0, errorLevels.indexOf(level));
+  const levelMarks = useMemo(
+    () =>
+      errorLevels.map((item, index) => ({
+        value: index,
+        label: errorLevelPercents[item],
+      })),
     [],
+  );
+
+  const renderOptions = useMemo(
+    () => ({
+      errorLevel: level,
+      logoDataURL: logoDataURL || undefined,
+      dark,
+      light,
+      eyeDark,
+      dotShape,
+      eyeShape,
+      margin,
+    }),
+    [level, logoDataURL, dark, light, eyeDark, dotShape, eyeShape, margin],
+  );
+
+  const styleOptions = useMemo(
+    () =>
+      qrStyles.map((item) => ({
+        value: item.id,
+        label: text[STYLE_LABEL_KEYS[item.id]] || item.id,
+      })),
+    [text],
+  );
+  const dotOptions = useMemo(
+    () =>
+      dotShapes.map((value) => ({
+        value,
+        label: text[DOT_LABEL_KEYS[value]] || value,
+      })),
+    [text],
+  );
+  const eyeOptions = useMemo(
+    () =>
+      eyeShapes.map((value) => ({
+        value,
+        label: text[EYE_LABEL_KEYS[value]] || value,
+      })),
+    [text],
+  );
+  const marginOptions = useMemo(
+    () =>
+      margins.map((value) => ({
+        value: String(value),
+        label: text.marginModules.replace("{n}", String(value)),
+      })),
+    [text],
   );
 
   useEffect(() => {
     let cancelled = false;
     setBusy(true);
     generateQRDataURL(content, {
-      size,
-      errorLevel: logoDataURL ? "H" : errorLevel,
-      logoDataURL: logoDataURL || undefined,
+      ...renderOptions,
+      size: PREVIEW_BITMAP,
     }).then((next) => {
-      if (!cancelled) {
-        setResult(next);
-        setBusy(false);
-      }
+      if (cancelled) return;
+      setResult(next);
+      setBusy(false);
     });
     return () => {
       cancelled = true;
     };
-  }, [content, size, errorLevel, logoDataURL]);
+  }, [content, renderOptions]);
 
-  const status = !content.trim()
-    ? { tone: "neutral", label: text.empty }
+  const trimmed = content.trim();
+  const status = !trimmed
+    ? null
     : result.error === "too-large"
       ? { tone: "danger", label: text.tooLarge }
-      : result.error === "logo-failed"
+      : result.error === "logo-failed" || (!busy && !result.ok)
         ? { tone: "danger", label: text.failed }
-        : !result.ok
-          ? { tone: "danger", label: text.failed }
-          : {
-              tone: "info",
-              label: busy
-                ? text.generate
-                : `${result.bytes} ${text.bytes} · ${result.width}px · ${result.errorCorrectionLevel}${
-                    result.logoApplied ? ` · ${text.logo}` : ""
-                  }`,
-            };
+        : null;
 
-  const previewSide = result.ok ? Math.min(result.width, PREVIEW_MAX) : PREVIEW_MAX;
-
-  function downloadPng() {
-    if (!result.ok || !result.dataURL) return;
-    const link = document.createElement("a");
-    link.href = result.dataURL;
-    link.download = "qrcode.png";
-    link.click();
+  function applyStyle(id) {
+    const preset = qrStyles.find((item) => item.id === id) || qrStyles[0];
+    setStyleId(preset.id);
+    setDark(preset.dark);
+    setLight(preset.light);
+    setDotShape(preset.dotShape);
+    setEyeShape(preset.eyeShape);
+    setEyeDark(preset.dark);
   }
 
   function onLogoFile(file) {
-    if (!file || !String(file.type || "").startsWith("image/")) return;
+    if (!file) return;
+    const type = String(file.type || "");
+    const name = String(file.name || "");
+    const looksLikeImage =
+      type.startsWith("image/") ||
+      /\.(png|jpe?g|webp|gif|svg)$/i.test(name);
+    if (!looksLikeImage) return;
     const reader = new FileReader();
     reader.onload = () => {
       setLogoDataURL(String(reader.result || ""));
@@ -101,148 +242,198 @@ function QrCodeTool() {
     reader.readAsDataURL(file);
   }
 
-  function clearLogo() {
-    setLogoDataURL("");
-  }
-
   function commitSize() {
     setSizeText(String(resolveSize(sizeText)));
   }
 
+  async function downloadPng() {
+    if (!trimmed || downloading || !result.ok) return;
+    setDownloading(true);
+    try {
+      const next = await generateQRDataURL(content, {
+        ...renderOptions,
+        size,
+      });
+      if (next.ok) {
+        await saveDataURL(next.dataURL, `qrcode-${styleId}-${size}.png`);
+      }
+    } finally {
+      setDownloading(false);
+    }
+  }
+
+  const meta =
+    result.ok && result.version != null
+      ? text.versionMeta
+          .replace("{v}", String(result.version))
+          .replace("{n}", String(result.moduleCount))
+      : null;
+
   return (
-    <ToolPage title={text.title}>
-      <ToolContent className="flex flex-col gap-3 pt-3 pb-4">
-        <ToolToolbar className="flex-wrap gap-y-2 border-b border-border pb-3">
-          <div className="flex items-center gap-2">
-            <span className="machkit-control-label shrink-0">{text.size}</span>
-            <Input
-              className="w-[88px] shrink-0 text-center font-mono"
-              inputMode="numeric"
-              value={sizeText}
-              onChange={(event) => setSizeText(event.target.value.replace(/[^\d]/g, ""))}
-              onBlur={commitSize}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  event.currentTarget.blur();
-                }
-              }}
-              aria-label={text.size}
-              title={`${minSize}–${maxSize}px`}
-            />
-            <span className="text-xs text-tertiary">px</span>
-          </div>
+    <ToolPage title={text.title} adaptiveHeight={false}>
+      <ToolContent className="flex h-full min-h-0 flex-1 flex-col gap-2.5 overflow-auto pt-3 pb-4">
+        <div className="flex shrink-0 flex-col gap-1">
+          <label htmlFor="qr-content" className="machkit-control-label">
+            {text.content}
+          </label>
+          <Input
+            id="qr-content"
+            className="w-full font-mono text-[13px]"
+            value={content}
+            onChange={(event) => setContent(event.target.value)}
+            placeholder={text.placeholder}
+            spellCheck={false}
+          />
+        </div>
 
-          <div className="mx-3 h-5 w-px shrink-0 bg-border" aria-hidden="true" />
+        {status ? <StatusStrip tone={status.tone}>{status.label}</StatusStrip> : null}
 
-          <div className="flex min-w-0 items-center gap-2">
-            <span className="machkit-control-label shrink-0">{text.errorLevel}</span>
-            <SegmentedControl
-              value={logoDataURL ? "H" : errorLevel}
-              onChange={(value) => {
-                if (!logoDataURL) setErrorLevel(value);
-              }}
+        <div className="grid min-h-0 flex-1 gap-3 max-[640px]:grid-cols-1 grid-cols-[minmax(0,1fr)_minmax(220px,248px)]">
+          <div className="flex min-w-0 flex-col gap-2.5">
+            <ControlField label={text.style}>
+              <SelectControl
+                value={styleId}
+                onChange={applyStyle}
+                label={text.style}
+                options={styleOptions}
+                className="w-full"
+              />
+            </ControlField>
+
+            <ControlField label={text.logo}>
+              <div className="flex h-[var(--machkit-size-control)] flex-wrap items-center gap-1">
+                <Button variant="secondary" size="sm" onClick={() => logoInputRef.current?.click()}>
+                  <ImageIcon size={15} />
+                  {logoDataURL ? text.changeLogo : text.addLogo}
+                </Button>
+                {logoDataURL ? (
+                  <Button variant="ghost" size="sm" onClick={() => setLogoDataURL("")}>
+                    {text.clearLogo}
+                  </Button>
+                ) : null}
+                <input
+                  ref={logoInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/svg+xml,.png,.jpg,.jpeg,.webp,.svg"
+                  className="hidden"
+                  onClick={(event) => event.stopPropagation()}
+                  onChange={(event) => {
+                    onLogoFile(event.target.files?.[0]);
+                    event.target.value = "";
+                  }}
+                />
+              </div>
+              {logoDataURL ? (
+                <p className="mt-1 text-[11px] text-tertiary">{text.logoHint}</p>
+              ) : null}
+            </ControlField>
+
+            <OptionRow>
+              <ColorField label={text.darkColor} value={dark} onChange={setDark} />
+              <ColorField label={text.lightColor} value={light} onChange={setLight} />
+            </OptionRow>
+            <ColorField label={text.eyeColor} value={eyeDark} onChange={setEyeDark} />
+
+            <OptionRow>
+              <ControlField label={text.dotShape}>
+                <SelectControl
+                  value={dotShape}
+                  onChange={setDotShape}
+                  label={text.dotShape}
+                  options={dotOptions}
+                  className="w-full"
+                />
+              </ControlField>
+              <ControlField label={text.eyeShape}>
+                <SelectControl
+                  value={eyeShape}
+                  onChange={setEyeShape}
+                  label={text.eyeShape}
+                  options={eyeOptions}
+                  className="w-full"
+                />
+              </ControlField>
+            </OptionRow>
+
+            <OptionRow>
+              <ControlField label={text.size}>
+                <div className="flex h-[var(--machkit-size-control)] items-center gap-2">
+                  <Input
+                    className="min-w-0 flex-1 text-center font-mono text-[13px]"
+                    inputMode="numeric"
+                    value={sizeText}
+                    onChange={(event) => setSizeText(event.target.value.replace(/[^\d]/g, ""))}
+                    onBlur={commitSize}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") event.currentTarget.blur();
+                    }}
+                    aria-label={text.size}
+                    title={`${minSize}–${maxSize}px`}
+                  />
+                  <span className="shrink-0 text-xs text-tertiary">px</span>
+                </div>
+              </ControlField>
+              <ControlField label={text.margin}>
+                <SelectControl
+                  value={String(margin)}
+                  onChange={(value) => setMargin(Number(value))}
+                  label={text.margin}
+                  options={marginOptions}
+                  className="w-full"
+                />
+              </ControlField>
+            </OptionRow>
+
+            <Slider
               label={text.errorLevel}
-              size="compact"
-              className={`w-[168px] shrink-0${logoDataURL ? " pointer-events-none opacity-60" : ""}`}
-              options={levelOptions}
+              value={levelIndex}
+              displayValue={`${level} · ${errorLevelPercents[level]}`}
+              min={0}
+              max={errorLevels.length - 1}
+              step={1}
+              marks={levelMarks}
+              disabled={Boolean(logoDataURL)}
+              onChange={(index) => setErrorLevel(errorLevels[index] || "M")}
+              className={logoDataURL ? "opacity-60" : undefined}
             />
           </div>
 
-          <div className="mx-3 h-5 w-px shrink-0 bg-border" aria-hidden="true" />
-
-          <div className="flex items-center gap-1">
-            <span className="machkit-control-label shrink-0">{text.logo}</span>
-            <Button variant="ghost" size="sm" onClick={() => logoInputRef.current?.click()}>
-              <ImageIcon size={15} />
-              {logoDataURL ? text.changeLogo : text.addLogo}
-            </Button>
-            {logoDataURL ? (
-              <Button variant="ghost" size="sm" onClick={clearLogo}>
-                {text.clearLogo}
-              </Button>
-            ) : null}
-            <input
-              ref={logoInputRef}
-              type="file"
-              accept="image/png,image/jpeg,image/webp,image/svg+xml,.png,.jpg,.jpeg,.webp,.svg"
-              className="hidden"
-              onChange={(event) => {
-                onLogoFile(event.target.files?.[0]);
-                event.target.value = "";
-              }}
-            />
-          </div>
-        </ToolToolbar>
-
-        <StatusStrip tone={status.tone}>{status.label}</StatusStrip>
-        {logoDataURL ? (
-          <p className="text-[11px] text-tertiary">{text.logoHint}</p>
-        ) : null}
-
-        <div
-          className="grid w-full items-stretch gap-3"
-          style={{ gridTemplateColumns: `minmax(0, 1fr) ${PREVIEW_COLUMN}` }}
-        >
-          <div className="flex min-h-0 min-w-0 flex-col gap-1.5">
-            <label htmlFor="qr-content" className="machkit-control-label">
-              {text.content}
-            </label>
-            <Textarea
-              id="qr-content"
-              className="min-h-[240px] flex-1 font-mono text-[12px]"
-              value={content}
-              onChange={(event) => setContent(event.target.value)}
-              placeholder={text.placeholder}
-              spellCheck={false}
-            />
-          </div>
-
-          <div className="flex min-h-0 min-w-0 flex-col gap-1.5">
-            <span className="machkit-control-label">{text.preview}</span>
-            <ResultPanel
-              className="flex min-h-[240px] flex-1 flex-col"
-              bodyClassName="flex min-h-[240px] flex-1 flex-col items-center justify-center p-4"
+          <div className="flex min-h-0 min-w-0 flex-col items-center justify-center gap-2 self-stretch">
+            <div
+              className="machkit-panel grid place-items-center overflow-hidden p-3"
+              style={{ background: light }}
             >
               {result.ok ? (
                 <img
                   src={result.dataURL}
                   alt={text.preview}
-                  width={previewSide}
-                  height={previewSide}
-                  className="rounded-sm bg-white"
-                  style={{ width: previewSide, height: previewSide }}
+                  width={PREVIEW_SIDE}
+                  height={PREVIEW_SIDE}
+                  className="block"
+                  style={{ width: PREVIEW_SIDE, height: PREVIEW_SIDE }}
                 />
               ) : (
-                <p className="text-xs text-tertiary">{text.empty}</p>
+                <div
+                  className="grid place-items-center px-3 text-center text-[11px] text-tertiary"
+                  style={{ width: PREVIEW_SIDE, height: PREVIEW_SIDE }}
+                >
+                  {busy ? text.generate : text.empty}
+                </div>
               )}
-            </ResultPanel>
+            </div>
+            {meta ? <p className="text-[11px] text-tertiary tabular-nums">{meta}</p> : null}
+            <Button
+              variant="secondary"
+              size="sm"
+              className="w-full max-w-[200px]"
+              disabled={!result.ok || downloading}
+              onClick={downloadPng}
+            >
+              <DownloadSimple size={15} />
+              {downloading ? "…" : text.download}
+            </Button>
           </div>
         </div>
-
-        <ToolToolbar className="border-t border-border pt-3">
-          <ActionGroup className="ml-0">
-            <Button variant="ghost" size="sm" disabled={!content.trim()} onClick={() => machkit.copy(content)}>
-              <CopySimple size={15} />
-              {text.copy}
-            </Button>
-            <Button variant="ghost" size="sm" disabled={!result.ok} onClick={downloadPng}>
-              <DownloadSimple size={15} />
-              {text.download}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setContent("");
-                clearLogo();
-              }}
-            >
-              <Eraser size={15} />
-              {text.clear}
-            </Button>
-            <ToolInfoButton info={text.info} className="size-8.5 shrink-0" />
-          </ActionGroup>
-        </ToolToolbar>
       </ToolContent>
     </ToolPage>
   );

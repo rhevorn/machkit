@@ -8,11 +8,11 @@ export function SelectControl({ value, options, onChange, label, className }) {
       <Select.Trigger
         aria-label={label}
         className={cn(
-          "flex h-[var(--machkit-size-control)] min-w-0 flex-1 items-center justify-between gap-2 rounded-control border border-border bg-field px-3 text-xs text-foreground outline-none hover:bg-muted focus:border-accent focus:ring-3 focus:ring-accent-soft",
+          "flex h-[var(--machkit-size-control)] min-h-[var(--machkit-size-control)] min-w-0 w-full shrink-0 items-center justify-between gap-2 rounded-control border border-border bg-field px-3 text-[13px] leading-none text-foreground outline-none hover:bg-muted focus:border-accent focus:ring-3 focus:ring-accent-soft",
           className,
         )}
       >
-        <Select.Value />
+        <Select.Value className="min-w-0 truncate" />
         <Select.Icon className="shrink-0 text-secondary"><CaretDown size={14} /></Select.Icon>
       </Select.Trigger>
       <Select.Portal>
