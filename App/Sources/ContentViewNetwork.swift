@@ -14,7 +14,7 @@ extension ContentView {
                     detail: model.lastUpdatedText(for: .network)
                 ))
             )
-            .padding(.horizontal, 18).padding(.top, 18).padding(.bottom, 12)
+            .padding(.horizontal, MachKitLayout.pageMargin).padding(.top, MachKitLayout.pageMargin).padding(.bottom, MachKitLayout.bannerPadding)
 
             HStack(alignment: .bottom, spacing: 20) {
                 ForEach(NetworkTab.allCases) { tab in
@@ -25,7 +25,7 @@ extension ContentView {
                         Text(tab.rawValue.localized)
                             .font(.system(size: 12, weight: networkTab == tab ? .semibold : .medium))
                             .foregroundStyle(networkTab == tab ? Color.primary : Color.secondary)
-                            .padding(.bottom, 9)
+                            .padding(.bottom, MachKitLayout.rowPaddingVertical)
                             .overlay(alignment: .bottom) {
                                 Capsule()
                                     .fill(networkTab == tab ? Color.accentColor : Color.clear)
@@ -45,7 +45,7 @@ extension ContentView {
                 .controlSize(.small)
                 .disabled(model.isLoading(.network))
             }
-            .padding(.horizontal, 16).padding(.bottom, 14)
+            .padding(.horizontal, MachKitLayout.pageMargin).padding(.bottom, MachKitLayout.bannerPadding)
 
             if model.isLoading(.network), model.networkSnapshot == nil {
                 VStack(spacing: 13) {
@@ -119,7 +119,7 @@ extension ContentView {
                                     .font(.caption).foregroundStyle(.orange)
                             }
                         }
-                        .padding(11)
+                        .padding(MachKitLayout.bannerPadding)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Color.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 9))
                     }
@@ -145,7 +145,7 @@ extension ContentView {
                         .frame(minHeight: 280)
                 }
             }
-            .padding(.horizontal, 16).padding(.bottom, 16)
+            .padding(.horizontal, MachKitLayout.pageMargin).padding(.bottom, MachKitLayout.pageMargin)
         }
     }
 
@@ -165,7 +165,7 @@ extension ContentView {
             Text(value).font(.system(size: 18, weight: .semibold, design: .rounded)).lineLimit(1).minimumScaleFactor(0.75)
             Text(detail).font(.caption2).foregroundStyle(.tertiary).lineLimit(1).truncationMode(.middle)
         }
-        .padding(12).frame(maxWidth: .infinity, minHeight: 88, alignment: .leading)
+        .padding(MachKitLayout.bannerPadding).frame(maxWidth: .infinity, minHeight: 88, alignment: .leading)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 11))
         .overlay { RoundedRectangle(cornerRadius: 11).stroke(Color.primary.opacity(0.05)) }
     }
@@ -199,7 +199,7 @@ extension ContentView {
             .font(.caption.monospacedDigit()).labelStyle(.titleAndIcon)
             .frame(width: 108, alignment: .trailing)
         }
-        .padding(.horizontal, 14).frame(minHeight: 58)
+        .padding(.horizontal, MachKitLayout.rowPaddingHorizontal).frame(minHeight: 58)
     }
 
     var networkTraffic: some View {
@@ -223,7 +223,7 @@ extension ContentView {
                             Text("Connections").frame(width: 82, alignment: .trailing)
                         }
                         .font(.caption).foregroundStyle(.secondary)
-                        .padding(.horizontal, 14).frame(height: 34)
+                        .padding(.horizontal, MachKitLayout.rowPaddingHorizontal).frame(height: 34)
                         Divider()
                         ForEach(filteredNetworkProcesses) { process in
                             HStack(spacing: 10) {
@@ -242,14 +242,14 @@ extension ContentView {
                                 Text(String(process.connectionCount)).frame(width: 82, alignment: .trailing)
                             }
                             .font(.system(size: 11, design: .monospaced))
-                            .padding(.horizontal, 14).frame(minHeight: 52)
+                            .padding(.horizontal, MachKitLayout.rowPaddingHorizontal).frame(minHeight: 52)
                             Divider().padding(.leading, 13)
                         }
                     }
                     .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
                 }
             }
-            .padding(.horizontal, 16).padding(.bottom, 16)
+            .padding(.horizontal, MachKitLayout.pageMargin).padding(.bottom, MachKitLayout.pageMargin)
         }
     }
 
@@ -279,7 +279,7 @@ extension ContentView {
                             Text("State").frame(width: 86, alignment: .leading)
                         }
                         .font(.caption).foregroundStyle(.secondary)
-                        .padding(.horizontal, 14).frame(height: 34)
+                        .padding(.horizontal, MachKitLayout.rowPaddingHorizontal).frame(height: 34)
                         Divider()
                         ForEach(visibleConnections) { connection in
                             HStack(spacing: 10) {
@@ -296,7 +296,7 @@ extension ContentView {
                                 Text(connection.interfaceName ?? "—").frame(width: 72, alignment: .leading)
                                 Text(connection.state ?? "UDP").frame(width: 86, alignment: .leading)
                             }
-                            .font(.system(size: 10.5, design: .monospaced)).padding(.horizontal, 14).frame(minHeight: 50)
+                            .font(.system(size: 10.5, design: .monospaced)).padding(.horizontal, MachKitLayout.rowPaddingHorizontal).frame(minHeight: 50)
                             Divider().padding(.leading, 13)
                         }
                     }
@@ -310,7 +310,7 @@ extension ContentView {
                     }
                 }
             }
-            .padding(.horizontal, 16).padding(.bottom, 16)
+            .padding(.horizontal, MachKitLayout.pageMargin).padding(.bottom, MachKitLayout.pageMargin)
         }
     }
 
@@ -340,7 +340,7 @@ extension ContentView {
                         .buttonStyle(.borderedProminent).controlSize(.small)
                         .disabled(routeQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.isLookingUpRoute)
                 }
-                .padding(.horizontal, 12).frame(height: 40)
+                .padding(.horizontal, MachKitLayout.bannerPadding).frame(height: 40)
                 .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 9))
 
                 if let route = model.routeLookup {
@@ -361,7 +361,7 @@ extension ContentView {
                                 .background(Color.accentColor.opacity(0.10), in: Capsule())
                         }
                     }
-                    .padding(12).background(Color.accentColor.opacity(0.05), in: RoundedRectangle(cornerRadius: 10))
+                    .padding(MachKitLayout.bannerPadding).background(Color.accentColor.opacity(0.05), in: RoundedRectangle(cornerRadius: 10))
 
                     if model.networkSnapshot?.proxy.isEnabled == true {
                         Label(
@@ -399,7 +399,7 @@ extension ContentView {
                             Text("Flags").frame(width: 90, alignment: .leading)
                         }
                         .font(.caption).foregroundStyle(.secondary)
-                        .padding(.horizontal, 14).frame(height: 34)
+                        .padding(.horizontal, MachKitLayout.rowPaddingHorizontal).frame(height: 34)
                         Divider()
                         ForEach(Array(snapshot.routes.prefix(300).enumerated()), id: \.element.id) { index, route in
                             HStack {
@@ -410,14 +410,14 @@ extension ContentView {
                                 Text(route.flags).frame(width: 90, alignment: .leading)
                             }
                             .font(.system(size: 10.5, design: .monospaced))
-                            .padding(.horizontal, 14).frame(minHeight: 34)
+                            .padding(.horizontal, MachKitLayout.rowPaddingHorizontal).frame(minHeight: 34)
                             if index < min(snapshot.routes.count, 300) - 1 { Divider().padding(.leading, 13) }
                         }
                     }
                     .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
                 }
             }
-            .padding(.horizontal, 16).padding(.bottom, 16)
+            .padding(.horizontal, MachKitLayout.pageMargin).padding(.bottom, MachKitLayout.pageMargin)
         }
     }
 
@@ -431,7 +431,7 @@ extension ContentView {
             }
             Spacer()
         }
-        .padding(12).frame(maxWidth: .infinity, minHeight: 78, alignment: .leading)
+        .padding(MachKitLayout.bannerPadding).frame(maxWidth: .infinity, minHeight: 78, alignment: .leading)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
     }
 
@@ -444,7 +444,7 @@ extension ContentView {
                     .buttonStyle(.plain).foregroundStyle(.tertiary)
             }
         }
-        .padding(.horizontal, 11).frame(height: 34)
+        .padding(.horizontal, MachKitLayout.bannerPadding).frame(height: 34)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 8))
     }
 
@@ -538,7 +538,7 @@ extension ContentView {
                         color: .orange
                     )
                 }
-                .padding(.vertical, 11)
+                .padding(.vertical, MachKitLayout.bannerPadding)
                 .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 12))
                 .overlay {
                     RoundedRectangle(cornerRadius: 12)
@@ -551,7 +551,7 @@ extension ContentView {
                         Text(error).font(.system(size: 12)).textSelection(.enabled)
                         Spacer()
                     }
-                    .padding(12)
+                    .padding(MachKitLayout.bannerPadding)
                     .background(Color.orange.opacity(0.09), in: RoundedRectangle(cornerRadius: 9))
                 }
 
@@ -567,7 +567,7 @@ extension ContentView {
                             .buttonStyle(.plain)
                         }
                     }
-                    .padding(.horizontal, 11).frame(height: 34)
+                    .padding(.horizontal, MachKitLayout.bannerPadding).frame(height: 34)
                     .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 8))
 
                     Picker("Filter", selection: $portFilter) {
@@ -600,7 +600,7 @@ extension ContentView {
                             Color.clear.frame(width: 74)
                         }
                         .font(.caption).foregroundStyle(.secondary)
-                        .padding(.horizontal, 14).frame(height: 34)
+                        .padding(.horizontal, MachKitLayout.rowPaddingHorizontal).frame(height: 34)
                         Divider()
                         ForEach(Array(filteredPorts.enumerated()), id: \.element.id) { index, port in
                             portRow(port)
@@ -617,8 +617,8 @@ extension ContentView {
                 .font(.caption).foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
             }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 16)
+            .padding(.horizontal, MachKitLayout.pageMargin)
+            .padding(.bottom, MachKitLayout.pageMargin)
         }
     }
 
@@ -665,7 +665,7 @@ extension ContentView {
             }
             Spacer(minLength: 0)
         }
-        .padding(.horizontal, 14)
+        .padding(.horizontal, MachKitLayout.rowPaddingHorizontal)
         .frame(maxWidth: .infinity)
     }
 
@@ -718,7 +718,7 @@ extension ContentView {
                 .help((port.protectionReason ?? "Quit the process using this port").localized)
                 .frame(width: 74, alignment: .trailing)
         }
-        .padding(.horizontal, 14)
+        .padding(.horizontal, MachKitLayout.rowPaddingHorizontal)
         .frame(minHeight: 68)
         .contextMenu {
             Button("View Process Details") { selectedPort = port }
@@ -814,7 +814,7 @@ extension ContentView {
                 .disabled(!port.canTerminate)
             }
         }
-        .padding(20)
+        .padding(MachKitLayout.pageMargin)
         .frame(width: 620)
     }
 
@@ -825,7 +825,7 @@ extension ContentView {
             Text(value).font(.system(size: 12, design: .monospaced))
                 .textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(.horizontal, 14).padding(.vertical, 9)
+        .padding(.horizontal, MachKitLayout.rowPaddingHorizontal).padding(.vertical, MachKitLayout.rowPaddingVertical)
     }
 
     var portTerminationMessage: String {
@@ -846,7 +846,7 @@ extension ContentView {
                 title: "Performance",
                 subtitle: "Monitor CPU, GPU, memory, disk, network, and top apps locally"
             )
-            .padding(18)
+            .padding(MachKitLayout.pageMargin)
 
             if let snapshot = model.performanceSnapshot {
                 performanceContent(snapshot)
@@ -884,8 +884,8 @@ extension ContentView {
                 Text("Data updates locally every 2 seconds. GPU and Neural Engine metrics use SoCMetrics (IOReport) on Apple Silicon; per-GPU-core bars reflect chip-level active residency because macOS does not expose per-core utilization. Neural Engine percentage is estimated from power draw, not a system utilization counter. App CPU is shown as a share of total system capacity; network rates aggregate helper processes into their parent app. Sampling stops when you leave this page. App rankings include identifiable graphical app processes only.")
                     .font(.caption).foregroundStyle(.secondary)
             }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 16)
+            .padding(.horizontal, MachKitLayout.pageMargin)
+            .padding(.bottom, MachKitLayout.pageMargin)
         }
     }
 
@@ -978,7 +978,7 @@ extension ContentView {
                             .font(.system(size: 12, weight: .medium)).foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
-                    .padding(16)
+                    .padding(MachKitLayout.cardPadding)
                     .frame(width: 340, alignment: .leading)
                     .fixedSize(horizontal: false, vertical: true)
                 }
@@ -1006,7 +1006,7 @@ extension ContentView {
             .foregroundStyle(.secondary)
             .monospacedDigit()
         }
-        .padding(14)
+        .padding(MachKitLayout.cardPadding)
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
     }
@@ -1015,7 +1015,7 @@ extension ContentView {
         Text(text.localized)
             .font(.caption.weight(.semibold))
             .foregroundStyle(color)
-            .padding(.horizontal, 8)
+            .padding(.horizontal, MachKitLayout.controlSpacing)
             .padding(.vertical, 3)
             .background(color.opacity(0.12), in: Capsule())
     }
@@ -1067,7 +1067,7 @@ extension ContentView {
             }
             .font(.caption).foregroundStyle(.secondary).monospacedDigit()
         }
-        .padding(14)
+        .padding(MachKitLayout.cardPadding)
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
     }
@@ -1226,7 +1226,7 @@ extension ContentView {
                 Spacer(minLength: 0)
             }
         }
-        .padding(14)
+        .padding(MachKitLayout.cardPadding)
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
     }
@@ -1275,7 +1275,7 @@ extension ContentView {
                 Spacer(minLength: 0)
             }
         }
-        .padding(14)
+        .padding(MachKitLayout.cardPadding)
         .frame(maxWidth: .infinity, minHeight: 170, alignment: .topLeading)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
     }
@@ -1339,7 +1339,7 @@ extension ContentView {
         VStack(alignment: .leading, spacing: 0) {
             Text("Compute Hardware")
                 .font(.system(size: 14, weight: .semibold))
-                .padding(.horizontal, 14).padding(.top, 13).padding(.bottom, 8)
+                .padding(.horizontal, MachKitLayout.rowPaddingHorizontal).padding(.top, MachKitLayout.bannerPadding).padding(.bottom, MachKitLayout.controlSpacing)
             computeHardwareRow(
                 icon: "cpu",
                 title: "CPU",
@@ -1421,7 +1421,7 @@ extension ContentView {
                 .padding(.horizontal, 8).padding(.vertical, 3)
                 .background(color.opacity(0.10), in: Capsule())
         }
-        .padding(.horizontal, 14).frame(minHeight: 55)
+        .padding(.horizontal, MachKitLayout.rowPaddingHorizontal).frame(minHeight: 55)
     }
 
     var performanceTrendCard: some View {
@@ -1469,7 +1469,7 @@ extension ContentView {
             }
             .frame(height: 138)
         }
-        .padding(14)
+        .padding(MachKitLayout.cardPadding)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
     }
 
@@ -1504,7 +1504,7 @@ extension ContentView {
                     Text("Network").frame(width: 88, alignment: .trailing)
                 }
                 .font(.caption).foregroundStyle(.secondary)
-                .padding(.horizontal, 14).frame(height: 32)
+                .padding(.horizontal, MachKitLayout.rowPaddingHorizontal).frame(height: 32)
                 Divider()
                 ForEach(Array(applications.prefix(12).enumerated()), id: \.element.id) { index, application in
                     resourceApplicationRow(application)
@@ -1539,7 +1539,7 @@ extension ContentView {
                 .font(.system(size: 12)).monospacedDigit().frame(width: 88, alignment: .trailing)
                 .foregroundStyle(application.networkBytesPerSecond > 0 ? Color.blue : .secondary)
         }
-        .padding(.horizontal, 14).frame(minHeight: 48)
+        .padding(.horizontal, MachKitLayout.rowPaddingHorizontal).frame(minHeight: 48)
         .contextMenu {
             if let url = application.bundleURL { Button("Show in Finder") { reveal(url) } }
         }

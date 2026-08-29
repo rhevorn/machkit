@@ -220,7 +220,7 @@ struct ContentView: View {
                 }
                 .frame(width: 52, height: 48)
                 .contentShape(Rectangle())
-            }.buttonStyle(.plain).foregroundStyle(.secondary).padding(.bottom, 10)
+            }.buttonStyle(.plain).foregroundStyle(.secondary).padding(.bottom, MachKitLayout.bannerPadding)
         }
         .frame(width: 72)
         .background(Color(nsColor: .controlBackgroundColor))
@@ -307,10 +307,10 @@ struct ContentView: View {
     var homeView: some View {
         VStack(spacing: 0) {
             header(title: "Overview", subtitle: "Live status and everyday tools for this Mac")
-                .padding(18)
+                .padding(MachKitLayout.pageMargin)
 
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 16) {
+                LazyVStack(alignment: .leading, spacing: MachKitLayout.sectionSpacing) {
                     homeStorageOverview
                     if !permissions.hasFullDiskAccess {
                         permissionCard
@@ -350,8 +350,8 @@ struct ContentView: View {
                         )
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 16)
+                .padding(.horizontal, MachKitLayout.pageMargin)
+                .padding(.bottom, MachKitLayout.pageMargin)
             }
         }
     }
@@ -375,7 +375,7 @@ struct ContentView: View {
                     .buttonStyle(.bordered)
             }
         }
-        .padding(12)
+        .padding(MachKitLayout.bannerPadding)
         .background { RoundedRectangle(cornerRadius: 9).fill((permissions.hasFullDiskAccess ? Color.green : Color.orange).opacity(0.08)) }
     }
 
@@ -421,7 +421,7 @@ struct ContentView: View {
                 .buttonStyle(.borderedProminent)
                 .controlSize(.regular)
         }
-        .padding(18)
+        .padding(MachKitLayout.heroPadding)
         .background {
             RoundedRectangle(cornerRadius: 14)
                 .fill(
@@ -495,7 +495,7 @@ struct ContentView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.62)
         }
-        .padding(.horizontal, 11)
+        .padding(.horizontal, MachKitLayout.bannerPadding)
         .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
         .overlay {
@@ -537,7 +537,7 @@ struct ContentView: View {
                 )
             }
         }
-        .padding(.horizontal, 11)
+        .padding(.horizontal, MachKitLayout.bannerPadding)
         .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
         .overlay {
@@ -580,7 +580,7 @@ struct ContentView: View {
             .buttonStyle(.bordered)
             .disabled(model.isCleanupScanning)
         }
-        .padding(13)
+        .padding(MachKitLayout.bannerPadding)
         .background(Color.accentColor.opacity(0.055), in: RoundedRectangle(cornerRadius: 11))
     }
 
@@ -620,7 +620,7 @@ struct ContentView: View {
                 Spacer()
                 Image(systemName: "chevron.right").font(.system(size: 9, weight: .semibold)).foregroundStyle(.tertiary)
             }
-            .padding(12).frame(maxWidth: .infinity, minHeight: 64)
+            .padding(MachKitLayout.bannerPadding).frame(maxWidth: .infinity, minHeight: 64)
             .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 11))
             .contentShape(Rectangle())
         }
@@ -670,7 +670,7 @@ struct ContentView: View {
                     }
                 )
             )
-            .padding(18)
+            .padding(MachKitLayout.pageMargin)
 
             Group {
                 if model.isCleanupScanning {
@@ -754,8 +754,8 @@ struct ContentView: View {
                 .disabled(model.selectedIDs.isEmpty || model.isCleaning)
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.horizontal, MachKitLayout.pageMargin)
+        .padding(.vertical, MachKitLayout.bannerPadding)
         .background(Color(nsColor: .controlBackgroundColor))
     }
 
@@ -789,7 +789,7 @@ struct ContentView: View {
                 .buttonStyle(.bordered)
                 .controlSize(.small)
         }
-        .padding(12)
+        .padding(MachKitLayout.bannerPadding)
         .background(Color.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
     }
 
@@ -803,7 +803,7 @@ struct ContentView: View {
                         .font(.system(size: 12, weight: .semibold))
                     Spacer()
                 }
-                .padding(12)
+                .padding(MachKitLayout.bannerPadding)
                 .background(Color.green.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
             }
         }
@@ -836,8 +836,8 @@ struct ContentView: View {
                 .controlSize(.large)
                 .keyboardShortcut(.return, modifiers: [])
             }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 16)
+            .padding(.horizontal, MachKitLayout.pageMargin)
+            .padding(.bottom, MachKitLayout.pageMargin)
         }
     }
 
@@ -899,7 +899,7 @@ struct ContentView: View {
 
             Spacer(minLength: 8)
         }
-        .padding(18)
+        .padding(MachKitLayout.heroPadding)
         .background {
             RoundedRectangle(cornerRadius: 14)
                 .fill(
@@ -945,7 +945,7 @@ struct ContentView: View {
             }
             Spacer(minLength: 0)
         }
-        .padding(12)
+        .padding(MachKitLayout.bannerPadding)
         .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 11))
         .overlay {
@@ -969,7 +969,7 @@ struct ContentView: View {
             }
             Spacer(minLength: 0)
         }
-        .padding(12)
+        .padding(MachKitLayout.bannerPadding)
         .background(Color.green.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
     }
 
@@ -1039,7 +1039,7 @@ struct ContentView: View {
 
                     Spacer(minLength: 0)
                 }
-                .padding(18)
+                .padding(MachKitLayout.heroPadding)
                 .background {
                     RoundedRectangle(cornerRadius: 14)
                         .fill(
@@ -1066,8 +1066,8 @@ struct ContentView: View {
                         }
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 16)
+            .padding(.horizontal, MachKitLayout.pageMargin)
+            .padding(.bottom, MachKitLayout.pageMargin)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         // Animate only discrete category changes — never the high-frequency scanProgress
@@ -1150,7 +1150,7 @@ struct ContentView: View {
                     }
                     .padding(.bottom, index < phases.count - 1 ? 14 : 10)
                 }
-                .padding(.horizontal, 14)
+                .padding(.horizontal, MachKitLayout.rowPaddingHorizontal)
                 .padding(.top, index == 0 ? 12 : 0)
                 .id(phase.id)
             }
@@ -1185,8 +1185,8 @@ struct ContentView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 16)
+                .padding(.horizontal, MachKitLayout.pageMargin)
+                .padding(.bottom, MachKitLayout.pageMargin)
             }
             .onChange(of: junkScrollTarget) { _, target in
                 guard let target else { return }
@@ -1265,7 +1265,7 @@ struct ContentView: View {
             }
             .frame(height: 5)
         }
-        .padding(18)
+        .padding(MachKitLayout.heroPadding)
         .background {
             RoundedRectangle(cornerRadius: 14)
                 .fill(
@@ -1335,7 +1335,7 @@ struct ContentView: View {
                 }
             }
         }
-        .padding(14)
+        .padding(MachKitLayout.cardPadding)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 11))
         .overlay {
             RoundedRectangle(cornerRadius: 11)
@@ -1386,8 +1386,8 @@ struct ContentView: View {
                             ))
                             .font(.caption2)
                             .foregroundStyle(.tertiary)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 8)
+                            .padding(.horizontal, MachKitLayout.rowPaddingHorizontal)
+                            .padding(.vertical, MachKitLayout.controlSpacing)
                         }
                     }
                 }
@@ -1419,8 +1419,8 @@ struct ContentView: View {
                         .font(.system(size: 13, weight: .semibold))
                         .monospacedDigit()
                 }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 11)
+                .padding(.horizontal, MachKitLayout.rowPaddingHorizontal)
+                .padding(.vertical, MachKitLayout.bannerPadding)
                 .contentShape(Rectangle())
             }
         }
@@ -1508,8 +1508,8 @@ struct ContentView: View {
                 .font(.caption)
                 .foregroundStyle(.tertiary)
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 9)
+        .padding(.horizontal, MachKitLayout.rowPaddingHorizontal)
+        .padding(.vertical, MachKitLayout.rowPaddingVertical)
         .contentShape(Rectangle())
         .onTapGesture { revealJunkItem(item) }
         .contextMenu {

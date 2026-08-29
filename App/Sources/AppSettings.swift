@@ -30,7 +30,7 @@ struct AppSettingsView: View {
                 }
                 Spacer()
             }
-            .padding(18)
+            .padding(MachKitLayout.pageMargin)
 
             settingsContent
         }
@@ -123,7 +123,7 @@ struct AppSettingsView: View {
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(.secondary)
                     .padding(.leading, 4)
-                    .padding(.top, 18)
+                    .padding(.top, MachKitLayout.pageMargin)
 
                 VStack(spacing: 0) {
                     ForEach(ScreenshotAction.allCases) { action in
@@ -158,7 +158,7 @@ struct AppSettingsView: View {
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(.secondary)
                     .padding(.leading, 4)
-                    .padding(.top, 18)
+                    .padding(.top, MachKitLayout.pageMargin)
 
                 settingRow(
                     icon: "trash",
@@ -171,9 +171,9 @@ struct AppSettingsView: View {
                     }
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.top, 14)
-            .padding(.bottom, 16)
+            .padding(.horizontal, MachKitLayout.pageMargin)
+            .padding(.top, MachKitLayout.bannerPadding)
+            .padding(.bottom, MachKitLayout.pageMargin)
             .frame(maxWidth: .infinity, alignment: .top)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

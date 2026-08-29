@@ -39,9 +39,9 @@ struct ToolsView: View {
                         }
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 14)
-                .padding(.bottom, 16)
+                .padding(.horizontal, MachKitLayout.pageMargin)
+                .padding(.top, MachKitLayout.bannerPadding)
+                .padding(.bottom, MachKitLayout.pageMargin)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
             }
         }
@@ -94,9 +94,9 @@ struct ToolsView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 18)
-        .padding(.top, 18)
-        .padding(.bottom, 8)
+        .padding(.horizontal, MachKitLayout.pageMargin)
+        .padding(.top, MachKitLayout.pageMargin)
+        .padding(.bottom, MachKitLayout.controlSpacing)
     }
 
     private func toolRow(_ tool: DeveloperTool) -> some View {
@@ -125,8 +125,8 @@ struct ToolsView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 12)
+                .padding(.horizontal, MachKitLayout.bannerPadding)
+                .padding(.vertical, MachKitLayout.bannerPadding)
                 .frame(maxWidth: .infinity, minHeight: 64, alignment: .leading)
                 .contentShape(Rectangle())
             }
@@ -143,7 +143,7 @@ struct ToolsView: View {
             .opacity(isHovered ? 1 : 0)
             .allowsHitTesting(isHovered)
             .help(shortcutHelp(for: tool))
-            .padding(8)
+            .padding(MachKitLayout.controlSpacing)
         }
         .background {
             RoundedRectangle(cornerRadius: 11)
@@ -278,7 +278,7 @@ struct ToolShortcutEditor: View {
                 .disabled(!shortcut.isValid || conflictingTargetName != nil)
             }
         }
-        .padding(24)
+        .padding(MachKitLayout.sheetPadding)
         .frame(width: 470)
     }
 }

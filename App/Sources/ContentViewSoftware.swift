@@ -17,7 +17,7 @@ extension ContentView {
                     }
                 )
             )
-                .padding(18)
+                .padding(MachKitLayout.pageMargin)
             if model.applications.isEmpty && model.isLoading(.uninstall) {
                 VStack(spacing: 14) {
                     ProgressView().controlSize(.large)
@@ -31,9 +31,9 @@ extension ContentView {
                         Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
                         TextField("Search apps", text: $applicationSearch).textFieldStyle(.plain)
                     }
-                    .padding(.horizontal, 12).frame(height: 36)
+                    .padding(.horizontal, MachKitLayout.bannerPadding).frame(height: 36)
                     .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 9))
-                    .padding(.horizontal, 16).padding(.top, 12).padding(.bottom, 9)
+                    .padding(.horizontal, MachKitLayout.pageMargin).padding(.top, MachKitLayout.bannerPadding).padding(.bottom, MachKitLayout.rowPaddingVertical)
 
                     softwareCategoryTabs
 
@@ -52,7 +52,7 @@ extension ContentView {
                                     }
                                 }
                             }
-                            .padding(.horizontal, 16).padding(.bottom, 16)
+                            .padding(.horizontal, MachKitLayout.pageMargin).padding(.bottom, MachKitLayout.pageMargin)
                         }
                         .onChange(of: softwareTab) { _, _ in
                             var transaction = Transaction()
@@ -102,9 +102,9 @@ extension ContentView {
                     .buttonStyle(.plain)
                 }
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, MachKitLayout.pageMargin)
         }
-        .padding(.bottom, 12)
+        .padding(.bottom, MachKitLayout.bannerPadding)
     }
 
     func softwareTabIcon(_ tab: SoftwareTab) -> String {
@@ -175,7 +175,7 @@ extension ContentView {
                 Text("\(group.applications.count) · \(formatted(group.bytes))")
                     .font(.caption).foregroundStyle(.secondary).monospacedDigit()
             }
-            .padding(.horizontal, 14).padding(.vertical, 9)
+            .padding(.horizontal, MachKitLayout.rowPaddingHorizontal).padding(.vertical, MachKitLayout.rowPaddingVertical)
             Divider()
             ForEach(group.applications) { app in
                 applicationRow(app)
@@ -207,7 +207,7 @@ extension ContentView {
                 Image(systemName: "chevron.right").font(.caption).foregroundStyle(.tertiary).frame(width: 58)
             }
         }
-        .padding(.horizontal, 14).padding(.vertical, 9)
+        .padding(.horizontal, MachKitLayout.rowPaddingHorizontal).padding(.vertical, MachKitLayout.rowPaddingVertical)
         .background(
             hoveredSoftwareID == app.id ? Color.accentColor.opacity(0.055) : Color.clear,
             in: RoundedRectangle(cornerRadius: 8)
@@ -228,7 +228,7 @@ extension ContentView {
                 Text("\(tools.count) · \(formatted(tools.reduce(0) { $0 + $1.bytes }))")
                     .font(.caption).foregroundStyle(.secondary).monospacedDigit()
             }
-            .padding(.horizontal, 14).padding(.vertical, 9)
+            .padding(.horizontal, MachKitLayout.rowPaddingHorizontal).padding(.vertical, MachKitLayout.rowPaddingVertical)
             Divider()
             ForEach(tools) { tool in
                 HStack(spacing: 12) {
@@ -244,7 +244,7 @@ extension ContentView {
                     Text(formatted(tool.bytes)).font(.caption).foregroundStyle(.secondary).monospacedDigit()
                     Image(systemName: "chevron.right").font(.caption).foregroundStyle(.tertiary)
                 }
-                .padding(.horizontal, 14).padding(.vertical, 9)
+                .padding(.horizontal, MachKitLayout.rowPaddingHorizontal).padding(.vertical, MachKitLayout.rowPaddingVertical)
                 .background(
                     hoveredSoftwareID == tool.id ? Color.accentColor.opacity(0.055) : Color.clear,
                     in: RoundedRectangle(cornerRadius: 8)
@@ -269,7 +269,7 @@ extension ContentView {
                 }
                 Spacer()
             }
-            .padding(20)
+            .padding(MachKitLayout.pageMargin)
             Divider()
             ScrollView {
                 VStack(alignment: .leading, spacing: 10) {
@@ -279,7 +279,7 @@ extension ContentView {
                     detailValue(title: "App Size", value: formatted(app.bytes))
                     Divider().padding(.vertical, 5)
                     if model.uninstallResidues.isEmpty {
-                        Text("No related leftover files found.").font(.caption).foregroundStyle(.secondary).padding(.vertical, 8)
+                        Text("No related leftover files found.").font(.caption).foregroundStyle(.secondary).padding(.vertical, MachKitLayout.controlSpacing)
                     } else {
                         Text("Related Files").font(.system(size: 12, weight: .semibold)).padding(.top, 4)
                         ForEach(model.uninstallResidues) { residue in
@@ -287,7 +287,7 @@ extension ContentView {
                         }
                     }
                 }
-                .padding(20)
+                .padding(MachKitLayout.pageMargin)
             }
             Divider()
             HStack {
@@ -303,7 +303,7 @@ extension ContentView {
                         .buttonStyle(.borderedProminent)
                 }
             }
-            .padding(16)
+            .padding(MachKitLayout.cardPadding)
         }
         .frame(width: 540, height: 480)
     }
@@ -335,7 +335,7 @@ extension ContentView {
             Spacer()
             HStack { Spacer(); Button("Close") { selectedCommandLineTool = nil }.keyboardShortcut(.defaultAction) }
         }
-        .padding(22).frame(width: 520, height: 310)
+        .padding(MachKitLayout.sheetPadding).frame(width: 520, height: 310)
     }
 
     func uninstallCommand(for tool: CommandLineTool) -> String {
@@ -374,7 +374,7 @@ extension ContentView {
                     refreshControl(for: .loginItems, action: model.scanLoginItems)
                 )
             )
-            .padding(18)
+            .padding(MachKitLayout.pageMargin)
 
             systemInventoryTabs
 
@@ -416,7 +416,7 @@ extension ContentView {
                         }
                     }
                     .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 11))
-                    .padding(.horizontal, 16).padding(.bottom, 16)
+                    .padding(.horizontal, MachKitLayout.pageMargin).padding(.bottom, MachKitLayout.pageMargin)
                 }
             }
         }
@@ -454,7 +454,7 @@ extension ContentView {
                 model.requestLoginApplicationRemoval(item)
             }
         }
-        .padding(.horizontal, 14).padding(.vertical, 9)
+        .padding(.horizontal, MachKitLayout.rowPaddingHorizontal).padding(.vertical, MachKitLayout.rowPaddingVertical)
     }
 
     var backgroundActivityView: some View {
@@ -478,7 +478,7 @@ extension ContentView {
                     .disabled(model.isScanning)
                 )
             )
-            .padding(18)
+            .padding(MachKitLayout.pageMargin)
 
             systemInventoryTabs
 
@@ -517,7 +517,7 @@ extension ContentView {
                                 Text(notice).font(.caption).foregroundStyle(.secondary)
                                 Spacer()
                             }
-                            .padding(12)
+                            .padding(MachKitLayout.bannerPadding)
                             .background(Color.green.opacity(0.08), in: RoundedRectangle(cornerRadius: 9))
                         }
                         if let error = model.backgroundTaskScanError {
@@ -526,7 +526,7 @@ extension ContentView {
                                 Text(error).font(.caption).foregroundStyle(.secondary)
                                 Spacer()
                             }
-                            .padding(12)
+                            .padding(MachKitLayout.bannerPadding)
                             .background(Color.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 9))
                         }
                         if !filteredRegisteredBackgroundTasks.isEmpty {
@@ -536,7 +536,7 @@ extension ContentView {
                             backgroundItemSection(group)
                         }
                     }
-                    .padding(.horizontal, 16).padding(.bottom, 16)
+                    .padding(.horizontal, MachKitLayout.pageMargin).padding(.bottom, MachKitLayout.pageMargin)
                     .frame(maxWidth: .infinity, alignment: .topLeading)
                 }
             }
@@ -600,7 +600,7 @@ extension ContentView {
                     .help("macOS does not allow MachKit to delete one background database record. Use Rebuild Database above for leftovers, or remove a launchd configuration from the sections below if one exists.")
             }
         }
-        .padding(.horizontal, 14).padding(.vertical, 9)
+        .padding(.horizontal, MachKitLayout.rowPaddingHorizontal).padding(.vertical, MachKitLayout.rowPaddingVertical)
     }
 
     var filteredBackgroundItemGroups: [LoginItemGroup] {
@@ -659,7 +659,7 @@ extension ContentView {
                 model.requestBackgroundItemRemoval(item)
             }
         }
-        .padding(.horizontal, 14).padding(.vertical, 9)
+        .padding(.horizontal, MachKitLayout.rowPaddingHorizontal).padding(.vertical, MachKitLayout.rowPaddingVertical)
         .contentShape(Rectangle())
         .onTapGesture { reveal(item.configURL) }
     }
@@ -673,7 +673,7 @@ extension ContentView {
                     refreshControl(for: .extensions, action: model.scanExtensions)
                 )
             )
-            .padding(18)
+            .padding(MachKitLayout.pageMargin)
 
             systemInventoryTabs
 
@@ -705,7 +705,7 @@ extension ContentView {
                             extensionSection(group)
                         }
                     }
-                    .padding(.horizontal, 16).padding(.bottom, 16)
+                    .padding(.horizontal, MachKitLayout.pageMargin).padding(.bottom, MachKitLayout.pageMargin)
                     .frame(maxWidth: .infinity, alignment: .topLeading)
                 }
             }
@@ -775,7 +775,7 @@ extension ContentView {
                 }
             }
         }
-        .padding(.horizontal, 14).padding(.vertical, 9)
+        .padding(.horizontal, MachKitLayout.rowPaddingHorizontal).padding(.vertical, MachKitLayout.rowPaddingVertical)
         .contentShape(Rectangle())
         .onTapGesture { reveal(item.bundleURL) }
     }
@@ -795,9 +795,9 @@ extension ContentView {
             Spacer()
             Button(buttonTitle, action: openLoginItemsSettings).buttonStyle(.bordered).controlSize(.small)
         }
-        .padding(11)
+        .padding(MachKitLayout.bannerPadding)
         .background(Color.accentColor.opacity(0.06), in: RoundedRectangle(cornerRadius: 9))
-        .padding(.horizontal, 16).padding(.top, 12)
+        .padding(.horizontal, MachKitLayout.pageMargin).padding(.top, MachKitLayout.bannerPadding)
     }
 
     var rebuildDatabaseTipBanner: some View {
@@ -816,9 +816,9 @@ extension ContentView {
             }
             Spacer(minLength: 0)
         }
-        .padding(11)
+        .padding(MachKitLayout.bannerPadding)
         .background(Color.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 9))
-        .padding(.horizontal, 16).padding(.top, 8)
+        .padding(.horizontal, MachKitLayout.pageMargin).padding(.top, MachKitLayout.controlSpacing)
     }
 
     var systemInventoryTabs: some View {
@@ -836,8 +836,8 @@ extension ContentView {
         .pickerStyle(.segmented)
         .labelsHidden()
         .frame(maxWidth: 420)
-        .padding(.horizontal, 16)
-        .padding(.top, 12)
+        .padding(.horizontal, MachKitLayout.pageMargin)
+        .padding(.top, MachKitLayout.bannerPadding)
     }
 
     func inventorySearchField(placeholder: String) -> some View {
@@ -853,9 +853,10 @@ extension ContentView {
                     .accessibilityLabel(Text("Clear".localized))
             }
         }
-        .padding(.horizontal, 12).frame(height: 36)
+        .padding(.horizontal, MachKitLayout.bannerPadding).frame(height: 36)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 9))
-        .padding(16)
+        .padding(.horizontal, MachKitLayout.pageMargin)
+        .padding(.vertical, MachKitLayout.bannerPadding)
     }
 
     func inventoryLoadingView(title: String) -> some View {
@@ -881,9 +882,9 @@ extension ContentView {
                 Spacer()
             }
             .frame(maxWidth: .infinity)
-            .padding(14)
+            .padding(MachKitLayout.cardPadding)
             .background(Color.secondary.opacity(0.055), in: RoundedRectangle(cornerRadius: 10))
-            .padding(.horizontal, 16)
+            .padding(.horizontal, MachKitLayout.pageMargin)
             Spacer(minLength: 0)
         }
     }
@@ -897,7 +898,7 @@ extension ContentView {
             Spacer()
             Text("\(count)").font(.caption).foregroundStyle(.secondary).monospacedDigit()
         }
-        .padding(.horizontal, 14).padding(.vertical, 9)
+        .padding(.horizontal, MachKitLayout.rowPaddingHorizontal).padding(.vertical, MachKitLayout.rowPaddingVertical)
     }
 
     /// Text-based row actions avoid ButtonStyle (especially BorderlessButtonStyle),

@@ -64,7 +64,7 @@ struct OperationResultView: View {
                 }
             }
         }
-        .padding(22)
+        .padding(MachKitLayout.sheetPadding)
         .frame(minWidth: 620, minHeight: 260)
     }
 
@@ -92,7 +92,7 @@ struct OperationResultView: View {
             Button("Show") { NSWorkspace.shared.activateFileViewerSelecting([url]) }
                 .buttonStyle(.borderless)
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, MachKitLayout.controlSpacing)
         .overlay(alignment: .bottom) { Divider() }
     }
 }

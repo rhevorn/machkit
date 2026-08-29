@@ -20,7 +20,7 @@ extension ContentView {
                     }
                 )
             )
-            .padding(18)
+            .padding(MachKitLayout.pageMargin)
             if let analysis = model.storageAnalysis {
                 storageAnalysisContent(analysis)
             } else if model.isStorageAnalyzing {
@@ -49,7 +49,7 @@ extension ContentView {
                     .foregroundStyle(Color.accentColor, Color.accentColor.opacity(0.20))
                     .font(.system(size: 52, weight: .light))
             }
-            .padding(.bottom, 24)
+            .padding(.bottom, MachKitLayout.sheetPadding)
 
             Text("Understand where your disk space goes".localized)
                 .font(.system(size: 24, weight: .semibold, design: .rounded))
@@ -63,7 +63,7 @@ extension ContentView {
                 scanPromise(icon: "square.grid.2x2", text: "Categories")
                 scanPromise(icon: "doc.badge.ellipsis", text: "Large Files")
             }
-            .padding(.vertical, 22)
+            .padding(.vertical, MachKitLayout.sheetPadding)
 
             Button(action: model.scanStorageAnalysis) {
                 HStack(spacing: 9) {
@@ -124,8 +124,8 @@ extension ContentView {
                 }
             }
             .pickerStyle(.segmented)
-            .padding(.horizontal, 16)
-            .padding(.bottom, 12)
+            .padding(.horizontal, MachKitLayout.pageMargin)
+            .padding(.bottom, MachKitLayout.bannerPadding)
 
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 14) {
@@ -148,7 +148,7 @@ extension ContentView {
                             }
                             Spacer()
                         }
-                        .padding(11)
+                        .padding(MachKitLayout.bannerPadding)
                         .background(Color.accentColor.opacity(0.08), in: RoundedRectangle(cornerRadius: 9))
                     }
 
@@ -169,8 +169,8 @@ extension ContentView {
                     Text("Sizes summarize readable content. Protected or cloud-only items may be undercounted. Storage analysis never deletes files — use Cleanup for safe removals.".localized)
                         .font(.caption).foregroundStyle(.secondary)
                 }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 16)
+                .padding(.horizontal, MachKitLayout.pageMargin)
+                .padding(.bottom, MachKitLayout.pageMargin)
             }
         }
     }
@@ -194,7 +194,7 @@ extension ContentView {
             .buttonStyle(.bordered)
             .controlSize(.small)
         }
-        .padding(14)
+        .padding(MachKitLayout.cardPadding)
         .background(Color.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
     }
 
@@ -355,7 +355,7 @@ extension ContentView {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(14)
+        .padding(MachKitLayout.cardPadding)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
     }
 
@@ -407,7 +407,7 @@ extension ContentView {
                     .font(.system(size: 12, weight: .medium)).monospacedDigit()
                 Image(systemName: "arrow.forward.circle").font(.caption).foregroundStyle(.tertiary)
             }
-            .padding(.horizontal, 14).padding(.vertical, 9).frame(minHeight: 56)
+            .padding(.horizontal, MachKitLayout.rowPaddingHorizontal).padding(.vertical, MachKitLayout.rowPaddingVertical).frame(minHeight: 56)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -460,7 +460,7 @@ extension ContentView {
             Text(detail.localized).font(.caption).foregroundStyle(.secondary).multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
-        .padding(14)
+        .padding(MachKitLayout.cardPadding)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
     }
 
@@ -489,7 +489,7 @@ extension ContentView {
                     .font(.system(size: 12, weight: .medium)).monospacedDigit()
                 Image(systemName: "chevron.right").font(.caption2).foregroundStyle(.tertiary)
             }
-            .padding(.horizontal, 14).padding(.vertical, 9).frame(minHeight: 56)
+            .padding(.horizontal, MachKitLayout.rowPaddingHorizontal).padding(.vertical, MachKitLayout.rowPaddingVertical).frame(minHeight: 56)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -552,7 +552,7 @@ extension ContentView {
             }
             .font(.caption).foregroundStyle(.secondary)
         }
-        .padding(14)
+        .padding(MachKitLayout.cardPadding)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
     }
 
@@ -582,7 +582,7 @@ extension ContentView {
             Spacer()
             Text(formatted(usage.bytes)).font(.system(size: 12, weight: .medium)).monospacedDigit()
         }
-        .padding(.horizontal, 14).padding(.vertical, 9).frame(minHeight: 55)
+        .padding(.horizontal, MachKitLayout.rowPaddingHorizontal).padding(.vertical, MachKitLayout.rowPaddingVertical).frame(minHeight: 55)
     }
 
     func storageCategoryIcon(_ category: StorageCategoryKind) -> String {

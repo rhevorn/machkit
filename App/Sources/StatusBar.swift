@@ -160,8 +160,8 @@ struct StatusBarMenuView: View {
     var body: some View {
         VStack(spacing: 0) {
             header
-                .padding(.horizontal, 12)
-                .padding(.vertical, 9)
+                .padding(.horizontal, MachKitLayout.bannerPadding)
+                .padding(.vertical, MachKitLayout.rowPaddingVertical)
 
             Divider()
 
@@ -169,13 +169,13 @@ struct StatusBarMenuView: View {
                 metricsGrid
                 networkSection
             }
-            .padding(10)
+            .padding(MachKitLayout.bannerPadding)
 
             Divider()
 
             actionBar
-                .padding(.horizontal, 10)
-                .padding(.vertical, 8)
+                .padding(.horizontal, MachKitLayout.bannerPadding)
+                .padding(.vertical, MachKitLayout.controlSpacing)
         }
         .frame(width: panelWidth)
         .preferredColorScheme(systemColorScheme.colorScheme)
@@ -302,7 +302,7 @@ struct StatusBarMenuView: View {
             TransferHistoryChart(points: monitor.transferHistory, colorScheme: colorScheme)
                 .frame(height: 56)
         }
-        .padding(8)
+        .padding(MachKitLayout.controlSpacing)
         .background(cardBackground)
     }
 
