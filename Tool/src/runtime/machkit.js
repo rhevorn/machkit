@@ -177,6 +177,16 @@ export const machkit = Object.freeze({
       .catch(() => false);
   },
 
+  setWindowTitle(title) {
+    const next = String(title ?? "");
+    if (typeof document !== "undefined") {
+      document.title = next;
+    }
+    return this.request("window.setTitle", { title: next })
+      .then(() => true)
+      .catch(() => false);
+  },
+
   getPreferences() {
     return preferences;
   },
@@ -191,7 +201,7 @@ export const machkit = Object.freeze({
   },
 
   hosts(action, payload = {}) {
-    if (!/^(load|save|activate)$/.test(action)) {
+    if (!/^(load|save|apply)$/.test(action)) {
       return Promise.reject(new Error(`Unsupported Hosts operation: ${action}`));
     }
     return this.request(`hosts.${action}`, payload);

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import CodeMirror from "@uiw/react-codemirror";
 import { Desktop, HardDrives, Link, Plus } from "@phosphor-icons/react";
-import { Button, Input, RadioDot, SidebarNavItem, StatusStrip, ToolPage, ToolSidebar } from "@/ui/index.js";
+import { Button, Input, SidebarNavItem, StatusStrip, ToolPage, ToolSidebar } from "@/ui/index.js";
 import { cn } from "@/lib/utils.js";
 import { useMachKitEditorTheme } from "@/ui/codemirror-theme.js";
 import { useToolMessages } from "@/i18n.js";
@@ -11,9 +11,17 @@ import { mountTool } from "@/runtime/mount-tool.jsx";
 
 import { labels } from "./messages.js";
 import { createOperationQueue } from "./operation-queue.js";
-import { localizePresetEnvironmentName, shouldKeepLocalDrafts } from "./hosts.js";
+import {
+  clearDraftBackup,
+  draftBackupDiffers,
+  localizePresetEnvironmentName,
+  readDraftBackup,
+  shouldKeepLocalDrafts,
+  writeDraftBackup,
+} from "./hosts.js";
 
 const SIDEBAR_ITEM_CLASS = "h-12 min-h-12 shrink-0 py-2";
+const DRAFT_SAVE_DELAY_MS = 350;
 
 function HostsManager() {
   const text = useToolMessages(labels);
@@ -25,11 +33,22 @@ function HostsManager() {
   const [message, setMessage] = useState("");
   const dataRef = useRef(null);
   const draftsRef = useRef([]);
+  const selectionRef = useRef("system");
   const editRevisionRef = useRef(0);
+  const dirtyRef = useRef(false);
+  const saveTimerRef = useRef(null);
+  const saveRef = useRef(null);
+  const draftSavedTimerRef = useRef(null);
   const operationQueueRef = useRef(null);
   if (!operationQueueRef.current) {
     operationQueueRef.current = createOperationQueue((pending) => setBusy(pending > 0));
   }
+  selectionRef.current = selection;
+
+  const sameEnvironmentID = (left, right) => {
+    if (left == null || right == null || left === "" || right === "") return false;
+    return String(left).toLowerCase() === String(right).toLowerCase();
+  };
 
   const replaceData = (nextData, { replaceDrafts = true } = {}) => {
     dataRef.current = nextData;
@@ -49,7 +68,7 @@ function HostsManager() {
   };
 
   const selectedEnvironment = useMemo(
-    () => drafts.find((environment) => environment.id === selection),
+    () => drafts.find((environment) => sameEnvironmentID(environment.id, selection)),
     [drafts, selection],
   );
   const editorValue = selection === "system"
@@ -57,34 +76,85 @@ function HostsManager() {
     : selection === "shared"
       ? data?.sharedContent || ""
       : selectedEnvironment?.content || "";
+  const needsApply = Boolean(data?.needsApply);
+  const canApply = selection !== "system" && (
+    needsApply
+    || Boolean(selectedEnvironment && !sameEnvironmentID(selection, data?.activeEnvironmentID))
+  );
 
-  useEffect(() => {
-    machkit.hosts("load").then((nextData) => {
-      replaceData(nextData);
-    }).catch((error) => setMessage(error.message));
-  }, []);
+  const draftPayload = (
+    nextDrafts = draftsRef.current,
+    nextSharedContent = dataRef.current?.sharedContent || "",
+  ) => ({
+    environments: nextDrafts,
+    sharedContent: nextSharedContent,
+    revision: dataRef.current?.revision,
+  });
+
+  const stashBackup = () => {
+    writeDraftBackup(window.localStorage, {
+      environments: draftsRef.current,
+      sharedContent: dataRef.current?.sharedContent ?? "",
+      activeEnvironmentID: dataRef.current?.activeEnvironmentID ?? null,
+    });
+  };
+
+  const scheduleSave = () => {
+    dirtyRef.current = true;
+    stashBackup();
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => {
+      saveTimerRef.current = null;
+      void saveRef.current?.();
+    }, DRAFT_SAVE_DELAY_MS);
+  };
+
+  const flushSave = () => {
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = null;
+    }
+    stashBackup();
+    if (!dirtyRef.current || !dataRef.current) return undefined;
+    return saveRef.current?.();
+  };
+
+  const markDraftSaved = () => {
+    const baseTitle = text.title;
+    const savedTitle = `${baseTitle}${text.draftSaved}`;
+    void machkit.setWindowTitle(savedTitle);
+    if (draftSavedTimerRef.current) clearTimeout(draftSavedTimerRef.current);
+    draftSavedTimerRef.current = setTimeout(() => {
+      draftSavedTimerRef.current = null;
+      void machkit.setWindowTitle(baseTitle);
+    }, 3000);
+  };
 
   const save = async (
     nextDrafts = draftsRef.current,
     nextSharedContent = dataRef.current?.sharedContent || "",
   ) => {
+    if (!dataRef.current) return false;
     const localEditRevision = editRevisionRef.current;
     setMessage("");
     try {
-      const nextData = await operationQueueRef.current.run(() => machkit.hosts("save", {
-        environments: nextDrafts,
-        sharedContent: nextSharedContent,
-        revision: dataRef.current?.revision,
-      }));
+      const nextData = await operationQueueRef.current.run(() => machkit.hosts("save", draftPayload(nextDrafts, nextSharedContent)));
       const hasNewerLocalEdits = shouldKeepLocalDrafts(editRevisionRef.current, localEditRevision);
       if (hasNewerLocalEdits) {
         dataRef.current = {
           ...nextData,
           sharedContent: dataRef.current.sharedContent,
+          needsApply: true,
         };
         setData(dataRef.current);
+        dirtyRef.current = true;
+        stashBackup();
+        scheduleSave();
       } else {
+        dirtyRef.current = false;
         replaceData(nextData);
+        clearDraftBackup(window.localStorage);
+        markDraftSaved();
       }
       return true;
     } catch (error) {
@@ -92,16 +162,77 @@ function HostsManager() {
       return false;
     }
   };
+  saveRef.current = save;
 
-  const activate = async (id) => {
-    if (!await save()) return;
+  useEffect(() => () => {
+    if (draftSavedTimerRef.current) clearTimeout(draftSavedTimerRef.current);
+    void machkit.setWindowTitle(text.title);
+  }, [text.title]);
+
+  useEffect(() => {
+    machkit.hosts("load").then(async (nextData) => {
+      const backup = readDraftBackup(window.localStorage);
+      if (backup && draftBackupDiffers(backup, nextData)) {
+        replaceData({
+          ...nextData,
+          environments: backup.environments,
+          sharedContent: backup.sharedContent,
+          needsApply: true,
+        });
+        draftsRef.current = backup.environments;
+        setDrafts(backup.environments);
+        dirtyRef.current = true;
+        await save(backup.environments, backup.sharedContent);
+        return;
+      }
+      replaceData(nextData);
+      clearDraftBackup(window.localStorage);
+    }).catch((error) => setMessage(error.message));
+  }, []);
+
+  useEffect(() => {
+    const persistDraft = () => {
+      if (!dataRef.current || draftsRef.current.length === 0) return;
+      stashBackup();
+      void flushSave();
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") persistDraft();
+    };
+    window.addEventListener("pagehide", persistDraft);
+    window.addEventListener("beforeunload", persistDraft);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("pagehide", persistDraft);
+      window.removeEventListener("beforeunload", persistDraft);
+      document.removeEventListener("visibilitychange", onVisibility);
+      persistDraft();
+    };
+  }, []);
+
+  const applyToSystem = async () => {
+    const targetSelection = selectionRef.current;
+    const targetEnvironmentID = targetSelection !== "system" && targetSelection !== "shared"
+      ? targetSelection
+      : null;
+    if (dirtyRef.current) {
+      const saved = await flushSave();
+      if (saved === false) return;
+    }
     setMessage("");
     try {
-      const nextData = await operationQueueRef.current.run(() => machkit.hosts("activate", {
-        id,
-        revision: dataRef.current?.revision,
-      }));
+      const payload = draftPayload();
+      if (targetEnvironmentID) {
+        payload.environmentID = targetEnvironmentID;
+      }
+      const nextData = await operationQueueRef.current.run(() => machkit.hosts("apply", payload));
+      dirtyRef.current = false;
       replaceData(nextData);
+      clearDraftBackup(window.localStorage);
+      editRevisionRef.current += 1;
+      if (targetEnvironmentID) {
+        setSelection(targetEnvironmentID);
+      }
     } catch (error) {
       setMessage(error.message);
     }
@@ -112,34 +243,46 @@ function HostsManager() {
     const nextDrafts = [...drafts, environment];
     setLocalDrafts(nextDrafts);
     setSelection(environment.id);
-    save(nextDrafts);
+    dirtyRef.current = true;
+    stashBackup();
+    void save(nextDrafts);
   };
 
   const updateContent = (value) => {
     if (selection === "shared") {
-      const nextData = { ...dataRef.current, sharedContent: value };
+      const nextData = { ...dataRef.current, sharedContent: value, needsApply: true };
       dataRef.current = nextData;
       setData(nextData);
       editRevisionRef.current += 1;
       setMessage("");
+      scheduleSave();
       return;
     }
     if (!selectedEnvironment) return;
     setLocalDrafts((current) => current.map((environment) => environment.id === selection ? { ...environment, content: value } : environment));
+    if (dataRef.current) {
+      const nextData = { ...dataRef.current, needsApply: true };
+      dataRef.current = nextData;
+      setData(nextData);
+    }
     setMessage("");
+    scheduleSave();
   };
 
   const updateName = (value) => {
     if (!selectedEnvironment) return;
     setLocalDrafts((current) => current.map((environment) => environment.id === selection ? { ...environment, name: value } : environment));
     setMessage("");
+    scheduleSave();
   };
 
   const removeEnvironment = async (id) => {
-    if (id === data.activeEnvironmentID) return;
-    const nextDrafts = drafts.filter((environment) => environment.id !== id);
-    if (selection === id) setSelection("shared");
+    if (sameEnvironmentID(id, data.activeEnvironmentID)) return;
+    const nextDrafts = drafts.filter((environment) => !sameEnvironmentID(environment.id, id));
+    if (sameEnvironmentID(selection, id)) setSelection("shared");
     setLocalDrafts(nextDrafts);
+    dirtyRef.current = true;
+    stashBackup();
     await save(nextDrafts);
   };
 
@@ -199,9 +342,8 @@ function HostsManager() {
                 text={text}
                 busy={busy}
                 selected={selection === row.id}
-                active={row.id === data.activeEnvironmentID}
+                active={sameEnvironmentID(row.id, data.activeEnvironmentID)}
                 onSelect={setSelection}
-                onActivate={activate}
                 onDelete={removeEnvironment}
               />
             ))}
@@ -209,13 +351,13 @@ function HostsManager() {
         </ToolSidebar>
 
         <section className="flex min-w-0 flex-1 flex-col">
-          <header className="flex min-h-[var(--machkit-size-toolbar)] shrink-0 items-center px-5">
+          <header className="flex min-h-[var(--machkit-size-toolbar)] shrink-0 items-center gap-3 px-5">
             <div className="min-w-0 flex-1">
               {selectedEnvironment ? (
                 <Input
-                  value={environmentName(selectedEnvironment)}
+                  value={selectedEnvironment.name}
                   onChange={(event) => updateName(event.target.value)}
-                  onBlur={() => save()}
+                  onBlur={() => flushSave()}
                   aria-label={environmentName(selectedEnvironment)}
                   className="h-7 border-transparent bg-transparent px-1 text-sm font-semibold shadow-none hover:bg-muted focus:border-transparent focus:bg-muted focus:ring-0"
                 />
@@ -228,8 +370,29 @@ function HostsManager() {
                 <div className="truncate px-1 text-xs text-secondary">
                   {rows.find((row) => row.id === selection)?.hint}
                 </div>
+              ) : selectedEnvironment && sameEnvironmentID(selection, data.activeEnvironmentID) && !needsApply ? (
+                <div className="truncate px-1 text-xs text-secondary">
+                  {text.activeOnSystem}
+                </div>
+              ) : needsApply && selection !== "system" ? (
+                <div className="truncate px-1 text-xs text-secondary">
+                  {text.draftPending}
+                </div>
+              ) : selectedEnvironment ? (
+                <div className="truncate px-1 text-xs text-secondary">
+                  {text.applyThisEnvironment}
+                </div>
               ) : null}
             </div>
+            {selection !== "system" ? (
+              <Button
+                size="sm"
+                disabled={busy || !canApply}
+                onClick={applyToSystem}
+              >
+                {text.apply}
+              </Button>
+            ) : null}
           </header>
           <div className="min-h-0 flex-1 px-5 pb-5">
             <CodeMirror
@@ -248,7 +411,7 @@ function HostsManager() {
                 indentOnInput: false,
               }}
               onChange={updateContent}
-              onBlur={() => selection !== "system" && save()}
+              onBlur={() => selection !== "system" && flushSave()}
               placeholder={`# ${text.empty}\n127.0.0.1    api.example.local`}
               className="hosts-code-editor machkit-panel h-full min-h-0"
             />
@@ -260,7 +423,7 @@ function HostsManager() {
   );
 }
 
-function EnvironmentRow({ row, text, busy, selected, active, onSelect, onActivate, onDelete }) {
+function EnvironmentRow({ row, text, busy, selected, active, onSelect, onDelete }) {
   const [menu, setMenu] = useState(null);
   const canDelete = !active && !busy;
   const Icon = row.icon;
@@ -284,7 +447,7 @@ function EnvironmentRow({ row, text, busy, selected, active, onSelect, onActivat
   return (
     <div
       className={cn(
-        "relative flex h-12 w-full shrink-0 items-center rounded-control pr-1.5 transition-colors",
+        "relative flex h-12 w-full shrink-0 items-center rounded-control pr-2 transition-colors",
         selected ? "bg-accent-soft text-accent" : "text-secondary hover:bg-foreground/[0.04] hover:text-foreground",
       )}
       onContextMenu={(event) => {
@@ -316,13 +479,16 @@ function EnvironmentRow({ row, text, busy, selected, active, onSelect, onActivat
         <span className={cn("min-w-0 flex-1 truncate text-left text-[12.5px]", selected && "font-medium")}>
           {row.name}
         </span>
+        <span
+          className={cn(
+            "size-2 shrink-0 rounded-full",
+            active ? "bg-accent" : "bg-transparent",
+          )}
+          title={active ? text.active : undefined}
+          aria-label={active ? `${row.name} · ${text.active}` : undefined}
+          aria-hidden={!active}
+        />
       </Button>
-      <RadioDot
-        checked={active}
-        disabled={active || busy}
-        label={`${text.activate} ${row.name}`}
-        onClick={() => onActivate(row.id)}
-      />
       {menu
         ? createPortal(
           <div

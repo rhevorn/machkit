@@ -1,8 +1,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  clearDraftBackup,
+  draftBackupDiffers,
   localizePresetEnvironmentName,
+  readDraftBackup,
   shouldKeepLocalDrafts,
+  writeDraftBackup,
 } from "./hosts.js";
 
 const labels = {
@@ -41,4 +45,37 @@ test("keeps custom and renamed environments as stored", () => {
 test("detects newer local edits after save", () => {
   assert.equal(shouldKeepLocalDrafts(2, 2), false);
   assert.equal(shouldKeepLocalDrafts(3, 2), true);
+});
+
+test("round-trips draft backups in storage", () => {
+  const storage = new Map();
+  const api = {
+    setItem: (key, value) => storage.set(key, value),
+    getItem: (key) => storage.get(key) ?? null,
+    removeItem: (key) => storage.delete(key),
+  };
+  const draft = {
+    environments: [{ id: "1", name: "Dev", content: "127.0.0.1 a.test" }],
+    sharedContent: "127.0.0.1 shared.test",
+    activeEnvironmentID: "1",
+  };
+  writeDraftBackup(api, draft);
+  assert.deepEqual(readDraftBackup(api), draft);
+  assert.equal(draftBackupDiffers(draft, { ...draft, sharedContent: "other" }), true);
+  assert.equal(draftBackupDiffers(draft, draft), false);
+  clearDraftBackup(api);
+  assert.equal(readDraftBackup(api), null);
+});
+
+test("ignores empty environment backups", () => {
+  const storage = new Map();
+  const api = {
+    setItem: (key, value) => storage.set(key, value),
+    getItem: (key) => storage.get(key) ?? null,
+    removeItem: (key) => storage.delete(key),
+  };
+  writeDraftBackup(api, { environments: [], sharedContent: "x", activeEnvironmentID: null });
+  assert.equal(readDraftBackup(api), null);
+  api.setItem("machkit.hosts-manager.draft", JSON.stringify({ environments: [], sharedContent: "" }));
+  assert.equal(readDraftBackup(api), null);
 });

@@ -24,10 +24,12 @@ struct WebToolView: View {
                 )
             }
         }
-        .navigationTitle(tool.localizedTitle)
+        // Title is owned by the window (and optionally by the page via
+        // `window.setTitle`); avoid `.navigationTitle` fighting temporary titles.
         .background(
             ToolWindowConfigurator(
                 toolID: tool.id,
+                defaultTitle: tool.localizedTitle,
                 defaultSize: tool.defaultWindowSize,
                 minimumSize: tool.minimumWindowSize,
                 frameVersion: WebToolWidthClass.frameEpoch
@@ -38,6 +40,7 @@ struct WebToolView: View {
 
 private struct ToolWindowConfigurator: NSViewRepresentable {
     let toolID: String
+    let defaultTitle: String
     let defaultSize: CGSize
     let minimumSize: CGSize
     let frameVersion: Int
@@ -57,6 +60,7 @@ private struct ToolWindowConfigurator: NSViewRepresentable {
         window.identifier = MachKitAppLifecycle.toolWindowInterfaceID(for: toolID)
         guard context.coordinator.configuredWindow !== window else { return }
         context.coordinator.configuredWindow = window
+        window.title = defaultTitle
         window.titlebarSeparatorStyle = .none
         window.contentMinSize = minimumSize
 
@@ -379,6 +383,20 @@ private struct BundledWebView: NSViewRepresentable {
                     return
                 }
                 resizeWindowToFit(webView: webView, requestedContentHeight: height.doubleValue)
+                replyHandler(["ok": true], nil)
+            case "window.setTitle":
+                guard let webView = message.webView,
+                      let title = parameters["title"] as? String else {
+                    replyHandler(nil, "Window title updates are not available.")
+                    return
+                }
+                let trimmed = title.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard trimmed.utf8.count <= 200 else {
+                    replyHandler(nil, "Window title is too long.")
+                    return
+                }
+                let fallback = DeveloperToolRegistry.tool(id: toolID)?.localizedTitle ?? "MachKit"
+                webView.window?.title = trimmed.isEmpty ? fallback : trimmed
                 replyHandler(["ok": true], nil)
             case "storage.get":
                 guard capabilities.contains(.storage),

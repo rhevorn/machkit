@@ -53,7 +53,7 @@ MachKit has no analytics service or cloud backend. Scans read local file metadat
 - Xcode 16 / Swift 6 (for building from source)
 - Node.js 24 / npm (for building the embedded H5 tools)
 - Full Disk Access may be required for some user directories
-- Editing hosts files requires administrator authentication when writing
+- Editing hosts files requires administrator authentication when applying changes to `/etc/hosts`
 
 ## Install
 

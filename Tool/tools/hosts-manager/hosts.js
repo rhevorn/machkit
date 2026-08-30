@@ -16,3 +16,51 @@ export function localizePresetEnvironmentName(environment, text) {
 export function shouldKeepLocalDrafts(editRevision, savedRevision) {
   return editRevision !== savedRevision;
 }
+
+export const HOSTS_DRAFT_BACKUP_KEY = "machkit.hosts-manager.draft";
+
+/** Sync browser backup so closing the WebView cannot drop unsaved keystrokes. */
+export function writeDraftBackup(storage, draft) {
+  if (!storage || !draft) return;
+  const environments = draft.environments ?? [];
+  // Never persist an empty environment list — that can wipe presets on restore.
+  if (!Array.isArray(environments) || environments.length === 0) return;
+  storage.setItem(HOSTS_DRAFT_BACKUP_KEY, JSON.stringify({
+    environments,
+    sharedContent: draft.sharedContent ?? "",
+    activeEnvironmentID: draft.activeEnvironmentID ?? null,
+  }));
+}
+
+export function readDraftBackup(storage) {
+  if (!storage) return null;
+  try {
+    const raw = storage.getItem(HOSTS_DRAFT_BACKUP_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || !Array.isArray(parsed.environments) || parsed.environments.length === 0) {
+      return null;
+    }
+    return {
+      environments: parsed.environments,
+      sharedContent: typeof parsed.sharedContent === "string" ? parsed.sharedContent : "",
+      activeEnvironmentID: typeof parsed.activeEnvironmentID === "string"
+        ? parsed.activeEnvironmentID
+        : null,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function clearDraftBackup(storage) {
+  storage?.removeItem(HOSTS_DRAFT_BACKUP_KEY);
+}
+
+export function draftBackupDiffers(backup, data) {
+  if (!backup || !data) return false;
+  if (!Array.isArray(backup.environments) || backup.environments.length === 0) return false;
+  if ((backup.sharedContent ?? "") !== (data.sharedContent ?? "")) return true;
+  if ((backup.activeEnvironmentID ?? null) !== (data.activeEnvironmentID ?? null)) return true;
+  return JSON.stringify(backup.environments ?? []) !== JSON.stringify(data.environments ?? []);
+}
