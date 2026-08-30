@@ -35,7 +35,6 @@ struct AppSettingsView: View {
             settingsContent
         }
         .environment(\.locale, language.locale)
-        .preferredColorScheme(appearance.colorScheme)
     }
 
     private var settingsContent: some View {

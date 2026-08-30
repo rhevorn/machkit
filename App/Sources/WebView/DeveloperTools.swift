@@ -461,6 +461,17 @@ struct ToolShortcut: Codable, Equatable {
     }
 }
 
+extension View {
+    @ViewBuilder
+    func toolShortcut(_ shortcut: ToolShortcut?) -> some View {
+        if let shortcut, let keyEquivalent = shortcut.keyEquivalent {
+            keyboardShortcut(keyEquivalent, modifiers: shortcut.modifiers)
+        } else {
+            self
+        }
+    }
+}
+
 @MainActor
 final class ToolShortcutStore: ObservableObject {
     static let shared = ToolShortcutStore()
@@ -691,6 +702,7 @@ final class GlobalHotKeyManager: ObservableObject {
 
 struct DeveloperToolCommands: Commands {
     @ObservedObject var model: CleanerViewModel
+    @ObservedObject private var shortcutStore = ToolShortcutStore.shared
     @Environment(\.openWindow) private var openWindow
 
     var body: some Commands {
@@ -706,11 +718,13 @@ struct DeveloperToolCommands: Commands {
     @ViewBuilder
     private var toolListCommand: some View {
         Button("Open Tool List".localized, action: openToolList)
+            .toolShortcut(shortcutStore.shortcut(for: ToolShortcutStore.toolListID))
     }
 
     @ViewBuilder
     private func command(for tool: DeveloperTool) -> some View {
         Button(tool.localizedTitle) { open(tool) }
+            .toolShortcut(shortcutStore.shortcut(for: tool.id))
     }
 
     private func open(_ tool: DeveloperTool) {

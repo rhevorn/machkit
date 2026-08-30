@@ -55,6 +55,7 @@ final class ScreenshotEditorController: NSWindowController, NSWindowDelegate {
         window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .ignoresCycle]
         window.isReleasedWhenClosed = false
         window.animationBehavior = .none
+        window.appearance = Self.resolvedWindowAppearance()
         super.init(window: window)
         window.delegate = self
 
@@ -114,10 +115,27 @@ final class ScreenshotEditorController: NSWindowController, NSWindowDelegate {
     required init?(coder: NSCoder) { fatalError() }
 
     func present() {
+        window?.appearance = Self.resolvedWindowAppearance()
         window?.contentView?.layoutSubtreeIfNeeded()
         window?.displayIfNeeded()
         window?.orderFrontRegardless()
         window?.makeKey()
+    }
+
+    private static func resolvedWindowAppearance() -> NSAppearance? {
+        let raw = UserDefaults.standard.string(forKey: AppPreferenceKey.appearance)
+            ?? AppAppearance.system.rawValue
+        switch AppAppearance(rawValue: raw) ?? .system {
+        case .light:
+            return NSAppearance(named: .aqua)
+        case .dark:
+            return NSAppearance(named: .darkAqua)
+        case .system:
+            // Borderless editor panels may not inherit the app appearance; pin to
+            // the currently resolved system look when the editor opens.
+            let match = NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua])
+            return match.flatMap(NSAppearance.init(named:)) ?? NSApp.effectiveAppearance
+        }
     }
 
     private func confirmAndCopy() {

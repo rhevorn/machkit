@@ -85,6 +85,12 @@ enum MachKitAppLifecycle {
         }
     }
 
+    static func presentMainWindow(openMainWindow: () -> Void) {
+        showInForeground()
+        openMainWindow()
+        bringMainWindowToFront()
+    }
+
     static func toggleToolList(
         isShowingTools: Bool,
         showTools: () -> Void,
@@ -95,9 +101,7 @@ enum MachKitAppLifecycle {
             return
         }
         showTools()
-        showInForeground()
-        openMainWindow()
-        bringMainWindowToFront()
+        presentMainWindow(openMainWindow: openMainWindow)
     }
 
     static func toolWindowInterfaceID(for toolID: String) -> NSUserInterfaceItemIdentifier {
@@ -331,6 +335,7 @@ final class MachKitAppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        AppAppearance.applyStoredPreference()
         GlobalHotKeyManager.shared.start()
         windowCloseObserver = NotificationCenter.default.addObserver(
             forName: NSWindow.willCloseNotification,
@@ -362,6 +367,7 @@ struct MachKitApp: App {
     @AppStorage(AppPreferenceKey.appearance) private var appearanceRawValue = AppAppearance.system.rawValue
     @AppStorage(AppPreferenceKey.showMenuBar) private var showMenuBar = true
     @StateObject private var model = CleanerViewModel()
+    @StateObject private var systemAppearance = SystemAppearanceObserver()
 
     private var language: AppLanguage {
         AppLanguage(rawValue: languageRawValue) ?? .system
@@ -369,6 +375,12 @@ struct MachKitApp: App {
 
     private var appearance: AppAppearance {
         AppAppearance(rawValue: appearanceRawValue) ?? .system
+    }
+
+    private var resolvedColorScheme: ColorScheme {
+        // Depend on the token so System follows live macOS theme changes.
+        _ = systemAppearance.refreshToken
+        return appearance.resolvedColorScheme
     }
 
     var body: some Scene {
@@ -384,7 +396,11 @@ struct MachKitApp: App {
                     )
                 )
                 .environment(\.locale, language.locale)
-                .preferredColorScheme(appearance.colorScheme)
+                .preferredColorScheme(resolvedColorScheme)
+                .onAppear { appearance.applyToApplication() }
+                .onChange(of: appearanceRawValue) { _, _ in
+                    appearance.applyToApplication()
+                }
                 .onChange(of: showMenuBar) { _, enabled in
                     if !enabled { MachKitAppLifecycle.showInForeground() }
                 }
@@ -405,7 +421,7 @@ struct MachKitApp: App {
                     )
                     .background(GlobalShortcutBridge(model: model))
                     .environment(\.locale, language.locale)
-                    .preferredColorScheme(appearance.colorScheme)
+                    .preferredColorScheme(resolvedColorScheme)
             } else {
                 ContentUnavailableView(
                     "Web tool not found".localized,
@@ -425,8 +441,9 @@ struct MachKitApp: App {
             image: "MenuBarMark",
             isInserted: $showMenuBar
         ) {
-            StatusBarMenuView()
+            StatusBarMenuView(model: model)
                 .environment(\.locale, language.locale)
+                .id(languageRawValue)
         }
         .menuBarExtraStyle(.menu)
     }

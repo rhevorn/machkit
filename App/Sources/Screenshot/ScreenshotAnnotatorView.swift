@@ -90,6 +90,7 @@ private struct ScreenshotMosaicGlyph: View {
 
 struct ScreenshotAnnotatorView: View {
     @ObservedObject var model: ScreenshotEditorModel
+    @AppStorage(AppPreferenceKey.appearance) private var appearanceRawValue = AppAppearance.system.rawValue
     let toolbarBounds: CGRect
     let onMoveCanvas: (CGRect) -> Bool
     let onConfirm: () -> Void
@@ -101,6 +102,10 @@ struct ScreenshotAnnotatorView: View {
     @State private var annotationGestureActive = false
     @State private var pointerIsInsideCanvas = false
     @FocusState private var textFieldIsFocused: Bool
+
+    private var appearance: AppAppearance {
+        AppAppearance(rawValue: appearanceRawValue) ?? .system
+    }
 
     init(
         model: ScreenshotEditorModel,
@@ -155,6 +160,7 @@ struct ScreenshotAnnotatorView: View {
                 return .handled
             }
         }
+        .preferredColorScheme(appearance.resolvedColorScheme)
     }
 
     private func imageCanvas(size: CGSize) -> some View {

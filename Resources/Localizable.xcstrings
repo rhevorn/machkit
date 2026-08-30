@@ -6300,7 +6300,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Un proxy système est activé. La recherche d’itinéraire affiche la sortie du Mac ; les apps utilisant le proxy se connectent d’abord au proxy local."
+            "value" : "Un proxy système est activé. La recherche de route montre la sortie du Mac ; les apps proxifiées se connectent d’abord au proxy local."
           }
         },
         "ja" : {
@@ -7708,13 +7708,13 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Todas las herramientas"
+            "value" : "Todas herramientas"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tous les outils"
+            "value" : "Tous outils"
           }
         },
         "ja" : {
@@ -7732,7 +7732,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Todas as ferramentas"
+            "value" : "Todas ferramentas"
           }
         },
         "ru" : {
@@ -9359,13 +9359,13 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tamaño de la aplicación"
+            "value" : "Tamaño app"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Taille de l'application"
+            "value" : "Taille app"
           }
         },
         "ja" : {
@@ -9383,13 +9383,13 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tamanho do aplicativo"
+            "value" : "Tamanho app"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Размер приложения"
+            "value" : "Размер app"
           }
         },
         "zh-Hans" : {
@@ -9418,37 +9418,37 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tienda de aplicaciones"
+            "value" : "App Store"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Magasin d'applications"
+            "value" : "App Store"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アプリストア"
+            "value" : "App Store"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "앱스토어"
+            "value" : "App Store"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Loja de aplicativos"
+            "value" : "App Store"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Магазин приложений"
+            "value" : "App Store"
           }
         },
         "zh-Hans" : {
@@ -10503,7 +10503,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Appliquer les modifications"
+            "value" : "Appliquer"
           }
         },
         "ja" : {
@@ -10527,7 +10527,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Применить изменения"
+            "value" : "Применить"
           }
         },
         "zh-Hans" : {
@@ -13276,7 +13276,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Annuler la numérisation"
+            "value" : "Annuler l’analyse"
           }
         },
         "ja" : {
@@ -13294,7 +13294,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cancelar digitalização"
+            "value" : "Cancelar análise"
           }
         },
         "ru" : {
@@ -14203,29 +14203,30 @@
       }
     },
     "Check for Updates…" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nach Updates suchen…"
+            "value" : "Updates…"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Buscar actualizaciones…"
+            "value" : "Actualizaciones…"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rechercher des mises à jour…"
+            "value" : "Mises à jour…"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アップデートを確認…"
+            "value" : "アップデート…"
           }
         },
         "ko" : {
@@ -14237,13 +14238,13 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Verificar atualizações…"
+            "value" : "Atualizações…"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Проверить обновления…"
+            "value" : "Обновления…"
           }
         },
         "zh-Hans" : {
@@ -15981,7 +15982,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wählen Sie „Ordner scannen“."
+            "value" : "Scan-Ordner wählen"
           }
         },
         "es" : {
@@ -15993,7 +15994,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Choisissez le dossier de numérisation"
+            "value" : "Choisir un dossier à analyser"
           }
         },
         "ja" : {
@@ -16011,7 +16012,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Escolha a pasta de digitalização"
+            "value" : "Escolher pasta para analisar"
           }
         },
         "ru" : {
@@ -22613,13 +22614,13 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Copias de seguridad del dispositivo"
+            "value" : "Copias del dispositivo"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sauvegardes d’appareil"
+            "value" : "Sauvegardes appareil"
           }
         },
         "ja" : {
@@ -27521,7 +27522,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Forcer à quitter"
+            "value" : "Forcer quitter"
           }
         },
         "ja" : {
@@ -27545,7 +27546,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Принудительное завершение"
+            "value" : "Принуд. выход"
           }
         },
         "zh-Hans" : {
@@ -29106,13 +29107,13 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Servicio de recarga en vivo"
+            "value" : "Servicio Go Live Reload"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Passer au service de rechargement en direct"
+            "value" : "Service de rechargement Go Live"
           }
         },
         "ja" : {
@@ -29124,7 +29125,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "실시간 재로드 서비스 시작"
+            "value" : "Go Live 리로드 서비스"
           }
         },
         "pt-BR" : {
@@ -30750,65 +30751,6 @@
         }
       }
     },
-    "Host or IP" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Host oder IP"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Host o IP"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hôte ou IP"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ホストまたは IP"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "호스트 또는 IP"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Host ou IP"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Хост или IP"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "主机或 IP"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "主機或 IP"
-          }
-        }
-      }
-    },
     "Host entries cannot contain MachKit's reserved section markers." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -30864,6 +30806,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hosts 項目不能包含 MachKit 的保留區塊標記。"
+          }
+        }
+      }
+    },
+    "Host or IP" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Host oder IP"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Host o IP"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hôte ou IP"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ホストまたは IP"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "호스트 또는 IP"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Host ou IP"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Хост или IP"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主机或 IP"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主機或 IP"
           }
         }
       }
@@ -36123,13 +36124,13 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Artículos de inicio de sesión"
+            "value" : "Elementos de inicio"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Éléments de connexion"
+            "value" : "Éléments d’ouverture"
           }
         },
         "ja" : {
@@ -38707,43 +38708,43 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Metall-GPU nicht erkannt"
+            "value" : "Metal-GPU nicht erkannt"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "GPU de metal no detectada"
+            "value" : "GPU Metal no detectada"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "GPU métallique non détecté"
+            "value" : "GPU Metal non détecté"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "メタル GPU が検出されない"
+            "value" : "Metal GPU が検出されません"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "금속 GPU가 감지되지 않습니다"
+            "value" : "Metal GPU가 감지되지 않음"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "GPU metálica não detectada"
+            "value" : "GPU Metal não detectada"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Металлический графический процессор не обнаружен"
+            "value" : "Metal GPU не обнаружен"
           }
         },
         "zh-Hans" : {
@@ -39537,7 +39538,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "In den Papierkorb verschieben"
+            "value" : "In Papierkorb"
           }
         },
         "es" : {
@@ -39549,7 +39550,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Déplacer vers la corbeille"
+            "value" : "Vers la corbeille"
           }
         },
         "ja" : {
@@ -41370,7 +41371,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sin elementos de inicio de sesión"
+            "value" : "Sin elementos de inicio"
           }
         },
         "fr" : {
@@ -44440,19 +44441,19 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Öffnen Sie die Einstellungen für Anmeldeelemente"
+            "value" : "Anmeldeelemente öffnen"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Abrir configuración de elementos de inicio de sesión"
+            "value" : "Ajustes de elementos de inicio"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ouvrir les paramètres de l'élément de connexion"
+            "value" : "Réglages d’ouverture"
           }
         },
         "ja" : {
@@ -44499,43 +44500,43 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MachKit öffnen"
+            "value" : "MachKit"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Abrir MachKit"
+            "value" : "MachKit"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ouvrir MachKit"
+            "value" : "MachKit"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MachKit を開く"
+            "value" : "MachKit"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MachKit 열기"
+            "value" : "MachKit"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Abrir MachKit"
+            "value" : "MachKit"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Открыть MachKit"
+            "value" : "MachKit"
           }
         },
         "zh-Hans" : {
@@ -44548,6 +44549,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "開啟 MachKit"
+          }
+        }
+      }
+    },
+    "Open Settings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einstellungen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajustes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réglages"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajustes"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройки"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定"
           }
         }
       }
@@ -44675,43 +44735,43 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Werkzeugliste öffnen"
+            "value" : "Werkzeugliste"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Abrir lista de herramientas"
+            "value" : "Lista de herramientas"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ouvrir la liste d’outils"
+            "value" : "Liste d’outils"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ツール一覧を開く"
+            "value" : "ツール一覧"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "도구 목록 열기"
+            "value" : "도구 목록"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Abrir lista de ferramentas"
+            "value" : "Lista de ferramentas"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Открыть список инструментов"
+            "value" : "Список инструментов"
           }
         },
         "zh-Hans" : {
@@ -46202,13 +46262,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "性能"
+            "value" : "性能监控"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "效能"
+            "value" : "效能監控"
           }
         }
       }
@@ -48115,7 +48175,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Préparation à la numérisation"
+            "value" : "Préparation de l’analyse"
           }
         },
         "ja" : {
@@ -49741,6 +49801,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "正常結束"
+          }
+        }
+      }
+    },
+    "Quit MachKit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MachKit beenden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salir de MachKit"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quitter MachKit"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MachKit を終了"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MachKit 종료"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sair do MachKit"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выйти из MachKit"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "退出 MachKit"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "結束 MachKit"
           }
         }
       }
@@ -54294,7 +54413,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Recherche d’itinéraire"
+            "value" : "Recherche de route"
           }
         },
         "ja" : {
@@ -55650,7 +55769,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Numérisation annulée."
+            "value" : "Analyse annulée."
           }
         },
         "ja" : {
@@ -55668,7 +55787,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Digitalização cancelada."
+            "value" : "Análise cancelada."
           }
         },
         "ru" : {
@@ -55786,7 +55905,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Digitalização concluída. %lld arquivos candidatos encontrados."
+            "value" : "Análise concluída. %lld arquivos candidatos encontrados."
           }
         },
         "ru" : {
@@ -55945,7 +56064,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Numérisation"
+            "value" : "Analyse"
           }
         },
         "ja" : {
@@ -56004,7 +56123,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Numérisation %@"
+            "value" : "Analyse %@"
           }
         },
         "ja" : {
@@ -56417,7 +56536,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Emplacement interdit de numérisation : %@"
+            "value" : "Emplacement interdit à l’analyse : %@"
           }
         },
         "ja" : {
@@ -56435,7 +56554,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Localização proibida de digitalização: %@"
+            "value" : "Local proibido para análise: %@"
           }
         },
         "ru" : {
@@ -56535,7 +56654,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Numérisation…"
+            "value" : "Analyse…"
           }
         },
         "ja" : {
@@ -56676,7 +56795,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Область применения"
+            "value" : "Область"
           }
         },
         "zh-Hans" : {
@@ -56940,13 +57059,13 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Buscar aplicaciones"
+            "value" : "Buscar apps"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rechercher des applications"
+            "value" : "Rechercher apps"
           }
         },
         "ja" : {
@@ -65723,7 +65842,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Atajo de la lista de herramientas"
+            "value" : "Atajo lista de herramientas"
           }
         },
         "fr" : {
@@ -65753,7 +65872,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Сочетание клавиш для списка инструментов"
+            "value" : "Ярлык списка инструментов"
           }
         },
         "zh-Hans" : {
@@ -66374,7 +66493,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Enregistrement de la corbeille"
+            "value" : "Journal Corbeille"
           }
         },
         "ja" : {
@@ -69338,7 +69457,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mettre à jour maintenant"
+            "value" : "Mettre à jour"
           }
         },
         "ja" : {
@@ -70571,13 +70690,13 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aplicaciones de usuario"
+            "value" : "Apps de usuario"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Applications utilisateur"
+            "value" : "Apps utilisateur"
           }
         },
         "ja" : {
@@ -70595,13 +70714,13 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aplicativos de usuário"
+            "value" : "Apps do usuário"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Пользовательские приложения"
+            "value" : "Польз. приложения"
           }
         },
         "zh-Hans" : {
@@ -72107,7 +72226,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "En attente de numérisation"
+            "value" : "En attente d’analyse"
           }
         },
         "ja" : {

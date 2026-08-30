@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 import SwiftUI
 
@@ -126,11 +127,75 @@ enum AppAppearance: String, CaseIterable, Identifiable {
         }
     }
 
-    var colorScheme: ColorScheme? {
+    /// Never return `nil` for SwiftUI `.preferredColorScheme`. Passing `nil` after an
+    /// explicit light/dark override often leaves the window stuck until focus changes.
+    @MainActor
+    var resolvedColorScheme: ColorScheme {
         switch self {
-        case .system: nil
-        case .light: .light
-        case .dark: .dark
+        case .light:
+            return .light
+        case .dark:
+            return .dark
+        case .system:
+            // Read the OS preference directly. `NSApp.effectiveAppearance` can still
+            // reflect a previous light/dark override during the same update cycle.
+            return Self.systemPrefersDark ? .dark : .light
+        }
+    }
+
+    private static var systemPrefersDark: Bool {
+        UserDefaults.standard.string(forKey: "AppleInterfaceStyle") == "Dark"
+    }
+
+    /// Clear AppKit overrides so System can follow macOS. Light/Dark set an explicit app appearance.
+    @MainActor
+    func applyToApplication() {
+        switch self {
+        case .light:
+            NSApp.appearance = NSAppearance(named: .aqua)
+        case .dark:
+            NSApp.appearance = NSAppearance(named: .darkAqua)
+        case .system:
+            NSApp.appearance = nil
+            for window in NSApp.windows {
+                window.appearance = nil
+            }
+        }
+    }
+
+    @MainActor
+    static func applyStoredPreference(defaults: UserDefaults = .standard) {
+        let raw = defaults.string(forKey: AppPreferenceKey.appearance) ?? AppAppearance.system.rawValue
+        (AppAppearance(rawValue: raw) ?? .system).applyToApplication()
+    }
+}
+
+/// Tracks macOS light/dark changes while the app preference is System.
+@MainActor
+final class SystemAppearanceObserver: ObservableObject {
+    @Published private(set) var refreshToken = 0
+    /// Mutation only happens on the main actor; deinit may tear the token down.
+    nonisolated(unsafe) private var observer: NSObjectProtocol?
+
+    init() {
+        observer = DistributedNotificationCenter.default().addObserver(
+            forName: Notification.Name("AppleInterfaceThemeChangedNotification"),
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.refreshToken &+= 1
+                let raw = UserDefaults.standard.string(forKey: AppPreferenceKey.appearance) ?? ""
+                if (AppAppearance(rawValue: raw) ?? .system) == .system {
+                    AppAppearance.system.applyToApplication()
+                }
+            }
+        }
+    }
+
+    deinit {
+        if let observer {
+            DistributedNotificationCenter.default().removeObserver(observer)
         }
     }
 }
