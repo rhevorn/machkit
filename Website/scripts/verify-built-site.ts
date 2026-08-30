@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { featurePages, supportedLocales } from "../src/seo-pages.js";
+import { featurePages, site, supportedLocales } from "../src/seo-pages.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const clientDirectory = path.join(root, "dist/client");
@@ -82,6 +82,12 @@ assert.match(homepage, /href="\.\/features\/screenshot\/"/);
 assert.match(homepage, /width="2040" height="1648"/);
 assert.match(homepage, /data-screen-tab="cleanup"/);
 assert.match(homepage, /data-screen-panel="performance"/);
+assert.match(homepage, /MachKit-\d+\.\d+\.\d+-macOS\.zip/);
+assert.ok(homepage.includes(site.downloadURL));
+assert.doesNotMatch(
+  homepage,
+  /"downloadUrl": "https:\/\/github\.com\/rhevorn\/machkit\/releases\/latest"/,
+);
 assert.doesNotMatch(homepage, /src\/main\.tsx|24 practical local tools/);
 assert.match(homepage, /assets\/cleanup\.webp/);
 assert.doesNotMatch(homepage, /assets\/cleanup-zh-CN\.webp/);

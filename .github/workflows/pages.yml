@@ -2,10 +2,8 @@ name: Deploy website to GitHub Pages
 
 on:
   push:
-    branches: [main]
-    paths:
-      - "Website/**"
-      - ".github/workflows/pages.yml"
+    tags:
+      - "v*"
   workflow_dispatch:
 
 permissions:
@@ -29,12 +27,32 @@ jobs:
           cache: npm
           cache-dependency-path: Website/package-lock.json
 
+      - name: Resolve release tag for download links
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            tag="${GITHUB_REF_NAME}"
+          else
+            tag="$(gh api "repos/${GITHUB_REPOSITORY}/releases/latest" --jq .tag_name)"
+          fi
+          if [[ -z "$tag" || "$tag" == "null" ]]; then
+            echo "Unable to resolve the release tag for website download links." >&2
+            exit 1
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "Baked download tag: \`$tag\`" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Install dependencies
         working-directory: Website
         run: npm ci
 
       - name: Test, type-check, and build static website
         working-directory: Website
+        env:
+          VITE_RELEASE_TAG: ${{ steps.release.outputs.tag }}
         run: |
           npm test
           npm run typecheck

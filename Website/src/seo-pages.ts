@@ -9,6 +9,7 @@ import type {
   LocalizedWebsiteTool,
   WebsiteTool,
 } from "./tool-catalog.js";
+import { fallbackRelease } from "./release.js";
 
 export type SiteLocale = "en" | "zh-CN";
 
@@ -44,7 +45,7 @@ export const site = Object.freeze({
   name: "MachKit",
   origin: "https://machkit.app",
   repositoryURL: "https://github.com/rhevorn/machkit",
-  downloadURL: "https://github.com/rhevorn/machkit/releases/latest",
+  downloadURL: fallbackRelease.downloadURL,
 });
 
 export const supportedLocales = Object.freeze(["en", "zh-CN"] as const satisfies readonly SiteLocale[]);

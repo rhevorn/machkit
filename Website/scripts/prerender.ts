@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import {
   featurePages,
   localizedPath,
+  site,
   supportedLocales,
 } from "../src/seo-pages.js";
 import type { FeaturePage, SiteLocale } from "../src/seo-pages.js";
@@ -27,6 +28,17 @@ const { renderFeatureDocument, renderHome, renderSitemap } = await import(pathTo
   renderSitemap: (lastModified?: Record<string, string | undefined>) => string;
 };
 const execFileAsync = promisify(execFile);
+
+function bakeDownloadURL(html: string): string {
+  const next = html.replace(
+    /"downloadUrl"\s*:\s*"[^"]*"/g,
+    `"downloadUrl": ${JSON.stringify(site.downloadURL)}`,
+  );
+  if (!next.includes(site.downloadURL)) {
+    throw new Error("Unable to bake the release download URL into homepage structured data.");
+  }
+  return next;
+}
 
 async function gitLastModified(paths: string[]): Promise<string | undefined> {
   try {
@@ -77,11 +89,11 @@ const scriptHref = `/${staticPageEntry.file}`;
 
 await fs.writeFile(
   englishFile,
-  replaceFallback(englishHTML, renderHome({ locale: "en", assetBase: "." })),
+  bakeDownloadURL(replaceFallback(englishHTML, renderHome({ locale: "en", assetBase: "." }))),
 );
 await fs.writeFile(
   chineseFile,
-  replaceFallback(chineseHTML, renderHome({ locale: "zh-CN", assetBase: ".." })),
+  bakeDownloadURL(replaceFallback(chineseHTML, renderHome({ locale: "zh-CN", assetBase: ".." }))),
 );
 
 const pages = featurePages as readonly FeaturePage[];
