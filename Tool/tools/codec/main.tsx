@@ -186,16 +186,14 @@ function CodecTool() {
           <div className="flex min-h-0 flex-1 flex-col gap-2.5 px-4 pb-4">
             <ToolToolbar className="flex-wrap gap-2">
               {tab === "hash" ? (
-                <div className="flex min-w-0 flex-1 items-center gap-2">
-                  <span className="machkit-control-label whitespace-nowrap">{text.algorithm}</span>
-                  <SelectControl
-                    value={algorithm}
-                    onChange={setAlgorithm}
-                    label={text.algorithm}
-                    className="max-w-[200px]"
-                    options={hashAlgorithms.map((value) => ({ value, label: value }))}
-                  />
-                </div>
+                <SegmentedControl
+                  value={algorithm}
+                  onChange={setAlgorithm}
+                  label={text.algorithm}
+                  size="compact"
+                  className="min-w-0 max-w-[420px] flex-1"
+                  options={hashAlgorithms.map((value) => ({ value, label: value }))}
+                />
               ) : (
                 <div className="flex items-center gap-2">
                   <SegmentedControl

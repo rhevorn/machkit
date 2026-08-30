@@ -332,16 +332,34 @@ extension ContentView {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 14) {
                 sectionTitle("Route Lookup", detail: "Check which interface macOS will use for a host or IP address")
-                HStack(spacing: 9) {
-                    Image(systemName: "scope").foregroundStyle(.secondary)
-                    TextField("example.com or 1.1.1.1", text: $routeQuery)
-                        .textFieldStyle(.plain).onSubmit { model.lookupNetworkRoute(routeQuery) }
-                    Button("Check Route") { model.lookupNetworkRoute(routeQuery) }
-                        .buttonStyle(.borderedProminent).controlSize(.small)
-                        .disabled(routeQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.isLookingUpRoute)
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Host or IP".localized)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    HStack(alignment: .center, spacing: 10) {
+                        TextField("example.com or 1.1.1.1", text: $routeQuery)
+                            .textFieldStyle(.roundedBorder)
+                            .font(.system(size: 13))
+                            .disabled(model.isLookingUpRoute)
+                            .onSubmit { model.lookupNetworkRoute(routeQuery) }
+                            .accessibilityLabel("Host or IP".localized)
+                        if model.isLookingUpRoute {
+                            ProgressView()
+                                .controlSize(.small)
+                        }
+                        Button("Check Route") { model.lookupNetworkRoute(routeQuery) }
+                            .buttonStyle(.borderedProminent)
+                            .controlSize(.regular)
+                            .disabled(routeQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.isLookingUpRoute)
+                    }
                 }
-                .padding(.horizontal, MachKitLayout.bannerPadding).frame(height: 40)
-                .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 9))
+                .padding(MachKitLayout.bannerPadding)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color(nsColor: .textBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 10)
+                        .strokeBorder(Color.primary.opacity(0.12), lineWidth: 1)
+                }
 
                 if let route = model.routeLookup {
                     HStack(spacing: 12) {
