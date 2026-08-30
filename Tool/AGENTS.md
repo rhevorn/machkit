@@ -204,8 +204,6 @@ and information architecture intact.
   layout or specialized visualization.
 - Do not introduce a new page family because one screen needs a small variation;
   extend the closest shared template or pattern first.
-- Broad migrations must follow `UI_MIGRATION_PLAN.md`, including its reference
-  tools, migration order, and per-tool acceptance checklist.
 
 ## Layout and content
 

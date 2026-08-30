@@ -1,5 +1,35 @@
 import { groupedWebsiteTools, localizedWebsiteTools } from "./tool-catalog.js";
+import type { LocalizedToolGroup, LocalizedWebsiteTool } from "./tool-catalog.js";
 import { fallbackRelease } from "./release.js";
+
+export type SiteLocale = "en" | "zh-CN";
+
+export type FeatureSection = {
+  title: string;
+  body: string;
+  items: readonly string[];
+};
+
+export type FeaturePageLocaleCopy = {
+  title: string;
+  description: string;
+  eyebrow: string;
+  heading: string;
+  lead: string;
+  highlights: ReadonlyArray<readonly [string, string] | readonly string[]>;
+  sections: readonly FeatureSection[];
+  catalogTitle?: string;
+  catalogIntro?: string;
+  catalog?: readonly LocalizedWebsiteTool[];
+  catalogGroups?: readonly LocalizedToolGroup[];
+};
+
+export type FeaturePage = {
+  readonly id: string;
+  readonly slug: string;
+  readonly image: string;
+  readonly locales: Record<SiteLocale, FeaturePageLocaleCopy>;
+};
 
 export const site = Object.freeze({
   name: "MachKit",
@@ -8,7 +38,7 @@ export const site = Object.freeze({
   downloadURL: fallbackRelease.downloadURL,
 });
 
-export const supportedLocales = Object.freeze(["en", "zh-CN"]);
+export const supportedLocales = Object.freeze(["en", "zh-CN"] as const satisfies readonly SiteLocale[]);
 
 export const featurePages = Object.freeze([
   {
@@ -346,18 +376,20 @@ export const featurePages = Object.freeze([
   },
 ]);
 
-export function localizedPath(page, locale) {
+export function localizedPath(page: Pick<FeaturePage, "slug">, locale: SiteLocale): string {
   const prefix = locale === "zh-CN" ? "/zh-CN" : "";
   return `${prefix}/${page.slug}/`;
 }
 
-export function localizedURL(page, locale) {
+export function localizedURL(page: Pick<FeaturePage, "slug">, locale: SiteLocale): string {
   return `${site.origin}${localizedPath(page, locale)}`;
 }
 
-export function findFeaturePage(pathname) {
+export function findFeaturePage(
+  pathname: string,
+): { page: FeaturePage; locale: SiteLocale } | null {
   const normalized = pathname.endsWith("/") ? pathname : `${pathname}/`;
-  for (const page of featurePages) {
+  for (const page of featurePages as readonly FeaturePage[]) {
     for (const locale of supportedLocales) {
       if (localizedPath(page, locale) === normalized) return { page, locale };
     }

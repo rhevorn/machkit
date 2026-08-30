@@ -4,7 +4,26 @@ export const RELEASES_API_URL = "https://api.github.com/repos/rhevorn/machkit/re
 /** Used only when CI does not bake VITE_RELEASE_TAG into the build. */
 const DEFAULT_RELEASE_TAG = "v2.2.2";
 
-export function releaseFromTag(tag, repositoryURL = REPOSITORY_URL) {
+export type ReleaseInfo = {
+  tag: string;
+  version: string;
+  downloadURL: string;
+};
+
+export type GitHubReleaseAsset = {
+  name?: string;
+  browser_download_url?: string;
+};
+
+export type GitHubRelease = {
+  tag_name?: string;
+  assets?: GitHubReleaseAsset[];
+};
+
+export function releaseFromTag(
+  tag: unknown,
+  repositoryURL: string = REPOSITORY_URL,
+): ReleaseInfo | null {
   const normalized = typeof tag === "string" ? tag.trim() : "";
   const version = normalized.replace(/^v/i, "");
   if (!normalized || !version) return null;
@@ -18,21 +37,24 @@ export function releaseFromTag(tag, repositoryURL = REPOSITORY_URL) {
   });
 }
 
-function bakedReleaseTag() {
+function bakedReleaseTag(): string {
   const tag = import.meta.env?.VITE_RELEASE_TAG;
   return typeof tag === "string" ? tag.trim() : "";
 }
 
 /** Build-time download target. Prefer VITE_RELEASE_TAG from CI over the local default. */
-export const fallbackRelease = Object.freeze(
-  releaseFromTag(bakedReleaseTag() || DEFAULT_RELEASE_TAG),
+export const fallbackRelease: ReleaseInfo = Object.freeze(
+  releaseFromTag(bakedReleaseTag() || DEFAULT_RELEASE_TAG)!,
 );
 
-export function resolveReleaseDownload(release, fallback = fallbackRelease) {
+export function resolveReleaseDownload(
+  release: GitHubRelease | null | undefined,
+  fallback: ReleaseInfo = fallbackRelease,
+): ReleaseInfo {
   const resolved = releaseFromTag(release?.tag_name);
   if (!resolved) return fallback;
 
-  const assets = Array.isArray(release.assets) ? release.assets : [];
+  const assets = Array.isArray(release?.assets) ? release.assets : [];
   const assetName = `MachKit-${resolved.version}-macOS.zip`;
   const asset = assets.find((candidate) => candidate?.name === assetName);
   const assetURL = typeof asset?.browser_download_url === "string"
@@ -46,14 +68,23 @@ export function resolveReleaseDownload(release, fallback = fallbackRelease) {
   };
 }
 
-export function pickReleaseDownloads(releases, hardcodedFallback = fallbackRelease) {
-  const list = Array.isArray(releases) ? releases : [];
+export function pickReleaseDownloads(
+  releases: unknown,
+  hardcodedFallback: ReleaseInfo = fallbackRelease,
+): { latest: ReleaseInfo; previous: ReleaseInfo } {
+  const list = Array.isArray(releases) ? (releases as GitHubRelease[]) : [];
   const previous = list[1] ? resolveReleaseDownload(list[1], hardcodedFallback) : hardcodedFallback;
   const latest = list[0] ? resolveReleaseDownload(list[0], previous) : previous;
   return { latest, previous };
 }
 
-export async function fetchLatestRelease({ signal, fetchImpl = fetch } = {}) {
+export async function fetchLatestRelease({
+  signal,
+  fetchImpl = fetch,
+}: {
+  signal?: AbortSignal;
+  fetchImpl?: typeof fetch;
+} = {}): Promise<ReleaseInfo> {
   const response = await fetchImpl(RELEASES_API_URL, {
     signal,
     headers: { Accept: "application/vnd.github+json" },

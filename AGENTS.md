@@ -26,7 +26,7 @@ MachKit is a privacy-first macOS utility. Preserve these properties in every cha
 - `Sources/MachKitCore/`: reusable and testable core logic, including scanning, cleanup rules, hosts operations, inventory, and geometry.
 - `Tests/MachKitCoreTests/`: unit and regression tests for `MachKitCore`.
 - `Tool/`: embedded H5 utilities built with React, TypeScript, and Vite. Follow `Tool/AGENTS.md` for its UI and tool-development contract.
-- `Website/`: the React/Vite marketing website, including SSR/prerender and verification scripts.
+- `Website/`: the React/TypeScript/Vite marketing website, including SSR/prerender and verification scripts.
 - `Resources/`: app resources, the app icon, and `Localizable.xcstrings`.
 - `Scripts/`: build, localization, packaging, and release automation.
 
@@ -107,7 +107,6 @@ Filesystem changes are security-sensitive.
 - All tools must support the shared light and dark themes and visually align with the native app.
 - Treat `Tool/src/ui/ui.css` as the source of truth for semantic colors, spacing, radii, control sizes, borders, elevation, focus, typography, and motion. Do not introduce arbitrary local values when a shared token exists.
 - Reuse shared tokens, shadcn primitives, product-pattern components, page templates, states, and interaction patterns; do not create one-off local design systems.
-- For broad H5 UI migrations, follow `Tool/UI_MIGRATION_PLAN.md` in addition to `Tool/AGENTS.md`.
 - Keep tool identifiers, registry capabilities, bundled resource paths, and native bridge behavior synchronized.
 
 ## Website
@@ -164,7 +163,7 @@ Run the narrowest relevant checks while iterating, then run the complete checks 
 ```bash
 swift test
 (cd Tool && npm test && npm run typecheck && npm run build)
-(cd Website && npm test && npm run build)
+(cd Website && npm test && npm run typecheck && npm run build)
 xcodebuild -project MachKit.xcodeproj \
   -scheme "MachKit App" \
   -configuration Debug \

@@ -5,7 +5,8 @@ import {
   localizedPath,
   supportedLocales,
 } from "./seo-pages.js";
-import { renderFeatureDocument, renderSitemap } from "../scripts/site-renderer.mjs";
+import type { FeaturePage, SiteLocale } from "./seo-pages.js";
+import { renderFeatureDocument, renderSitemap } from "../scripts/site-renderer.js";
 import {
   groupedWebsiteTools,
   localizedWebsiteTools,
@@ -35,9 +36,9 @@ test("website tool catalog keeps unique localized entries with introductions", (
 });
 
 test("feature pages provide complete localized content and unique paths", () => {
-  const paths = new Set();
-  for (const page of featurePages) {
-    for (const locale of supportedLocales) {
+  const paths = new Set<string>();
+  for (const page of featurePages as readonly FeaturePage[]) {
+    for (const locale of supportedLocales as readonly SiteLocale[]) {
       const content = page.locales[locale];
       assert.ok(content?.title);
       assert.ok(content?.description);
@@ -52,14 +53,20 @@ test("feature pages provide complete localized content and unique paths", () => 
 });
 
 test("utilities page represents the current growing catalog with introductions", () => {
-  const page = featurePages.find((candidate) => candidate.id === "utilities");
+  const page = (featurePages as readonly FeaturePage[]).find((candidate) => candidate.id === "utilities");
+  assert.ok(page);
+  assert.ok(page.locales.en.catalog);
+  assert.ok(page.locales["zh-CN"].catalog);
+  assert.ok(page.locales.en.catalogGroups);
   assert.equal(page.locales.en.catalog.length, websiteToolCatalog.length);
-  assert.equal(page.locales["zh-CN"].catalog.length, websiteToolCatalog.length);
+  assert.equal(page.locales["zh-CN"].catalog!.length, websiteToolCatalog.length);
   assert.equal(page.locales.en.catalogGroups.length, 4);
   assert.match(page.locales.en.lead, /catalog/i);
   assert.match(page.locales.en.lead, /screenshot/i);
   assert.match(page.locales["zh-CN"].lead, /目录|工具/);
   assert.match(page.locales["zh-CN"].lead, /截图/);
+  assert.ok(page.locales.en.catalogTitle);
+  assert.ok(page.locales["zh-CN"].catalogTitle);
   assert.match(page.locales.en.catalogTitle, /introduction/i);
   assert.match(page.locales["zh-CN"].catalogTitle, /介绍/);
 
@@ -79,7 +86,8 @@ test("utilities page represents the current growing catalog with introductions",
 });
 
 test("feature documents expose canonical, alternate, and structured data", () => {
-  const page = featurePages[0];
+  const page = (featurePages as readonly FeaturePage[])[0];
+  assert.ok(page);
   const html = renderFeatureDocument({ page, locale: "en", stylesheetHref: "/assets/site.css" });
   const chineseHTML = renderFeatureDocument({ page, locale: "zh-CN", stylesheetHref: "/assets/site.css" });
   assert.match(html, /<link rel="canonical" href="https:\/\/machkit\.app\/features\/storage-cleanup\/"/);
@@ -92,11 +100,12 @@ test("feature documents expose canonical, alternate, and structured data", () =>
 });
 
 test("screenshot page has localized capture and annotation content", () => {
-  const page = featurePages.find((candidate) => candidate.id === "screenshot");
+  const page = (featurePages as readonly FeaturePage[]).find((candidate) => candidate.id === "screenshot");
   assert.ok(page);
   assert.match(page.locales.en.title, /Mac Screenshot Tool/);
   assert.match(page.locales.en.lead, /global shortcut/i);
   assert.match(page.locales["zh-CN"].lead, /全局快捷键/);
+  assert.ok(page.locales.en.sections[1]);
   assert.match(page.locales.en.sections[1].body, /mosaic/i);
 });
 

@@ -1,9 +1,43 @@
+export type ToolLocale = "en" | "zh-CN";
+
+export type ToolCategoryId = "text-data" | "network" | "media" | "system";
+
+export type ToolLocaleCopy = {
+  title: string;
+  summary: string;
+  introduction: string;
+  highlights: readonly string[];
+};
+
+export type WebsiteTool = {
+  id: string;
+  category: ToolCategoryId;
+  en: ToolLocaleCopy;
+  "zh-CN": ToolLocaleCopy;
+};
+
+export type LocalizedWebsiteTool = {
+  id: string;
+  categoryId: ToolCategoryId;
+  category: string;
+  title: string;
+  summary: string;
+  introduction: string;
+  highlights: readonly string[];
+};
+
+export type LocalizedToolGroup = {
+  id: ToolCategoryId;
+  category: string;
+  tools: readonly LocalizedWebsiteTool[];
+};
+
 export const toolCategoryOrder = Object.freeze([
   "text-data",
   "network",
   "media",
   "system",
-]);
+] as const satisfies readonly ToolCategoryId[]);
 
 export const toolCategories = Object.freeze({
   "text-data": Object.freeze({
@@ -22,9 +56,9 @@ export const toolCategories = Object.freeze({
     en: "System Helpers",
     "zh-CN": "系统辅助",
   }),
-});
+} as const satisfies Record<ToolCategoryId, Readonly<Record<ToolLocale, string>>>);
 
-function tool(entry) {
+function tool<T extends WebsiteTool>(entry: T): Readonly<T> {
   return Object.freeze(entry);
 }
 
@@ -487,7 +521,7 @@ export const websiteToolCatalog = Object.freeze([
   }),
 ]);
 
-export function localizedTool(tool, locale) {
+export function localizedTool(tool: WebsiteTool, locale: ToolLocale): LocalizedWebsiteTool {
   const copy = tool[locale] || tool.en;
   return Object.freeze({
     id: tool.id,
@@ -500,25 +534,25 @@ export function localizedTool(tool, locale) {
   });
 }
 
-export function localizedWebsiteTools(locale) {
-  return Object.freeze(websiteToolCatalog.map((tool) => localizedTool(tool, locale)));
+export function localizedWebsiteTools(locale: ToolLocale): readonly LocalizedWebsiteTool[] {
+  return Object.freeze(websiteToolCatalog.map((entry) => localizedTool(entry, locale)));
 }
 
-export function groupedWebsiteTools(locale) {
+export function groupedWebsiteTools(locale: ToolLocale): readonly LocalizedToolGroup[] {
   const tools = localizedWebsiteTools(locale);
-  return Object.freeze(
-    toolCategoryOrder
-      .map((categoryId) => {
-        const items = tools.filter((tool) => tool.categoryId === categoryId);
-        if (!items.length) return null;
-        return Object.freeze({
-          id: categoryId,
-          category: toolCategories[categoryId][locale] || toolCategories[categoryId].en,
-          tools: Object.freeze(items),
-        });
-      })
-      .filter(Boolean),
-  );
+  const groups: LocalizedToolGroup[] = [];
+  for (const categoryId of toolCategoryOrder) {
+    const items = tools.filter((entry) => entry.categoryId === categoryId);
+    if (!items.length) continue;
+    groups.push(
+      Object.freeze({
+        id: categoryId,
+        category: toolCategories[categoryId][locale] || toolCategories[categoryId].en,
+        tools: Object.freeze(items),
+      }),
+    );
+  }
+  return Object.freeze(groups);
 }
 
 /** @deprecated Prefer localizedWebsiteTools(locale); kept for transitional summaries. */

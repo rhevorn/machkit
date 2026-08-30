@@ -30,22 +30,29 @@ const SCREEN_SPECS = [
   ["tools", 2040, 1648],
   ["system", 1600, 1329],
   ["settings", 2040, 1648],
-];
-const SCREEN_KEYS = SCREEN_SPECS.map(([key]) => key);
-const SCREEN_DIMENSIONS = Object.fromEntries(
+] as const;
+type ScreenKey = (typeof SCREEN_SPECS)[number][0];
+const SCREEN_KEYS: readonly ScreenKey[] = SCREEN_SPECS.map(([key]) => key);
+const SCREEN_DIMENSIONS: Record<ScreenKey, { width: number; height: number }> = Object.fromEntries(
   SCREEN_SPECS.map(([key, width, height]) => [key, { width, height }]),
-);
+) as Record<ScreenKey, { width: number; height: number }>;
 
 const GROUP_ICONS = [ChartDonut, Wrench, Pulse, Code];
 
-function preferredTheme() {
+export type AppProps = {
+  locale?: string;
+  assetBase?: string;
+  initialTheme?: "light" | "dark";
+};
+
+function preferredTheme(): "light" | "dark" {
   if (typeof window === "undefined") return "light";
   const savedTheme = window.localStorage.getItem(THEME_KEY);
   if (savedTheme === "light" || savedTheme === "dark") return savedTheme;
   return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
 }
 
-function Brand({ assetBase }) {
+function Brand({ assetBase }: { assetBase: string }) {
   return (
     <a className="brand" href="#top" aria-label="MachKit home">
       <img src={`${assetBase}/assets/logo.png`} alt="" />
@@ -54,8 +61,15 @@ function Brand({ assetBase }) {
   );
 }
 
-function CapabilityGroup({ group, index }) {
-  const Icon = GROUP_ICONS[index];
+type CapabilityGroupData = {
+  tone: string;
+  title: string;
+  body: string;
+  items: readonly (readonly string[])[];
+};
+
+function CapabilityGroup({ group, index }: { group: CapabilityGroupData; index: number }) {
+  const Icon = GROUP_ICONS[index] ?? ChartDonut;
   return (
     <article className="capability-group" data-tone={group.tone}>
       <header>
@@ -66,32 +80,39 @@ function CapabilityGroup({ group, index }) {
         </div>
       </header>
       <dl>
-        {group.items.map(([title, detail, href]) => (
-          <div key={title}>
-            <dt>{href ? <a href={href}>{title}</a> : title}</dt>
-            <dd>{detail}</dd>
-          </div>
-        ))}
+        {group.items.map((item) => {
+          const [title, detail, href] = item;
+          return (
+            <div key={title}>
+              <dt>{href ? <a href={href}>{title}</a> : title}</dt>
+              <dd>{detail}</dd>
+            </div>
+          );
+        })}
       </dl>
     </article>
   );
 }
 
+function resolveLocale(locale: string): keyof typeof messages {
+  return locale === "zh-CN" ? "zh-CN" : "en";
+}
+
 export function App({
   locale: localeOverride,
   assetBase: assetBaseOverride,
-  initialTheme,
-} = {}) {
+  initialTheme = "light",
+}: AppProps = {}) {
   const documentLocale = typeof document !== "undefined" && document.documentElement.dataset.locale === "zh-CN"
     ? "zh-CN"
     : "en";
-  const locale = localeOverride || documentLocale;
+  const locale = resolveLocale(localeOverride || documentLocale);
   const assetBase = assetBaseOverride
     || (typeof document !== "undefined" ? document.documentElement.dataset.assetBase : ".")
     || ".";
   const copy = messages[locale];
-  const [theme, setTheme] = useState(() => initialTheme || preferredTheme());
-  const [selectedScreen, setSelectedScreen] = useState("cleanup");
+  const [theme, setTheme] = useState<"light" | "dark">(() => initialTheme || preferredTheme());
+  const [selectedScreen, setSelectedScreen] = useState<ScreenKey>("cleanup");
   const release = fallbackRelease;
 
   const languageURL = locale === "en" ? "./zh-CN/" : "../";
@@ -102,7 +123,7 @@ export function App({
     const localeSuffix = locale === "zh-CN" ? "-zh-CN" : "";
     return Object.fromEntries(
       SCREEN_KEYS.map((key) => [key, `${assetBase}/assets/${key}${localeSuffix}.webp`]),
-    );
+    ) as Record<ScreenKey, string>;
   }, [assetBase, locale]);
 
   useEffect(() => {
@@ -201,7 +222,7 @@ export function App({
             <h2 id="introduction-title">{copy.introduction.title}</h2>
           </div>
           <div className="introduction-copy">
-            {copy.introduction.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+            {copy.introduction.paragraphs.map((paragraph: string) => <p key={paragraph}>{paragraph}</p>)}
           </div>
         </section>
 
@@ -212,7 +233,7 @@ export function App({
             <p>{copy.capabilities.description}</p>
           </header>
           <div className="capability-grid">
-            {copy.capabilities.groups.map((group, index) => (
+            {copy.capabilities.groups.map((group: CapabilityGroupData, index: number) => (
               <CapabilityGroup key={group.title} group={group} index={index} />
             ))}
           </div>
@@ -246,7 +267,7 @@ export function App({
                 <span className="screen-index">0{SCREEN_KEYS.indexOf(selectedScreen) + 1}</span>
                 <h3>{activeScreen.title}</h3>
                 <ul className="screen-feature-list">
-                  {activeScreen.features.map((feature) => <li key={feature}>{feature}</li>)}
+                  {activeScreen.features.map((feature: string) => <li key={feature}>{feature}</li>)}
                 </ul>
               </div>
               <div className="screen-frame">
@@ -268,13 +289,16 @@ export function App({
             <p>{copy.safety.description}</p>
           </header>
           <div className="principle-list">
-            {copy.safety.principles.map(([title, detail], index) => (
-              <article key={title}>
-                <span>0{index + 1}</span>
-                <h3>{title}</h3>
-                <p>{detail}</p>
-              </article>
-            ))}
+            {copy.safety.principles.map((principle, index) => {
+              const [title, detail] = principle;
+              return (
+                <article key={title}>
+                  <span>0{index + 1}</span>
+                  <h3>{title}</h3>
+                  <p>{detail}</p>
+                </article>
+              );
+            })}
           </div>
         </section>
 
@@ -285,23 +309,29 @@ export function App({
               <h2 id="tools-title">{copy.tools.title}</h2>
               <p>{copy.tools.description}</p>
               <dl className="tool-principles">
-                {copy.tools.principles.map(([title, detail]) => (
-                  <div key={title}>
-                    <dt>{title}</dt>
-                    <dd>{detail}</dd>
-                  </div>
-                ))}
+                {copy.tools.principles.map((principle) => {
+                  const [title, detail] = principle;
+                  return (
+                    <div key={title}>
+                      <dt>{title}</dt>
+                      <dd>{detail}</dd>
+                    </div>
+                  );
+                })}
               </dl>
             </header>
             <div className="tools-teaser-aside">
               <p className="tools-count">{copy.tools.count}</p>
               <dl className="tools-preview">
-                {copy.tools.preview.map(([title, detail]) => (
-                  <div key={title}>
-                    <dt>{title}</dt>
-                    <dd>{detail}</dd>
-                  </div>
-                ))}
+                {copy.tools.preview.map((item) => {
+                  const [title, detail] = item;
+                  return (
+                    <div key={title}>
+                      <dt>{title}</dt>
+                      <dd>{detail}</dd>
+                    </div>
+                  );
+                })}
               </dl>
               <a className="tools-explore-link" href={utilitiesURL}>
                 {copy.tools.explore}<ArrowRight size={15} />

@@ -5,8 +5,14 @@ import {
   site,
   supportedLocales,
 } from "../src/seo-pages.js";
+import type {
+  FeaturePage,
+  FeaturePageLocaleCopy,
+  SiteLocale,
+} from "../src/seo-pages.js";
+import type { LocalizedToolGroup } from "../src/tool-catalog.js";
 
-function escapeHTML(value) {
+function escapeHTML(value: unknown): string {
   return String(value)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
@@ -15,15 +21,15 @@ function escapeHTML(value) {
     .replaceAll("'", "&#39;");
 }
 
-function jsonLD(value) {
+function jsonLD(value: unknown): string {
   return JSON.stringify(value, null, 2).replaceAll("<", "\\u003c");
 }
 
-function localizedImageName(image, locale) {
+function localizedImageName(image: string, locale: SiteLocale): string {
   return locale === "zh-CN" ? image.replace(/\.webp$/, "-zh-CN.webp") : image;
 }
 
-function localeText(locale) {
+function localeText(locale: SiteLocale) {
   return locale === "zh-CN"
     ? {
         home: "首页",
@@ -73,7 +79,7 @@ function localeText(locale) {
       };
 }
 
-function renderBrand(locale) {
+function renderBrand(locale: SiteLocale): string {
   const homeURL = locale === "zh-CN" ? "/zh-CN/" : "/";
   return `<a class="brand" href="${homeURL}" aria-label="MachKit home">
     <img src="/assets/logo.png" alt="" width="28" height="28" />
@@ -81,12 +87,12 @@ function renderBrand(locale) {
   </a>`;
 }
 
-function renderHeader(locale, activePage) {
+function renderHeader(locale: SiteLocale, activePage: FeaturePage): string {
   const text = localeText(locale);
   const homeURL = locale === "zh-CN" ? "/zh-CN/" : "/";
-  const otherLocale = locale === "zh-CN" ? "en" : "zh-CN";
+  const otherLocale: SiteLocale = locale === "zh-CN" ? "en" : "zh-CN";
   const languageURL = localizedPath(activePage, otherLocale);
-  const toolsPage = featurePages.find((page) => page.id === "utilities");
+  const toolsPage = (featurePages as readonly FeaturePage[]).find((page) => page.id === "utilities")!;
   return `<header class="site-header">
     <nav class="nav-shell" aria-label="${escapeHTML(text.primaryNav)}">
       ${renderBrand(locale)}
@@ -119,8 +125,9 @@ function renderHeader(locale, activePage) {
   </header>`;
 }
 
-function renderFooter(locale) {
+function renderFooter(locale: SiteLocale): string {
   const text = localeText(locale);
+  const utilitiesPage = (featurePages as readonly FeaturePage[]).find((page) => page.id === "utilities")!;
   return `<footer class="site-footer">
     <div class="footer-main section-shell">
       <div class="footer-brand">
@@ -128,7 +135,7 @@ function renderFooter(locale) {
         <p>${escapeHTML(text.exploreBody)}</p>
       </div>
       <div class="footer-links">
-        <a href="${localizedPath(featurePages.find((page) => page.id === "utilities"), locale)}">${escapeHTML(text.tools)}</a>
+        <a href="${localizedPath(utilitiesPage, locale)}">${escapeHTML(text.tools)}</a>
         <a href="${site.repositoryURL}/releases">${escapeHTML(text.releases)}</a>
         <a href="${site.repositoryURL}/issues">${escapeHTML(text.issues)}</a>
         <a href="${site.repositoryURL}/blob/main/LICENSE">${escapeHTML(text.license)}</a>
@@ -142,11 +149,16 @@ function renderFooter(locale) {
   </footer>`;
 }
 
-function renderCatalog(content) {
-  const groups = content.catalogGroups?.length
+type CatalogContent = Pick<
+  FeaturePageLocaleCopy,
+  "eyebrow" | "catalogTitle" | "catalogIntro" | "catalog" | "catalogGroups"
+>;
+
+function renderCatalog(content: CatalogContent): string {
+  const groups: readonly LocalizedToolGroup[] = content.catalogGroups?.length
     ? content.catalogGroups
     : content.catalog?.length
-      ? [{ id: "all", category: content.catalogTitle, tools: content.catalog }]
+      ? [{ id: "text-data", category: content.catalogTitle ?? "", tools: content.catalog }]
       : [];
   if (!groups.length) return "";
 
@@ -161,18 +173,15 @@ function renderCatalog(content) {
       ${groups.map((group) => `<section class="tool-category" aria-labelledby="category-${escapeHTML(group.id)}">
         <h3 id="category-${escapeHTML(group.id)}">${escapeHTML(group.category)}</h3>
         <div class="tool-category-list">
-          ${group.tools.map((entry) => {
+          ${group.tools.map((tool) => {
             toolIndex += 1;
-            const tool = Array.isArray(entry)
-              ? { id: `tool-${toolIndex}`, title: entry[0], summary: entry[1], introduction: entry[1], highlights: [] }
-              : entry;
             return `<article id="${escapeHTML(tool.id)}">
               <span>${String(toolIndex).padStart(2, "0")}</span>
               <div>
                 <h4>${escapeHTML(tool.title)}</h4>
                 <p class="tool-summary">${escapeHTML(tool.summary)}</p>
                 <p class="tool-introduction">${escapeHTML(tool.introduction)}</p>
-                ${tool.highlights?.length ? `<ul>${tool.highlights.map((item) => `<li>${escapeHTML(item)}</li>`).join("")}</ul>` : ""}
+                ${tool.highlights.length ? `<ul>${tool.highlights.map((item) => `<li>${escapeHTML(item)}</li>`).join("")}</ul>` : ""}
               </div>
             </article>`;
           }).join("")}
@@ -182,12 +191,19 @@ function renderCatalog(content) {
   </section>`;
 }
 
+export type RenderFeatureDocumentOptions = {
+  page: FeaturePage;
+  locale: SiteLocale;
+  stylesheetHref?: string;
+  scriptHref?: string;
+};
+
 export function renderFeatureDocument({
   page,
   locale,
   stylesheetHref = "/src/styles.css",
-  scriptHref = "/src/static-page.js",
-}) {
+  scriptHref = "/src/static-page.ts",
+}: RenderFeatureDocumentOptions): string {
   const content = page.locales[locale];
   const text = localeText(locale);
   const canonical = localizedURL(page, locale);
@@ -313,7 +329,7 @@ export function renderFeatureDocument({
               <p>${escapeHTML(text.exploreBody)}</p>
             </header>
             <div class="related-links">
-              ${featurePages.filter((candidate) => candidate.id !== page.id).map((candidate) => `<a href="${localizedPath(candidate, locale)}">
+              ${(featurePages as readonly FeaturePage[]).filter((candidate) => candidate.id !== page.id).map((candidate) => `<a href="${localizedPath(candidate, locale)}">
                 <span>${escapeHTML(candidate.locales[locale].eyebrow)}</span>
                 <strong>${escapeHTML(candidate.locales[locale].heading)}</strong>
               </a>`).join("")}
@@ -328,12 +344,25 @@ export function renderFeatureDocument({
 </html>`;
 }
 
-function sitemapLastModified(source, key) {
+export type SitemapLastModified =
+  | string
+  | {
+      home?: string;
+      features?: string;
+      utilities?: string;
+      [key: string]: string | undefined;
+    };
+
+function sitemapLastModified(
+  source: SitemapLastModified | undefined,
+  key: string,
+): string | null {
   const value = typeof source === "string" ? source : source?.[key];
-  return /^\d{4}-\d{2}-\d{2}$/.test(value || "") ? value : null;
+  return /^\d{4}-\d{2}-\d{2}$/.test(value || "") ? value! : null;
 }
 
-export function renderSitemap(lastModified) {
+export function renderSitemap(lastModified?: SitemapLastModified): string {
+  const pages = featurePages as readonly FeaturePage[];
   const entries = [
     ...supportedLocales.map((locale) => ({
       url: locale === "zh-CN" ? `${site.origin}/zh-CN/` : `${site.origin}/`,
@@ -345,7 +374,7 @@ export function renderSitemap(lastModified) {
         "x-default": `${site.origin}/`,
       },
     })),
-    ...featurePages.flatMap((page) => supportedLocales.map((locale) => ({
+    ...pages.flatMap((page) => supportedLocales.map((locale) => ({
       url: localizedURL(page, locale),
       imageURL: `${site.origin}/assets/${localizedImageName(page.image, locale)}`,
       lastModified: sitemapLastModified(lastModified, page.id === "utilities" ? "utilities" : "features"),

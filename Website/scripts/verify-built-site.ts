@@ -6,9 +6,9 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const clientDirectory = path.join(root, "dist/client");
 
-async function collectHTML(directory) {
+async function collectHTML(directory: string): Promise<string[]> {
   const entries = await fs.readdir(directory, { withFileTypes: true });
-  const files = [];
+  const files: string[] = [];
   for (const entry of entries) {
     const target = path.join(directory, entry.name);
     if (entry.isDirectory()) files.push(...await collectHTML(target));
@@ -17,9 +17,9 @@ async function collectHTML(directory) {
   return files;
 }
 
-function localTarget(href) {
+function localTarget(href: string): string | null {
   if (!href.startsWith("/") || href.startsWith("//")) return null;
-  const pathname = href.split(/[?#]/, 1)[0];
+  const pathname = href.split(/[?#]/, 1)[0]!;
   if (pathname === "/") return path.join(clientDirectory, "index.html");
   if (pathname.endsWith("/")) return path.join(clientDirectory, pathname, "index.html");
   return path.join(clientDirectory, pathname);
@@ -28,7 +28,7 @@ function localTarget(href) {
 const htmlFiles = await collectHTML(clientDirectory);
 assert.equal(htmlFiles.length, 14, "expected 12 indexable pages plus two verification HTML files");
 
-const indexableFiles = [];
+const indexableFiles: string[] = [];
 for (const file of htmlFiles) {
   const html = await fs.readFile(file, "utf8");
   if (!html.includes('<meta name="robots"')) continue;
@@ -41,13 +41,18 @@ for (const file of htmlFiles) {
 
   const structuredBlocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
   assert.ok(structuredBlocks.length > 0, `${file} has no structured data`);
-  for (const block of structuredBlocks) JSON.parse(block[1]);
+  for (const block of structuredBlocks) {
+    assert.ok(block[1], `${file} has empty structured data`);
+    JSON.parse(block[1]);
+  }
 
   for (const match of html.matchAll(/href="([^"]+)"/g)) {
-    const target = localTarget(match[1]);
+    const href = match[1];
+    if (!href) continue;
+    const target = localTarget(href);
     if (!target) continue;
     await fs.access(target).catch(() => {
-      throw new Error(`${file} links to missing local target ${match[1]}`);
+      throw new Error(`${file} links to missing local target ${href}`);
     });
   }
 }
