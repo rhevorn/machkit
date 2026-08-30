@@ -90,10 +90,13 @@ popover on `ToolPage`, and let the primary tool content start immediately.
 
 ## Runtime rules
 
+- Tools are written in TypeScript / TSX under `src/` and `tools/`. Run
+  `npm run typecheck` before shipping H5 changes.
 - Use relative asset paths. The Vite base path is `./` because tools load from
   local files rather than an HTTP server.
 - Shared macOS-like colors, controls, and dark mode behavior live in `src/ui`.
-- `src/runtime/machkit.js` is the single boundary for optional native messages.
+- `src/runtime/machkit.ts` (imported as `@/runtime/machkit.js`) is the single
+  boundary for optional native messages.
   Native calls use the versioned request/reply bridge and time out rather than
   leaving a tool pending forever. A method only works when its capability is
   explicitly granted in `DeveloperToolRegistry`.
@@ -102,7 +105,7 @@ popover on `ToolPage`, and let the primary tool content start immediately.
   user actions, and keep size caps in the tool.
 - Mount tools with `mountTool()` so root validation and the shared error boundary
   are applied consistently.
-- Keep each tool's translations in its own `messages.js`; use
+- Keep each tool's translations in its own `messages.ts`; use
   `catalogIssues()` in tests to keep locale keys complete.
 - Move CPU-heavy transformations to a module worker and cap input or result size
   before adding a tool that accepts arbitrary text.

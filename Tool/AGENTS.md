@@ -16,12 +16,16 @@ When requirements conflict, use this order:
 
 ## Architecture
 
-- Use React, Vite, and Tailwind CSS as configured in this project.
+- Use React, Vite, TypeScript, and Tailwind CSS as configured in this project.
+- Source files use `.ts` / `.tsx`. Import specifiers keep the TypeScript ESM
+  convention of `.js` (resolved to the `.ts` / `.tsx` implementation). HTML
+  entry scripts and module workers point at the real `.tsx` / `.worker.ts` paths.
 - Mount every tool with `mountTool()`.
 - Use `ToolPage` and `ToolContent` for the common page shell and content geometry.
 - Keep one `index.html` entry per tool under `tools/<tool-id>/`.
 - Keep pure transformation logic separate from React, normally in a sibling module
-  such as `json.js`, and test it with Node's test runner.
+  such as `json.ts`, and test it with Node's test runner via `tsx`
+  (`npm test` / `node --import tsx --test`).
 - Use `@/runtime/machkit.js` as the only boundary for native operations.
 - Use relative asset paths. Bundled tools are loaded from local files with Vite
   `base: "./"`.
@@ -68,7 +72,7 @@ styles. Treat those implementations as legacy:
 - Use `components.json` and the shadcn workflow when a missing primitive should
   be added. Adapt generated code to the repository's tokens, naming, and
   Phosphor icon language before use.
-- Keep one source file per shared component and export it from `src/ui/index.js`.
+- Keep one source file per shared component and export it from `src/ui/index.ts`.
 - Before adding a dependency, confirm that the shared layer, Radix, the platform,
   or an existing dependency cannot already handle the requirement.
 - Commit `package.json` and `package-lock.json` together.
@@ -238,8 +242,8 @@ and information architecture intact.
 
 ## Localization
 
-- Put all user-facing strings in the tool's `messages.js`.
-- Do not hard-code fallback English in JSX when a message key can be provided.
+- Put all user-facing strings in the tool's `messages.ts`.
+- Do not hard-code fallback English in TSX when a message key can be provided.
 - Keep every supported locale structurally complete and non-empty.
 - Preserve punctuation and interpolation semantics across locales.
 - Test at least one compact Latin locale and Simplified Chinese. For layout-sensitive
@@ -300,7 +304,7 @@ Before handing off a tool change:
 9. Confirm unrelated tools did not change because of shared CSS or theme edits.
 
 For visual changes, screenshots must be taken from the running implementation;
-do not judge the result only from CSS or JSX. Browser-only screenshots include a
+do not judge the result only from CSS or TSX. Browser-only screenshots include a
 development dock that is not present in the embedded MachKit view.
 
 ## Definition of done

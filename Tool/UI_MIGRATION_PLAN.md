@@ -191,7 +191,7 @@ and one dark-theme view before merging.
 
 ## Phase 2: Extract MachKit product patterns
 
-Add patterns under `Tool/src/ui/` and export them from `src/ui/index.js`.
+Add patterns under `Tool/src/ui/` and export them from `src/ui/index.ts`.
 Prefer extracting from already-polished tools rather than designing in the
 abstract. Keep APIs small.
 
@@ -282,7 +282,7 @@ template until the previous one passes visual and functional QA.
 ## Phase 4: Migrate remaining tools in waves
 
 Before each wave, rebuild the list from `DeveloperToolRegistry`,
-`src/tools-catalog.js`, and `tools/*/index.html`. Do not revive deleted tools
+`src/tools-catalog.ts`, and `tools/*/index.html`. Do not revive deleted tools
 from this document.
 
 ### Current inventory (as of this revision)
@@ -357,7 +357,7 @@ errors, and capability boundaries.
 4. Replace visible controls with shared primitives and product patterns.
 5. Remove tool-local styles only when the replacement is complete.
 6. Keep specialized visualization CSS when tokens cannot express data meaning.
-7. Keep all user-visible strings in `messages.js` with every locale complete.
+7. Keep all user-visible strings in `messages.ts` with every locale complete.
 8. Run focused tests, then `npm test` and `npm run build` under `Tool/`.
 9. Inspect success, empty, invalid, disabled, and conditional states in both
    themes at narrow and normal widths.

@@ -25,7 +25,7 @@ MachKit is a privacy-first macOS utility. Preserve these properties in every cha
 - `App/`: the macOS SwiftUI application, app-level orchestration, preferences, tool hosting, WebView bridges, and screenshot UI.
 - `Sources/MachKitCore/`: reusable and testable core logic, including scanning, cleanup rules, hosts operations, inventory, and geometry.
 - `Tests/MachKitCoreTests/`: unit and regression tests for `MachKitCore`.
-- `Tool/`: embedded H5 utilities built with React and Vite. Follow `Tool/AGENTS.md` for its UI and tool-development contract.
+- `Tool/`: embedded H5 utilities built with React, TypeScript, and Vite. Follow `Tool/AGENTS.md` for its UI and tool-development contract.
 - `Website/`: the React/Vite marketing website, including SSR/prerender and verification scripts.
 - `Resources/`: app resources, the app icon, and `Localizable.xcstrings`.
 - `Scripts/`: build, localization, packaging, and release automation.
@@ -163,7 +163,7 @@ Run the narrowest relevant checks while iterating, then run the complete checks 
 
 ```bash
 swift test
-(cd Tool && npm test && npm run build)
+(cd Tool && npm test && npm run typecheck && npm run build)
 (cd Website && npm test && npm run build)
 xcodebuild -project MachKit.xcodeproj \
   -scheme "MachKit App" \

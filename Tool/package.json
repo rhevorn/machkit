@@ -8,8 +8,9 @@
     "build": "vite build",
     "build:app": "vite build --outDir ../Resources/WebTools --emptyOutDir",
     "preview": "vite preview",
-    "test": "node --test src/*.test.js src/**/*.test.js tools/**/*.test.js",
-    "new": "node scripts/create-tool.mjs"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --import tsx --test \"src/**/*.test.ts\" \"tools/**/*.test.ts\"",
+    "new": "tsx scripts/create-tool.ts"
   },
   "dependencies": {
     "@codemirror/lang-json": "^6.0.2",
@@ -38,6 +39,13 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.3.3",
-    "tailwindcss": "4.3.3"
+    "@types/node": "^24.3.0",
+    "@types/node-forge": "^1.3.14",
+    "@types/qrcode": "^1.5.5",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "tailwindcss": "4.3.3",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
   }
 }
