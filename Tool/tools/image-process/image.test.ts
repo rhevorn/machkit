@@ -5,6 +5,7 @@ import {
   formatBytes,
   outputFileName,
   parseTargetSize,
+  preferSizeCandidate,
   ratioLabel,
   resolveDimensions,
   resolveOutputFormat,
@@ -57,6 +58,32 @@ test("parses target size", () => {
   assert.equal(parseTargetSize(200, "KB").bytes, 200 * 1024);
   assert.equal(parseTargetSize(1.5, "MB").bytes, Math.round(1.5 * 1024 * 1024));
   assert.equal(parseTargetSize(0, "KB").error, "invalid-target");
+});
+
+test("prefers under-target size candidates with higher quality", () => {
+  const target = 1000;
+  let best: { size: number; quality: number } | null = null;
+  const candidates = [
+    { size: 1100, quality: 0.9 },
+    { size: 900, quality: 0.5 },
+    { size: 950, quality: 0.8 },
+    { size: 980, quality: 0.7 },
+  ];
+  for (const candidate of candidates) {
+    if (preferSizeCandidate(candidate, best, target)) best = candidate;
+  }
+  assert.deepEqual(best, { size: 950, quality: 0.8 });
+
+  // Only over-target options: pick the smallest overshoot.
+  best = null;
+  for (const candidate of [
+    { size: 1200, quality: 0.9 },
+    { size: 1050, quality: 0.4 },
+    { size: 1300, quality: 1 },
+  ]) {
+    if (preferSizeCandidate(candidate, best, target)) best = candidate;
+  }
+  assert.deepEqual(best, { size: 1050, quality: 0.4 });
 });
 
 test("resolves output names and formats", () => {

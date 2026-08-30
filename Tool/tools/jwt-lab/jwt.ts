@@ -1,13 +1,58 @@
 export const maxJwtLength = 20_000;
-export const signAlgorithms = Object.freeze(["HS256", "HS384", "HS512", "none"]);
+export const signAlgorithms = Object.freeze(["HS256", "HS384", "HS512", "none"] as const);
+export type SignAlgorithm = (typeof signAlgorithms)[number];
 
 const HASH_NAMES = {
   HS256: "SHA-256",
   HS384: "SHA-384",
   HS512: "SHA-512",
+} as const;
+
+export type UnixTimeInfo = {
+  iso: string;
+  local: string;
+  deltaMs: number;
+  expired: boolean;
 };
 
-function base64UrlToBytes(segment: any) {
+export type JsonObjectResult =
+  | { ok: true; error: null; field: string; value: Record<string, unknown> }
+  | { ok: false; error: string; field: string; value: null };
+
+export type CreateJwtResult =
+  | {
+      ok: true;
+      error: null;
+      token: string;
+      header: Record<string, unknown>;
+      payload: Record<string, unknown>;
+      algorithm: string;
+      headerJson: string;
+      payloadJson: string;
+    }
+  | { ok: false; error: string; field?: string; value?: null };
+
+export type InspectJwtResult =
+  | {
+      ok: true;
+      error: null;
+      token: string;
+      parts: { header: string; payload: string; signature: string };
+      header: Record<string, unknown>;
+      payload: Record<string, unknown>;
+      headerJson: string;
+      payloadJson: string;
+      algorithm: string;
+      typ: string;
+      exp: UnixTimeInfo | null;
+      iat: UnixTimeInfo | null;
+      nbf: UnixTimeInfo | null;
+      status: string;
+      verified: boolean;
+    }
+  | { ok: false; error: string };
+
+function base64UrlToBytes(segment: unknown): Uint8Array {
   const normalized = String(segment ?? "").replace(/-/g, "+").replace(/_/g, "/");
   const pad = normalized.length % 4 === 0 ? "" : "=".repeat(4 - (normalized.length % 4));
   const encoded = normalized + pad;
@@ -20,7 +65,7 @@ function base64UrlToBytes(segment: any) {
   return Uint8Array.from(Buffer.from(encoded, "base64"));
 }
 
-function bytesToBase64Url(bytes: any) {
+function bytesToBase64Url(bytes: Uint8Array): string {
   let binary = "";
   for (let i = 0; i < bytes.length; i += 1) binary += String.fromCharCode(bytes[i]);
   const base64 =
@@ -30,17 +75,17 @@ function bytesToBase64Url(bytes: any) {
   return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
 
-function encodeJsonSegment(value: any) {
+function encodeJsonSegment(value: unknown): string {
   const json = JSON.stringify(value);
   return bytesToBase64Url(new TextEncoder().encode(json));
 }
 
-function decodeSegment(segment: any) {
+function decodeSegment(segment: unknown): unknown {
   const text = new TextDecoder().decode(base64UrlToBytes(segment));
-  return JSON.parse(text);
+  return JSON.parse(text) as unknown;
 }
 
-function asFiniteNumber(value: any) {
+function asFiniteNumber(value: unknown): number | null {
   if (typeof value === "number" && Number.isFinite(value)) return value;
   if (typeof value === "string" && /^-?\d+(\.\d+)?$/.test(value)) {
     const n = Number(value);
@@ -49,7 +94,7 @@ function asFiniteNumber(value: any) {
   return null;
 }
 
-export function formatUnixSeconds(seconds: any, now: number = Date.now()) {
+export function formatUnixSeconds(seconds: unknown, now: number = Date.now()): UnixTimeInfo | null {
   const n = asFiniteNumber(seconds);
   if (n === null) return null;
   const ms = n > 1e12 ? n : n * 1000;
@@ -64,15 +109,15 @@ export function formatUnixSeconds(seconds: any, now: number = Date.now()) {
   };
 }
 
-export function parseJsonObject(input: any, field: any = "json") {
+export function parseJsonObject(input: unknown, field: string = "json"): JsonObjectResult {
   const raw = String(input ?? "").trim();
   if (!raw) return { ok: false as const, error: "empty", field, value: null };
   try {
-    const value = JSON.parse(raw);
+    const value = JSON.parse(raw) as unknown;
     if (!value || typeof value !== "object" || Array.isArray(value)) {
       return { ok: false as const, error: "invalid-object", field, value: null };
     }
-    return { ok: true as const, error: null, field, value };
+    return { ok: true as const, error: null, field, value: value as Record<string, unknown> };
   } catch {
     return { ok: false as const, error: "invalid-json", field, value: null };
   }
@@ -89,7 +134,7 @@ export function defaultGeneratePayload(now = Date.now()) {
 }
 
 async function hmacSign(algorithm: string, secret: unknown, data: string) {
-  const hashName = (HASH_NAMES as Record<string, string>)[algorithm];
+  const hashName = HASH_NAMES[algorithm as keyof typeof HASH_NAMES];
   if (!hashName) throw new Error("unsupported-alg");
   const keyBytes = new TextEncoder().encode(String(secret ?? ""));
   const dataBytes = new TextEncoder().encode(data);
@@ -107,8 +152,22 @@ async function hmacSign(algorithm: string, secret: unknown, data: string) {
   return bytesToBase64Url(new Uint8Array(signature));
 }
 
-export async function createJwt({ headerText, payloadText, secret = "", algorithm = "HS256" }: { headerText?: string; payloadText?: string; secret?: string; algorithm?: string } = {}) {
-  const alg = signAlgorithms.includes(algorithm) ? algorithm : "HS256";
+function isSignAlgorithm(value: string): value is SignAlgorithm {
+  return (signAlgorithms as readonly string[]).includes(value);
+}
+
+export async function createJwt({
+  headerText,
+  payloadText,
+  secret = "",
+  algorithm = "HS256",
+}: {
+  headerText?: string;
+  payloadText?: string;
+  secret?: string;
+  algorithm?: string;
+} = {}): Promise<CreateJwtResult> {
+  const alg = isSignAlgorithm(algorithm) ? algorithm : "HS256";
   const headerParsed = parseJsonObject(headerText, "header");
   if (!headerParsed.ok) return headerParsed;
   const payloadParsed = parseJsonObject(payloadText, "payload");
@@ -147,7 +206,7 @@ export async function createJwt({ headerText, payloadText, secret = "", algorith
   };
 }
 
-export function inspectJwt(input: any, now = Date.now()) {
+export function inspectJwt(input: unknown, now = Date.now()): InspectJwtResult {
   const token = String(input ?? "").trim();
   if (!token) return { ok: false as const, error: "empty" };
   if (token.length > maxJwtLength) return { ok: false as const, error: "too-large" };
@@ -160,8 +219,8 @@ export function inspectJwt(input: any, now = Date.now()) {
   if (parts.length !== 3) return { ok: false as const, error: "invalid-format" };
   if (!parts[0] || !parts[1]) return { ok: false as const, error: "invalid-format" };
 
-  let header;
-  let payload;
+  let header: unknown;
+  let payload: unknown;
   try {
     header = decodeSegment(parts[0]);
     payload = decodeSegment(parts[1]);
@@ -176,9 +235,12 @@ export function inspectJwt(input: any, now = Date.now()) {
     return { ok: false as const, error: "invalid-payload" };
   }
 
-  const exp = formatUnixSeconds(payload.exp, now);
-  const iat = formatUnixSeconds(payload.iat, now);
-  const nbf = formatUnixSeconds(payload.nbf, now);
+  const headerObject = header as Record<string, unknown>;
+  const payloadObject = payload as Record<string, unknown>;
+
+  const exp = formatUnixSeconds(payloadObject.exp, now);
+  const iat = formatUnixSeconds(payloadObject.iat, now);
+  const nbf = formatUnixSeconds(payloadObject.nbf, now);
 
   let status = "ok";
   if (exp?.expired) status = "expired";
@@ -193,12 +255,12 @@ export function inspectJwt(input: any, now = Date.now()) {
       payload: parts[1],
       signature: parts[2] || "",
     },
-    header,
-    payload,
-    headerJson: JSON.stringify(header, null, 2),
-    payloadJson: JSON.stringify(payload, null, 2),
-    algorithm: typeof header.alg === "string" ? header.alg : "",
-    typ: typeof header.typ === "string" ? header.typ : "",
+    header: headerObject,
+    payload: payloadObject,
+    headerJson: JSON.stringify(headerObject, null, 2),
+    payloadJson: JSON.stringify(payloadObject, null, 2),
+    algorithm: typeof headerObject.alg === "string" ? headerObject.alg : "",
+    typ: typeof headerObject.typ === "string" ? headerObject.typ : "",
     exp,
     iat,
     nbf,

@@ -3,21 +3,12 @@ import CodeMirror from "@uiw/react-codemirror";
 import { json } from "@codemirror/lang-json";
 import { EditorView, ViewPlugin } from "@codemirror/view";
 import * as Popover from "@radix-ui/react-popover";
-import {
-  ArrowLeft,
-  BracketsCurly,
-  ClockCounterClockwise,
-  CopySimple,
-  Quotes,
-  TextAa,
-  Trash,
-  TreeStructure,
-  X,
-} from "@phosphor-icons/react";
+import { ArrowLeftIcon, BracketsCurlyIcon, ClockCounterClockwiseIcon, CopySimpleIcon, QuotesIcon, TextAaIcon, TrashIcon, TreeStructureIcon, XIcon } from "@phosphor-icons/react";
 import {
   ActionGroup,
   Button,
   IconButton,
+  Input,
   ToolContent,
   ToolPage,
 } from "@/ui/index.js";
@@ -49,6 +40,7 @@ import { JsonHighlight } from "./json-highlight.js";
 import type { ParseResult, PathQueryResult } from "./json.js";
 
 import { messages } from "./messages.js";
+import type { JsonWorkerResponse } from "./json.worker.js";
 
 type AnalysisState = {
   source: string;
@@ -60,11 +52,6 @@ type AnalysisState = {
 const jsonLanguage = json();
 
 /** Stop trackpad rubber-banding at the editor scroll edges. */
-type OverscrollPlugin = {
-  scroller: HTMLElement;
-  onWheel: (event: WheelEvent) => void;
-};
-
 const disableScrollerOverscroll = ViewPlugin.fromClass(
   class {
     scroller!: HTMLElement;
@@ -290,7 +277,7 @@ function HorizontalSplit({
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
         onKeyDown={(event) => {
-          if (event.key === "ArrowLeft") {
+          if (event.key === "ArrowLeftIcon") {
             event.preventDefault();
             setLeftRatio((ratio) => clampLeftRatio(ratio - 0.02));
           } else if (event.key === "ArrowRight") {
@@ -328,6 +315,13 @@ function JsonFormatter() {
   applyPathRef.current = (nextPath: string) => {
     if (nextPath) setPath(nextPath);
   };
+
+  /** Drop pending worker transforms so late replies cannot overwrite typing. */
+  const replaceSource = (next: string) => {
+    transformIDRef.current += 1;
+    setSource(next);
+  };
+
   const editorExtensions = useMemo(
     () => [
       jsonLanguage,
@@ -373,19 +367,24 @@ function JsonFormatter() {
     if (typeof Worker === "undefined") return undefined;
     const worker = new Worker(new URL("./json.worker.ts", import.meta.url), { type: "module" });
     workerRef.current = worker;
-    worker.onmessage = ({ data }) => {
+    worker.onmessage = ({ data }: MessageEvent<JsonWorkerResponse>) => {
       if (data.type === "transform") {
         if (data.id !== transformIDRef.current) return;
         if (data.ok) {
           setTransformError("");
-          setSource(data.source);
+          setSource(data.source ?? "");
         } else {
-          setTransformError(data.error);
+          setTransformError(data.error ?? "");
         }
         return;
       }
       if (data.id !== analysisIDRef.current) return;
-      setAnalysis(data);
+      setAnalysis({
+        source: data.source ?? "",
+        path: data.path ?? "",
+        parsed: data.parsed,
+        pathQuery: data.pathQuery,
+      });
     };
     return () => {
       worker.terminate();
@@ -401,7 +400,7 @@ function JsonFormatter() {
       if (byteSize(clipboard) > 5_000_000) return;
       const prepared = prepareHistorySource(clipboard);
       if (!prepared) return;
-      setSource(prepared);
+      replaceSource(prepared);
       rememberPaste(prepared);
     })();
     return () => {
@@ -475,7 +474,7 @@ function JsonFormatter() {
         : operation === "sort"
           ? formatJSON(sortKeysDeep(parsed.data))
           : formatJSON(parsed.data);
-      setSource(transformed);
+      replaceSource(transformed);
     } catch (error) {
       setTransformError(error instanceof Error ? error.message : "Unable to transform JSON");
     }
@@ -485,7 +484,7 @@ function JsonFormatter() {
     if (!source) return;
     setTransformError("");
     try {
-      setSource(escapeJSONText(source));
+      replaceSource(escapeJSONText(source));
     } catch (error) {
       setTransformError(error instanceof Error ? error.message : "Unable to escape");
     }
@@ -500,7 +499,7 @@ function JsonFormatter() {
       if (nextParsed.ok && nextParsed.data !== null && typeof nextParsed.data === "object") {
         next = formatJSON(nextParsed.data);
       }
-      setSource(next);
+      replaceSource(next);
     } catch (error) {
       setTransformError(error instanceof Error ? error.message : "Unable to unescape");
     }
@@ -528,10 +527,10 @@ function JsonFormatter() {
   const promoteResultToEditor = () => {
     if (!promotableResult) return;
     try {
-      setSource(formatJSON(promotableResult));
+      replaceSource(formatJSON(promotableResult));
       setPath("");
     } catch {
-      setSource(stringifyValue(promotableResult));
+      replaceSource(stringifyValue(promotableResult));
       setPath("");
     }
   };
@@ -540,7 +539,7 @@ function JsonFormatter() {
     <Popover.Root open={historyOpen} onOpenChange={setHistoryOpen}>
       <Popover.Trigger asChild>
         <Button variant="secondary" size="compact">
-          <ClockCounterClockwise size={14} />
+          <ClockCounterClockwiseIcon size={14} />
           {text.history}
         </Button>
       </Popover.Trigger>
@@ -560,7 +559,7 @@ function JsonFormatter() {
               disabled={!history.length}
               onClick={() => persistHistory([])}
             >
-              <Trash size={13} />
+              <TrashIcon size={13} />
               {text.clearHistory}
             </Button>
           </div>
@@ -574,7 +573,7 @@ function JsonFormatter() {
                     variant="ghost"
                     className="h-auto w-full justify-start rounded-none px-3 py-2 text-left font-normal"
                     onClick={() => {
-                      setSource(entry.source);
+                      replaceSource(entry.source);
                       setPath("");
                       setHistoryOpen(false);
                     }}
@@ -610,7 +609,7 @@ function JsonFormatter() {
             indentOnInput: true,
           }}
           onChange={(value) => {
-            setSource(value);
+            replaceSource(value);
             if (!value.trim()) setPath("");
           }}
           className="h-full min-h-[360px] min-w-0"
@@ -623,7 +622,7 @@ function JsonFormatter() {
           className="pointer-events-auto size-7 bg-surface/90 text-secondary shadow-sm backdrop-blur-sm hover:bg-muted hover:text-foreground"
           onClick={copySource}
         >
-          <CopySimple size={15} />
+          <CopySimpleIcon size={15} />
         </IconButton>
       </div>
     </div>
@@ -639,7 +638,7 @@ function JsonFormatter() {
             className="size-7"
             onClick={copyResults}
           >
-            <CopySimple size={15} />
+            <CopySimpleIcon size={15} />
           </IconButton>
           {promotableResult ? (
             <IconButton
@@ -647,7 +646,7 @@ function JsonFormatter() {
               className="size-7"
               onClick={promoteResultToEditor}
             >
-              <ArrowLeft size={15} />
+              <ArrowLeftIcon size={15} />
             </IconButton>
           ) : null}
           <IconButton
@@ -655,7 +654,7 @@ function JsonFormatter() {
             className="size-7"
             onClick={() => setPath("")}
           >
-            <X size={15} />
+            <XIcon size={15} />
           </IconButton>
         </div>
       </div>
@@ -700,7 +699,7 @@ function JsonFormatter() {
               size="compact"
               onClick={() => mutate("format")}
             >
-              <BracketsCurly size={14} />
+              <BracketsCurlyIcon size={14} />
               {text.format}
             </Button>
             <Button
@@ -708,7 +707,7 @@ function JsonFormatter() {
               size="compact"
               onClick={() => mutate("minify")}
             >
-              <TextAa size={14} />
+              <TextAaIcon size={14} />
               {text.minify}
             </Button>
             <Button
@@ -716,7 +715,7 @@ function JsonFormatter() {
               size="compact"
               onClick={() => mutate("sort")}
             >
-              <TreeStructure size={14} />
+              <TreeStructureIcon size={14} />
               {text.sort}
             </Button>
             <Button
@@ -724,7 +723,7 @@ function JsonFormatter() {
               size="compact"
               onClick={escapeSource}
             >
-              <Quotes size={14} />
+              <QuotesIcon size={14} />
               {text.escape}
             </Button>
             <Button
@@ -732,11 +731,23 @@ function JsonFormatter() {
               size="compact"
               onClick={unescapeSource}
             >
-              <Quotes size={14} weight="duotone" />
+              <QuotesIcon size={14} weight="duotone" />
               {text.unescape}
             </Button>
             {historyControl}
           </ActionGroup>
+
+          <label className="flex min-w-0 max-w-[280px] flex-1 items-center gap-1.5">
+            <span className="machkit-control-label shrink-0">{text.path}</span>
+            <Input
+              value={path}
+              onChange={(event) => setPath(event.target.value)}
+              placeholder={text.pathPlaceholder}
+              aria-label={text.path}
+              spellCheck={false}
+              className="min-w-0 flex-1 font-mono text-[12px]"
+            />
+          </label>
 
           <div className="ml-auto flex min-w-0 items-center gap-2 text-[11px] text-secondary" role="status" aria-live="polite">
             {pathStatus ? (

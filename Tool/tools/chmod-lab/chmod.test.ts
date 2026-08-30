@@ -18,20 +18,24 @@ test("parses octal modes", () => {
 });
 
 test("parses symbolic modes including ls prefix", () => {
-  assert.equal((inspectPermission("rwxr-xr-x") as any).octal, "755");
-  assert.equal((inspectPermission("-rw-r--r--") as any).octal, "644");
-  assert.equal((inspectPermission("drwxr-xr-x") as any).octal, "755");
+  const a = inspectPermission("rwxr-xr-x");
+  const b = inspectPermission("-rw-r--r--");
+  const c = inspectPermission("drwxr-xr-x");
+  assert.equal(a.ok && a.octal, "755");
+  assert.equal(b.ok && b.octal, "644");
+  assert.equal(c.ok && c.octal, "755");
 });
 
 test("toggles permission bits", () => {
   const next = toggleBit(0o644, "owner", "x");
-  assert.equal((next as any).octal, "744");
+  assert.equal(next.octal, "744");
   assert.equal(next.symbolic, "rwxr--r--");
 });
 
 test("handles setuid sticky", () => {
   assert.equal(formatSymbolic(0o4755), "rwsr-xr-x");
-  assert.equal((inspectPermission("rwsr-xr-t") as any).octal, "5755");
+  const inspected = inspectPermission("rwsr-xr-t");
+  assert.equal(inspected.ok && inspected.octal, "5755");
   assert.equal(formatSymbolic(0o4644), "rwSr--r--");
 });
 
@@ -39,5 +43,5 @@ test("toggles special bits and clamps modes", () => {
   assert.equal(toggleSpecial(0o755, "sticky").octal, "1755");
   assert.equal(clampMode(-1), 0);
   assert.equal(clampMode(0o10000), 0o7777);
-  assert.equal((inspectPermission("rwxrwxrwxrwx") as any).ok, false);
+  assert.equal(inspectPermission("rwxrwxrwxrwx").ok, false);
 });

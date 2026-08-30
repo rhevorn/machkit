@@ -4,7 +4,9 @@ import {
   clearDraftBackup,
   draftBackupDiffers,
   localizePresetEnvironmentName,
+  normalizeEnvironmentSelection,
   readDraftBackup,
+  sameEnvironmentID,
   shouldKeepLocalDrafts,
   writeDraftBackup,
 } from "./hosts.js";
@@ -45,6 +47,21 @@ test("keeps custom and renamed environments as stored", () => {
 test("detects newer local edits after save", () => {
   assert.equal(shouldKeepLocalDrafts(2, 2), false);
   assert.equal(shouldKeepLocalDrafts(3, 2), true);
+});
+
+test("compares environment IDs case-insensitively", () => {
+  assert.equal(sameEnvironmentID("AAAA-bbbb-0001", "aaaa-BBBB-0001"), true);
+  assert.equal(sameEnvironmentID("aaaa-0001", "aaaa-0002"), false);
+  assert.equal(sameEnvironmentID("", "aaaa-0001"), false);
+  assert.equal(sameEnvironmentID(null, "aaaa-0001"), false);
+});
+
+test("normalizes selection to the snapshot environment ID", () => {
+  const environments = [{ id: "AaBb-0001" }, { id: "CcDd-0002" }];
+  assert.equal(normalizeEnvironmentSelection("aabb-0001", environments), "AaBb-0001");
+  assert.equal(normalizeEnvironmentSelection("system", environments), "system");
+  assert.equal(normalizeEnvironmentSelection("shared", environments), "shared");
+  assert.equal(normalizeEnvironmentSelection("missing", environments), "missing");
 });
 
 test("round-trips draft backups in storage", () => {

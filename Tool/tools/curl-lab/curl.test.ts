@@ -114,6 +114,31 @@ test("builds fetch snippet for form modes", () => {
   assert.match(snippet, /append/);
 });
 
+test("parses basic auth with Base64 credentials", () => {
+  const result = parseCurl("curl -u 'alice:s3cret' https://example.com/api");
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  const auth = result.request.headers.find((header) => header.key === "Authorization");
+  assert.equal(auth?.value, `Basic ${Buffer.from("alice:s3cret", "utf8").toString("base64")}`);
+});
+
+test("parses basic auth without password", () => {
+  const result = parseCurl("curl --user bob https://example.com/");
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  const auth = result.request.headers.find((header) => header.key === "Authorization");
+  assert.equal(auth?.value, `Basic ${Buffer.from("bob:", "utf8").toString("base64")}`);
+});
+
+test("keeps malformed percent-encoding instead of throwing", () => {
+  // Force the manual decode path via urlencoded body (URL() would soft-decode query).
+  const result = parseCurl("curl -d 'name=%E0%A4%A' https://example.com");
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.equal(result.request.formFields[0]?.key, "name");
+  assert.equal(result.request.formFields[0]?.value, "%E0%A4%A");
+});
+
 test("rejects empty", () => {
   assert.equal(parseCurl("").error, "empty");
   assert.equal(parseCurl("wget https://x").error, "not-curl");

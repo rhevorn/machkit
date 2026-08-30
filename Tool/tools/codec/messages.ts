@@ -38,6 +38,8 @@ export const messages = {
     "invalid-unicode": "Invalid Unicode escape",
     "invalid-base32": "Invalid Base32",
     "invalid-escape": "Invalid escape sequence",
+    "input-too-large": "Input is too large (2 MB maximum)",
+    unsupported: "Unsupported conversion",
   },
   "zh-Hans": {
     title: "编解码",
@@ -78,6 +80,8 @@ export const messages = {
     "invalid-unicode": "无效的 Unicode 转义",
     "invalid-base32": "无效的 Base32",
     "invalid-escape": "无效的转义序列",
+    "input-too-large": "输入过大（最大 2 MB）",
+    unsupported: "不支持的转换",
   },
   "zh-Hant": {
     title: "編解碼",
@@ -118,6 +122,8 @@ export const messages = {
     "invalid-unicode": "無效的 Unicode 跳脫",
     "invalid-base32": "無效的 Base32",
     "invalid-escape": "無效的跳脫序列",
+    "input-too-large": "輸入過大（最大 2 MB）",
+    unsupported: "不支援的轉換",
   },
   ja: {
     title: "コーデック",
@@ -158,6 +164,8 @@ export const messages = {
     "invalid-unicode": "無効な Unicode エスケープ",
     "invalid-base32": "無効な Base32",
     "invalid-escape": "無効なエスケープ",
+    "input-too-large": "入力が大きすぎます（最大 2 MB）",
+    unsupported: "未対応の変換です",
   },
   ko: {
     title: "코덱",
@@ -198,6 +206,8 @@ export const messages = {
     "invalid-unicode": "잘못된 Unicode 이스케이프",
     "invalid-base32": "잘못된 Base32",
     "invalid-escape": "잘못된 이스케이프",
+    "input-too-large": "입력이 너무 큽니다 (최대 2 MB)",
+    unsupported: "지원하지 않는 변환",
   },
   es: {
     title: "Códec",
@@ -238,6 +248,8 @@ export const messages = {
     "invalid-unicode": "Escape Unicode no válido",
     "invalid-base32": "Base32 no válido",
     "invalid-escape": "Secuencia de escape no válida",
+    "input-too-large": "La entrada es demasiado grande (máximo 2 MB)",
+    unsupported: "Conversión no admitida",
   },
   fr: {
     title: "Codec",
@@ -278,6 +290,8 @@ export const messages = {
     "invalid-unicode": "Échappement Unicode invalide",
     "invalid-base32": "Base32 invalide",
     "invalid-escape": "Séquence d’échappement invalide",
+    "input-too-large": "Entrée trop volumineuse (2 Mo maximum)",
+    unsupported: "Conversion non prise en charge",
   },
   de: {
     title: "Codec",
@@ -318,6 +332,8 @@ export const messages = {
     "invalid-unicode": "Ungültiges Unicode-Escape",
     "invalid-base32": "Ungültiges Base32",
     "invalid-escape": "Ungültige Escape-Sequenz",
+    "input-too-large": "Eingabe zu groß (maximal 2 MB)",
+    unsupported: "Nicht unterstützte Umwandlung",
   },
   "pt-BR": {
     title: "Codec",
@@ -358,6 +374,8 @@ export const messages = {
     "invalid-unicode": "Escape Unicode inválido",
     "invalid-base32": "Base32 inválido",
     "invalid-escape": "Sequência de escape inválida",
+    "input-too-large": "Entrada grande demais (máximo 2 MB)",
+    unsupported: "Conversão não suportada",
   },
   ru: {
     title: "Кодек",
@@ -398,5 +416,7 @@ export const messages = {
     "invalid-unicode": "Некорректный Unicode escape",
     "invalid-base32": "Некорректный Base32",
     "invalid-escape": "Некорректная escape-последовательность",
+    "input-too-large": "Слишком большой ввод (максимум 2 МБ)",
+    unsupported: "Неподдерживаемое преобразование",
   },
 };

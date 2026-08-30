@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { ArrowsLeftRight, CopySimple, Eraser } from "@phosphor-icons/react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowsLeftRightIcon, CopySimpleIcon, EraserIcon } from "@phosphor-icons/react";
 import {
   ActionGroup,
   Button,
@@ -177,7 +177,7 @@ function CodecTool() {
                   setError(null);
                 }}
               >
-                <Eraser size={15} />
+                <EraserIcon size={15} />
                 {text.clear}
               </Button>
             </ActionGroup>
@@ -221,7 +221,7 @@ function CodecTool() {
                     onClick={swap}
                     className="size-8.5"
                   >
-                    <ArrowsLeftRight size={15} />
+                    <ArrowsLeftRightIcon size={15} />
                   </IconButton>
                 </div>
               )}
@@ -274,7 +274,7 @@ function CodecTool() {
                       disabled={!output}
                       onClick={() => machkit.copy(output)}
                     >
-                      <CopySimple size={15} />
+                      <CopySimpleIcon size={15} />
                       {text.copy}
                     </Button>
                   </ActionGroup>
@@ -287,10 +287,7 @@ function CodecTool() {
                   className="min-h-[120px] w-full flex-1 resize-y bg-field"
                 />
                 {error ? (
-                  <StatusStrip tone="danger">
-                    {messageFor(text, error) ||
-                      (error === "input-too-large" ? "Input is too large (2 MB maximum)" : error)}
-                  </StatusStrip>
+                  <StatusStrip tone="danger">{messageFor(text, error)}</StatusStrip>
                 ) : null}
               </div>
             </div>

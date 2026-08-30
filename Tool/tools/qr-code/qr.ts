@@ -11,7 +11,6 @@ export type QRRenderOptions = {
   errorCorrectionLevel?: string;
   logoDataURL?: string;
   logoRatio?: number;
-  [key: string]: any;
 };
 
 import QRCode from "qrcode";
@@ -19,14 +18,18 @@ import QRCode from "qrcode";
 export const maxPayload = 2_000;
 export const minSize = 64;
 export const maxSize = 1024;
-export const errorLevels = Object.freeze(["L", "M", "Q", "H"]);
+export const errorLevels = Object.freeze(["L", "M", "Q", "H"] as const);
 export const defaultSize = 256;
 export const defaultLogoRatio = 0.22;
 export const maxLogoRatio = 0.28;
 export const defaultMargin = 2;
-export const margins = Object.freeze([0, 1, 2, 3, 4]);
-export const dotShapes = Object.freeze(["square", "rounded", "circle"]);
-export const eyeShapes = Object.freeze(["square", "rounded", "circle"]);
+export const margins = Object.freeze([0, 1, 2, 3, 4] as const);
+export const dotShapes = Object.freeze(["square", "rounded", "circle"] as const);
+export const eyeShapes = Object.freeze(["square", "rounded", "circle"] as const);
+
+export type ErrorLevel = (typeof errorLevels)[number];
+export type DotShape = (typeof dotShapes)[number];
+export type EyeShape = (typeof eyeShapes)[number];
 
 /** Approx recoverable damage; matches common QR UI labels. */
 export const errorLevelPercents = Object.freeze({
@@ -34,7 +37,7 @@ export const errorLevelPercents = Object.freeze({
   M: "15%",
   Q: "25%",
   H: "30%",
-});
+} as const satisfies Record<ErrorLevel, string>);
 
 /**
  * Style presets seed colors + module shapes. Users can override afterward.
@@ -68,50 +71,109 @@ export const qrStyles = Object.freeze([
     dotShape: "square",
     eyeShape: "square",
   },
-]);
+] as const);
 
-export function normalizePayload(input: any) {
+export type StyleId = (typeof qrStyles)[number]["id"];
+
+export type NormalizePayloadResult =
+  | { ok: true; text: string }
+  | { ok: false; error: "empty" | "too-large" };
+
+export type DrawLogoResult =
+  | { ok: true; error: null; logoSize: number }
+  | { ok: false; error: string };
+
+export type RenderQRMatrixResult =
+  | false
+  | {
+      ok: true;
+      width: number;
+      errorCorrectionLevel: ErrorLevel;
+      version: number;
+      moduleCount: number;
+    };
+
+export type GenerateQRSuccess = {
+  ok: true;
+  dataURL: string;
+  width: number;
+  errorCorrectionLevel: ErrorLevel | string;
+  bytes: number;
+  logoApplied: boolean;
+  version: number | null;
+  moduleCount: number | null;
+  margin: number;
+  dark: string;
+  light: string;
+  dotShape: DotShape;
+  eyeShape: EyeShape;
+};
+
+export type GenerateQRFailure = { ok: false; error: string };
+
+export type GenerateQRResult = GenerateQRSuccess | GenerateQRFailure;
+
+function errorMessage(error: unknown, fallback: string): string {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === "string" && error) return error;
+  return fallback;
+}
+
+function isErrorLevel(value: unknown): value is ErrorLevel {
+  return typeof value === "string" && (errorLevels as readonly string[]).includes(value);
+}
+
+
+export function normalizePayload(input: unknown): NormalizePayloadResult {
   const text = String(input ?? "");
   if (!text.trim()) return { ok: false as const, error: "empty" };
   if (text.length > maxPayload) return { ok: false as const, error: "too-large" };
   return { ok: true as const, text };
 }
 
-export function resolveSize(value: any) {
+export function resolveSize(value: unknown): number {
   const n = Math.round(Number(value));
   if (!Number.isFinite(n)) return defaultSize;
   return Math.min(maxSize, Math.max(minSize, n));
 }
 
-export function resolveMargin(value: any) {
+export function resolveMargin(value: unknown): number {
   const n = Math.round(Number(value));
   if (!Number.isFinite(n)) return defaultMargin;
   return Math.min(4, Math.max(0, n));
 }
 
-export function resolveDotShape(value: any) {
-  return dotShapes.includes(value) ? value : "square";
+export function resolveDotShape(value: unknown): DotShape {
+  const text = String(value ?? "");
+  for (const shape of dotShapes) {
+    if (shape === text) return shape;
+  }
+  return "square";
 }
 
-export function resolveEyeShape(value: any) {
-  return eyeShapes.includes(value) ? value : "square";
+export function resolveEyeShape(value: unknown): EyeShape {
+  const text = String(value ?? "");
+  for (const shape of eyeShapes) {
+    if (shape === text) return shape;
+  }
+  return "square";
 }
 
-export function clampLogoRatio(value: any) {
+export function clampLogoRatio(value: unknown): number {
   const n = Number(value);
   if (!Number.isFinite(n)) return defaultLogoRatio;
   return Math.min(maxLogoRatio, Math.max(0.12, Math.round(n * 100) / 100));
 }
 
-export function normalizeHexColor(value: any, fallback: any) {
+export function normalizeHexColor(value: unknown, fallback: string): string {
   const raw = String(value ?? "").trim();
   if (/^#[0-9a-fA-F]{6}$/.test(raw)) return raw.toLowerCase();
   if (/^[0-9a-fA-F]{6}$/.test(raw)) return `#${raw.toLowerCase()}`;
   return fallback;
 }
 
-function loadImage(src: any) {
-  return new Promise((resolve, reject) => {
+function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
     const image = new Image();
     image.onload = () => resolve(image);
     image.onerror = () => reject(new Error("logo-failed"));
@@ -119,7 +181,7 @@ function loadImage(src: any) {
   });
 }
 
-function fillRoundRect(ctx: any, x: any, y: any, width: any, height: any, radius: any) {
+function fillRoundRect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number): void {
   const r = Math.min(radius, width / 2, height / 2);
   ctx.beginPath();
   ctx.moveTo(x + r, y);
@@ -131,7 +193,7 @@ function fillRoundRect(ctx: any, x: any, y: any, width: any, height: any, radius
   ctx.fill();
 }
 
-function logoDrawSize(logo: any, maxSide: any) {
+function logoDrawSize(logo: Pick<HTMLImageElement, "naturalWidth" | "naturalHeight" | "width" | "height">, maxSide: number): { width: number; height: number } {
   const naturalW = Math.max(1, logo.naturalWidth || logo.width || 1);
   const naturalH = Math.max(1, logo.naturalHeight || logo.height || 1);
   const scale = Math.min(maxSide / naturalW, maxSide / naturalH);
@@ -141,14 +203,14 @@ function logoDrawSize(logo: any, maxSide: any) {
   };
 }
 
-function isFinderCell(row: any, col: any, moduleCount: any) {
+function isFinderCell(row: number, col: number, moduleCount: number): boolean {
   const inTopLeft = row < 7 && col < 7;
   const inTopRight = row < 7 && col >= moduleCount - 7;
   const inBottomLeft = row >= moduleCount - 7 && col < 7;
   return inTopLeft || inTopRight || inBottomLeft;
 }
 
-function finderOrigins(moduleCount: any) {
+function finderOrigins(moduleCount: number): Array<[number, number]> {
   return [
     [0, 0],
     [0, moduleCount - 7],
@@ -156,7 +218,7 @@ function finderOrigins(moduleCount: any) {
   ];
 }
 
-function paintModule(ctx: any, x: any, y: any, size: any, shape: any, color: any) {
+function paintModule(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, shape: DotShape, color: string): void {
   ctx.fillStyle = color;
   if (shape === "circle") {
     const radius = size * 0.42;
@@ -174,7 +236,7 @@ function paintModule(ctx: any, x: any, y: any, size: any, shape: any, color: any
   ctx.fillRect(x, y, size, size);
 }
 
-function paintFinder(ctx: any, originX: any, originY: any, cell: any, shape: any, dark: any, light: any) {
+function paintFinder(ctx: CanvasRenderingContext2D, originX: number, originY: number, cell: number, shape: EyeShape, dark: string, light: string): void {
   const outer = cell * 7;
   const x = originX;
   const y = originY;
@@ -211,7 +273,7 @@ function paintFinder(ctx: any, originX: any, originY: any, cell: any, shape: any
 }
 
 /** Draw a centered logo onto an existing square canvas (browser only). */
-export async function drawLogoOnCanvas(canvas: any, logoDataURL: any, logoRatio: any = defaultLogoRatio) {
+export async function drawLogoOnCanvas(canvas: HTMLCanvasElement, logoDataURL: string, logoRatio: unknown = defaultLogoRatio): Promise<DrawLogoResult> {
   if (typeof document === "undefined") {
     return { ok: false as const, error: "no-canvas" };
   }
@@ -240,7 +302,7 @@ export async function drawLogoOnCanvas(canvas: any, logoDataURL: any, logoRatio:
 
     return { ok: true as const, error: null, logoSize: Math.max(drawW, drawH) };
   } catch (error) {
-    return { ok: false as const, error: (error as any)?.message || "logo-failed" };
+    return { ok: false as const, error: errorMessage(error, "logo-failed") };
   }
 }
 
@@ -248,13 +310,10 @@ export async function drawLogoOnCanvas(canvas: any, logoDataURL: any, logoRatio:
  * Render QR modules onto a canvas with optional shapes/colors.
  * Returns false when canvas APIs are unavailable (e.g. Node tests).
  */
-export function renderQRMatrixToCanvas(canvas: HTMLCanvasElement, text: string, options: QRRenderOptions = {}) {
+export function renderQRMatrixToCanvas(canvas: HTMLCanvasElement, text: string, options: QRRenderOptions = {}): RenderQRMatrixResult {
   if (typeof document === "undefined" || !canvas?.getContext) return false;
 
-  let errorCorrectionLevel =
-    options.errorLevel && (errorLevels as readonly string[]).includes(options.errorLevel)
-      ? options.errorLevel
-      : "M";
+  let errorCorrectionLevel: ErrorLevel = isErrorLevel(options.errorLevel) ? options.errorLevel : "M";
   if (options.logoDataURL && errorCorrectionLevel !== "H") errorCorrectionLevel = "H";
 
   const width = resolveSize(options.size);
@@ -265,7 +324,7 @@ export function renderQRMatrixToCanvas(canvas: HTMLCanvasElement, text: string, 
   const dotShape = resolveDotShape(options.dotShape);
   const eyeShape = resolveEyeShape(options.eyeShape);
 
-  const qr = QRCode.create(text, { errorCorrectionLevel: errorCorrectionLevel as any });
+  const qr = QRCode.create(text, { errorCorrectionLevel });
   const modules = qr.modules;
   const moduleCount = modules.size;
   const cell = width / (moduleCount + margin * 2);
@@ -303,16 +362,13 @@ export function renderQRMatrixToCanvas(canvas: HTMLCanvasElement, text: string, 
   };
 }
 
-export async function generateQRDataURL(input: any, options: QRRenderOptions = {}) {
+export async function generateQRDataURL(input: unknown, options: QRRenderOptions = {}): Promise<GenerateQRResult> {
   const payload = normalizePayload(input);
   if (!payload.ok) return payload;
 
   const width = resolveSize(options.size);
   const hasLogo = Boolean(options.logoDataURL);
-  let errorCorrectionLevel =
-    options.errorLevel && (errorLevels as readonly string[]).includes(options.errorLevel)
-      ? options.errorLevel
-      : "M";
+  let errorCorrectionLevel: ErrorLevel = isErrorLevel(options.errorLevel) ? options.errorLevel : "M";
   if (hasLogo && errorCorrectionLevel !== "H") errorCorrectionLevel = "H";
 
   const margin = resolveMargin(options.margin);
@@ -356,13 +412,13 @@ export async function generateQRDataURL(input: any, options: QRRenderOptions = {
       dataURL = canvas.toDataURL("image/png");
     } else {
       // Node tests: library encoder (shapes ignored without canvas).
-      dataURL = await QRCode.toDataURL(payload.text as any, {
-        errorCorrectionLevel: errorCorrectionLevel as any,
+      dataURL = await QRCode.toDataURL(payload.text, {
+        errorCorrectionLevel,
         margin,
         width,
         color: { dark, light },
       });
-      const meta = QRCode.create(payload.text as any, { errorCorrectionLevel: errorCorrectionLevel as any });
+      const meta = QRCode.create(payload.text, { errorCorrectionLevel });
       version = meta.version;
       moduleCount = meta.modules.size;
     }
@@ -384,6 +440,6 @@ export async function generateQRDataURL(input: any, options: QRRenderOptions = {
       eyeShape,
     };
   } catch (error) {
-    return { ok: false as const, error: (error as any)?.message || "encode-failed" };
+    return { ok: false as const, error: errorMessage(error, "encode-failed") };
   }
 }

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { CaretDown, Check } from "@phosphor-icons/react";
+import { CaretDownIcon, CheckIcon } from "@phosphor-icons/react";
 import * as Select from "@radix-ui/react-select";
 import { cn } from "@/lib/utils.js";
 
@@ -27,7 +27,7 @@ export function SelectControl({ value, options, onChange, label, className }: Se
         )}
       >
         <Select.Value className="min-w-0 truncate" />
-        <Select.Icon className="shrink-0 text-secondary"><CaretDown size={14} /></Select.Icon>
+        <Select.Icon className="shrink-0 text-secondary"><CaretDownIcon size={14} /></Select.Icon>
       </Select.Trigger>
       <Select.Portal>
         <Select.Content
@@ -44,7 +44,7 @@ export function SelectControl({ value, options, onChange, label, className }: Se
               >
                 <Select.ItemText>{option.label}</Select.ItemText>
                 <Select.ItemIndicator className="absolute right-2 inline-flex items-center text-accent">
-                  <Check size={14} weight="bold" />
+                  <CheckIcon size={14} weight="bold" />
                 </Select.ItemIndicator>
               </Select.Item>
             ))}

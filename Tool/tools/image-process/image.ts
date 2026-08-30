@@ -188,11 +188,6 @@ export function outputFileName(originalName: unknown, format: OutputFormat | str
   return `${safe}.${outputExtension(format)}`;
 }
 
-/** @deprecated Prefer resolveDimensions */
-export function fitWithin(width: number, height: number, maxEdge: number) {
-  return resolveDimensions(width, height, { maxEdge });
-}
-
 /**
  * Resolve output pixel size.
  * - maxEdge: longest side limit
@@ -352,6 +347,31 @@ type EncodeCandidate = {
   format: OutputFormat;
 };
 
+export type SizeCandidateScore = {
+  size: number;
+  quality: number;
+};
+
+/**
+ * Prefer candidates that fit under the target. Among under-target picks, keep the
+ * highest quality (then largest size). Only choose over-target when nothing fits.
+ */
+export function preferSizeCandidate(
+  candidate: SizeCandidateScore,
+  current: SizeCandidateScore | null,
+  targetBytes: number,
+): boolean {
+  if (!current) return true;
+  const candFits = candidate.size <= targetBytes;
+  const currFits = current.size <= targetBytes;
+  if (candFits !== currFits) return candFits;
+  if (candFits) {
+    if (candidate.quality !== current.quality) return candidate.quality > current.quality;
+    return candidate.size >= current.size;
+  }
+  return candidate.size < current.size;
+}
+
 /**
  * Binary-search quality (and optionally scale down) to meet a target byte size.
  * Lossy formats only; PNG falls back to WebP for size targeting.
@@ -382,14 +402,29 @@ export async function encodeToTargetSize(
       const mid = (low + high) / 2;
       const blob = await encodeCanvas(canvas, outputFormat, mid);
       const candidate: EncodeCandidate = { blob, quality: mid, width, height, format: outputFormat };
-      if (!passBest || Math.abs(blob.size - targetBytes) < Math.abs(passBest.blob.size - targetBytes)) {
+      if (
+        preferSizeCandidate(
+          { size: candidate.blob.size, quality: candidate.quality },
+          passBest ? { size: passBest.blob.size, quality: passBest.quality } : null,
+          targetBytes,
+        )
+      ) {
         passBest = candidate;
       }
       if (blob.size > targetBytes) high = mid;
       else low = mid;
     }
 
-    best = passBest;
+    if (
+      passBest &&
+      preferSizeCandidate(
+        { size: passBest.blob.size, quality: passBest.quality },
+        best ? { size: best.blob.size, quality: best.quality } : null,
+        targetBytes,
+      )
+    ) {
+      best = passBest;
+    }
     if (passBest && passBest.blob.size <= targetBytes) break;
 
     // Still too large at lowest quality — shrink dimensions and retry.

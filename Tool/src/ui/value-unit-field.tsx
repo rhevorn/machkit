@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { CaretDown, Check } from "@phosphor-icons/react";
+import { CaretDownIcon, CheckIcon } from "@phosphor-icons/react";
 import * as Select from "@radix-ui/react-select";
 import { cn } from "@/lib/utils.js";
 
@@ -65,7 +65,7 @@ export function ValueUnitField({
           >
             <Select.Value />
             <Select.Icon className="shrink-0 text-secondary">
-              <CaretDown size={13} />
+              <CaretDownIcon size={13} />
             </Select.Icon>
           </Select.Trigger>
           <Select.Portal>
@@ -83,7 +83,7 @@ export function ValueUnitField({
                   >
                     <Select.ItemText>{option.label}</Select.ItemText>
                     <Select.ItemIndicator className="absolute right-2 inline-flex items-center text-accent">
-                      <Check size={14} weight="bold" />
+                      <CheckIcon size={14} weight="bold" />
                     </Select.ItemIndicator>
                   </Select.Item>
                 ))}

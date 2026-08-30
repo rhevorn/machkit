@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useRef, useState, type ComponentType, type SVGProps } from "react";
+import { useEffect, useMemo, useRef, useState, type ComponentType, type SVGProps } from "react";
 import { createPortal } from "react-dom";
 import CodeMirror from "@uiw/react-codemirror";
-import { Desktop, HardDrives, Link, Plus } from "@phosphor-icons/react";
+import { DesktopIcon, HardDrivesIcon, LinkIcon, PlusIcon } from "@phosphor-icons/react";
 import { Button, Input, SidebarNavItem, StatusStrip, ToolPage, ToolSidebar } from "@/ui/index.js";
 import { cn } from "@/lib/utils.js";
 import { useMachKitEditorTheme } from "@/ui/codemirror-theme.js";
@@ -16,7 +16,9 @@ import {
   clearDraftBackup,
   draftBackupDiffers,
   localizePresetEnvironmentName,
+  normalizeEnvironmentSelection,
   readDraftBackup,
+  sameEnvironmentID,
   shouldKeepLocalDrafts,
   writeDraftBackup,
   type HostsDraftPayload,
@@ -61,9 +63,11 @@ function HostsManager() {
   }
   selectionRef.current = selection;
 
-  const sameEnvironmentID = (left: unknown, right: unknown): boolean => {
-    if (left == null || right == null || left === "" || right === "") return false;
-    return String(left).toLowerCase() === String(right).toLowerCase();
+  const syncSelectionToSnapshot = (snapshot: HostsSnapshot) => {
+    const current = selectionRef.current;
+    if (current === "system" || current === "shared") return;
+    const next = normalizeEnvironmentSelection(current, snapshot.environments);
+    if (next !== current) setSelection(next);
   };
 
   const replaceData = (nextData: HostsSnapshot, { replaceDrafts = true } = {}) => {
@@ -176,6 +180,7 @@ function HostsManager() {
       } else {
         dirtyRef.current = false;
         replaceData(nextData);
+        syncSelectionToSnapshot(nextData);
         clearDraftBackup(window.localStorage);
         markDraftSaved();
       }
@@ -259,7 +264,9 @@ function HostsManager() {
       clearDraftBackup(window.localStorage);
       editRevisionRef.current += 1;
       if (targetEnvironmentID) {
-        setSelection(targetEnvironmentID);
+        setSelection(normalizeEnvironmentSelection(targetEnvironmentID, nextData.environments));
+      } else {
+        syncSelectionToSnapshot(nextData);
       }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : String(error));
@@ -294,7 +301,9 @@ function HostsManager() {
     if (!selectedEnvironment) return;
     setLocalDrafts((current) =>
       current.map((environment) =>
-        environment.id === selection ? { ...environment, content: value } : environment,
+        sameEnvironmentID(environment.id, selection)
+          ? { ...environment, content: value }
+          : environment,
       ),
     );
     if (dataRef.current) {
@@ -310,7 +319,9 @@ function HostsManager() {
     if (!selectedEnvironment) return;
     setLocalDrafts((current) =>
       current.map((environment) =>
-        environment.id === selection ? { ...environment, name: value } : environment,
+        sameEnvironmentID(environment.id, selection)
+          ? { ...environment, name: value }
+          : environment,
       ),
     );
     setMessage("");
@@ -339,13 +350,13 @@ function HostsManager() {
   }
 
   const rows: SidebarRow[] = [
-    { id: "system", name: text.systemHosts, hint: text.systemHint, icon: Desktop },
-    { id: "shared", name: text.sharedName, hint: text.sharedHint, icon: Link },
+    { id: "system", name: text.systemHosts, hint: text.systemHint, icon: DesktopIcon },
+    { id: "shared", name: text.sharedName, hint: text.sharedHint, icon: LinkIcon },
     ...drafts.map((environment) => ({
       id: environment.id,
       name: environmentName(environment),
       hint: "",
-      icon: HardDrives,
+      icon: HardDrivesIcon,
     })),
   ];
 
@@ -379,7 +390,7 @@ function HostsManager() {
           ))}
           <div className="mt-3 flex h-9 shrink-0 items-center pl-2 pr-1.5">
             <span className="machkit-sidebar-label min-w-0 flex-1">{text.environments}</span>
-            <Button variant="ghost" size="icon" className="size-5" onClick={addEnvironment} aria-label={text.add}><Plus size={14} /></Button>
+            <Button variant="ghost" size="icon" className="size-5" onClick={addEnvironment} aria-label={text.add}><PlusIcon size={14} /></Button>
           </div>
           <div className="space-y-1.5 overflow-auto">
             {rows.slice(2).map((row) => (
@@ -388,7 +399,7 @@ function HostsManager() {
                 row={row}
                 text={text}
                 busy={busy}
-                selected={selection === row.id}
+                selected={sameEnvironmentID(selection, row.id)}
                 active={sameEnvironmentID(row.id, data.activeEnvironmentID)}
                 onSelect={setSelection}
                 onDelete={removeEnvironment}

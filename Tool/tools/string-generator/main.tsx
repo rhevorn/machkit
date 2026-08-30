@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowsClockwise, CopySimple, Eraser } from "@phosphor-icons/react";
+import { ArrowsClockwiseIcon, CopySimpleIcon, EraserIcon } from "@phosphor-icons/react";
 import {
   ActionGroup,
   Button,
@@ -509,7 +509,7 @@ function StringGenerator() {
               disabled={format === "string" && !hasStringAlphabet}
               onClick={regenerateNow}
             >
-              <ArrowsClockwise size={15} />
+              <ArrowsClockwiseIcon size={15} />
               {text.regenerate}
             </Button>
           </ActionGroup>
@@ -609,7 +609,7 @@ function StringGenerator() {
                 disabled={!resultText}
                 onClick={() => machkit.copy(resultText)}
               >
-                <CopySimple size={16} />
+                <CopySimpleIcon size={16} />
                 {text.copyAll}
               </Button>
               <Button
@@ -618,7 +618,7 @@ function StringGenerator() {
                 disabled={!resultText}
                 onClick={() => setResults([])}
               >
-                <Eraser size={16} />
+                <EraserIcon size={16} />
                 {text.clear}
               </Button>
             </ActionGroup>
@@ -640,7 +640,7 @@ function StringGenerator() {
                   >
                     <span className="w-7 shrink-0 text-xs tabular-nums text-tertiary">{index + 1}</span>
                     <span className="min-w-0 flex-1 truncate font-mono text-[13px] text-foreground">{value}</span>
-                    <CopySimple size={14} className="shrink-0 text-tertiary" />
+                    <CopySimpleIcon size={14} className="shrink-0 text-tertiary" />
                   </Button>
                 </li>
               ))}

@@ -17,6 +17,58 @@ export type PortInspectResult =
 
 export type ScanState = "idle" | "running" | "completed" | "cancelled" | "failed" | string;
 
+export type OpenPort = {
+  port: number;
+  service?: string;
+  latencyMs?: number | null;
+};
+
+export type ScanResult = {
+  state?: string;
+  scanID?: string;
+  host?: string;
+  total?: number;
+  completed?: number;
+  openPorts?: OpenPort[];
+  closed?: number;
+  timedOut?: number;
+  durationMs?: number | null;
+  error?: string | null;
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+export function isScanResult(value: unknown): value is ScanResult {
+  if (!isRecord(value)) return false;
+  if (value.state !== undefined && typeof value.state !== "string") return false;
+  if (value.scanID !== undefined && typeof value.scanID !== "string") return false;
+  if (value.host !== undefined && typeof value.host !== "string") return false;
+  if (value.total !== undefined && typeof value.total !== "number") return false;
+  if (value.completed !== undefined && typeof value.completed !== "number") return false;
+  if (value.closed !== undefined && typeof value.closed !== "number") return false;
+  if (value.timedOut !== undefined && typeof value.timedOut !== "number") return false;
+  if (value.durationMs !== undefined && value.durationMs !== null && typeof value.durationMs !== "number") {
+    return false;
+  }
+  if (value.error !== undefined && value.error !== null && typeof value.error !== "string") return false;
+  if (value.openPorts !== undefined) {
+    if (!Array.isArray(value.openPorts)) return false;
+    for (const entry of value.openPorts) {
+      if (!isRecord(entry) || typeof entry.port !== "number") return false;
+    }
+  }
+  return true;
+}
+
+export function assertScanResult(value: unknown): ScanResult {
+  if (!isScanResult(value)) {
+    throw new Error("Invalid port scan result from MachKit.");
+  }
+  return value;
+}
+
 export function normalizeHost(value: unknown): string {
   return String(value ?? "").trim();
 }

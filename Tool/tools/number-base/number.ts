@@ -75,7 +75,7 @@ const LINEAR = {
   ]),
 };
 
-export const TEMPERATURE_UNITS = Object.freeze(["C", "F", "K"]);
+export const TEMPERATURE_UNITS = Object.freeze(["C", "F", "K"] as const);
 
 export const byteUnits = Object.freeze(BYTE_UNITS.map((unit) => unit.id));
 
@@ -89,7 +89,7 @@ export const unitCategories = Object.freeze([
   "angle",
   "speed",
   "area",
-]);
+] as const);
 
 export const defaultUnits = Object.freeze({
   bytes: "MiB",
@@ -102,7 +102,58 @@ export const defaultUnits = Object.freeze({
   area: "m2",
 });
 
-export function unitsForCategory(category: string) {
+export type TemperatureUnit = (typeof TEMPERATURE_UNITS)[number];
+export type ByteUnit = (typeof byteUnits)[number];
+export type UnitCategory = (typeof unitCategories)[number];
+export type UnitCategoryWithUnits = Exclude<UnitCategory, "bases">;
+export type DefaultUnits = typeof defaultUnits;
+
+export type UnitOption = { id: string; label: string };
+
+export type LinearUnit = { id: string; label: string; factor: number };
+export type LinearCategory = keyof typeof LINEAR;
+
+export type ParseFloatResult =
+  | { ok: true; error: null; value: number }
+  | { ok: false; error: string; value: null };
+
+export type ParseIntegerResult =
+  | { ok: true; error: null; value: bigint; base: number }
+  | { ok: false; error: string; value: null };
+
+export type BaseFormats = {
+  bin: string;
+  oct: string;
+  dec: string;
+  hex: string;
+};
+
+export type ConvertBasesResult =
+  | { ok: true; error: null; value: bigint; formats: BaseFormats }
+  | { ok: false; error: string; formats: null };
+
+export type ParseByteResult =
+  | { ok: true; error: null; bytes: bigint }
+  | { ok: false; error: string; bytes: null };
+
+export type ConvertBytesResult =
+  | { ok: true; error: null; bytes: bigint; formats: Record<string, string> }
+  | { ok: false; error: string; formats: null };
+
+export type ResultRow = { id: string; label: string; value: string };
+
+export type ConvertLinearResult =
+  | { ok: true; error: null; formats: Record<string, string>; rows: ResultRow[] }
+  | { ok: false; error: string; formats: null; rows: null };
+
+export type ConvertCategoryResult =
+  | ConvertBasesResult
+  | ConvertBytesResult
+  | ConvertLinearResult
+  | { ok: false; error: string; formats: null };
+
+
+export function unitsForCategory(category: string): UnitOption[] {
   if (category === "bytes") return byteUnits.map((id) => ({ id, label: id }));
   if (category === "temperature") {
     return TEMPERATURE_UNITS.map((id) => ({
@@ -110,15 +161,15 @@ export function unitsForCategory(category: string) {
       label: id === "C" ? "°C" : id === "F" ? "°F" : "K",
     }));
   }
-  const list = (LINEAR as Record<string, readonly { id: string; label: string; factor: number }[]>)[category];
+  const list = (LINEAR as Record<string, readonly LinearUnit[]>)[category];
   return list ? list.map((unit) => ({ id: unit.id, label: unit.label })) : [];
 }
 
-function stripSeparators(text: any) {
+function stripSeparators(text: unknown) {
   return String(text ?? "").trim().replace(/[_\s,]/g, "");
 }
 
-export function formatNumber(value: any) {
+export function formatNumber(value: number) {
   if (!Number.isFinite(value)) return "";
   if (value === 0) return "0";
   const abs = Math.abs(value);
@@ -126,7 +177,7 @@ export function formatNumber(value: any) {
   return Number(value.toPrecision(12)).toString();
 }
 
-export function parseFloatAmount(input: any) {
+export function parseFloatAmount(input: unknown): ParseFloatResult {
   const raw = stripSeparators(input);
   if (!raw) return { ok: false as const, error: "empty", value: null };
   if (raw.length > maxNumberInput) return { ok: false as const, error: "too-large", value: null };
@@ -136,7 +187,7 @@ export function parseFloatAmount(input: any) {
   return { ok: true as const, error: null, value };
 }
 
-export function parseInteger(input: any, base: number | string) {
+export function parseInteger(input: unknown, base: number | string): ParseIntegerResult {
   const raw = stripSeparators(input);
   if (!raw) return { ok: false as const, error: "empty", value: null };
   if (raw.length > maxNumberInput) return { ok: false as const, error: "too-large", value: null };
@@ -196,7 +247,7 @@ export function formatInteger(value: bigint, base: number) {
   return `${negative ? "-" : ""}${prefix}${radix === 16 ? body.toUpperCase() : body}`;
 }
 
-export function convertBases(input: any, fromBase: number | string = "auto") {
+export function convertBases(input: unknown, fromBase: number | string = "auto"): ConvertBasesResult {
   const parsed = parseInteger(input, fromBase);
   if (!parsed.ok) return { ok: false as const, error: parsed.error, formats: null };
   return {
@@ -212,7 +263,7 @@ export function convertBases(input: any, fromBase: number | string = "auto") {
   };
 }
 
-export function parseByteAmount(input: any, unit: string = "B") {
+export function parseByteAmount(input: unknown, unit: string = "B"): ParseByteResult {
   const raw = stripSeparators(input);
   if (!raw) return { ok: false as const, error: "empty", bytes: null };
   if (!/^\d+(\.\d+)?$/.test(raw)) return { ok: false as const, error: "invalid", bytes: null };
@@ -228,7 +279,39 @@ export function parseByteAmount(input: any, unit: string = "B") {
   return { ok: true as const, error: null, bytes: wholePart + fracPart };
 }
 
-export function formatBytes(bytes: bigint) {
+/** Format bigint / bigint as a decimal string without IEEE Number precision loss. */
+export function formatBigIntDecimal(numerator: bigint, denominator: bigint, significantDigits = 8): string {
+  if (denominator <= 0n) return "";
+  if (numerator === 0n) return "0";
+  const negative = numerator < 0n;
+  let num = negative ? -numerator : numerator;
+  const den = denominator;
+
+  const whole = num / den;
+  const rem = num % den;
+  if (rem === 0n) return `${negative ? "-" : ""}${whole.toString(10)}`;
+
+  const wholeDigits = whole === 0n ? 0 : whole.toString(10).length;
+  const fracDigits = Math.max(1, significantDigits - wholeDigits);
+  const scale = 10n ** BigInt(fracDigits);
+  let frac = (rem * scale) / den;
+  const nextDigit = ((rem * scale * 10n) / den) % 10n;
+  if (nextDigit >= 5n) frac += 1n;
+
+  let carry = 0n;
+  if (frac >= scale) {
+    frac -= scale;
+    carry = 1n;
+  }
+  const wholeOut = whole + carry;
+  if (frac === 0n) return `${negative ? "-" : ""}${wholeOut.toString(10)}`;
+
+  const fracStr = frac.toString(10).padStart(fracDigits, "0").replace(/0+$/, "");
+  if (!fracStr) return `${negative ? "-" : ""}${wholeOut.toString(10)}`;
+  return `${negative ? "-" : ""}${wholeOut.toString(10)}.${fracStr}`;
+}
+
+export function formatBytes(bytes: bigint): ConvertBytesResult {
   if (typeof bytes !== "bigint" || bytes < 0n) return { ok: false as const, error: "invalid", formats: null };
   const formats: Record<string, string> = {};
   for (const unit of BYTE_UNITS) {
@@ -236,26 +319,19 @@ export function formatBytes(bytes: bigint) {
       formats[unit.id] = bytes.toString(10);
       continue;
     }
-    const whole = bytes / unit.factor;
-    const rem = bytes % unit.factor;
-    if (rem === 0n) {
-      formats[unit.id] = whole.toString(10);
-    } else {
-      const scaled = Number(bytes) / Number(unit.factor);
-      formats[unit.id] = Number.isFinite(scaled) ? String(Number(scaled.toPrecision(8))) : whole.toString(10);
-    }
+    formats[unit.id] = formatBigIntDecimal(bytes, unit.factor, 8);
   }
   return { ok: true as const, error: null, bytes, formats };
 }
 
-export function convertBytes(input: any, unit: string = "B") {
+export function convertBytes(input: unknown, unit: string = "B"): ConvertBytesResult {
   const parsed = parseByteAmount(input, unit);
   if (!parsed.ok) return { ok: false as const, error: parsed.error, formats: null };
   return formatBytes(parsed.bytes);
 }
 
-export function convertLinear(input: any, unitId: string, category: string) {
-  const units = (LINEAR as Record<string, readonly { id: string; label: string; factor: number }[]>)[category];
+export function convertLinear(input: unknown, unitId: string, category: string): ConvertLinearResult {
+  const units = (LINEAR as Record<string, readonly LinearUnit[]>)[category];
   if (!units) return { ok: false as const, error: "invalid-unit", formats: null, rows: null };
   const parsed = parseFloatAmount(input);
   if (!parsed.ok) return { ok: false as const, error: parsed.error, formats: null, rows: null };
@@ -264,7 +340,7 @@ export function convertLinear(input: any, unitId: string, category: string) {
 
   const base = parsed.value * from.factor;
   const formats: Record<string, string> = {};
-  const rows = [];
+  const rows: ResultRow[] = [];
   for (const unit of units) {
     const text = formatNumber(base / unit.factor);
     formats[unit.id] = text;
@@ -273,32 +349,33 @@ export function convertLinear(input: any, unitId: string, category: string) {
   return { ok: true as const, error: null, formats, rows };
 }
 
-function toCelsius(value: any, unit: any) {
+function toCelsius(value: number, unit: TemperatureUnit) {
   if (unit === "C") return value;
   if (unit === "F") return ((value - 32) * 5) / 9;
   if (unit === "K") return value - 273.15;
   return NaN;
 }
 
-function fromCelsius(celsius: any, unit: any) {
+function fromCelsius(celsius: number, unit: TemperatureUnit) {
   if (unit === "C") return celsius;
   if (unit === "F") return (celsius * 9) / 5 + 32;
   if (unit === "K") return celsius + 273.15;
   return NaN;
 }
 
-export function convertTemperature(input: any, unit: any = "C") {
+export function convertTemperature(input: unknown, unit: unknown = "C"): ConvertLinearResult {
   const parsed = parseFloatAmount(input);
   if (!parsed.ok) return { ok: false as const, error: parsed.error, formats: null, rows: null };
-  if (!TEMPERATURE_UNITS.includes(unit)) {
+  if (!(TEMPERATURE_UNITS as readonly string[]).includes(String(unit))) {
     return { ok: false as const, error: "invalid-unit", formats: null, rows: null };
   }
+  const tempUnit = unit as TemperatureUnit;
 
-  const celsius = toCelsius(parsed.value, unit);
+  const celsius = toCelsius(parsed.value, tempUnit);
   if (!Number.isFinite(celsius)) return { ok: false as const, error: "invalid", formats: null, rows: null };
 
   const formats: Record<string, string> = {};
-  const rows = [];
+  const rows: ResultRow[] = [];
   for (const id of TEMPERATURE_UNITS) {
     const text = formatNumber(fromCelsius(celsius, id));
     formats[id] = text;
@@ -311,10 +388,10 @@ export function convertTemperature(input: any, unit: any = "C") {
   return { ok: true as const, error: null, formats, rows };
 }
 
-export function convertCategory(category: string, input: any, unit: any) {
+export function convertCategory(category: string, input: unknown, unit: unknown): ConvertCategoryResult {
   if (category === "bases") return convertBases(input);
-  if (category === "bytes") return convertBytes(input, unit);
+  if (category === "bytes") return convertBytes(input, String(unit ?? "B"));
   if (category === "temperature") return convertTemperature(input, unit);
-  if ((LINEAR as Record<string, unknown>)[category]) return convertLinear(input, unit, category);
+  if ((LINEAR as Record<string, unknown>)[category]) return convertLinear(input, String(unit ?? ""), category);
   return { ok: false as const, error: "invalid-unit", formats: null };
 }

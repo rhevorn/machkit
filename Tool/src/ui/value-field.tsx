@@ -1,5 +1,4 @@
-import type { ReactNode } from "react";
-import { CopySimple } from "@phosphor-icons/react";
+import { CopySimpleIcon } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils.js";
 import { Button } from "./button.js";
 
@@ -50,7 +49,7 @@ export function ValueField({
           aria-label={copyLabel}
           title={copyLabel}
         >
-          <CopySimple size={17} />
+          <CopySimpleIcon size={17} />
           {showCopyLabel ? <span className="max-[500px]:hidden">{copyLabel}</span> : null}
         </Button>
       ) : null}

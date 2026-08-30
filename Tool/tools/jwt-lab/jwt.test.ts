@@ -9,8 +9,8 @@ import {
   parseJsonObject,
 } from "./jwt.js";
 
-function makeToken(header: any, payload: any) {
-  const enc = (value: any) =>
+function makeToken(header: Record<string, unknown>, payload: Record<string, unknown>) {
+  const enc = (value: Record<string, unknown>) =>
     Buffer.from(JSON.stringify(value))
       .toString("base64")
       .replace(/=+$/g, "")
@@ -23,6 +23,7 @@ test("decodes a valid jwt", () => {
   const token = makeToken({ alg: "HS256", typ: "JWT" }, { sub: "42", exp: 4102444800 });
   const result = inspectJwt(token, Date.UTC(2026, 0, 1));
   assert.equal(result.ok, true);
+  if (!result.ok) return;
   assert.equal(result.payload.sub, "42");
   assert.equal(result.algorithm, "HS256");
   assert.equal(result.status, "ok");
@@ -32,6 +33,7 @@ test("marks expired tokens", () => {
   const token = makeToken({ alg: "none" }, { exp: 1 });
   const result = inspectJwt(token, Date.UTC(2026, 0, 1));
   assert.equal(result.ok, true);
+  if (!result.ok) return;
   assert.equal(result.status, "expired");
 });
 
@@ -39,6 +41,7 @@ test("marks not-before tokens", () => {
   const token = makeToken({ alg: "none" }, { nbf: 4102444800 });
   const result = inspectJwt(token, Date.UTC(2026, 0, 1));
   assert.equal(result.ok, true);
+  if (!result.ok) return;
   assert.equal(result.status, "not-before");
 });
 
@@ -72,9 +75,11 @@ test("creates and decodes an HS256 token", async () => {
     algorithm: "HS256",
   });
   assert.equal(created.ok, true);
-  assert.match((created as any).token, /^eyJ/);
-  const decoded = inspectJwt((created as any).token);
+  if (!created.ok) return;
+  assert.match(created.token, /^eyJ/);
+  const decoded = inspectJwt(created.token);
   assert.equal(decoded.ok, true);
+  if (!decoded.ok) return;
   assert.equal(decoded.payload.sub, "machkit");
   assert.equal(decoded.algorithm, "HS256");
   assert.ok(decoded.parts.signature.length > 10);
@@ -88,7 +93,11 @@ test("creates HS512 tokens", async () => {
     algorithm: "HS512",
   });
   assert.equal(created.ok, true);
-  assert.equal(inspectJwt((created as any).token).algorithm, "HS512");
+  if (!created.ok) return;
+  const decoded = inspectJwt(created.token);
+  assert.equal(decoded.ok, true);
+  if (!decoded.ok) return;
+  assert.equal(decoded.algorithm, "HS512");
 });
 
 test("creates unsigned none tokens", async () => {
@@ -98,8 +107,12 @@ test("creates unsigned none tokens", async () => {
     algorithm: "none",
   });
   assert.equal(created.ok, true);
-  assert.equal((created as any).token.endsWith("."), true);
-  assert.equal(inspectJwt((created as any).token).payload.role, "guest");
+  if (!created.ok) return;
+  assert.equal(created.token.endsWith("."), true);
+  const decoded = inspectJwt(created.token);
+  assert.equal(decoded.ok, true);
+  if (!decoded.ok) return;
+  assert.equal(decoded.payload.role, "guest");
 });
 
 test("requires secret for HMAC algorithms", async () => {

@@ -141,6 +141,26 @@ function parseHeaderLine(line: string): KeyValuePair {
   return createPair(line.slice(0, idx).trim(), line.slice(idx + 1).trim());
 }
 
+function safeDecodeURIComponent(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+function encodeBasicAuth(userInfo: string): string {
+  const raw = String(userInfo ?? "");
+  const colon = raw.indexOf(":");
+  const user = colon === -1 ? raw : raw.slice(0, colon);
+  const pass = colon === -1 ? "" : raw.slice(colon + 1);
+  const credentials = `${user}:${pass}`;
+  if (typeof btoa === "function") {
+    return btoa(credentials);
+  }
+  return Buffer.from(credentials, "utf8").toString("base64");
+}
+
 function splitUrlQuery(url: string): { url: string; query: KeyValuePair[] } {
   try {
     const parsed = new URL(url);
@@ -158,12 +178,12 @@ function splitUrlQuery(url: string): { url: string; query: KeyValuePair[] } {
     for (const part of url.slice(q + 1).split("&")) {
       if (!part) continue;
       const eq = part.indexOf("=");
-      if (eq === -1) query.push(createPair(decodeURIComponent(part), ""));
+      if (eq === -1) query.push(createPair(safeDecodeURIComponent(part), ""));
       else {
         query.push(
           createPair(
-            decodeURIComponent(part.slice(0, eq)),
-            decodeURIComponent(part.slice(eq + 1)),
+            safeDecodeURIComponent(part.slice(0, eq)),
+            safeDecodeURIComponent(part.slice(eq + 1)),
           ),
         );
       }
@@ -229,12 +249,12 @@ function parseUrlEncodedBody(text: unknown): FormField[] {
     if (!part) continue;
     const eq = part.indexOf("=");
     if (eq === -1) {
-      fields.push(createFormField(decodeURIComponent(part.replace(/\+/g, " ")), "", "text"));
+      fields.push(createFormField(safeDecodeURIComponent(part.replace(/\+/g, " ")), "", "text"));
     } else {
       fields.push(
         createFormField(
-          decodeURIComponent(part.slice(0, eq).replace(/\+/g, " ")),
-          decodeURIComponent(part.slice(eq + 1).replace(/\+/g, " ")),
+          safeDecodeURIComponent(part.slice(0, eq).replace(/\+/g, " ")),
+          safeDecodeURIComponent(part.slice(eq + 1).replace(/\+/g, " ")),
           "text",
         ),
       );
@@ -295,6 +315,14 @@ export function buildCurl(request: Partial<CurlRequest> | null | undefined): str
 }
 
 export function parseCurl(input: unknown): ParseCurlResult {
+  try {
+    return parseCurlUnsafe(input);
+  } catch {
+    return { ok: false, error: "parse-failed", request: null };
+  }
+}
+
+function parseCurlUnsafe(input: unknown): ParseCurlResult {
   const raw = String(input ?? "").trim();
   if (!raw) return { ok: false, error: "empty", request: null };
   if (raw.length > maxCurlInput) return { ok: false, error: "too-large", request: null };
@@ -380,7 +408,8 @@ export function parseCurl(input: unknown): ParseCurlResult {
       continue;
     }
     if (token === "-u" || token === "--user") {
-      request.headers.push(createPair("Authorization", `Basic ${next() || ""}`));
+      const userInfo = next() || "";
+      request.headers.push(createPair("Authorization", `Basic ${encodeBasicAuth(userInfo)}`));
       continue;
     }
     if (token === "-A" || token === "--user-agent") {

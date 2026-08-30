@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { CopySimple, Eraser, Play, X } from "@phosphor-icons/react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { CopySimpleIcon, EraserIcon, PlayIcon, XIcon } from "@phosphor-icons/react";
 import {
   ActionGroup,
   Button,
@@ -15,6 +15,7 @@ import { useToolMessages } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
 import { mountTool } from "@/runtime/mount-tool.js";
 import {
+  assertScanResult,
   formatDuration,
   inspectPortExpression,
   isTerminalState,
@@ -22,32 +23,14 @@ import {
   presets,
   progressPercent,
   type PortPreset,
+  type ScanResult,
 } from "./scan.js";
 import { messages } from "./messages.js";
 
 const POLL_INTERVAL = 250;
 
 type StatusTone = "neutral" | "info" | "success" | "warning" | "danger";
-
-type OpenPort = {
-  port: number;
-  service?: string;
-  latencyMs?: number | null;
-};
-
-type ScanResult = {
-  state?: string;
-  scanID?: string;
-  host?: string;
-  total?: number;
-  completed?: number;
-  openPorts?: OpenPort[];
-  closed?: number;
-  timedOut?: number;
-  durationMs?: number | null;
-  error?: string | null;
-};
-
+type ToolText = (typeof messages)["en"];
 type PresetSelection = PortPreset | "custom";
 
 function PortScanTool() {
@@ -73,14 +56,15 @@ function PortScanTool() {
   }, []);
 
   function errorLabel(code: unknown): string {
-    const key = `err_${String(code || "failed").replace(/-/g, "_")}`;
-    return (text as Record<string, string>)[key] || text.failed;
+    const key = `err_${String(code || "failed").replace(/-/g, "_")}` as keyof ToolText;
+    const value = text[key];
+    return typeof value === "string" ? value : text.failed;
   }
 
   async function poll(scanID: string, generation: number): Promise<void> {
     if (generation !== generationRef.current) return;
     try {
-      const next = (await machkit.portScan("status", { scanID })) as ScanResult;
+      const next = assertScanResult(await machkit.portScan("status", { scanID }));
       if (generation !== generationRef.current) return;
       setResult(next);
       if (isTerminalState(next.state)) {
@@ -116,21 +100,34 @@ function PortScanTool() {
     generationRef.current += 1;
     const generation = generationRef.current;
     if (timerRef.current) clearTimeout(timerRef.current);
+    scanIDRef.current = null;
     setRunning(true);
     setError(null);
     setResult({ state: "running", total: portInspection.count, completed: 0, openPorts: [] });
     try {
-      const started = (await machkit.portScan("start", {
+      const started = assertScanResult(await machkit.portScan("start", {
         host: target,
         ports,
         timeoutMs: Number(timeout),
-      })) as ScanResult;
-      scanIDRef.current = started.scanID ?? null;
+      }));
+      if (generation !== generationRef.current) {
+        if (started.scanID) {
+          void machkit.portScan("cancel", { scanID: started.scanID }).catch(() => undefined);
+        }
+        return;
+      }
+      if (!started.scanID) {
+        setRunning(false);
+        setError(text.failed);
+        return;
+      }
+      scanIDRef.current = started.scanID;
       setResult({ ...started, state: "running", completed: 0, openPorts: [] });
       timerRef.current = setTimeout(() => {
-        if (started.scanID) void poll(started.scanID, generation);
+        void poll(started.scanID!, generation);
       }, 80);
     } catch (caught) {
+      if (generation !== generationRef.current) return;
       setRunning(false);
       setError(errorLabel(caught instanceof Error ? caught.message : "failed"));
     }
@@ -138,11 +135,15 @@ function PortScanTool() {
 
   async function cancelScan(): Promise<void> {
     const scanID = scanIDRef.current;
-    if (!scanID) return;
     generationRef.current += 1;
     if (timerRef.current) clearTimeout(timerRef.current);
+    scanIDRef.current = null;
+    if (!scanID) {
+      setRunning(false);
+      return;
+    }
     try {
-      const next = (await machkit.portScan("cancel", { scanID })) as ScanResult;
+      const next = assertScanResult(await machkit.portScan("cancel", { scanID }));
       setResult(next);
     } catch {
       // The native task may already have completed between the last poll and cancel.
@@ -204,17 +205,17 @@ function PortScanTool() {
           <ActionGroup>
             {running ? (
               <Button variant="secondary" size="sm" onClick={() => void cancelScan()}>
-                <X size={15} />
+                <XIcon size={15} />
                 {text.cancel}
               </Button>
             ) : (
               <Button variant="default" size="sm" onClick={() => void startScan()}>
-                <Play size={15} />
+                <PlayIcon size={15} />
                 {text.scan}
               </Button>
             )}
             <Button variant="ghost" size="sm" onClick={clearAll} disabled={running}>
-              <Eraser size={15} />
+              <EraserIcon size={15} />
               {text.clear}
             </Button>
           </ActionGroup>
@@ -309,7 +310,7 @@ function PortScanTool() {
                 size="sm"
                 onClick={() => machkit.copy(openPorts.map((item) => `${result?.host}:${item.port}`).join("\n"))}
               >
-                <CopySimple size={15} />
+                <CopySimpleIcon size={15} />
                 {text.copy}
               </Button>
             </div>

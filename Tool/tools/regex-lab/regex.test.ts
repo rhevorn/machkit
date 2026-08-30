@@ -41,6 +41,41 @@ test("truncates when maxMatches is exceeded", () => {
   assert.equal(result.truncated, true);
 });
 
+test("zero-length matches do not consume maxMatches", () => {
+  // a* matches empty at every position in "bcd". Counting those toward maxMatches
+  // would truncate after two empties; skipping them should finish without truncation.
+  const result = findMatches("a*", "g", "bcd", { maxMatches: 2 });
+  assert.equal(result.ok, true);
+  assert.equal(result.matches.length, 0);
+  assert.equal(result.truncated, false);
+});
+
+test("aborts when match loop exceeds time or step budget", () => {
+  const input = "a".repeat(80_000);
+  const started = Date.now();
+  const result = findMatches("a", "g", input, {
+    maxMatches: 100_000,
+    maxBudgetMs: 5,
+    maxSteps: 2_000,
+  });
+  const elapsed = Date.now() - started;
+  assert.ok(elapsed < 2_000, `expected budget abort within 2s, took ${elapsed}ms`);
+  assert.equal(result.error, "budget-exceeded");
+  assert.equal(result.truncated, true);
+  assert.ok(result.matches.length > 0);
+  assert.ok(result.matches.length < 80_000);
+});
+
+test("replace also respects budget", () => {
+  const input = "a".repeat(80_000);
+  const started = Date.now();
+  const result = replaceMatches("a", "g", input, "b", { maxBudgetMs: 5, maxSteps: 2_000 });
+  const elapsed = Date.now() - started;
+  assert.ok(elapsed < 2_000, `expected budget abort within 2s, took ${elapsed}ms`);
+  assert.equal(result.ok, false);
+  assert.equal(result.error, "budget-exceeded");
+});
+
 test("captures named groups and non-global single match", () => {
   const named = findMatches(String.raw`(?<digit>\d+)`, "g", "a12b");
   assert.equal(named.matches[0].named!.digit, "12");

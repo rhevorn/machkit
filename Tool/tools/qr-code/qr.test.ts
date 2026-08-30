@@ -15,9 +15,18 @@ import {
 } from "./qr.js";
 
 test("normalizes payload limits", () => {
-  assert.equal(normalizePayload("").error, "empty");
-  assert.equal(normalizePayload("   ").error, "empty");
-  assert.equal(normalizePayload("a".repeat(2001)).error, "too-large");
+  const empty = normalizePayload("");
+  assert.equal(empty.ok, false);
+  if (!empty.ok) assert.equal(empty.error, "empty");
+
+  const blank = normalizePayload("   ");
+  assert.equal(blank.ok, false);
+  if (!blank.ok) assert.equal(blank.error, "empty");
+
+  const large = normalizePayload("a".repeat(2001));
+  assert.equal(large.ok, false);
+  if (!large.ok) assert.equal(large.error, "too-large");
+
   assert.equal(normalizePayload("hello").ok, true);
 });
 
@@ -51,6 +60,7 @@ test("resolves size, margin, shape, and color helpers", () => {
 test("generates a data URL for valid text", async () => {
   const result = await generateQRDataURL("https://machkit.app", { size: 128, errorLevel: "M" });
   assert.equal(result.ok, true);
+  if (!result.ok) throw new Error("expected ok");
   assert.match(String(result.dataURL), /^data:image\/png;base64,/);
   assert.equal(result.width, 128);
   assert.equal(typeof result.version, "number");

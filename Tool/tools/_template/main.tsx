@@ -1,4 +1,3 @@
-import React from "react";
 import { EmptyToolState, ToolPage } from "@/ui/index.js";
 import { mountTool } from "@/runtime/mount-tool.js";
 

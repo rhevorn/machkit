@@ -73,6 +73,27 @@ export function assertHostsSnapshot(value: unknown): HostsSnapshot {
   return value;
 }
 
+/** Environment IDs from the native bridge may differ only by UUID letter case. */
+export function sameEnvironmentID(left: unknown, right: unknown): boolean {
+  if (left == null || right == null || left === "" || right === "") return false;
+  return String(left).toLowerCase() === String(right).toLowerCase();
+}
+
+/**
+ * Prefer the canonical environment ID from a snapshot when the current selection
+ * matches case-insensitively (e.g. after save/apply round-trips).
+ */
+export function normalizeEnvironmentSelection(
+  selection: string,
+  environments: ReadonlyArray<Pick<HostsEnvironment, "id">> | null | undefined,
+): string {
+  if (selection === "system" || selection === "shared") return selection;
+  const match = (environments ?? []).find((environment) =>
+    sameEnvironmentID(environment.id, selection),
+  );
+  return match?.id ?? selection;
+}
+
 /**
  * Localize built-in hosts environment display names without rewriting stored IDs.
  * Preset UUIDs end with 0001 / 0002 / 0003 and ship with English default names.

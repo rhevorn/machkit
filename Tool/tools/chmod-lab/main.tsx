@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from "react";
-import { CopySimple, Eraser } from "@phosphor-icons/react";
+import { useMemo, useState } from "react";
+import { CopySimpleIcon, EraserIcon } from "@phosphor-icons/react";
 import {
   ActionGroup,
   Button,
@@ -59,7 +59,7 @@ function ChmodLabTool() {
           />
           <ActionGroup>
             <Button variant="ghost" size="sm" onClick={() => machkit.copy(view.chmod)}>
-              <CopySimple size={15} />
+              <CopySimpleIcon size={15} />
               {text.copy}
             </Button>
             <Button
@@ -70,7 +70,7 @@ function ChmodLabTool() {
                 setMode(0);
               }}
             >
-              <Eraser size={15} />
+              <EraserIcon size={15} />
               {text.clear}
             </Button>
           </ActionGroup>
@@ -101,7 +101,7 @@ function ChmodLabTool() {
                   title={`${text.copy}: ${text[key]}`}
                   onClick={() => machkit.copy(value)}
                 >
-                  <CopySimple size={15} />
+                  <CopySimpleIcon size={15} />
                 </Button>
               </div>
             </ResultPanel>

@@ -1,5 +1,5 @@
 import React from "react";
-import { CalendarBlank } from "@phosphor-icons/react";
+import { CalendarBlankIcon } from "@phosphor-icons/react";
 import { format } from "date-fns";
 import * as Popover from "@radix-ui/react-popover";
 import { cn } from "@/lib/utils.js";
@@ -204,7 +204,7 @@ export function DateTimePicker({ value, onChange, label, className }: DateTimePi
             aria-label={label ? `${label} calendar` : "Open calendar"}
             className="mr-1 grid size-7 shrink-0 place-items-center rounded-[6px] text-secondary outline-none hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-accent/35"
           >
-            <CalendarBlank size={16} />
+            <CalendarBlankIcon size={16} />
           </button>
         </Popover.Trigger>
       </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { CopySimple, Eraser } from "@phosphor-icons/react";
+import { CopySimpleIcon, EraserIcon } from "@phosphor-icons/react";
 import {
   ActionGroup,
   Button,
@@ -22,19 +22,32 @@ import {
   defaultGeneratePayload,
   inspectJwt,
   signAlgorithms,
+  type UnixTimeInfo,
 } from "./jwt.js";
 import { messages } from "./messages.js";
+
+type ToolText = (typeof messages)["en"];
 
 const SAMPLE =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJtYWNoa2l0IiwibmFtZSI6Ik1hY2hLaXQiLCJpYXQiOjE3MDAwMDAwMDAsImV4cCI6NDkwMDAwMDAwMH0.signature";
 
-function JsonBlock({ label, value, copyLabel, onCopy }: Record<string, any>) {
+function JsonBlock({
+  label,
+  value,
+  copyLabel,
+  onCopy,
+}: {
+  label: string;
+  value: string;
+  copyLabel: string;
+  onCopy: () => void;
+}) {
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
       <div className="flex items-center justify-between gap-2">
         <span className="machkit-control-label">{label}</span>
         <Button variant="ghost" size="sm" onClick={onCopy}>
-          <CopySimple size={15} />
+          <CopySimpleIcon size={15} />
           {copyLabel}
         </Button>
       </div>
@@ -45,7 +58,15 @@ function JsonBlock({ label, value, copyLabel, onCopy }: Record<string, any>) {
   );
 }
 
-function ClaimChip({ label, claim, none }: Record<string, any>) {
+function ClaimChip({
+  label,
+  claim,
+  none,
+}: {
+  label: string;
+  claim: UnixTimeInfo | null;
+  none: string;
+}) {
   return (
     <div className="min-w-0 flex-1 rounded-control bg-muted px-2.5 py-2">
       <div className="text-[11px] text-secondary">{label}</div>
@@ -64,7 +85,7 @@ function ClaimChip({ label, claim, none }: Record<string, any>) {
 }
 
 function JwtLabTool() {
-  const text = useToolMessages(messages);
+  const text: ToolText = useToolMessages(messages);
   const [mode, setMode] = useState("generate");
   const [token, setToken] = useState("");
   const [headerText, setHeaderText] = useState(JSON.stringify({ alg: "HS256", typ: "JWT" }, null, 2));
@@ -79,12 +100,15 @@ function JwtLabTool() {
   // Shared algorithm + JSON follow the shared token while decoding.
   useEffect(() => {
     if (mode !== "decode" || !decoded.ok) return;
-    if (signAlgorithms.includes(decoded.algorithm) && decoded.algorithm !== algorithm) {
+    if ((signAlgorithms as readonly string[]).includes(decoded.algorithm) && decoded.algorithm !== algorithm) {
       setAlgorithm(decoded.algorithm);
     }
     setHeaderText(decoded.headerJson);
     setPayloadText(decoded.payloadJson);
-  }, [mode, decoded.ok, decoded.algorithm, decoded.headerJson, decoded.payloadJson, algorithm]);
+  }, [mode, decoded, algorithm]);
+
+  const displayAlgorithm =
+    decoded.ok && decoded.algorithm ? decoded.algorithm : algorithm;
 
   const decodeStatus: { tone: InlineMessageTone; label: string } = !token.trim()
     ? { tone: "neutral", label: text.empty }
@@ -105,7 +129,7 @@ function JwtLabTool() {
               ? text.statusExpired
               : decoded.status === "not-before"
                 ? text.statusNotBefore
-                : `${text.statusOk} · ${algorithm || text.none}`,
+                : `${text.statusOk} · ${displayAlgorithm || text.none}`,
         };
 
   const generateStatus: { tone: InlineMessageTone; label: string } | null = generateError
@@ -142,20 +166,20 @@ function JwtLabTool() {
     };
   }, [mode, headerText, payloadText, secret, algorithm]);
 
-  function onAlgorithmChange(next: any) {
+  function onAlgorithmChange(next: string) {
     setAlgorithm(next);
     // Keep header.alg aligned with the shared algorithm control.
     try {
-      const header = JSON.parse(headerText);
+      const header = JSON.parse(headerText) as unknown;
       if (header && typeof header === "object" && !Array.isArray(header)) {
-        setHeaderText(JSON.stringify({ ...header, alg: next, typ: header.typ || "JWT" }, null, 2));
+        setHeaderText(JSON.stringify({ ...(header as Record<string, unknown>), alg: next, typ: (header as Record<string, unknown>).typ || "JWT" }, null, 2));
       }
     } catch {
       setHeaderText(JSON.stringify({ alg: next, typ: "JWT" }, null, 2));
     }
   }
 
-  function switchMode(next: any) {
+  function switchMode(next: string) {
     if (next === mode) return;
     if (next === "decode") {
       setToken(SAMPLE);
@@ -191,7 +215,7 @@ function JwtLabTool() {
               onChange={onAlgorithmChange}
               label={text.algorithm}
               className="w-[84px] flex-none"
-              options={signAlgorithms.map((value: any) => ({ value, label: value }))}
+              options={signAlgorithms.map((value) => ({ value, label: value }))}
             />
           </div>
 
@@ -202,7 +226,7 @@ function JwtLabTool() {
             <Input
               className="min-w-0 flex-1 font-mono"
               value={secret}
-              onChange={(event: any) => setSecret(event.target.value)}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setSecret(event.target.value)}
               placeholder={text.secretPlaceholder}
               spellCheck={false}
               disabled={algorithm === "none"}
@@ -218,7 +242,7 @@ function JwtLabTool() {
               disabled={!token.trim()}
               onClick={() => machkit.copy(token.trim())}
             >
-              <CopySimple size={15} />
+              <CopySimpleIcon size={15} />
               {text.copy}
             </Button>
             <Button
@@ -235,7 +259,7 @@ function JwtLabTool() {
                 }
               }}
             >
-              <Eraser size={15} />
+              <EraserIcon size={15} />
               {text.clear}
             </Button>
           </ActionGroup>
@@ -335,14 +359,14 @@ function JwtLabTool() {
                   disabled={!token.trim()}
                   onClick={() => machkit.copy(token.trim())}
                 >
-                  <CopySimple size={15} />
+                  <CopySimpleIcon size={15} />
                   {text.copy}
                 </Button>
               </div>
               <div className="rounded-control bg-muted px-3 py-2.5">
                 {token.trim() ? (
                   <pre className="whitespace-pre-wrap break-all font-mono text-[12px] leading-relaxed select-text">
-                    {token.trim().split(".").map((part: any, index: any, parts: any) => (
+                    {token.trim().split(".").map((part, index, parts) => (
                       <span key={`${index}-${part.slice(0, 8)}`}>
                         <span
                           className={

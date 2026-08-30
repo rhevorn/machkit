@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from "react";
-import { CopySimple, Eraser } from "@phosphor-icons/react";
+import { useMemo, useState } from "react";
+import { CopySimpleIcon, EraserIcon } from "@phosphor-icons/react";
 import {
   ActionGroup,
   Button,
@@ -80,11 +80,11 @@ function CronTool() {
               disabled={!expression.trim()}
               onClick={() => machkit.copy(expression.trim())}
             >
-              <CopySimple size={15} />
+              <CopySimpleIcon size={15} />
               {text.copy}
             </Button>
             <Button variant="ghost" size="sm" onClick={() => setExpression("")}>
-              <Eraser size={15} />
+              <EraserIcon size={15} />
               {text.clear}
             </Button>
           </ActionGroup>

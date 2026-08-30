@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { CopySimple, Eraser, Plus, Trash } from "@phosphor-icons/react";
+import React, { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { CopySimpleIcon, EraserIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import {
   ActionGroup,
   Button,
@@ -13,12 +13,12 @@ import { cn } from "@/lib/utils.js";
 import { useToolMessages } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
 import { mountTool } from "@/runtime/mount-tool.js";
-import { buildURL, parseURL } from "./url.js";
+import { buildURL, parseURL, type QueryItem, type URLParts } from "./url.js";
 import { messages } from "./messages.js";
 
 const SAMPLE = "https://example.com/path?lang=zh&ref=docs#install";
 
-function Seg({ children, className }: Record<string, any>) {
+function Seg({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <span
       className={cn("shrink-0 select-none font-mono text-[13px] text-tertiary", className)}
@@ -29,7 +29,7 @@ function Seg({ children, className }: Record<string, any>) {
   );
 }
 
-function AtomInput({ className, ...props }: Record<string, any>) {
+function AtomInput({ className, ...props }: React.ComponentPropsWithoutRef<typeof Input>) {
   return (
     <Input
       spellCheck={false}
@@ -47,34 +47,55 @@ function UrlLabTool() {
   const [raw, setRaw] = useState(SAMPLE);
   const [parts, setParts] = useState(() => parseURL(SAMPLE).parts);
   const [query, setQuery] = useState(() => parseURL(SAMPLE).query);
+  /** Which side last drove the two-way sync. */
+  const editSourceRef = useRef<"raw" | "parts">("raw");
 
-  useEffect(() => {
-    const parsed = parseURL(raw);
-    if (!parsed.ok) return;
-    setParts(parsed.parts);
-    setQuery(parsed.query.length ? parsed.query : [{ key: "", value: "" }]);
-  }, [raw]);
-
-  const built = useMemo(() => buildURL(parts, query), [parts, query]);
   const parsedRaw = useMemo(() => parseURL(raw), [raw]);
+  const built = useMemo(() => buildURL(parts, query), [parts, query]);
 
-  const error =
-    !raw.trim() && !parts.hostname
-      ? null
-      : !built.ok
-        ? built.error === "missing-host"
-          ? text.missingHost
-          : parsedRaw.error === "too-large"
-            ? text.tooLarge
-            : text.invalid
-        : null;
+  // Raw → parts when the raw URL parses successfully.
+  useEffect(() => {
+    if (editSourceRef.current !== "raw") return;
+    if (!parsedRaw.ok) return;
+    setParts(parsedRaw.parts);
+    setQuery(parsedRaw.query.length ? parsedRaw.query : [{ key: "", value: "" }]);
+  }, [parsedRaw, raw]);
 
-  function updatePart(key: any, value: any) {
+  // Parts → raw when structured edits build a valid URL.
+  useEffect(() => {
+    if (editSourceRef.current !== "parts") return;
+    if (!built.ok) return;
+    if (built.href !== raw) setRaw(built.href);
+  }, [built, raw]);
+
+  const rawParseFailed = Boolean(raw.trim()) && !parsedRaw.ok;
+  const error = (() => {
+    if (!raw.trim() && !parts.hostname) return null;
+    if (rawParseFailed) {
+      return parsedRaw.error === "too-large" ? text.tooLarge : text.invalid;
+    }
+    if (!built.ok) {
+      return built.error === "missing-host" ? text.missingHost : text.invalid;
+    }
+    return null;
+  })();
+
+  // Do not present a stale successful build while the raw field is invalid.
+  const showBuiltSuccess = built.ok && !rawParseFailed;
+
+  function setRawFromUser(value: string) {
+    editSourceRef.current = "raw";
+    setRaw(value);
+  }
+
+  function updatePart(key: keyof URLParts, value: string) {
+    editSourceRef.current = "parts";
     setParts((prev) => ({ ...prev, [key]: value }));
   }
 
-  function updateQuery(index: any, patch: any) {
-    setQuery((prev) => prev.map((item: any, i: any) => (i === index ? { ...item, ...patch } : item)));
+  function updateQuery(index: number, patch: Partial<QueryItem>) {
+    editSourceRef.current = "parts";
+    setQuery((prev) => prev.map((item, i) => (i === index ? { ...item, ...patch } : item)));
   }
 
   const pathDisplay = (parts.pathname || "").replace(/^\//, "");
@@ -91,7 +112,7 @@ function UrlLabTool() {
               id="url-raw"
               className="min-w-0 flex-1 font-mono"
               value={raw}
-              onChange={(event: any) => setRaw(event.target.value)}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setRawFromUser(event.target.value)}
               placeholder={text.placeholder}
               spellCheck={false}
               invalid={Boolean(error) && Boolean(raw.trim())}
@@ -102,12 +123,13 @@ function UrlLabTool() {
               variant="ghost"
               size="sm"
               onClick={() => {
+                editSourceRef.current = "raw";
                 setRaw("");
                 setParts(parseURL("").parts);
                 setQuery([{ key: "", value: "" }]);
               }}
             >
-              <Eraser size={15} />
+              <EraserIcon size={15} />
               {text.clear}
             </Button>
           </ActionGroup>
@@ -122,27 +144,31 @@ function UrlLabTool() {
               "flex items-start gap-2 rounded-panel border px-3.5 py-3",
               error
                 ? "border-danger/35 bg-danger/5"
-                : "border-border bg-accent-soft/70",
+                : showBuiltSuccess
+                  ? "border-border bg-accent-soft/70"
+                  : "border-border bg-surface",
             )}
           >
             <code
               className={cn(
                 "min-w-0 flex-1 break-all font-mono text-[13px] leading-relaxed select-text",
-                built.ok ? "text-foreground" : "text-tertiary",
+                showBuiltSuccess ? "text-foreground" : "text-tertiary",
               )}
             >
-              {built.ok ? built.href : text.result}
+              {showBuiltSuccess ? built.href : text.result}
             </code>
             <Button
               variant="ghost"
               size="sm"
               className="h-7 shrink-0 px-2 text-secondary"
-              disabled={!built.ok}
+              disabled={!showBuiltSuccess}
               aria-label={text.copy}
               title={text.copy}
-              onClick={() => machkit.copy(built.href)}
+              onClick={() => {
+                if (showBuiltSuccess) machkit.copy(built.href);
+              }}
             >
-              <CopySimple size={15} />
+              <CopySimpleIcon size={15} />
               <span className="max-[520px]:hidden">{text.copy}</span>
             </Button>
           </div>
@@ -155,7 +181,7 @@ function UrlLabTool() {
                 title={text.protocol}
                 className="w-[4.75rem]"
                 value={parts.protocol || ""}
-                onChange={(event: any) => updatePart("protocol", event.target.value)}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => updatePart("protocol", event.target.value)}
               />
               <Seg>://</Seg>
               <AtomInput
@@ -163,7 +189,7 @@ function UrlLabTool() {
                 title={text.hostname}
                 className="min-w-[10rem] flex-1"
                 value={parts.hostname || ""}
-                onChange={(event: any) => updatePart("hostname", event.target.value)}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => updatePart("hostname", event.target.value)}
                 placeholder="example.com"
               />
               <Seg>:</Seg>
@@ -172,7 +198,7 @@ function UrlLabTool() {
                 title={text.port}
                 className="w-[4.5rem]"
                 value={parts.port || ""}
-                onChange={(event: any) => updatePart("port", event.target.value)}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => updatePart("port", event.target.value)}
                 placeholder="443"
               />
             </div>
@@ -183,7 +209,7 @@ function UrlLabTool() {
                 title={text.username}
                 className="min-w-[6.5rem] flex-1"
                 value={parts.username || ""}
-                onChange={(event: any) => updatePart("username", event.target.value)}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => updatePart("username", event.target.value)}
                 placeholder={text.username}
               />
               <Seg>:</Seg>
@@ -192,7 +218,7 @@ function UrlLabTool() {
                 title={text.password}
                 className="min-w-[6.5rem] flex-1"
                 value={parts.password || ""}
-                onChange={(event: any) => updatePart("password", event.target.value)}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => updatePart("password", event.target.value)}
                 placeholder={text.password}
               />
               <Seg>@</Seg>
@@ -205,7 +231,7 @@ function UrlLabTool() {
                 title={text.pathname}
                 className="min-w-[8rem] flex-1"
                 value={pathDisplay}
-                onChange={(event: any) => {
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                   const next = event.target.value;
                   updatePart("pathname", next ? (next.startsWith("/") ? next : `/${next}`) : "");
                 }}
@@ -217,7 +243,7 @@ function UrlLabTool() {
                 title={text.hash}
                 className="min-w-[6rem] flex-[0.75]"
                 value={parts.hash || ""}
-                onChange={(event: any) => updatePart("hash", event.target.value.replace(/^#/, ""))}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => updatePart("hash", event.target.value.replace(/^#/, ""))}
                 placeholder="hash"
               />
             </div>
@@ -230,14 +256,17 @@ function UrlLabTool() {
               variant="ghost"
               size="sm"
               className="h-7 px-2"
-              onClick={() => setQuery((prev) => [...prev, { key: "", value: "" }])}
+              onClick={() => {
+                editSourceRef.current = "parts";
+                setQuery((prev) => [...prev, { key: "", value: "" }]);
+              }}
             >
-              <Plus size={14} />
+              <PlusIcon size={14} />
               {text.addRow}
             </Button>
           </div>
           <div className="flex flex-col gap-1.5">
-            {query.map((row: any, index: any) => (
+            {query.map((row, index) => (
               <div
                 key={index}
                 className="flex items-center gap-1 rounded-control bg-surface px-1.5 py-0.5 ring-1 ring-border/65"
@@ -246,7 +275,7 @@ function UrlLabTool() {
                   className="h-8 min-w-0 flex-1 border-transparent bg-transparent px-2 font-mono shadow-none focus:border-accent focus:bg-field focus:ring-3 focus:ring-accent/25"
                   value={row.key}
                   placeholder={text.key}
-                  onChange={(event: any) => updateQuery(index, { key: event.target.value })}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => updateQuery(index, { key: event.target.value })}
                   spellCheck={false}
                 />
                 <Seg>=</Seg>
@@ -254,7 +283,7 @@ function UrlLabTool() {
                   className="h-8 min-w-0 flex-1 border-transparent bg-transparent px-2 font-mono shadow-none focus:border-accent focus:bg-field focus:ring-3 focus:ring-accent/25"
                   value={row.value}
                   placeholder={text.value}
-                  onChange={(event: any) => updateQuery(index, { value: event.target.value })}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => updateQuery(index, { value: event.target.value })}
                   spellCheck={false}
                 />
                 <Button
@@ -263,9 +292,12 @@ function UrlLabTool() {
                   className="size-8 shrink-0 px-0 text-secondary"
                   aria-label={text.removeRow}
                   title={text.removeRow}
-                  onClick={() => setQuery((prev) => prev.filter((_: any, i: any) => i !== index))}
+                  onClick={() => {
+                    editSourceRef.current = "parts";
+                    setQuery((prev) => prev.filter((_, i) => i !== index));
+                  }}
                 >
-                  <Trash size={14} />
+                  <TrashIcon size={14} />
                 </Button>
               </div>
             ))}

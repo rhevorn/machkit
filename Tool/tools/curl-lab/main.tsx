@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { BracketsCurly, CopySimple, Eraser, FolderOpen, GearSix, Play, Plus, Trash, X } from "@phosphor-icons/react";
+import { BracketsCurlyIcon, CopySimpleIcon, EraserIcon, FolderOpenIcon, GearSixIcon, PlayIcon, PlusIcon, TrashIcon, XIcon } from "@phosphor-icons/react";
 import {
   ActionGroup,
   Button,
@@ -51,11 +51,36 @@ type CurlRunResult = {
   bodyTruncated?: boolean;
 };
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
 function isCurlRunResult(value: unknown): value is CurlRunResult {
-  return Boolean(value) && typeof value === "object";
+  if (!isRecord(value)) return false;
+  if (value.ok !== undefined && typeof value.ok !== "boolean") return false;
+  if (value.error !== undefined && value.error !== null && typeof value.error !== "string") return false;
+  if (value.statusCode !== undefined && value.statusCode !== null && typeof value.statusCode !== "number") {
+    return false;
+  }
+  if (value.durationMs !== undefined && value.durationMs !== null && typeof value.durationMs !== "number") {
+    return false;
+  }
+  if (value.effectiveURL !== undefined && value.effectiveURL !== null && typeof value.effectiveURL !== "string") {
+    return false;
+  }
+  if (value.headers !== undefined && value.headers !== null && typeof value.headers !== "string") return false;
+  if (value.body !== undefined && value.body !== null && typeof value.body !== "string") return false;
+  if (value.bodyTruncated !== undefined && typeof value.bodyTruncated !== "boolean") return false;
+  return true;
 }
 
 const EMPTY_PAIR: KeyValuePair = Object.freeze({ id: "__empty__", key: "", value: "" });
+const EMPTY_FORM_FIELD: FormField = Object.freeze({
+  id: "__empty__",
+  key: "",
+  value: "",
+  kind: "text",
+});
 
 /** 3 Input rows: h-9.5 + py-2*2 + border, with a little slack so three fit. */
 const LIST_MAX_H = "max-h-[calc(3*(2.375rem+1.25rem)+2px)] overflow-y-auto";
@@ -99,7 +124,7 @@ function PairEditor({
           size="sm"
           onClick={() => onChange([...(rows.length ? rows : []), createPair()])}
         >
-          <Plus size={15} />
+          <PlusIcon size={15} />
           {text.addRow}
         </Button>
       </div>
@@ -129,7 +154,7 @@ function PairEditor({
               disabled={row.id === EMPTY_PAIR.id && !rows.length}
               onClick={() => removeRow(row.id)}
             >
-              <Trash size={15} />
+              <TrashIcon size={15} />
             </Button>
           </div>
         ))}
@@ -151,11 +176,11 @@ function FormFieldEditor({
   text: ToolText;
   allowFile?: boolean;
 }) {
-  const list = rows.length ? rows : [createFormField()];
+  const list = rows.length ? rows : [EMPTY_FORM_FIELD];
   const pickingRef = useRef(false);
 
   function updateRow(id: string, patch: Partial<FormField>) {
-    if (!rows.length) {
+    if (id === EMPTY_FORM_FIELD.id) {
       onChange([createFormField(patch.key ?? "", patch.value ?? "", patch.kind ?? "text")]);
       return;
     }
@@ -168,7 +193,7 @@ function FormFieldEditor({
     try {
       const picked = await machkit.pickFile({ prompt: text.chooseFile });
       if (!picked?.path) return;
-      if (!rows.length) {
+      if (row.id === EMPTY_FORM_FIELD.id || !rows.length) {
         onChange([createFormField(row.key || "file", picked.path, "file")]);
         return;
       }
@@ -189,7 +214,7 @@ function FormFieldEditor({
           size="sm"
           onClick={() => onChange([...(rows.length ? rows : []), createFormField()])}
         >
-          <Plus size={15} />
+          <PlusIcon size={15} />
           {text.addRow}
         </Button>
       </div>
@@ -230,7 +255,7 @@ function FormFieldEditor({
                 onClick={() => chooseFile(row)}
                 title={text.chooseFile}
               >
-                <FolderOpen size={15} />
+                <FolderOpenIcon size={15} />
               </Button>
             ) : null}
             <Button
@@ -239,9 +264,13 @@ function FormFieldEditor({
               className="shrink-0"
               aria-label={text.removeRow}
               title={text.removeRow}
-              onClick={() => onChange(rows.filter((item) => item.id !== row.id))}
+              disabled={row.id === EMPTY_FORM_FIELD.id && !rows.length}
+              onClick={() => {
+                if (row.id === EMPTY_FORM_FIELD.id) return;
+                onChange(rows.filter((item) => item.id !== row.id));
+              }}
             >
-              <Trash size={15} />
+              <TrashIcon size={15} />
             </Button>
           </div>
         ))}
@@ -288,7 +317,7 @@ function OptionsDialog({
         title={text.optionsTitle}
         actions={
           <Button variant="ghost" size="sm" onClick={onClose} aria-label={text.close}>
-            <X size={16} />
+            <XIcon size={16} />
           </Button>
         }
         bodyClassName="flex flex-col gap-3 px-4 py-4"
@@ -658,7 +687,7 @@ function CurlLabTool() {
                         className="shrink-0"
                         onClick={cancelRequest}
                       >
-                        <X size={15} />
+                        <XIcon size={15} />
                         {text.cancel}
                       </Button>
                     ) : (
@@ -668,7 +697,7 @@ function CurlLabTool() {
                         className="shrink-0"
                         onClick={runRequest}
                       >
-                        <Play size={15} weight="fill" />
+                        <PlayIcon size={15} weight="fill" />
                         {text.run}
                       </Button>
                     )}
@@ -697,7 +726,7 @@ function CurlLabTool() {
                         disabled={!String(request.body || "").trim()}
                         onClick={formatBody}
                       >
-                        <BracketsCurly size={15} />
+                        <BracketsCurlyIcon size={15} />
                         {text.formatBody}
                       </Button>
                     </div>
@@ -775,7 +804,7 @@ function CurlLabTool() {
                       onClick={() => machkit.copy(codeText)}
                       disabled={!codeText}
                     >
-                      <CopySimple size={15} />
+                      <CopySimpleIcon size={15} />
                       {text.copy}
                     </Button>
                   </div>
@@ -813,7 +842,7 @@ function CurlLabTool() {
                       onClick={() => setOptionsOpen(true)}
                       title={text.options}
                     >
-                      <GearSix size={15} />
+                      <GearSixIcon size={15} />
                       {text.options}
                       {enabledFlagCount ? (
                         <span className="rounded-full bg-muted px-1.5 text-[10px] tabular-nums text-secondary">
@@ -822,7 +851,7 @@ function CurlLabTool() {
                       ) : null}
                     </Button>
                     <Button variant="ghost" size="sm" onClick={clearAll}>
-                      <Eraser size={15} />
+                      <EraserIcon size={15} />
                       {text.clear}
                     </Button>
                     <Button
@@ -831,7 +860,7 @@ function CurlLabTool() {
                       disabled={!runResult}
                       onClick={() => machkit.copy(formatRunResult(runResult, text))}
                     >
-                      <CopySimple size={15} />
+                      <CopySimpleIcon size={15} />
                       {text.copy}
                     </Button>
                   </ActionGroup>

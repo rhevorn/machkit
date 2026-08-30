@@ -223,26 +223,25 @@ export const machkit = Object.freeze({
     publishPreferences(next);
   },
 
-  hosts(action: string, payload: BridgeParams = {}): Promise<unknown> {
-    if (!/^(load|save|apply)$/.test(action)) {
-      return Promise.reject(new Error(`Unsupported Hosts operation: ${action}`));
-    }
+  hosts(action: "load" | "save" | "apply", payload: BridgeParams = {}): Promise<unknown> {
     return this.request(`hosts.${action}`, payload);
   },
 
-  portScan(action: string, payload: BridgeParams = {}, options: BridgeOptions = {}): Promise<unknown> {
-    if (!/^(start|status|cancel)$/.test(action)) {
-      return Promise.reject(new Error(`Unsupported Port Scan operation: ${action}`));
-    }
+  portScan(
+    action: "start" | "status" | "cancel",
+    payload: BridgeParams = {},
+    options: BridgeOptions = {},
+  ): Promise<unknown> {
     return this.request(`portScan.${action}`, payload, {
       timeout: options.timeout ?? 10_000,
     });
   },
 
-  curlLab(action: string, payload: BridgeParams = {}, options: BridgeOptions = {}): Promise<unknown> {
-    if (!/^(run|cancel)$/.test(action)) {
-      return Promise.reject(new Error(`Unsupported cURL Lab operation: ${action}`));
-    }
+  curlLab(
+    action: "run" | "cancel",
+    payload: BridgeParams = {},
+    options: BridgeOptions = {},
+  ): Promise<unknown> {
     return this.request(`curlLab.${action}`, payload, {
       timeout: options.timeout ?? (action === "cancel" ? 10_000 : 45_000),
     });

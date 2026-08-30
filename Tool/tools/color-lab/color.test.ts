@@ -1,6 +1,14 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { contrastRatio, hsvToRgb, parseColor, rgbToHex, rgbToHsl, rgbToHsv } from "./color.js";
+import {
+  compositeOver,
+  contrastRatio,
+  hsvToRgb,
+  parseColor,
+  rgbToHex,
+  rgbToHsl,
+  rgbToHsv,
+} from "./color.js";
 
 test("parses hex and expands short form", () => {
   const result = parseColor("#0af");
@@ -42,6 +50,31 @@ test("computes contrast ratios", () => {
   assert.equal(gray.ok, true);
   if (!gray.ok) return;
   assert.ok(gray.contrast.onWhite >= 4);
+});
+
+test("composites semi-transparent colors before contrast", () => {
+  const opaqueBlack = parseColor("#000000");
+  const halfBlack = parseColor("rgba(0, 0, 0, 0.5)");
+  assert.equal(opaqueBlack.ok, true);
+  assert.equal(halfBlack.ok, true);
+  if (!opaqueBlack.ok || !halfBlack.ok) return;
+
+  assert.equal(opaqueBlack.contrast.onWhite, 21);
+  // 50% black over white → #808080, much lower contrast than opaque black.
+  assert.ok(halfBlack.contrast.onWhite < opaqueBlack.contrast.onWhite);
+  assert.equal(
+    halfBlack.contrast.onWhite,
+    contrastRatio(compositeOver({ r: 0, g: 0, b: 0, a: 0.5 }, { r: 255, g: 255, b: 255 }), {
+      r: 255,
+      g: 255,
+      b: 255,
+    }),
+  );
+
+  const clear = parseColor("rgba(255, 0, 0, 0)");
+  assert.equal(clear.ok, true);
+  if (!clear.ok) return;
+  assert.equal(clear.contrast.onWhite, 1);
 });
 
 test("rejects invalid colors", () => {

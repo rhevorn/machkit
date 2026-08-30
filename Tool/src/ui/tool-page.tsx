@@ -1,5 +1,5 @@
 import React, { type ReactNode } from "react";
-import { CheckCircle, WarningCircle } from "@phosphor-icons/react";
+import { CheckCircleIcon, WarningCircleIcon } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils.js";
 import { useLocale } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
@@ -102,7 +102,7 @@ function CopyFeedbackToast() {
         toast.ok ? "border-border bg-foreground text-surface" : "border-danger/25 bg-danger text-white",
       )}
     >
-      {toast.ok ? <CheckCircle size={16} weight="fill" /> : <WarningCircle size={16} weight="fill" />}
+      {toast.ok ? <CheckCircleIcon size={16} weight="fill" /> : <WarningCircleIcon size={16} weight="fill" />}
       {toast.ok ? labels.success : labels.failure}
     </div>
   );

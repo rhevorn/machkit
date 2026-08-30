@@ -1,5 +1,5 @@
-import React, { useMemo, useRef, useState } from "react";
-import { CopySimple, Eraser, UploadSimple } from "@phosphor-icons/react";
+import { useMemo, useRef, useState } from "react";
+import { CopySimpleIcon, EraserIcon, UploadSimpleIcon } from "@phosphor-icons/react";
 import {
   ActionGroup,
   Button,
@@ -16,16 +16,18 @@ import {
 import { useToolMessages } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
 import { mountTool } from "@/runtime/mount-tool.js";
-import { inspectCertificatePem } from "./cert.js";
+import { inspectCertificatePem, type CertificateInfo, type CertificateStatus } from "./cert.js";
 import { messages } from "./messages.js";
 
-function statusLabel(text: any, status: any) {
+type ToolText = (typeof messages)["en"];
+
+function statusLabel(text: ToolText, status: CertificateStatus) {
   if (status === "expired") return text.statusExpired;
   if (status === "not-yet-valid") return text.statusNotYetValid;
   return text.statusValid;
 }
 
-function CertPanel({ cert, index, text }: Record<string, any>) {
+function CertPanel({ cert, index, text }: { cert: CertificateInfo; index: number; text: ToolText }) {
   const validity = `${cert.notBeforeLocal} → ${cert.notAfterLocal}`;
   const san = cert.san?.length ? cert.san.join(", ") : "";
 
@@ -48,7 +50,7 @@ function CertPanel({ cert, index, text }: Record<string, any>) {
       }
       actions={
         <Button variant="ghost" size="sm" onClick={() => machkit.copy(cert.pem)}>
-          <CopySimple size={15} />
+          <CopySimpleIcon size={15} />
           {text.copyPem}
         </Button>
       }
@@ -68,7 +70,7 @@ function CertPanel({ cert, index, text }: Record<string, any>) {
 
 function CertLabTool() {
   const text = useToolMessages(messages);
-  const fileRef = useRef<any>(null);
+  const fileRef = useRef<HTMLInputElement | null>(null);
   const [pem, setPem] = useState("");
 
   const result = useMemo(() => inspectCertificatePem(pem), [pem]);
@@ -90,7 +92,7 @@ function CertLabTool() {
           label: `${result.count} ${text.found}`,
         };
 
-  function onImportFile(file: any) {
+  function onImportFile(file: File | undefined) {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => setPem(String(reader.result || ""));
@@ -105,7 +107,7 @@ function CertLabTool() {
           <div className="mx-1 h-5 w-px shrink-0 bg-border" aria-hidden="true" />
           <ActionGroup>
             <Button variant="ghost" size="sm" onClick={() => fileRef.current?.click()}>
-              <UploadSimple size={15} />
+              <UploadSimpleIcon size={15} />
               {text.import}
             </Button>
             <input
@@ -119,11 +121,11 @@ function CertLabTool() {
               }}
             />
             <Button variant="ghost" size="sm" disabled={!pem.trim()} onClick={() => machkit.copy(pem.trim())}>
-              <CopySimple size={15} />
+              <CopySimpleIcon size={15} />
               {text.copy}
             </Button>
             <Button variant="ghost" size="sm" onClick={() => setPem("")}>
-              <Eraser size={15} />
+              <EraserIcon size={15} />
               {text.clear}
             </Button>
           </ActionGroup>
@@ -140,7 +142,7 @@ function CertLabTool() {
         <StatusStrip tone={status.tone}>{status.label}</StatusStrip>
 
         {result.ok
-          ? result.certificates.map((cert: any, index: any) => (
+          ? result.certificates.map((cert, index) => (
               <CertPanel key={`${cert.serialNumber}-${index}`} cert={cert} index={index} text={text} />
             ))
           : null}

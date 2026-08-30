@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { CaretRight } from "@phosphor-icons/react";
+import { useMemo } from "react";
+import { CaretRightIcon } from "@phosphor-icons/react";
 import { ToolContent, ToolPage } from "@/ui/index.js";
 import { useLocale, useToolMessages } from "@/i18n.js";
 import { mountTool } from "@/runtime/mount-tool.js";
@@ -46,7 +46,7 @@ function HomePage() {
               </div>
               <span className="flex shrink-0 items-center gap-1 text-[12px] font-medium text-accent opacity-80 group-hover:opacity-100">
                 {text.open}
-                <CaretRight size={14} weight="bold" />
+                <CaretRightIcon size={14} weight="bold" />
               </span>
             </a>
           ))}

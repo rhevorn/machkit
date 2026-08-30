@@ -35,7 +35,21 @@ test("can ignore whitespace", () => {
 
 test("rejects oversized input and too many lines", () => {
   assert.equal(diffLines("a".repeat(400_001), "b").error, "input-too-large");
-  assert.equal(diffLines("\n".repeat(8_001), "x").error, "too-many-lines");
+  assert.equal(diffLines("\n".repeat(4_001), "x").error, "too-many-lines");
+});
+
+test("rejects when edit distance exceeds budget", () => {
+  const left = Array.from({ length: 500 }, (_, i) => `L${i}`).join("\n");
+  const right = Array.from({ length: 500 }, (_, i) => `R${i}`).join("\n");
+  // Completely disjoint lines force D ≈ 1000; with a tiny shared alphabet this
+  // still finishes, so build a larger disjoint pair near the distance cap.
+  const leftBig = Array.from({ length: 3_000 }, (_, i) => `A${i}`).join("\n");
+  const rightBig = Array.from({ length: 3_000 }, (_, i) => `B${i}`).join("\n");
+  const result = diffLines(leftBig, rightBig);
+  assert.equal(result.ok, false);
+  assert.equal(result.error, "too-complex");
+  // Sanity: smaller unrelated inputs still succeed.
+  assert.equal(diffLines(left, right).ok, true);
 });
 
 test("diffs empty strings", () => {

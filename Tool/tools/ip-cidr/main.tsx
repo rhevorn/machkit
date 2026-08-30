@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from "react";
-import { Eraser } from "@phosphor-icons/react";
+import { useMemo, useState } from "react";
+import { EraserIcon } from "@phosphor-icons/react";
 import {
   ActionGroup,
   Button,
@@ -110,7 +110,7 @@ function IpCidrTool() {
           </div>
           <ActionGroup>
             <Button variant="ghost" size="sm" onClick={() => { setInput(""); setCheckIP(""); }}>
-              <Eraser size={15} />
+              <EraserIcon size={15} />
               {text.clear}
             </Button>
           </ActionGroup>

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { cn } from "@/lib/utils.js";
 import { hsvToRgb, parseColor, rgbToHex } from "../../tools/color-lab/color.js";

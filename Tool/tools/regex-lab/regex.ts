@@ -1,5 +1,7 @@
 export const maxRegexInput = 500_000;
 export const maxRegexMatches = 500;
+export const maxRegexBudgetMs = 50;
+export const maxRegexSteps = 50_000;
 
 const FLAG_CHARS = new Set(["d", "g", "i", "m", "s", "u", "v", "y"]);
 
@@ -54,8 +56,45 @@ export const regexPresets = Object.freeze([
   },
 ]);
 
+export type MatchGroup = {
+  index: number;
+  value: string;
+  start: number | null;
+  end: number | null;
+};
+
+export type MatchResult = {
+  index: number;
+  length: number;
+  text: string;
+  groups: MatchGroup[];
+  named: Record<string, string>;
+};
+
+export type HighlightSegment =
+  | { type: "text"; value: string }
+  | { type: "match"; value: string; matchIndex: number };
+
+export type FindMatchesResult =
+  | { ok: true; error: null; matches: MatchResult[]; truncated: boolean }
+  | { ok: false; error: string; matches: MatchResult[]; truncated: boolean };
+
+export type ReplaceMatchesResult =
+  | { ok: true; error: null; value: string }
+  | { ok: false; error: string; value: string };
+
+export type RegexBudgetOptions = {
+  maxMatches?: number;
+  maxBudgetMs?: number;
+  maxSteps?: number;
+};
+
+type RegExpMatchWithIndices = RegExpExecArray & {
+  indices?: Array<[number, number] | undefined>;
+};
+
 export function normalizeFlags(flags: string = "") {
-  const seen = new Set();
+  const seen = new Set<string>();
   let result = "";
   for (const char of String(flags)) {
     if (!FLAG_CHARS.has(char) || seen.has(char)) continue;
@@ -76,15 +115,17 @@ export function compileRegex(pattern: string, flags: string = "g") {
   }
 }
 
-function groupEntries(match: any) {
-  const groups: Array<{ index: number; value: string; start: number | null; end: number | null }> = [];
+function groupEntries(match: RegExpExecArray): { groups: MatchGroup[]; named: Record<string, string> } {
+  const withIndices = match as RegExpMatchWithIndices;
+  const groups: MatchGroup[] = [];
   for (let index = 1; index < match.length; index += 1) {
     if (match[index] === undefined) continue;
+    const indexPair = withIndices.indices?.[index];
     groups.push({
       index,
       value: match[index],
-      start: typeof match.indices?.[index]?.[0] === "number" ? match.indices[index][0] : null,
-      end: typeof match.indices?.[index]?.[1] === "number" ? match.indices[index][1] : null,
+      start: typeof indexPair?.[0] === "number" ? indexPair[0] : null,
+      end: typeof indexPair?.[1] === "number" ? indexPair[1] : null,
     });
   }
   const named: Record<string, string> = {};
@@ -97,7 +138,37 @@ function groupEntries(match: any) {
   return { groups, named };
 }
 
-export function findMatches(pattern: unknown, flags: unknown, input: unknown, { maxMatches = maxRegexMatches }: { maxMatches?: number } = {}) {
+function budgetExceeded(started: number, steps: number, maxBudgetMs: number, maxSteps: number) {
+  return steps > maxSteps || Date.now() - started > maxBudgetMs;
+}
+
+/** Expand a string replacement template ($1, $&, $<name>, …) for one match. */
+export function expandReplacement(template: string, match: RegExpExecArray, input: string): string {
+  return String(template ?? "").replace(/\$(\$|&|`|'|<[^>]+>|\d{1,3})/g, (token, key: string) => {
+    if (key === "$") return "$";
+    if (key === "&") return match[0];
+    if (key === "`") return input.slice(0, match.index);
+    if (key === "'") return input.slice(match.index + match[0].length);
+    if (key.startsWith("<") && key.endsWith(">")) {
+      const name = key.slice(1, -1);
+      return match.groups?.[name] ?? "";
+    }
+    const index = Number(key);
+    if (!Number.isFinite(index) || index < 1) return token;
+    return match[index] ?? "";
+  });
+}
+
+export function findMatches(
+  pattern: unknown,
+  flags: unknown,
+  input: unknown,
+  {
+    maxMatches = maxRegexMatches,
+    maxBudgetMs = maxRegexBudgetMs,
+    maxSteps = maxRegexSteps,
+  }: RegexBudgetOptions = {},
+): FindMatchesResult {
   const text = String(input ?? "");
   if (text.length > maxRegexInput) {
     return { ok: false as const, error: "input-too-large", matches: [], truncated: false };
@@ -113,8 +184,10 @@ export function findMatches(pattern: unknown, flags: unknown, input: unknown, { 
   if (!compiled.ok) return { ok: false as const, error: compiled.error, matches: [], truncated: false };
 
   const regex = compiled.regex;
-  const matches = [];
+  const matches: MatchResult[] = [];
   let truncated = false;
+  const started = Date.now();
+  let steps = 0;
 
   if (!regex.global) {
     const match = regex.exec(text);
@@ -132,19 +205,20 @@ export function findMatches(pattern: unknown, flags: unknown, input: unknown, { 
   }
 
   regex.lastIndex = 0;
-  let guard = 0;
   let match = regex.exec(text);
   while (match) {
-    guard += 1;
-    if (guard > maxMatches) {
-      truncated = true;
-      break;
+    steps += 1;
+    if (budgetExceeded(started, steps, maxBudgetMs, maxSteps)) {
+      return { ok: false as const, error: "budget-exceeded", matches, truncated: true };
     }
+
     if (match[0].length === 0) {
+      // Advance past zero-length matches without counting them toward maxMatches.
       regex.lastIndex = match.index + 1;
       match = regex.exec(text);
       continue;
     }
+
     const { groups, named } = groupEntries(match);
     matches.push({
       index: match.index,
@@ -153,31 +227,98 @@ export function findMatches(pattern: unknown, flags: unknown, input: unknown, { 
       groups,
       named,
     });
+    if (matches.length >= maxMatches) {
+      truncated = true;
+      break;
+    }
     match = regex.exec(text);
   }
 
   return { ok: true as const, error: null, matches, truncated };
 }
 
-export function replaceMatches(pattern: string, flags: string, input: string, replacement: string = "") {
+export function replaceMatches(
+  pattern: string,
+  flags: string,
+  input: string,
+  replacement: string = "",
+  {
+    maxBudgetMs = maxRegexBudgetMs,
+    maxSteps = maxRegexSteps,
+  }: Pick<RegexBudgetOptions, "maxBudgetMs" | "maxSteps"> = {},
+): ReplaceMatchesResult {
   const text = String(input ?? "");
   if (text.length > maxRegexInput) {
     return { ok: false as const, error: "input-too-large", value: "" };
   }
-  const compiled = compileRegex(pattern, normalizeFlags(flags));
+  const normalized = normalizeFlags(flags);
+  const compiled = compileRegex(pattern, normalized);
   if (!compiled.ok) return { ok: false as const, error: compiled.error, value: "" };
+
+  const template = String(replacement ?? "");
+  const regex = compiled.regex;
+  const started = Date.now();
+  let steps = 0;
+
   try {
-    return { ok: true as const, error: null, value: text.replace(compiled.regex, String(replacement ?? "")) };
+    if (!regex.global) {
+      const match = regex.exec(text);
+      steps += 1;
+      if (budgetExceeded(started, steps, maxBudgetMs, maxSteps)) {
+        return { ok: false as const, error: "budget-exceeded", value: "" };
+      }
+      if (!match) return { ok: true as const, error: null, value: text };
+      const expanded = expandReplacement(template, match, text);
+      return {
+        ok: true as const,
+        error: null,
+        value: text.slice(0, match.index) + expanded + text.slice(match.index + match[0].length),
+      };
+    }
+
+    let output = "";
+    let lastIndex = 0;
+    regex.lastIndex = 0;
+    let match = regex.exec(text);
+    while (match) {
+      steps += 1;
+      if (budgetExceeded(started, steps, maxBudgetMs, maxSteps)) {
+        return { ok: false as const, error: "budget-exceeded", value: "" };
+      }
+
+      output += text.slice(lastIndex, match.index);
+      if (match[0].length === 0) {
+        output += expandReplacement(template, match, text);
+        const next = match.index + 1;
+        if (next <= text.length) {
+          if (match.index < text.length) output += text.charAt(match.index);
+          lastIndex = next;
+          regex.lastIndex = next;
+        } else {
+          lastIndex = match.index;
+          break;
+        }
+      } else {
+        output += expandReplacement(template, match, text);
+        lastIndex = match.index + match[0].length;
+      }
+      match = regex.exec(text);
+    }
+    output += text.slice(lastIndex);
+    return { ok: true as const, error: null, value: output };
   } catch (error) {
     return { ok: false as const, error: error instanceof Error ? error.message : "replace-failed", value: "" };
   }
 }
 
-export function highlightSegments(input: string, matches: Array<{ index: number; length: number; text?: string }>) {
+export function highlightSegments(
+  input: string,
+  matches: Array<{ index: number; length: number; text?: string }>,
+): HighlightSegment[] {
   const text = String(input ?? "");
   if (!matches?.length) return [{ type: "text", value: text }];
 
-  const segments = [];
+  const segments: HighlightSegment[] = [];
   let cursor = 0;
   for (const match of matches) {
     const start = Math.max(0, match.index);

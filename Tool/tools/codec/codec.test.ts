@@ -1,5 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { catalogIssues } from "../../src/i18n-catalog.js";
+import { messages } from "./messages.js";
 import {
   convertCodec,
   decodeBase32,
@@ -21,6 +23,10 @@ import {
   encodeUnicode,
   hashText,
 } from "./codec.js";
+
+test("catalog keys stay complete", () => {
+  assert.deepEqual(catalogIssues(messages), []);
+});
 
 test("encodes and decodes Base64 and Base64URL", () => {
   assert.equal(encodeBase64("hello"), "aGVsbG8=");

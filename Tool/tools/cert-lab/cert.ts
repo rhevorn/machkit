@@ -5,10 +5,38 @@ export const maxCertInput = 200_000;
 const PEM_BLOCK =
   /-----BEGIN ([A-Z0-9 ]+)-----([\s\S]*?)-----END \1-----/g;
 
+export type CertificateStatus = "valid" | "expired" | "not-yet-valid";
+
+export type CertificateInfo = {
+  type: string;
+  pem: string;
+  subject: string;
+  issuer: string;
+  subjectAttrs: Record<string, unknown>;
+  issuerAttrs: Record<string, unknown>;
+  serialNumber: string;
+  notBefore: string;
+  notAfter: string;
+  notBeforeLocal: string;
+  notAfterLocal: string;
+  status: CertificateStatus;
+  version: number;
+  signatureOid: string;
+  signatureAlgorithm: string;
+  sha1: string;
+  sha256: string;
+  san: string[];
+  isCA: boolean;
+};
+
+export type InspectCertificateResult =
+  | { ok: true; error: null; certificates: CertificateInfo[]; count: number }
+  | { ok: false; error: string; certificates: CertificateInfo[] };
+
 export function extractPemBlocks(input: unknown) {
   const text = String(input ?? "");
   const blocks: Array<{ type: string; pem: string; body: string }> = [];
-  let match;
+  let match: RegExpExecArray | null;
   const re = new RegExp(PEM_BLOCK.source, "g");
   while ((match = re.exec(text))) {
     blocks.push({
@@ -41,13 +69,16 @@ function formatDn(attributes: CertAttr[] = []) {
     .join(", ");
 }
 
-function fingerprint(cert: any, md: any) {
+function fingerprint(
+  cert: forge.pki.Certificate,
+  md: { create(): { update(msg: string): { digest(): { toHex(): string } } } },
+): string {
   const der = forge.asn1.toDer(forge.pki.certificateToAsn1(cert)).getBytes();
   const digest = md.create().update(der).digest().toHex();
   return digest.match(/.{2}/g)!.join(":").toUpperCase();
 }
 
-export function inspectCertificatePem(input: unknown, now = new Date()) {
+export function inspectCertificatePem(input: unknown, now = new Date()): InspectCertificateResult {
   const raw = String(input ?? "").trim();
   if (!raw) return { ok: false, error: "empty", certificates: [] };
   if (raw.length > maxCertInput) return { ok: false, error: "too-large", certificates: [] };
@@ -70,21 +101,24 @@ export function inspectCertificatePem(input: unknown, now = new Date()) {
 
   if (!blocks.length) return { ok: false, error: "no-certificate", certificates: [] };
 
-  const certificates: Array<Record<string, unknown>> = [];
+  const certificates: CertificateInfo[] = [];
   for (const block of blocks) {
     try {
       const cert = forge.pki.certificateFromPem(block.pem);
       const notBefore = cert.validity.notBefore;
       const notAfter = cert.validity.notAfter;
-      let status = "valid";
+      let status: CertificateStatus = "valid";
       if (now < notBefore) status = "not-yet-valid";
       else if (now > notAfter) status = "expired";
 
-      const sanExt = cert.getExtension("subjectAltName") as { altNames?: Array<{ value?: string }> } | null;
+      const sanExt = cert.getExtension("subjectAltName") as
+        | { altNames?: Array<{ value?: string; ip?: string }> }
+        | null;
       const san: string[] = [];
       if (sanExt?.altNames) {
         for (const item of sanExt.altNames) {
-          if (item.value) san.push(String(item.value));
+          const entry = item.ip ?? item.value;
+          if (entry) san.push(String(entry));
         }
       }
 
@@ -110,9 +144,11 @@ export function inspectCertificatePem(input: unknown, now = new Date()) {
         isCA: Boolean((cert.getExtension("basicConstraints") as { cA?: boolean } | null)?.cA),
       });
     } catch {
-      return { ok: false, error: "invalid-certificate", certificates: [] };
+      // Skip unreadable blocks so multi-PEM input can partially succeed.
     }
   }
+
+  if (!certificates.length) return { ok: false, error: "invalid-certificate", certificates: [] };
 
   return { ok: true, error: null, certificates, count: certificates.length };
 }

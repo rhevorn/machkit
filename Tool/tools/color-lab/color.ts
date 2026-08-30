@@ -159,6 +159,19 @@ export function contrastRatio(
   return round((lighter + 0.05) / (darker + 0.05), 2);
 }
 
+/** Alpha-composite `fg` over an opaque background before contrast checks. */
+export function compositeOver(
+  fg: Pick<RGB, "r" | "g" | "b"> & { a?: number },
+  bg: Pick<RGB, "r" | "g" | "b">,
+): Pick<RGB, "r" | "g" | "b"> {
+  const a = clamp(fg.a ?? 1, 0, 1);
+  return {
+    r: Math.round(fg.r * a + bg.r * (1 - a)),
+    g: Math.round(fg.g * a + bg.g * (1 - a)),
+    b: Math.round(fg.b * a + bg.b * (1 - a)),
+  };
+}
+
 function parseHex(raw: string): Required<RGB> | null {
   const value = raw.replace(/^#/, "").trim();
   if (![3, 4, 6, 8].includes(value.length) || !/^[0-9a-fA-F]+$/.test(value)) {
@@ -256,8 +269,8 @@ export function parseColor(input: unknown): ColorParseResult {
       hsv: hsvCss,
     },
     contrast: {
-      onWhite: contrastRatio(rgb, { r: 255, g: 255, b: 255 }),
-      onBlack: contrastRatio(rgb, { r: 0, g: 0, b: 0 }),
+      onWhite: contrastRatio(compositeOver(rgb, { r: 255, g: 255, b: 255 }), { r: 255, g: 255, b: 255 }),
+      onBlack: contrastRatio(compositeOver(rgb, { r: 0, g: 0, b: 0 }), { r: 0, g: 0, b: 0 }),
     },
   };
 }

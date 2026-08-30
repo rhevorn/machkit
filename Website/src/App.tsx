@@ -1,17 +1,4 @@
-import {
-  ArrowRightIcon,
-  ChartDonutIcon,
-  CodeIcon,
-  DownloadSimpleIcon,
-  GithubLogoIcon,
-  GlobeIcon,
-  HouseIcon,
-  MoonIcon,
-  PulseIcon,
-  ShieldCheckIcon,
-  SunIcon,
-  WrenchIcon,
-} from "@phosphor-icons/react";
+import { ArrowRightIcon, ChartDonutIcon, CodeIcon, DownloadSimpleIcon, GithubLogoIcon, GlobeIcon, HouseIcon, MoonIcon, PulseIcon, ShieldCheckIcon, SunIcon, WrenchIcon } from "@phosphor-icons/react";
 import { messages } from "./i18n.js";
 import { site } from "./seo-pages.js";
 

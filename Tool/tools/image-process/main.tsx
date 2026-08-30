@@ -1,5 +1,5 @@
-import React, { useMemo, useRef, useState } from "react";
-import { DownloadSimple, Eraser, Image as ImageIcon, Trash, UploadSimple } from "@phosphor-icons/react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { DownloadSimpleIcon, EraserIcon, ImageIcon, TrashIcon, UploadSimpleIcon } from "@phosphor-icons/react";
 import JSZip from "jszip";
 import {
   Button,
@@ -34,7 +34,6 @@ import { messages } from "./messages.js";
 import type { InlineMessageTone } from "@/ui/inline-message.js";
 import type { ReactNode } from "react";
 
-type ToolText = (typeof messages)["en"];
 type TargetUnit = "KB" | "MB";
 
 type QueueItemResult =
@@ -85,6 +84,7 @@ function ControlField({ label, children }: { label: string; children: ReactNode 
 function ImageProcessTool() {
   const text = useToolMessages(messages);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const runTokenRef = useRef(0);
   const [items, setItems] = useState<QueueItem[]>([]);
   const [format, setFormat] = useState<ImageFormatOption>("jpeg");
   const [mode, setMode] = useState<ImageMode>("dimensions");
@@ -99,6 +99,12 @@ function ImageProcessTool() {
   const [progress, setProgress] = useState<ProgressState | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    return () => {
+      runTokenRef.current += 1;
+    };
+  }, []);
 
   const formatOptions = useMemo(
     () => [
@@ -186,6 +192,7 @@ function ImageProcessTool() {
   }
 
   function clearAll() {
+    runTokenRef.current += 1;
     items.forEach((item) => {
       if (item.preview) URL.revokeObjectURL(item.preview);
       if (item.result?.url) URL.revokeObjectURL(item.result.url);
@@ -193,6 +200,7 @@ function ImageProcessTool() {
     setItems([]);
     setError("");
     setProgress(null);
+    setBusy(false);
   }
 
   function removeItem(id: string) {
@@ -232,6 +240,7 @@ function ImageProcessTool() {
       setError(text.invalidTarget);
       return;
     }
+    const runToken = ++runTokenRef.current;
     const snapshot = items.map((item) => {
       if (item.result?.url) URL.revokeObjectURL(item.result.url);
       return { ...item, result: null };
@@ -243,9 +252,11 @@ function ImageProcessTool() {
 
     const next: QueueItem[] = [];
     for (let index = 0; index < snapshot.length; index += 1) {
+      if (runToken !== runTokenRef.current) return;
       const item = snapshot[index];
       setProgress({ current: index, total: snapshot.length });
       const result: ProcessImageResult = await processImage(item.file, built.options!);
+      if (runToken !== runTokenRef.current) return;
       const updated: QueueItem = result.ok
         ? { ...item, result: { ...result, url: URL.createObjectURL(result.blob) } }
         : { ...item, result: { ok: false, error: result.error } };
@@ -254,6 +265,7 @@ function ImageProcessTool() {
       setProgress({ current: index + 1, total: snapshot.length });
     }
 
+    if (runToken !== runTokenRef.current) return;
     setBusy(false);
     setProgress(null);
     if (next.some((item) => item.result?.error === "too-large")) setError(text.tooLarge);
@@ -330,7 +342,7 @@ function ImageProcessTool() {
       <ImageIcon size={items.length ? 22 : 28} className="pointer-events-none text-secondary" />
       <span className="pointer-events-none text-sm text-foreground">{text.drop}</span>
       <span className="pointer-events-none inline-flex items-center gap-1 text-[12px] text-accent">
-        <UploadSimple size={14} />
+        <UploadSimpleIcon size={14} />
         {text.choose}
       </span>
     </div>
@@ -459,11 +471,11 @@ function ImageProcessTool() {
                 {text.process}
               </Button>
               <Button variant="secondary" size="sm" disabled={doneCount === 0 || busy} onClick={downloadZip}>
-                <DownloadSimple size={15} />
+                <DownloadSimpleIcon size={15} />
                 {text.downloadAll}
               </Button>
               <Button variant="ghost" size="sm" disabled={!items.length || busy} onClick={clearAll}>
-                <Eraser size={15} />
+                <EraserIcon size={15} />
                 {text.clear}
               </Button>
             </div>
@@ -542,7 +554,7 @@ function ImageProcessTool() {
                               size="sm"
                               onClick={() => downloadOne(result.blob, result.name)}
                             >
-                              <DownloadSimple size={15} />
+                              <DownloadSimpleIcon size={15} />
                               {text.download}
                             </Button>
                           ) : null}
@@ -553,7 +565,7 @@ function ImageProcessTool() {
                             title={text.remove}
                             onClick={() => removeItem(item.id)}
                           >
-                            <Trash size={15} />
+                            <TrashIcon size={15} />
                           </Button>
                         </div>
                       </div>

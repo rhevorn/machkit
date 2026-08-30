@@ -1,5 +1,7 @@
 export const maxDiffInput = 400_000;
-export const maxDiffLines = 8_000;
+export const maxDiffLines = 4_000;
+/** Cap Myers edit distance to bound memory (compact traces still grow with D²). */
+export const maxEditDistance = 4_000;
 
 export type DiffOptions = {
   ignoreWhitespace?: boolean;
@@ -62,6 +64,10 @@ export function diffLines(leftText: unknown, rightText: unknown, options: DiffOp
   const leftKeys = left.map((line) => normalizeLine(line, options));
   const rightKeys = right.map((line) => normalizeLine(line, options));
   const edits = myers(leftKeys, rightKeys);
+  if (!edits) {
+    return { ok: false as const, error: "too-complex", rows: [], stats: emptyStats() };
+  }
+
   const rows: DiffRow[] = [];
   let leftLine = 1;
   let rightLine = 1;
@@ -114,18 +120,29 @@ function emptyStats(): DiffStats {
   return { equal: 0, removed: 0, added: 0, leftLines: 0, rightLines: 0 };
 }
 
-function myers(a: string[], b: string[]): Edit[] {
+/**
+ * Myers O(ND) with compact per-depth frontiers (length 2d+1) instead of full
+ * v.slice() copies of size O(N+M) every step.
+ */
+function myers(a: string[], b: string[]): Edit[] | null {
   const n = a.length;
   const m = b.length;
   if (n === 0 && m === 0) return [];
   const max = n + m;
+  const maxD = Math.min(max, maxEditDistance);
   const offset = max;
-  const v = new Array<number>(2 * max + 1).fill(0);
-  const trace: number[][] = [];
+  const v = new Int32Array(2 * max + 1);
+  // Sentinel used on the first iteration (d = 0, k = 0 reads v[1]).
+  v[offset + 1] = 0;
+  const trace: Int32Array[] = [];
 
-  for (let d = 0; d <= max; d += 1) {
-    const snapshot = v.slice();
+  for (let d = 0; d <= maxD; d += 1) {
+    const snapshot = new Int32Array(2 * d + 1);
+    for (let k = -d; k <= d; k += 1) {
+      snapshot[k + d] = v[k + offset]!;
+    }
     trace.push(snapshot);
+
     for (let k = -d; k <= d; k += 2) {
       let x: number;
       if (k === -d || (k !== d && v[k - 1 + offset]! < v[k + 1 + offset]!)) {
@@ -142,25 +159,34 @@ function myers(a: string[], b: string[]): Edit[] {
       if (x >= n && y >= m) return backtrack(trace, a, b);
     }
   }
-  return backtrack(trace, a, b);
+  return null;
 }
 
-function backtrack(trace: number[][], a: string[], b: string[]): Edit[] {
+function backtrack(trace: Int32Array[], a: string[], b: string[]): Edit[] {
   const edits: Edit[] = [];
   let x = a.length;
   let y = b.length;
 
   for (let d = trace.length - 1; d >= 0; d -= 1) {
-    const v = trace[d]!;
-    const offset = v.length >> 1;
+    // Compact frontiers omit the d=0 sentinel at k=1; remaining work is equals only.
+    if (d === 0) {
+      while (x > 0 && y > 0) {
+        edits.push({ type: "equal", left: x - 1, right: y - 1 });
+        x -= 1;
+        y -= 1;
+      }
+      break;
+    }
+
+    const frontier = trace[d]!;
     const k = x - y;
     let prevK: number;
-    if (k === -d || (k !== d && v[k - 1 + offset]! < v[k + 1 + offset]!)) {
+    if (k === -d || (k !== d && frontier[k - 1 + d]! < frontier[k + 1 + d]!)) {
       prevK = k + 1;
     } else {
       prevK = k - 1;
     }
-    const prevX = v[prevK + offset]!;
+    const prevX = frontier[prevK + d]!;
     const prevY = prevX - prevK;
 
     while (x > prevX && y > prevY) {
@@ -168,8 +194,6 @@ function backtrack(trace: number[][], a: string[], b: string[]): Edit[] {
       x -= 1;
       y -= 1;
     }
-
-    if (d === 0) break;
 
     if (x === prevX) {
       edits.push({ type: "insert", right: y - 1 });

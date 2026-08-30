@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowsLeftRight, CopySimple, Eraser } from "@phosphor-icons/react";
+import React, { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { ArrowsLeftRightIcon, CopySimpleIcon, EraserIcon } from "@phosphor-icons/react";
 import {
   ActionGroup,
   Button,
@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils.js";
 import { useToolMessages } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
 import { mountTool } from "@/runtime/mount-tool.js";
-import { diffLines } from "./diff.js";
+import { diffLines, type DiffRow } from "./diff.js";
 import { messages } from "./messages.js";
 
 const LINE_HEIGHT_PX = 20;
@@ -25,7 +25,7 @@ const DEFAULT_LEFT_RATIO = 0.5;
 const MIN_LEFT_RATIO = 0.24;
 const MAX_LEFT_RATIO = 0.76;
 
-function clampLeftRatio(value: any) {
+function clampLeftRatio(value: number) {
   return Math.min(MAX_LEFT_RATIO, Math.max(MIN_LEFT_RATIO, value));
 }
 
@@ -39,10 +39,10 @@ function readLeftRatio() {
   return DEFAULT_LEFT_RATIO;
 }
 
-function HorizontalSplit({ left, right, label }: Record<string, any>) {
-  const containerRef = useRef<any>(null);
+function HorizontalSplit({ left, right, label }: { left: ReactNode; right: ReactNode; label: string }) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const [leftRatio, setLeftRatio] = useState(readLeftRatio);
-  const dragRef = useRef<any>(null);
+  const dragRef = useRef<{ left: number; width: number } | null>(null);
 
   useEffect(() => {
     try {
@@ -52,7 +52,7 @@ function HorizontalSplit({ left, right, label }: Record<string, any>) {
     }
   }, [leftRatio]);
 
-  function endDrag(event: any) {
+  function endDrag(event: React.PointerEvent<HTMLDivElement>) {
     if (!dragRef.current) return;
     dragRef.current = null;
     document.body.style.removeProperty("cursor");
@@ -116,15 +116,31 @@ function HorizontalSplit({ left, right, label }: Record<string, any>) {
   );
 }
 
-function lineToneClass(type: any, side: any) {
+function lineToneClass(type: DiffRow["type"] | undefined, side: "left" | "right") {
   if (type === "delete" && side === "left") return "diff-row-delete";
   if (type === "insert" && side === "right") return "diff-row-insert";
   return "diff-row-equal";
 }
 
-function DiffSidePane({ title, value, onChange, side, lineTypes, placeholder, copyLabel }: Record<string, any>) {
-  const backdropRef = useRef<any>(null);
-  const textareaRef = useRef<any>(null);
+function DiffSidePane({
+  title,
+  value,
+  onChange,
+  side,
+  lineTypes,
+  placeholder,
+  copyLabel,
+}: {
+  title: string;
+  value: string;
+  onChange: (value: string) => void;
+  side: "left" | "right";
+  lineTypes: Map<number, DiffRow["type"]>;
+  placeholder: string;
+  copyLabel: string;
+}) {
+  const backdropRef = useRef<HTMLDivElement | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const lines = value.length ? value.split("\n") : [""];
 
   const syncScroll = () => {
@@ -149,7 +165,7 @@ function DiffSidePane({ title, value, onChange, side, lineTypes, placeholder, co
           className="size-7"
           onClick={() => machkit.copy(value)}
         >
-          <CopySimple size={14} />
+          <CopySimpleIcon size={14} />
         </IconButton>
       )}
     >
@@ -160,7 +176,7 @@ function DiffSidePane({ title, value, onChange, side, lineTypes, placeholder, co
           className="pointer-events-none absolute inset-0 overflow-hidden font-mono text-[12px]"
           style={{ lineHeight: `${LINE_HEIGHT_PX}px` }}
         >
-          {lines.map((line: any, index: any) => {
+          {lines.map((line, index) => {
             const lineNo = index + 1;
             return (
               <div
@@ -179,7 +195,7 @@ function DiffSidePane({ title, value, onChange, side, lineTypes, placeholder, co
           <textarea
             ref={textareaRef}
             value={value}
-            onChange={(event: any) => onChange(event.target.value)}
+            onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => onChange(event.target.value)}
             onScroll={syncScroll}
             placeholder={placeholder}
             spellCheck={false}
@@ -197,14 +213,17 @@ function TextDiff() {
   const [left, setLeft] = useState('{\n  "name": "machkit",\n  "version": 1\n}\n');
   const [right, setRight] = useState('{\n  "name": "machkit",\n  "version": 2,\n  "stable": true\n}\n');
   const [ignoreWhitespace, setIgnoreWhitespace] = useState(false);
+  const [result, setResult] = useState(() => diffLines(left, right, { ignoreWhitespace }));
 
-  const result = useMemo(
-    () => diffLines(left, right, { ignoreWhitespace }),
-    [left, right, ignoreWhitespace],
-  );
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setResult(diffLines(left, right, { ignoreWhitespace }));
+    }, 180);
+    return () => window.clearTimeout(timer);
+  }, [left, right, ignoreWhitespace]);
 
   const leftLineTypes = useMemo(() => {
-    const map = new Map();
+    const map = new Map<number, DiffRow["type"]>();
     if (!result.ok) return map;
     for (const row of result.rows) {
       if (row.leftLine == null) continue;
@@ -214,7 +233,7 @@ function TextDiff() {
   }, [result]);
 
   const rightLineTypes = useMemo(() => {
-    const map = new Map();
+    const map = new Map<number, DiffRow["type"]>();
     if (!result.ok) return map;
     for (const row of result.rows) {
       if (row.rightLine == null) continue;
@@ -228,7 +247,12 @@ function TextDiff() {
     : !result.ok
       ? {
           tone: "danger",
-          label: result.error === "too-many-lines" ? text.tooManyLines : text.tooLarge,
+          label:
+            result.error === "too-many-lines"
+              ? text.tooManyLines
+              : result.error === "too-complex"
+                ? text.tooComplex
+                : text.tooLarge,
         }
       : result.stats.added === 0 && result.stats.removed === 0
         ? { tone: "info", label: text.identical }
@@ -255,7 +279,7 @@ function TextDiff() {
                 setRight(left);
               }}
             >
-              <ArrowsLeftRight size={15} />
+              <ArrowsLeftRightIcon size={15} />
               {text.swap}
             </Button>
             <Button
@@ -266,7 +290,7 @@ function TextDiff() {
                 setRight("");
               }}
             >
-              <Eraser size={15} />
+              <EraserIcon size={15} />
               {text.clear}
             </Button>
           </ActionGroup>

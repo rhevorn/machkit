@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { DownloadSimple, Image as ImageIcon } from "@phosphor-icons/react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from "react";
+import { DownloadSimpleIcon, ImageIcon } from "@phosphor-icons/react";
 import {
   Button,
   ColorPicker,
@@ -28,33 +28,40 @@ import {
   normalizeHexColor,
   qrStyles,
   resolveSize,
+  type DotShape,
+  type ErrorLevel,
+  type EyeShape,
+  type GenerateQRResult,
+  type StyleId,
 } from "./qr.js";
 import { messages } from "./messages.js";
+
+type ToolText = (typeof messages)["en"];
 
 const STYLE_LABEL_KEYS = {
   classic: "styleClassic",
   rounded: "styleRounded",
   dots: "styleDots",
   inverted: "styleInverted",
-};
+} as const satisfies Record<StyleId, keyof ToolText>;
 
 const DOT_LABEL_KEYS = {
   square: "shapeSquare",
   rounded: "shapeRounded",
   circle: "shapeCircle",
-};
+} as const satisfies Record<DotShape, keyof ToolText>;
 
 const EYE_LABEL_KEYS = {
   square: "shapeSquare",
   rounded: "shapeRounded",
   circle: "shapeCircle",
-};
+} as const satisfies Record<EyeShape, keyof ToolText>;
 
 /** CSS display size; bitmap is generated at 2× for Retina sharpness. */
 const PREVIEW_SIDE = 200;
 const PREVIEW_BITMAP = PREVIEW_SIDE * 2;
 
-async function saveDataURL(dataURL: any, filename: any) {
+async function saveDataURL(dataURL: string, filename: string) {
   const comma = String(dataURL || "").indexOf(",");
   const dataBase64 = comma >= 0 ? dataURL.slice(comma + 1) : "";
   if (!dataBase64) return false;
@@ -66,7 +73,7 @@ async function saveDataURL(dataURL: any, filename: any) {
   return Boolean(saved);
 }
 
-function ColorField({ label, value, onChange }: Record<string, any>) {
+function ColorField({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
   const hex = normalizeHexColor(value, "#000000");
   const [draft, setDraft] = useState(hex);
 
@@ -82,7 +89,7 @@ function ColorField({ label, value, onChange }: Record<string, any>) {
         <Input
           className="min-w-0 flex-1 font-mono text-[13px] uppercase"
           value={draft}
-          onChange={(event: any) => {
+          onChange={(event: ChangeEvent<HTMLInputElement>) => {
             const next = event.target.value;
             setDraft(next);
             if (/^#?[0-9a-fA-F]{6}$/.test(next.trim())) {
@@ -102,11 +109,11 @@ function ColorField({ label, value, onChange }: Record<string, any>) {
   );
 }
 
-function OptionRow({ children }: Record<string, any>) {
+function OptionRow({ children }: { children: ReactNode }) {
   return <div className="grid grid-cols-2 gap-2.5 [&>*]:min-w-0">{children}</div>;
 }
 
-function ControlField({ label, children }: Record<string, any>) {
+function ControlField({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex min-w-0 flex-col gap-1">
       <span className="machkit-control-label">{label}</span>
@@ -116,31 +123,31 @@ function ControlField({ label, children }: Record<string, any>) {
 }
 
 function QrCodeTool() {
-  const text = useToolMessages(messages) as any;
-  const logoInputRef = useRef<any>(null);
+  const text = useToolMessages(messages);
+  const logoInputRef = useRef<HTMLInputElement>(null);
   const [content, setContent] = useState("https://machkit.app");
   const [sizeText, setSizeText] = useState(String(defaultSize));
-  const [styleId, setStyleId] = useState(qrStyles[0].id);
-  const [dark, setDark] = useState(qrStyles[0].dark);
-  const [light, setLight] = useState(qrStyles[0].light);
-  const [dotShape, setDotShape] = useState(qrStyles[0].dotShape);
-  const [eyeShape, setEyeShape] = useState(qrStyles[0].eyeShape);
-  const [eyeDark, setEyeDark] = useState(qrStyles[0].dark);
+  const [styleId, setStyleId] = useState<StyleId>(qrStyles[0].id);
+  const [dark, setDark] = useState<string>(qrStyles[0].dark);
+  const [light, setLight] = useState<string>(qrStyles[0].light);
+  const [dotShape, setDotShape] = useState<DotShape>(qrStyles[0].dotShape);
+  const [eyeShape, setEyeShape] = useState<EyeShape>(qrStyles[0].eyeShape);
+  const [eyeDark, setEyeDark] = useState<string>(qrStyles[0].dark);
   const [margin, setMargin] = useState(defaultMargin);
-  const [errorLevel, setErrorLevel] = useState("M");
+  const [errorLevel, setErrorLevel] = useState<ErrorLevel>("M");
   const [logoDataURL, setLogoDataURL] = useState("");
-  const [result, setResult] = useState<any>({ ok: false, error: "empty" });
+  const [result, setResult] = useState<GenerateQRResult>({ ok: false, error: "empty" });
   const [busy, setBusy] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
   const size = useMemo(() => resolveSize(sizeText), [sizeText]);
-  const level = logoDataURL ? "H" : errorLevel;
+  const level: ErrorLevel = logoDataURL ? "H" : errorLevel;
   const levelIndex = Math.max(0, errorLevels.indexOf(level));
   const levelMarks = useMemo(
     () =>
-      errorLevels.map((item: any, index: any) => ({
+      errorLevels.map((item, index) => ({
         value: index,
-        label: (errorLevelPercents as any)[item],
+        label: errorLevelPercents[item],
       })),
     [],
   );
@@ -161,31 +168,31 @@ function QrCodeTool() {
 
   const styleOptions = useMemo(
     () =>
-      qrStyles.map((item: any) => ({
+      qrStyles.map((item) => ({
         value: item.id,
-        label: text[(STYLE_LABEL_KEYS as any)[item.id]] || item.id,
+        label: text[STYLE_LABEL_KEYS[item.id]] || item.id,
       })),
     [text],
   );
   const dotOptions = useMemo(
     () =>
-      dotShapes.map((value: any) => ({
+      dotShapes.map((value) => ({
         value,
-        label: text[(DOT_LABEL_KEYS as any)[value]] || value,
+        label: text[DOT_LABEL_KEYS[value]] || value,
       })),
     [text],
   );
   const eyeOptions = useMemo(
     () =>
-      eyeShapes.map((value: any) => ({
+      eyeShapes.map((value) => ({
         value,
-        label: text[(EYE_LABEL_KEYS as any)[value]] || value,
+        label: text[EYE_LABEL_KEYS[value]] || value,
       })),
     [text],
   );
   const marginOptions = useMemo(
     () =>
-      margins.map((value: any) => ({
+      margins.map((value) => ({
         value: String(value),
         label: text.marginModules.replace("{n}", String(value)),
       })),
@@ -211,13 +218,13 @@ function QrCodeTool() {
   const trimmed = content.trim();
   const status: { tone: InlineMessageTone; label: string } | null = !trimmed
     ? null
-    : result.error === "too-large"
+    : !result.ok && result.error === "too-large"
       ? { tone: "danger", label: text.tooLarge }
-      : result.error === "logo-failed" || (!busy && !result.ok)
+      : (!result.ok && result.error === "logo-failed") || (!busy && !result.ok)
         ? { tone: "danger", label: text.failed }
         : null;
 
-  function applyStyle(id: any) {
+  function applyStyle(id: string) {
     const preset = qrStyles.find((item) => item.id === id) || qrStyles[0];
     setStyleId(preset.id);
     setDark(preset.dark);
@@ -227,7 +234,7 @@ function QrCodeTool() {
     setEyeDark(preset.dark);
   }
 
-  function onLogoFile(file: any) {
+  function onLogoFile(file: File | undefined) {
     if (!file) return;
     const type = String(file.type || "");
     const name = String(file.name || "");
@@ -281,7 +288,7 @@ function QrCodeTool() {
             id="qr-content"
             className="w-full font-mono text-[13px]"
             value={content}
-            onChange={(event: any) => setContent(event.target.value)}
+            onChange={(event: ChangeEvent<HTMLInputElement>) => setContent(event.target.value)}
             placeholder={text.placeholder}
             spellCheck={false}
           />
@@ -318,8 +325,8 @@ function QrCodeTool() {
                   accept="image/png,image/jpeg,image/webp,image/svg+xml,.png,.jpg,.jpeg,.webp,.svg"
                   className="hidden"
                   onClick={(event) => event.stopPropagation()}
-                  onChange={(event: any) => {
-                    onLogoFile(event.target.files?.[0]);
+                  onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                    onLogoFile(event.target.files?.[0] ?? undefined);
                     event.target.value = "";
                   }}
                 />
@@ -339,7 +346,7 @@ function QrCodeTool() {
               <ControlField label={text.dotShape}>
                 <SelectControl
                   value={dotShape}
-                  onChange={setDotShape}
+                  onChange={(value) => setDotShape(resolveDotShapeFromSelect(value))}
                   label={text.dotShape}
                   options={dotOptions}
                   className="w-full"
@@ -348,7 +355,7 @@ function QrCodeTool() {
               <ControlField label={text.eyeShape}>
                 <SelectControl
                   value={eyeShape}
-                  onChange={setEyeShape}
+                  onChange={(value) => setEyeShape(resolveEyeShapeFromSelect(value))}
                   label={text.eyeShape}
                   options={eyeOptions}
                   className="w-full"
@@ -363,7 +370,7 @@ function QrCodeTool() {
                     className="min-w-0 flex-1 text-center font-mono text-[13px]"
                     inputMode="numeric"
                     value={sizeText}
-                    onChange={(event: any) => setSizeText(event.target.value.replace(/[^\d]/g, ""))}
+                    onChange={(event: ChangeEvent<HTMLInputElement>) => setSizeText(event.target.value.replace(/[^\d]/g, ""))}
                     onBlur={commitSize}
                     onKeyDown={(event) => {
                       if (event.key === "Enter") event.currentTarget.blur();
@@ -388,13 +395,13 @@ function QrCodeTool() {
             <Slider
               label={text.errorLevel}
               value={levelIndex}
-              displayValue={`${level} · ${(errorLevelPercents as any)[level]}`}
+              displayValue={`${level} · ${errorLevelPercents[level]}`}
               min={0}
               max={errorLevels.length - 1}
               step={1}
               marks={levelMarks}
               disabled={Boolean(logoDataURL)}
-              onChange={(index) => setErrorLevel(errorLevels[index] || "M")}
+              onChange={(index) => setErrorLevel(errorLevels[index] ?? "M")}
               className={logoDataURL ? "opacity-60" : undefined}
             />
           </div>
@@ -430,7 +437,7 @@ function QrCodeTool() {
               disabled={!result.ok || downloading}
               onClick={downloadPng}
             >
-              <DownloadSimple size={15} />
+              <DownloadSimpleIcon size={15} />
               {downloading ? "…" : text.download}
             </Button>
           </div>
@@ -438,6 +445,21 @@ function QrCodeTool() {
       </ToolContent>
     </ToolPage>
   );
+}
+
+
+function resolveDotShapeFromSelect(value: string): DotShape {
+  for (const shape of dotShapes) {
+    if (shape === value) return shape;
+  }
+  return "square";
+}
+
+function resolveEyeShapeFromSelect(value: string): EyeShape {
+  for (const shape of eyeShapes) {
+    if (shape === value) return shape;
+  }
+  return "square";
 }
 
 mountTool(<QrCodeTool />, { name: "QR Code" });

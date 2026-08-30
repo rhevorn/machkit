@@ -1,5 +1,5 @@
 import React from "react";
-import { CaretLeft, CaretRight } from "@phosphor-icons/react";
+import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
 import { DayPicker, type DayButtonProps, type DayPickerProps } from "react-day-picker";
 import { cn } from "@/lib/utils.js";
 
@@ -56,7 +56,7 @@ export function Calendar({ className, classNames, showOutsideDays = true, ...pro
       }}
       components={{
         Chevron: ({ orientation, ...chevronProps }) => {
-          const Icon = orientation === "left" ? CaretLeft : CaretRight;
+          const Icon = orientation === "left" ? CaretLeftIcon : CaretRightIcon;
           return <Icon size={14} weight="bold" {...chevronProps} />;
         },
         DayButton: CalendarDayButton,

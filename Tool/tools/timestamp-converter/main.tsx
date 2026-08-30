@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { ArrowsLeftRight, CopySimple, Minus, Pause, Play, Plus, Trash } from "@phosphor-icons/react";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowsLeftRightIcon, CopySimpleIcon, MinusIcon, PauseIcon, PlayIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useLocale, useToolMessages } from "../../src/i18n.js";
 import {
   ActionGroup,
@@ -107,7 +107,7 @@ function FormatRow({
           title={copyLabel}
           onClick={() => machkit.copy(value)}
         >
-          <CopySimple size={15} />
+          <CopySimpleIcon size={15} />
         </Button>
       ) : null}
     </div>
@@ -190,7 +190,7 @@ function AmountStepper({
         aria-label={subtractLabel}
         onClick={() => onNudge(-1)}
       >
-        <Minus size={14} weight="bold" />
+        <MinusIcon size={14} weight="bold" />
       </Button>
       <Input
         id={id}
@@ -207,7 +207,7 @@ function AmountStepper({
         aria-label={addLabel}
         onClick={() => onNudge(1)}
       >
-        <Plus size={14} weight="bold" />
+        <PlusIcon size={14} weight="bold" />
       </Button>
     </div>
   );
@@ -363,7 +363,7 @@ function TimestampTool() {
                     title={paused ? text.resume : text.pause}
                     onClick={() => setPaused((value) => !value)}
                   >
-                    {paused ? <Play size={14} weight="fill" /> : <Pause size={14} weight="fill" />}
+                    {paused ? <PlayIcon size={14} weight="fill" /> : <PauseIcon size={14} weight="fill" />}
                   </Button>
                   <Button
                     variant="ghost"
@@ -373,7 +373,7 @@ function TimestampTool() {
                     title={text.copy}
                     onClick={() => machkit.copy(currentTimestamp)}
                   >
-                    <CopySimple size={14} />
+                    <CopySimpleIcon size={14} />
                   </Button>
                 </ActionGroup>
               </div>
@@ -396,7 +396,7 @@ function TimestampTool() {
                 </Field>
 
                 <div className="mb-2 flex h-[var(--machkit-size-control)] shrink-0 items-center px-1 text-accent" aria-hidden>
-                  <ArrowsLeftRight size={18} weight="bold" />
+                  <ArrowsLeftRightIcon size={18} weight="bold" />
                 </div>
 
                 <Field label={`${text.timestamp} · ${unitLabel}`} htmlFor="timestamp-input" className="w-[168px] shrink-0">
@@ -472,7 +472,7 @@ function TimestampTool() {
                   className="ml-auto h-7 px-2"
                   onClick={() => setCalcSteps((steps) => [...steps, createCalcStep()])}
                 >
-                  <Plus size={14} weight="bold" />
+                  <PlusIcon size={14} weight="bold" />
                   {text.addStep}
                 </Button>
               </div>
@@ -515,7 +515,7 @@ function TimestampTool() {
                       disabled={calcSteps.length <= 1}
                       onClick={() => removeCalcStep(step.id)}
                     >
-                      <Trash size={14} />
+                      <TrashIcon size={14} />
                     </Button>
                   </div>
                 ))}

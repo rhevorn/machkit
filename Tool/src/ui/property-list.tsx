@@ -1,5 +1,5 @@
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
-import { CopySimple } from "@phosphor-icons/react";
+import { CopySimpleIcon } from "@phosphor-icons/react";
 import { Button } from "./button.js";
 import { cn } from "@/lib/utils.js";
 import { machkit } from "@/runtime/machkit.js";
@@ -62,7 +62,7 @@ export function PropertyRow({
           title={`${copyLabel}: ${String(label)}`}
           onClick={() => machkit.copy(display)}
         >
-          <CopySimple size={15} />
+          <CopySimpleIcon size={15} />
         </Button>
       ) : null}
     </div>

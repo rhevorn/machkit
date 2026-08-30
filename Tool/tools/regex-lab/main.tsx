@@ -1,5 +1,5 @@
-import React, { useMemo, useState, type MouseEventHandler, type ReactNode } from "react";
-import { CopySimple, Eraser } from "@phosphor-icons/react";
+import { useEffect, useMemo, useState, type MouseEventHandler, type ReactNode } from "react";
+import { CopySimpleIcon, EraserIcon } from "@phosphor-icons/react";
 import {
   ActionGroup,
   Button,
@@ -23,6 +23,9 @@ import {
   normalizeFlags,
   regexPresets,
   replaceMatches,
+  type FindMatchesResult,
+  type HighlightSegment,
+  type ReplaceMatchesResult,
 } from "./regex.js";
 import { messages } from "./messages.js";
 
@@ -44,6 +47,8 @@ const PRESET_LABELS = {
   numbers: "presetNumbers",
   quoted: "presetQuoted",
 } as const;
+
+const EVAL_DEBOUNCE_MS = 150;
 
 function toggleFlag(flags: string, key: string, enabled: boolean) {
   const set = new Set(normalizeFlags(flags));
@@ -91,19 +96,27 @@ function RegexLab() {
   const [flags, setFlags] = useState("gi");
   const [input, setInput] = useState("hello@example.com\nteam@machkit.app\nnot-an-email");
   const [replacement, setReplacement] = useState("$1 at $2");
+  const [matchResult, setMatchResult] = useState<FindMatchesResult>(() =>
+    findMatches(pattern, flags, input),
+  );
+  const [replaceResult, setReplaceResult] = useState<ReplaceMatchesResult>(() =>
+    replaceMatches(pattern, flags, input, replacement),
+  );
 
-  const matchResult = useMemo(
-    () => findMatches(pattern, flags, input),
-    [pattern, flags, input],
-  );
-  const replaceResult = useMemo(
-    () => replaceMatches(pattern, flags, input, replacement),
-    [pattern, flags, input, replacement],
-  );
-  const segments = useMemo(
-    () => (matchResult.ok ? highlightSegments(input, matchResult.matches) : [{ type: "text", value: input }]),
-    [input, matchResult],
-  );
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setMatchResult(findMatches(pattern, flags, input));
+      setReplaceResult(replaceMatches(pattern, flags, input, replacement));
+    }, EVAL_DEBOUNCE_MS);
+    return () => window.clearTimeout(timer);
+  }, [pattern, flags, input, replacement]);
+
+  const segments = useMemo((): HighlightSegment[] => {
+    if (!matchResult.ok && matchResult.error !== "budget-exceeded") {
+      return [{ type: "text", value: input }];
+    }
+    return highlightSegments(input, matchResult.matches);
+  }, [input, matchResult]);
 
   const applyPreset = (preset: (typeof regexPresets)[number]) => {
     setPattern(preset.pattern);
@@ -111,20 +124,22 @@ function RegexLab() {
     setReplacement(preset.replacement ?? "");
   };
 
-  const patternInvalid = Boolean(pattern) && !matchResult.ok;
+  const patternInvalid = Boolean(pattern) && !matchResult.ok && matchResult.error !== "budget-exceeded";
   const statusLabel = !pattern
     ? text.emptyPattern
-    : !matchResult.ok
-      ? matchResult.error === "input-too-large"
-        ? text.tooLarge
-        : matchResult.error === "empty-pattern"
-          ? text.emptyPattern
-          : `${text.invalid}: ${matchResult.error}`
-      : !input
-        ? text.emptyInput
-        : matchResult.matches.length
-          ? `${matchResult.matches.length} ${text.matchCount}${matchResult.truncated ? ` · ${text.truncated}` : ""}`
-          : text.noMatches;
+    : matchResult.error === "budget-exceeded"
+      ? text.budgetExceeded
+      : !matchResult.ok
+        ? matchResult.error === "input-too-large"
+          ? text.tooLarge
+          : matchResult.error === "empty-pattern"
+            ? text.emptyPattern
+            : `${text.invalid}: ${matchResult.error}`
+        : !input
+          ? text.emptyInput
+          : matchResult.matches.length
+            ? `${matchResult.matches.length} ${text.matchCount}${matchResult.truncated ? ` · ${text.truncated}` : ""}`
+            : text.noMatches;
 
   return (
     <ToolPage title={text.title}>
@@ -152,7 +167,7 @@ function RegexLab() {
                 setReplacement("");
               }}
             >
-              <Eraser size={15} />
+              <EraserIcon size={15} />
               {text.clear}
             </Button>
           </ActionGroup>
@@ -236,7 +251,7 @@ function RegexLab() {
                 title={text.copy}
                 onClick={() => machkit.copy(replaceResult.value)}
               >
-                <CopySimple size={15} />
+                <CopySimpleIcon size={15} />
                 <span className="max-[520px]:hidden">{text.copy}</span>
               </Button>
             </div>
@@ -263,7 +278,7 @@ function RegexLab() {
                 bodyClassName="h-full overflow-auto px-3 py-2.5 font-mono text-[12px] leading-5 whitespace-pre-wrap break-words"
               >
                 {input ? (
-                  segments.map((segment: any, index: any) =>
+                  segments.map((segment, index) =>
                     segment.type === "match" ? (
                       <mark
                         key={`${segment.matchIndex}-${index}`}
@@ -299,7 +314,7 @@ function RegexLab() {
             <ResultPanel className="max-h-[180px] overflow-auto bg-surface">
               {matchResult.ok && matchResult.matches.length ? (
                 <ul>
-                  {matchResult.matches.map((match: any, index: any) => (
+                  {matchResult.matches.map((match, index) => (
                     <li
                       key={`${match.index}-${index}`}
                       className="flex min-w-0 items-baseline gap-2 border-b border-border/60 px-3.5 py-2 last:border-b-0"
@@ -311,7 +326,7 @@ function RegexLab() {
                         <div className="truncate text-accent">{match.text}</div>
                         <div className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 text-[11px] text-secondary">
                           <span className="text-tertiary">@{match.index}</span>
-                          {match.groups.map((group: any) => (
+                          {match.groups.map((group) => (
                             <span key={group.index}>
                               ${group.index}={JSON.stringify(group.value)}
                             </span>
@@ -331,7 +346,7 @@ function RegexLab() {
                         title={text.copy}
                         onClick={() => machkit.copy(match.text)}
                       >
-                        <CopySimple size={14} />
+                        <CopySimpleIcon size={14} />
                       </Button>
                     </li>
                   ))}
