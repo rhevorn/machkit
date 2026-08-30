@@ -157,6 +157,9 @@ private struct BundledWebView: NSViewRepresentable {
         private let entryFile: String
         private let capabilities: Set<DeveloperToolCapability>
         private var isUsingDevelopmentServer = false
+        /// Set after the Vite page finishes loading. Failures after that must not
+        /// fall back to bundled assets — that permanently kills HMR for the session.
+        private var didLoadDevelopmentPage = false
         private let hostsBridge = HostsWebBridge.shared
         private let portScanBridge = PortScanWebBridge.shared
         private let curlLabBridge = CurlLabWebBridge.shared
@@ -218,7 +221,7 @@ private struct BundledWebView: NSViewRepresentable {
                 )
                 return await withCheckedContinuation { continuation in
                     WKContentRuleListStore.default().compileContentRuleList(
-                        forIdentifier: "machkit.webview.local-only.v1",
+                        forIdentifier: "machkit.webview.local-only.v2",
                         encodedContentRuleList: rules
                     ) { list, _ in
                         continuation.resume(returning: list)
@@ -267,6 +270,7 @@ private struct BundledWebView: NSViewRepresentable {
                 : entryFile
             if let url = URL(string: "http://127.0.0.1:4174/\(developmentPath)") {
                 isUsingDevelopmentServer = true
+                didLoadDevelopmentPage = false
                 webView.load(URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData))
                 return
             }
@@ -276,6 +280,7 @@ private struct BundledWebView: NSViewRepresentable {
 
         private func loadBundledPage(in webView: WKWebView) {
             isUsingDevelopmentServer = false
+            didLoadDevelopmentPage = false
             guard let resourceRoot = allowedRoot else {
                 showMissingPage(in: webView)
                 return
@@ -604,11 +609,17 @@ private struct BundledWebView: NSViewRepresentable {
             didFailProvisionalNavigation navigation: WKNavigation?,
             withError error: any Error
         ) {
-            guard isUsingDevelopmentServer else { return }
+            // Only fall back when the first Vite load fails (server down). After a
+            // successful load, HMR full-reloads can briefly fail; switching to the
+            // bundled copy would freeze the tool on stale assets for the rest of the session.
+            guard isUsingDevelopmentServer, !didLoadDevelopmentPage else { return }
             loadBundledPage(in: webView)
         }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            if isUsingDevelopmentServer {
+                didLoadDevelopmentPage = true
+            }
             BundledWebView.disableElasticScrolling(in: webView)
         }
 

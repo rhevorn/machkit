@@ -390,7 +390,7 @@
     background: transparent;
   }
   .json-code-editor .json-cm-key {
-    color: #a16207;
+    color: #7c3aed;
   }
   .json-code-editor .cm-foldGutter .cm-gutterElement { color: var(--tertiary); }
   /* Only the editor host — not floating chrome like the copy button. */
@@ -430,15 +430,15 @@
   .diff-row-blank { background: color-mix(in srgb, var(--secondary) 6%, transparent); }
 
   /*
-   * JSON syntax — VS Code Dark+/Light+ defaults.
-   * Keep in sync with Tool/src/ui/codemirror-theme.js.
+   * JSON syntax — dark: VS Code Dark+; light: high-contrast hues.
+   * Keep in sync with Tool/src/ui/codemirror-theme.ts.
    */
-  .json-highlight .json-token-key { color: #a16207; }
-  .json-highlight .json-token-string { color: #a31515; }
-  .json-highlight .json-token-number { color: #098658; }
+  .json-highlight .json-token-key { color: #7c3aed; }
+  .json-highlight .json-token-string { color: #c2410c; }
+  .json-highlight .json-token-number { color: #0f766e; }
   .json-highlight .json-token-bool,
-  .json-highlight .json-token-null { color: #0000ff; }
-  .json-highlight .json-token-punct { color: #000000; }
+  .json-highlight .json-token-null { color: #1d4ed8; }
+  .json-highlight .json-token-punct { color: #64748b; }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -457,12 +457,12 @@
 :root[data-appearance="dark"] .json-highlight .json-token-null { color: #569cd6; }
 :root[data-appearance="dark"] .json-highlight .json-token-punct { color: #d4d4d4; }
 
-:root[data-appearance="light"] .json-highlight .json-token-key { color: #a16207; }
-:root[data-appearance="light"] .json-highlight .json-token-string { color: #a31515; }
-:root[data-appearance="light"] .json-highlight .json-token-number { color: #098658; }
+:root[data-appearance="light"] .json-highlight .json-token-key { color: #7c3aed; }
+:root[data-appearance="light"] .json-highlight .json-token-string { color: #c2410c; }
+:root[data-appearance="light"] .json-highlight .json-token-number { color: #0f766e; }
 :root[data-appearance="light"] .json-highlight .json-token-bool,
-:root[data-appearance="light"] .json-highlight .json-token-null { color: #0000ff; }
-:root[data-appearance="light"] .json-highlight .json-token-punct { color: #000000; }
+:root[data-appearance="light"] .json-highlight .json-token-null { color: #1d4ed8; }
+:root[data-appearance="light"] .json-highlight .json-token-punct { color: #64748b; }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-appearance="light"]) .json-code-editor .json-cm-key {
@@ -475,7 +475,7 @@
 }
 
 :root[data-appearance="light"] .json-code-editor .json-cm-key {
-  color: #a16207;
+  color: #7c3aed;
 }
 
 @media (prefers-color-scheme: dark) {

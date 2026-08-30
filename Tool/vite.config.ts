@@ -42,5 +42,13 @@ export default defineConfig({
     host: "127.0.0.1",
     port: 4174,
     strictPort: true,
+    // Pin HMR to the same loopback origin WKWebView loads in Debug builds.
+    origin: "http://127.0.0.1:4174",
+    hmr: {
+      protocol: "ws",
+      host: "127.0.0.1",
+      port: 4174,
+      clientPort: 4174,
+    },
   },
 });

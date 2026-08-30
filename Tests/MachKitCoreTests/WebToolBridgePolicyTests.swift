@@ -86,7 +86,12 @@ import Testing
     let debugJSON = WebToolBridgePolicy.contentBlockerRulesJSON(allowDevelopmentServer: true)
     let debugData = try #require(debugJSON.data(using: .utf8))
     let debugRules = try #require(JSONSerialization.jsonObject(with: debugData) as? [[String: Any]])
-    #expect(debugRules.count == 2)
+    #expect(debugRules.count == 3)
+    let allowFilters = debugRules.dropFirst().compactMap { rule -> String? in
+        (rule["trigger"] as? [String: Any])?["url-filter"] as? String
+    }
+    #expect(allowFilters.contains("^http://127\\.0\\.0\\.1:4174/"))
+    #expect(allowFilters.contains("^ws://127\\.0\\.0\\.1:4174/"))
 }
 
 @Test func webToolBootstrapScriptSanitizesPreferencesWithoutBlockingNativeInteraction() {

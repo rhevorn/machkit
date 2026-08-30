@@ -337,7 +337,7 @@ extension ContentView {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     HStack(alignment: .center, spacing: 10) {
-                        TextField("example.com or 1.1.1.1", text: $routeQuery)
+                        TextField("example.com or 1.1.1.1".localized, text: $routeQuery)
                             .textFieldStyle(.roundedBorder)
                             .font(.system(size: 13))
                             .disabled(model.isLookingUpRoute)
@@ -347,7 +347,7 @@ extension ContentView {
                             ProgressView()
                                 .controlSize(.small)
                         }
-                        Button("Check Route") { model.lookupNetworkRoute(routeQuery) }
+                        Button("Check Route".localized) { model.lookupNetworkRoute(routeQuery) }
                             .buttonStyle(.borderedProminent)
                             .controlSize(.regular)
                             .disabled(routeQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.isLookingUpRoute)
@@ -369,7 +369,8 @@ extension ContentView {
                             Text(route.errorMessage ?? "\(route.query) → \(route.destination)")
                                 .font(.system(size: 12, weight: .semibold)).textSelection(.enabled)
                             if let gateway = route.gateway {
-                                Text("Gateway \(gateway)").font(.caption.monospaced()).foregroundStyle(.secondary)
+                                Text(L10n.format("Gateway %@", gateway))
+                                    .font(.caption.monospaced()).foregroundStyle(.secondary)
                             }
                         }
                         Spacer()

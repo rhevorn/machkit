@@ -67,7 +67,7 @@ public enum WebToolBridgePolicy: Sendable {
             && url.path == "/\(developmentPath)"
     }
 
-    /// Safari content-blocker JSON: block all http(s), optionally allow local Vite.
+    /// Safari content-blocker JSON: block all http(s), optionally allow local Vite (+ HMR).
     public static func contentBlockerRulesJSON(allowDevelopmentServer: Bool) -> String {
         var rules: [[String: Any]] = [
             [
@@ -76,12 +76,16 @@ public enum WebToolBridgePolicy: Sendable {
             ]
         ]
         if allowDevelopmentServer {
-            rules.append([
-                "trigger": [
-                    "url-filter": "^http://127\\.0\\.0\\.1:4174/"
-                ],
-                "action": ["type": "ignore-previous-rules"]
-            ])
+            // HTTP page/modules and the Vite HMR WebSocket share this loopback origin.
+            for pattern in [
+                "^http://127\\.0\\.0\\.1:4174/",
+                "^ws://127\\.0\\.0\\.1:4174/"
+            ] {
+                rules.append([
+                    "trigger": ["url-filter": pattern],
+                    "action": ["type": "ignore-previous-rules"]
+                ])
+            }
         }
         guard JSONSerialization.isValidJSONObject(rules),
               let data = try? JSONSerialization.data(withJSONObject: rules, options: [.sortedKeys]),

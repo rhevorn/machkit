@@ -14321,6 +14321,7 @@
       }
     },
     "Check Route" : {
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -14498,6 +14499,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "請到系統設定確認"
+          }
+        }
+      }
+    },
+    "Check which interface macOS will use for a host or IP address" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prüfen, welche Schnittstelle macOS für Host oder IP nutzt"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comprueba qué interfaz usará macOS para un host o IP"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vérifiez quelle interface macOS utilisera pour un hôte ou une IP"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ホストまたは IP に使うインターフェースを確認"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "호스트 또는 IP에 사용할 인터페이스 확인"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Veja qual interface o macOS usará para um host ou IP"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Какой интерфейс macOS использует для хоста или IP"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看 macOS 会通过哪个接口访问主机或 IP"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看 macOS 會透過哪個介面存取主機或 IP"
           }
         }
       }
@@ -25269,6 +25329,7 @@
       }
     },
     "example.com or 1.1.1.1" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -28448,6 +28509,7 @@
       }
     },
     "Gateway %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {

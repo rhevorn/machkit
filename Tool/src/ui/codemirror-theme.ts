@@ -25,19 +25,20 @@ export function useEditorDark() {
   return preferences.appearance === "dark" || (preferences.appearance !== "light" && systemDark);
 }
 
+/** Light JSON: distinct hues (violet / orange / teal / blue) — keep in sync with ui.css `.json-highlight`. */
 const lightHighlight = HighlightStyle.define([
-  { tag: t.propertyName, color: "#a16207", class: "json-cm-key" },
-  { tag: t.string, color: "#a31515" },
-  { tag: t.number, color: "#098658" },
-  { tag: t.bool, color: "#0000ff" },
-  { tag: t.null, color: "#0000ff" },
-  { tag: t.keyword, color: "#0000ff" },
-  { tag: t.punctuation, color: "#000000" },
-  { tag: t.bracket, color: "#000000" },
-  { tag: t.squareBracket, color: "#000000" },
-  { tag: t.brace, color: "#000000" },
-  { tag: t.separator, color: "#000000" },
-  { tag: t.invalid, color: "#cd3131" },
+  { tag: t.propertyName, color: "#7c3aed", class: "json-cm-key" },
+  { tag: t.string, color: "#c2410c" },
+  { tag: t.number, color: "#0f766e" },
+  { tag: t.bool, color: "#1d4ed8" },
+  { tag: t.null, color: "#1d4ed8" },
+  { tag: t.keyword, color: "#1d4ed8" },
+  { tag: t.punctuation, color: "#64748b" },
+  { tag: t.bracket, color: "#64748b" },
+  { tag: t.squareBracket, color: "#64748b" },
+  { tag: t.brace, color: "#64748b" },
+  { tag: t.separator, color: "#64748b" },
+  { tag: t.invalid, color: "#dc2626" },
 ]);
 
 const darkHighlight = HighlightStyle.define([
