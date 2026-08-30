@@ -10,15 +10,21 @@ import {
   supportedLocales,
 } from "../src/seo-pages.js";
 import type { FeaturePage, SiteLocale } from "../src/seo-pages.js";
-import { renderFeatureDocument, renderSitemap } from "./site-renderer.js";
 import type { RenderHomeOptions } from "../src/entry-server.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const repositoryRoot = path.resolve(root, "..");
 const clientDirectory = path.join(root, "dist/client");
 const serverEntry = path.join(root, "dist/server/entry-server.js");
-const { renderHome } = await import(pathToFileURL(serverEntry).href) as {
+const { renderFeatureDocument, renderHome, renderSitemap } = await import(pathToFileURL(serverEntry).href) as {
+  renderFeatureDocument: (options: {
+    page: FeaturePage;
+    locale: SiteLocale;
+    stylesheetHref: string;
+    scriptHref: string;
+  }) => string;
   renderHome: (options?: RenderHomeOptions) => string;
+  renderSitemap: (lastModified?: Record<string, string | undefined>) => string;
 };
 const execFileAsync = promisify(execFile);
 

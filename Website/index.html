@@ -4,10 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#f4f5f7" />
-    <style>html[data-anchor-pending]{scroll-behavior:auto}html[data-anchor-pending] body{visibility:hidden}</style>
-    <script>try{const t=localStorage.getItem("machkit-website-theme");if(t==="light"||t==="dark"){document.documentElement.dataset.theme=t;document.documentElement.style.colorScheme=t}}catch{}if(location.hash){document.documentElement.dataset.anchorPending="";setTimeout(()=>document.documentElement.removeAttribute("data-anchor-pending"),2000)}</script>
+    <script>try{const t=localStorage.getItem("machkit-website-theme");if(t==="light"||t==="dark"){document.documentElement.dataset.theme=t;document.documentElement.style.colorScheme=t}}catch{}</script>
     <meta name="robots" content="index,follow,max-image-preview:large" />
-    <meta name="description" content="Free, open-source Mac cleanup and utility app for storage analysis, safe cleaning, app uninstall, system monitoring, screenshots, networking, and 24 local tools." />
+    <meta name="description" content="Free, open-source Mac cleanup and utility app for storage analysis, safe cleaning, app uninstall, system monitoring, screenshots, networking, and 19 local tools." />
     <link rel="canonical" href="https://machkit.app/" />
     <link rel="alternate" hreflang="en" href="https://machkit.app/" />
     <link rel="alternate" hreflang="zh-CN" href="https://machkit.app/zh-CN/" />
@@ -15,7 +14,7 @@
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="MachKit" />
     <meta property="og:title" content="MachKit — Free Mac Cleaner, Screenshot &amp; Utility Tools" />
-    <meta property="og:description" content="Safe Mac cleanup, annotated screenshots, app uninstall, system inspection, and 24 practical local tools in one free native app." />
+    <meta property="og:description" content="Safe Mac cleanup, annotated screenshots, app uninstall, system inspection, and 19 practical local tools in one free native app." />
     <meta property="og:url" content="https://machkit.app/" />
     <meta property="og:image" content="https://machkit.app/assets/cleanup.webp" />
     <meta property="og:image:type" content="image/webp" />
@@ -26,11 +25,12 @@
     <meta property="og:locale:alternate" content="zh_CN" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="MachKit — Free Mac Cleaner, Screenshot &amp; Utility Tools" />
-    <meta name="twitter:description" content="Clean and understand your Mac, capture annotated screenshots locally, and use 24 practical utility tools." />
+    <meta name="twitter:description" content="Clean and understand your Mac, capture annotated screenshots locally, and use 19 practical utility tools." />
     <meta name="twitter:image" content="https://machkit.app/assets/cleanup.webp" />
     <meta name="twitter:image:alt" content="MachKit cleanup workspace showing local scan categories and the start scan action" />
     <link rel="icon" type="image/png" href="./assets/favicon.png" />
     <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png" />
+    <link rel="stylesheet" href="/src/styles.css" />
     <title>MachKit — Free Mac Cleaner, Screenshot &amp; Utility Tools</title>
     <script type="application/ld+json">
       {
@@ -74,7 +74,7 @@
     <div id="root">
       <main class="seo-fallback">
         <h1>Keep your Mac understandable.</h1>
-        <p>MachKit is a free, open-source Mac cleanup and utility app for storage, app removal, system monitoring, networking, annotated screenshots, and 24 practical local tools. The project is sometimes searched for as Mackit or Mach Kit.</p>
+        <p>MachKit is a free, open-source Mac cleanup and utility app for storage, app removal, system monitoring, networking, annotated screenshots, and 19 practical local tools. The project is sometimes searched for as Mackit or Mach Kit.</p>
         <h2>A focused tool for each part of your Mac</h2>
         <ul>
           <li>Understand storage health, folder sizes, CPU, memory pressure, and active network state.</li>
@@ -87,6 +87,6 @@
         <p>Everything runs locally. Supported cleanup and uninstall operations normally move selected files to Trash.</p>
       </main>
     </div>
-    <script type="module" src="/src/main.tsx"></script>
+    <script type="module" src="/src/static-page.ts"></script>
   </body>
 </html>

@@ -32,6 +32,8 @@ xcuserdata/
 /Tool/node_modules/
 /Tool/dist/
 /Tool/.vite/
+/Tool/test-results/
+/Tool/playwright-report/
 /Resources/WebTools/
 
 # macOS
@@ -44,6 +46,8 @@ Icon\r
 # Editors and temporary files
 .idea/
 .vscode/
+.cursor/
+.claude/
 *.swp
 *.swo
 *~

@@ -72,7 +72,7 @@ export function compileRegex(pattern: string, flags: string = "g") {
   try {
     return { ok: true as const, error: null, regex: new RegExp(source, normalized) };
   } catch (error) {
-    return { ok: false as const, error: (error as any)?.message || "invalid-pattern", regex: null };
+    return { ok: false as const, error: error instanceof Error ? error.message : "invalid-pattern", regex: null };
   }
 }
 
@@ -169,7 +169,7 @@ export function replaceMatches(pattern: string, flags: string, input: string, re
   try {
     return { ok: true as const, error: null, value: text.replace(compiled.regex, String(replacement ?? "")) };
   } catch (error) {
-    return { ok: false as const, error: (error as any)?.message || "replace-failed", value: "" };
+    return { ok: false as const, error: error instanceof Error ? error.message : "replace-failed", value: "" };
   }
 }
 

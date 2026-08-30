@@ -6,6 +6,7 @@ import {
   ExampleChips,
   Input,
   StatusStrip,
+  type InlineMessageTone,
   ToolContent,
   ToolPage,
   ToolToolbar,
@@ -24,29 +25,29 @@ const PRESET_LABELS = {
   weekdays: "presetWeekdays",
   weekly: "presetWeekly",
   monthly: "presetMonthly",
-};
+} as const;
 
-const FIELD_KEYS = ["minute", "hour", "dayOfMonth", "month", "dayOfWeek"];
+const FIELD_KEYS = ["minute", "hour", "dayOfMonth", "month", "dayOfWeek"] as const;
 
-function formatRun(date: any) {
-  const pad = (value: any) => String(value).padStart(2, "0");
+function formatRun(date: Date) {
+  const pad = (value: number) => String(value).padStart(2, "0");
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
-function formatFieldValues(values: any) {
+function formatFieldValues(values: readonly number[]) {
   if (!values?.length) return "—";
   if (values.length > 14) return `${values.slice(0, 14).join(",")}…`;
   return values.join(",");
 }
 
 function CronTool() {
-  const text = useToolMessages(messages) as any;
+  const text = useToolMessages(messages);
   const [expression, setExpression] = useState("0 9 * * 1-5");
 
   const result = useMemo(() => nextCronRuns(expression, { count: 100 }), [expression]);
   const tokens = result.ok ? result.expression!.split(" ") : [];
 
-  const status = !expression.trim()
+  const status: { tone: InlineMessageTone; label: string } | null = !expression.trim()
     ? null
     : !result.ok
       ? {
@@ -92,22 +93,22 @@ function CronTool() {
         <ExampleChips
           className="shrink-0"
           label={text.presets}
-          options={cronPresets.map((preset: any) => ({
+          options={cronPresets.map((preset) => ({
             id: preset.id,
             value: preset.expression,
-            label: (text as any)[(PRESET_LABELS as any)[preset.id]] || preset.id,
+            label: text[PRESET_LABELS[preset.id as keyof typeof PRESET_LABELS]],
           }))}
           onSelect={setExpression}
         />
 
-        {status ? <StatusStrip tone={status.tone as any as any}>{status.label}</StatusStrip> : null}
+        {status ? <StatusStrip tone={status.tone}>{status.label}</StatusStrip> : null}
 
         {result.ok ? (
           <div className="grid min-h-0 flex-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
             <section className="flex min-h-0 flex-col gap-2">
               <div className="machkit-sidebar-label shrink-0">{text.fields}</div>
               <div className="min-h-0 flex-1 overflow-auto">
-                {FIELD_KEYS.map((key: any, index: any) => (
+                {FIELD_KEYS.map((key, index) => (
                   <div
                     key={key}
                     className={cn(
@@ -121,7 +122,7 @@ function CronTool() {
                       {tokens[index] ?? "—"}
                     </span>
                     <span className="min-w-0 flex-1 break-all font-mono text-[11px] leading-relaxed text-tertiary">
-                      {formatFieldValues((result.fields as any)[key])}
+                      {formatFieldValues(result.fields?.[key] ?? [])}
                     </span>
                   </div>
                 ))}
@@ -132,7 +133,7 @@ function CronTool() {
               <div className="machkit-sidebar-label shrink-0">{text.nextRuns}</div>
               {result.runs.length ? (
                 <ol className="min-h-0 flex-1 space-y-0.5 overflow-auto">
-                  {result.runs.map((run: any, index: any) => (
+                  {result.runs.map((run, index) => (
                     <li
                       key={run.toISOString()}
                       className="flex items-baseline gap-3 rounded-control px-1.5 py-1.5 font-mono text-[12.5px] tabular-nums hover:bg-muted/70"

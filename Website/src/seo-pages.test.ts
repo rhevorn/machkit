@@ -4,6 +4,7 @@ import {
   featurePages,
   localizedPath,
   supportedLocales,
+  toolFeaturePages,
 } from "./seo-pages.js";
 import type { FeaturePage, SiteLocale } from "./seo-pages.js";
 import { renderFeatureDocument, renderSitemap } from "../scripts/site-renderer.js";
@@ -52,6 +53,18 @@ test("feature pages provide complete localized content and unique paths", () => 
   }
 });
 
+test("every catalog utility has a localized static detail page", () => {
+  assert.equal(toolFeaturePages.length, websiteToolCatalog.length);
+  for (const tool of websiteToolCatalog) {
+    const page = toolFeaturePages.find((candidate) => candidate.id === `tool-${tool.id}`);
+    assert.ok(page, `missing page for ${tool.id}`);
+    assert.equal(page.kind, "tool");
+    assert.equal(page.slug, `tools/${tool.id}`);
+    assert.match(page.locales.en.title, /MachKit/);
+    assert.match(page.locales["zh-CN"].title, /MachKit/);
+  }
+});
+
 test("utilities page represents the current growing catalog with introductions", () => {
   const page = (featurePages as readonly FeaturePage[]).find((candidate) => candidate.id === "utilities");
   assert.ok(page);
@@ -72,6 +85,7 @@ test("utilities page represents the current growing catalog with introductions",
 
   const html = renderFeatureDocument({ page, locale: "en", stylesheetHref: "/assets/site.css" });
   assert.match(html, /id="curl-lab"/);
+  assert.match(html, /href="\/tools\/curl-lab\/"/);
   assert.match(html, /cURL Lab/);
   assert.match(html, /Run requests locally when needed/);
   assert.match(html, /Text &amp; Data/);
@@ -111,16 +125,19 @@ test("screenshot page has localized capture and annotation content", () => {
 
 test("sitemap includes every localized homepage and feature page", () => {
   const sitemap = renderSitemap("2026-08-15");
-  assert.equal((sitemap.match(/<url>/g) || []).length, 12);
+  const expectedPages = 2 + featurePages.length * supportedLocales.length;
+  assert.equal((sitemap.match(/<url>/g) || []).length, expectedPages);
   assert.match(sitemap, /https:\/\/machkit\.app\/utilities\//);
   assert.match(sitemap, /https:\/\/machkit\.app\/zh-CN\/utilities\//);
   assert.match(sitemap, /https:\/\/machkit\.app\/features\/screenshot\//);
   assert.match(sitemap, /xmlns:image="http:\/\/www\.google\.com\/schemas\/sitemap-image\/1\.1"/);
-  assert.equal((sitemap.match(/<image:image>/g) || []).length, 12);
+  assert.equal((sitemap.match(/<image:image>/g) || []).length, expectedPages);
   assert.match(sitemap, /https:\/\/machkit\.app\/assets\/cleanup\.webp/);
   assert.match(sitemap, /https:\/\/machkit\.app\/assets\/cleanup-zh-CN\.webp/);
   assert.match(sitemap, /https:\/\/machkit\.app\/assets\/tools-zh-CN\.webp/);
-  assert.equal((sitemap.match(/<lastmod>2026-08-15<\/lastmod>/g) || []).length, 12);
+  assert.equal((sitemap.match(/<lastmod>2026-08-15<\/lastmod>/g) || []).length, expectedPages);
+  assert.match(sitemap, /https:\/\/machkit\.app\/tools\/json-formatter\//);
+  assert.match(sitemap, /https:\/\/machkit\.app\/zh-CN\/tools\/json-formatter\//);
 });
 
 test("sitemap omits lastmod when no reliable content date is available", () => {

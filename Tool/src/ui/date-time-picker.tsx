@@ -202,7 +202,7 @@ export function DateTimePicker({ value, onChange, label, className }: DateTimePi
           <button
             type="button"
             aria-label={label ? `${label} calendar` : "Open calendar"}
-            className="mr-1 grid size-7 shrink-0 place-items-center rounded-[6px] text-secondary outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-accent/35"
+            className="mr-1 grid size-7 shrink-0 place-items-center rounded-[6px] text-secondary outline-none hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-accent/35"
           >
             <CalendarBlank size={16} />
           </button>

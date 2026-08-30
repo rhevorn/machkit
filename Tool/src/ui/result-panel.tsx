@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils.js";
  * Standard bordered result panel shell.
  * Optional header with title + actions; body holds property lists or free content.
  */
-export type ResultPanelProps = ComponentPropsWithoutRef<"div"> & {
+export type ResultPanelProps = Omit<ComponentPropsWithoutRef<"div">, "title"> & {
   title?: ReactNode;
   actions?: ReactNode;
   bodyClassName?: string;

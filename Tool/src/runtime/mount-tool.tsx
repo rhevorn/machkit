@@ -3,11 +3,30 @@ import { createRoot, type Root } from "react-dom/client";
 import { supportedLocales } from "@/i18n-catalog.js";
 import { resolveLocale, useLocale } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
+import { runtimeMessages } from "@/runtime/runtime-messages.js";
 import type { MachKitAppearance } from "@/runtime/types.js";
+import { Button } from "@/ui/index.js";
 import "@/ui/ui.css";
 
 type ToolErrorBoundaryProps = PropsWithChildren<{ name: string }>;
 type ToolErrorBoundaryState = { error: Error | null };
+
+function ToolCrashView() {
+  const locale = useLocale();
+  const text = runtimeMessages[locale as keyof typeof runtimeMessages] ?? runtimeMessages.en;
+
+  return (
+    <main className="grid min-h-full place-items-center bg-surface p-8 font-sans text-foreground">
+      <section className="max-w-md text-center" role="alert" aria-live="assertive">
+        <h1 className="text-base font-semibold">{text.errorTitle}</h1>
+        <p className="mt-2 text-xs leading-relaxed text-secondary">{text.errorDescription}</p>
+        <Button className="mt-4" onClick={() => window.location.reload()}>
+          {text.reload}
+        </Button>
+      </section>
+    </main>
+  );
+}
 
 class ToolErrorBoundary extends React.Component<ToolErrorBoundaryProps, ToolErrorBoundaryState> {
   constructor(props: ToolErrorBoundaryProps) {
@@ -25,15 +44,7 @@ class ToolErrorBoundary extends React.Component<ToolErrorBoundaryProps, ToolErro
 
   render() {
     if (!this.state.error) return this.props.children;
-    return (
-      <main className="grid min-h-full place-items-center bg-surface p-8 font-sans text-foreground">
-        <section className="max-w-md text-center">
-          <h1 className="text-base font-semibold">This tool could not be opened</h1>
-          <p className="mt-2 text-xs leading-relaxed text-secondary">{this.state.error.message || "An unexpected error occurred."}</p>
-          <button type="button" className="mt-4 h-9 rounded-control bg-accent px-4 text-xs font-medium text-white" onClick={() => window.location.reload()}>Reload</button>
-        </section>
-      </main>
-    );
+    return <ToolCrashView />;
   }
 }
 

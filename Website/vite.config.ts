@@ -1,24 +1,60 @@
+import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Connect, Plugin } from "vite";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { renderFeatureDocument } from "./scripts/site-renderer.js";
-import { findFeaturePage } from "./src/seo-pages.js";
+import type { FeaturePage, SiteLocale } from "./src/seo-pages.js";
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 
-function featurePageDevPlugin(): Plugin {
+type SSRRenderer = {
+  findFeaturePage(pathname: string): { page: FeaturePage; locale: SiteLocale } | null;
+  renderFeatureDocument(options: {
+    page: FeaturePage;
+    locale: SiteLocale;
+    stylesheetHref?: string;
+    scriptHref?: string;
+  }): string;
+  renderHome(options: { locale: string; assetBase: string }): string;
+};
+
+function replaceFallback(html: string, markup: string): string {
+  const pattern = /<main class="seo-fallback">[\s\S]*?<\/main>/;
+  if (!pattern.test(html)) throw new Error("Unable to find the homepage SEO fallback.");
+  return html.replace(pattern, markup);
+}
+
+function staticSiteDevPlugin(): Plugin {
   return {
-    name: "machkit-feature-pages",
+    name: "machkit-static-pages",
     configureServer(server) {
-      server.middlewares.use((request: Connect.IncomingMessage, response, next) => {
+      server.middlewares.use(async (request: Connect.IncomingMessage, response, next) => {
         const pathname = new URL(request.url || "/", "http://localhost").pathname;
-        const match = findFeaturePage(pathname);
+        const renderer = await server.ssrLoadModule("/src/entry-server.tsx") as SSRRenderer;
+        const homeLocale = pathname === "/" ? "en" : pathname === "/zh-CN/" ? "zh-CN" : null;
+        if (homeLocale) {
+          try {
+            const sourceFile = path.join(root, homeLocale === "en" ? "index.html" : "zh-CN/index.html");
+            const source = await fs.readFile(sourceFile, "utf8");
+            const transformed = await server.transformIndexHtml(pathname, source);
+            response.statusCode = 200;
+            response.setHeader("Content-Type", "text/html; charset=utf-8");
+            response.end(replaceFallback(
+              transformed,
+              renderer.renderHome({ locale: homeLocale, assetBase: homeLocale === "en" ? "." : ".." }),
+            ));
+          } catch (error) {
+            next(error as Error);
+          }
+          return;
+        }
+
+        const match = renderer.findFeaturePage(pathname);
         if (!match) return next();
         response.statusCode = 200;
         response.setHeader("Content-Type", "text/html; charset=utf-8");
-        response.end(renderFeatureDocument({
+        response.end(renderer.renderFeatureDocument({
           ...match,
           stylesheetHref: "/src/styles.css",
           scriptHref: "/src/static-page.ts",
@@ -33,6 +69,7 @@ export default defineConfig({
   build: {
     target: "safari17",
     manifest: true,
+    modulePreload: { polyfill: false },
     outDir: "dist/client",
     rollupOptions: {
       input: {
@@ -42,15 +79,9 @@ export default defineConfig({
       },
     },
   },
-  optimizeDeps: {
-    include: ["react", "react-dom/client"],
-  },
   server: {
     host: "0.0.0.0",
     allowedHosts: ["terminal.local"],
-    warmup: {
-      clientFiles: ["./src/main.tsx"],
-    },
   },
-  plugins: [featurePageDevPlugin(), react()],
+  plugins: [staticSiteDevPlugin(), react()],
 });

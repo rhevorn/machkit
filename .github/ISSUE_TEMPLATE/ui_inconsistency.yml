@@ -1,0 +1,38 @@
+name: UI inconsistency
+description: Report a native/H5 visual, interaction, accessibility, or state mismatch
+title: "[UI]: "
+labels: [ui]
+body:
+  - type: input
+    id: surface
+    attributes:
+      label: Screen or tool
+      placeholder: Tools > cURL Lab
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options: [Layout or spacing, Typography, Color or theme, Control behavior, Keyboard or focus, Accessibility, Loading or error state, Native/H5 mismatch]
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed inconsistency
+      description: Include window size, light/dark appearance, locale, and steps.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected pattern
+      description: Point to a consistent MachKit or macOS reference when possible.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshots or recording
+      description: Remove personal data before attaching files.

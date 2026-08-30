@@ -452,21 +452,21 @@ export const websiteToolCatalog = Object.freeze([
     category: "network",
     en: {
       title: "Certificate Lab",
-      summary: "Inspect certificates, CSRs, and certificate chains without uploading them.",
-      introduction: "Certificate Lab inspects PEM certificates, CSRs, fingerprints, SANs, and chains on the Mac. Use it when diagnosing TLS trust issues or reviewing a certificate before it is installed—without uploading private material.",
+      summary: "Inspect PEM certificates, validity, fingerprints, and SANs without uploading them.",
+      introduction: "Certificate Lab inspects PEM certificate details, validity periods, fingerprints, and subject alternative names on the Mac. Use it when reviewing a certificate before installation or checking what it identifies—without uploading private material.",
       highlights: [
-        "Inspect PEM certificates and CSRs",
-        "Fingerprints, SANs, and chains",
+        "Inspect PEM certificate details",
+        "Validity, fingerprints, and SANs",
         "No certificate upload",
       ],
     },
     "zh-CN": {
       title: "证书实验室",
-      summary: "无需上传即可检查证书、CSR 和证书链。",
-      introduction: "证书实验室在本机检查 PEM 证书、CSR、指纹、SAN 和证书链。适合诊断 TLS 信任问题，或在安装前核对证书，且不会上传私钥材料。",
+      summary: "无需上传即可检查 PEM 证书、有效期、指纹和 SAN。",
+      introduction: "证书实验室在本机检查 PEM 证书详情、有效期、指纹和主题备用名称。适合在安装前核对证书或确认其标识内容，而且不会上传私密材料。",
       highlights: [
-        "检查 PEM 证书与 CSR",
-        "指纹、SAN 与证书链",
+        "检查 PEM 证书详情",
+        "有效期、指纹与 SAN",
         "无需上传证书",
       ],
     },
@@ -554,9 +554,3 @@ export function groupedWebsiteTools(locale: ToolLocale): readonly LocalizedToolG
   }
   return Object.freeze(groups);
 }
-
-/** @deprecated Prefer localizedWebsiteTools(locale); kept for transitional summaries. */
-export const localizedWebsiteToolSummaries = Object.freeze({
-  en: Object.freeze(localizedWebsiteTools("en").map((tool) => Object.freeze([tool.title, tool.summary]))),
-  "zh-CN": Object.freeze(localizedWebsiteTools("zh-CN").map((tool) => Object.freeze([tool.title, tool.summary]))),
-});

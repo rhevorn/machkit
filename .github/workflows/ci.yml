@@ -20,6 +20,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Validate npm lockfile registries
+        run: node Scripts/verify_npm_registries.mjs
+
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
@@ -33,7 +36,10 @@ jobs:
 
       - name: Test embedded tools
         working-directory: Tool
-        run: npm test
+        run: |
+          npm test
+          npm run typecheck
+          npm run build
 
       - name: Test Swift core
         run: swift test
@@ -48,6 +54,9 @@ jobs:
             -derivedDataPath build/XcodeDerivedData \
             CODE_SIGNING_ALLOWED=NO \
             build
+
+      - name: Check patch formatting
+        run: git diff --check
 
   website:
     name: Website
@@ -67,8 +76,35 @@ jobs:
         working-directory: Website
         run: npm ci
 
-      - name: Test and build
+      - name: Test, type-check, and build
         working-directory: Website
         run: |
           npm test
+          npm run typecheck
           npm run build
+
+  embedded-tool-ui:
+    name: Embedded tool UI smoke tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: Tool/package-lock.json
+
+      - name: Install dependencies
+        working-directory: Tool
+        run: npm ci
+
+      - name: Install Chromium
+        working-directory: Tool
+        run: npx playwright install --with-deps chromium
+
+      - name: Run UI smoke tests
+        working-directory: Tool
+        run: npm run test:ui

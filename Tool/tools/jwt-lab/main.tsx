@@ -8,6 +8,7 @@ import {
   SelectControl,
   SplitWorkspace,
   StatusStrip,
+  type InlineMessageTone,
   Textarea,
   ToolContent,
   ToolPage,
@@ -70,7 +71,7 @@ function JwtLabTool() {
   const [payloadText, setPayloadText] = useState(() => JSON.stringify(defaultGeneratePayload(), null, 2));
   const [algorithm, setAlgorithm] = useState("HS256");
   const [secret, setSecret] = useState("machkit-secret");
-  const [generateError, setGenerateError] = useState(null);
+  const [generateError, setGenerateError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const decoded = useMemo(() => inspectJwt(token), [token]);
@@ -85,7 +86,7 @@ function JwtLabTool() {
     setPayloadText(decoded.payloadJson);
   }, [mode, decoded.ok, decoded.algorithm, decoded.headerJson, decoded.payloadJson, algorithm]);
 
-  const decodeStatus = !token.trim()
+  const decodeStatus: { tone: InlineMessageTone; label: string } = !token.trim()
     ? { tone: "neutral", label: text.empty }
     : !decoded.ok
       ? {
@@ -107,7 +108,7 @@ function JwtLabTool() {
                 : `${text.statusOk} · ${algorithm || text.none}`,
         };
 
-  const generateStatus = generateError
+  const generateStatus: { tone: InlineMessageTone; label: string } | null = generateError
     ? {
         tone: "danger",
         label:
@@ -247,14 +248,14 @@ function JwtLabTool() {
               <Textarea
                 className="min-h-[72px] font-mono text-[12px]"
                 value={token}
-                onChange={(event: any) => setToken(event.target.value)}
+                onChange={(event) => setToken(event.target.value)}
                 placeholder={text.placeholder}
                 spellCheck={false}
               />
             </div>
 
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-              <StatusStrip tone={decodeStatus.tone as any} className="min-w-0 flex-1">
+              <StatusStrip tone={decodeStatus.tone} className="min-w-0 flex-1">
                 {decodeStatus.label}
               </StatusStrip>
               {decoded.ok ? <span className="text-[11px] text-tertiary">{text.unverified}</span> : null}
@@ -302,7 +303,8 @@ function JwtLabTool() {
                 <Textarea
                   className="min-h-[160px] font-mono text-[12px]"
                   value={headerText}
-                  onChange={(event: any) => setHeaderText(event.target.value)}
+                  onChange={(event) => setHeaderText(event.target.value)}
+                  aria-label={text.header}
                   spellCheck={false}
                 />
               </div>
@@ -311,14 +313,15 @@ function JwtLabTool() {
                 <Textarea
                   className="min-h-[160px] font-mono text-[12px]"
                   value={payloadText}
-                  onChange={(event: any) => setPayloadText(event.target.value)}
+                  onChange={(event) => setPayloadText(event.target.value)}
+                  aria-label={text.payload}
                   spellCheck={false}
                 />
               </div>
             </SplitWorkspace>
 
             {generateError || busy ? (
-              <StatusStrip tone={generateError ? generateStatus!.tone : "info" as any}>
+              <StatusStrip tone={generateError ? generateStatus!.tone : "info"}>
                 {busy ? text.generate : generateStatus!.label}
               </StatusStrip>
             ) : null}

@@ -33,7 +33,7 @@ export function SidebarNavItem({
       onClick={onClick}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "group relative flex w-full items-center gap-2 rounded-control px-2 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-accent/35",
+        "group relative flex w-full items-center gap-2 rounded-control px-2 text-left outline-none transition-colors focus-visible:ring-3 focus-visible:ring-accent/35",
         hint || Icon ? "min-h-9 py-1.5" : "h-9",
         active
           ? "bg-accent-soft text-accent"

@@ -4,7 +4,7 @@ export const messages = {
   en: {
     meta: {
       title: "MachKit — Free Mac Cleaner, Screenshot & Utility Tools",
-      description: "Free, open-source Mac cleanup and utility app for storage analysis, safe cleaning, app uninstall, system monitoring, screenshots, networking, and 24 local tools.",
+      description: "Free, open-source Mac cleanup and utility app for storage analysis, safe cleaning, app uninstall, system monitoring, screenshots, networking, and 19 local tools.",
     },
     nav: {
       capabilities: "Capabilities",
@@ -21,7 +21,7 @@ export const messages = {
     hero: {
       eyebrow: "Native macOS utility",
       title: "Keep your Mac understandable.",
-      description: "MachKit is a free, open-source Mac cleanup and utility app for storage, app removal, system monitoring, networking, annotated screenshots, and 24 practical local tools.",
+      description: "MachKit is a free, open-source Mac cleanup and utility app for storage analysis, app removal, system monitoring, networking, annotated screenshots, and 19 practical local tools.",
       primary: "Download for macOS",
       secondary: "View source",
       compatibility: "Free and open source · macOS 14 or later",
@@ -48,7 +48,7 @@ export const messages = {
           items: [
             ["Overview", "Storage health, CPU, memory pressure, network speed, thermal state, and quick actions."],
             ["Storage", "Disk categories, folder sizes, and large files with drill-down navigation.", "./features/storage-cleanup/"],
-            ["Performance", "Live resource usage and the apps placing the most pressure on your Mac."],
+            ["Performance", "Live resource usage and the apps placing the most pressure on your Mac.", "./features/performance-monitor/"],
           ],
         },
         {
@@ -67,7 +67,7 @@ export const messages = {
           body: "See the background activity that is usually difficult to find.",
           items: [
             ["Network", "Traffic, connections, listening ports, routes, VPN/TUN, and proxies.", "./features/network-inspector/"],
-            ["System", "Login items, background tasks, application extensions, and possible residues."],
+            ["System", "Login items, background tasks, application extensions, and possible residues.", "./features/system-inspector/"],
             ["Menu bar", "Quick access to MachKit features without hunting for the dock icon."],
           ],
         },
@@ -271,7 +271,7 @@ export const messages = {
           items: [
             ["总览", "存储健康、CPU、内存压力、网速、散热状态和快捷操作。"],
             ["存储", "磁盘分类、文件夹大小和大文件，支持逐层查看。", "./features/storage-cleanup/"],
-            ["性能", "实时资源使用情况，以及占用最高的应用。"],
+            ["性能", "实时资源使用情况，以及占用最高的应用。", "./features/performance-monitor/"],
           ],
         },
         {
@@ -290,7 +290,7 @@ export const messages = {
           body: "看清通常难以发现的后台活动。",
           items: [
             ["网络", "流量、连接、监听端口、路由、VPN/TUN 和代理。", "./features/network-inspector/"],
-            ["系统", "登录项、后台任务、应用扩展和可能的残留。"],
+            ["系统", "登录项、后台任务、应用扩展和可能的残留。", "./features/system-inspector/"],
             ["菜单栏", "常驻菜单栏，快速打开功能，无需在程序坞里找图标。"],
           ],
         },

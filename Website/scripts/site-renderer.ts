@@ -114,7 +114,7 @@ function renderHeader(locale: SiteLocale, activePage: FeaturePage): string {
             <path d="M233.54,142.23a8,8,0,0,0-8-2,88.08,88.08,0,0,1-109.8-109.8,8,8,0,0,0-10-10,104.84,104.84,0,0,0-52.91,37A104,104,0,0,0,136,224a103.09,103.09,0,0,0,62.52-20.88,104.84,104.84,0,0,0,37-52.91A8,8,0,0,0,233.54,142.23ZM188.9,190.34A88,88,0,0,1,65.66,67.11a89,89,0,0,1,31.4-26A106,106,0,0,0,96,56,104.11,104.11,0,0,0,200,160a106,106,0,0,0,14.92-1.06A89,89,0,0,1,188.9,190.34Z" />
           </svg>
         </button>
-        <a class="nav-download" href="${site.downloadURL}" data-release-download>
+        <a class="nav-download" href="${site.downloadURL}">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256" aria-hidden="true">
             <path d="M228,144v64a12,12,0,0,1-12,12H40a12,12,0,0,1-12-12V144a12,12,0,0,1,24,0v52H204V144a12,12,0,0,1,24,0Zm-108.49,8.49a12,12,0,0,0,17,0l40-40a12,12,0,0,0-17-17L140,115V32a12,12,0,0,0-24,0v83L96.49,95.51a12,12,0,0,0-17,17Z" />
           </svg>
@@ -154,7 +154,7 @@ type CatalogContent = Pick<
   "eyebrow" | "catalogTitle" | "catalogIntro" | "catalog" | "catalogGroups"
 >;
 
-function renderCatalog(content: CatalogContent): string {
+function renderCatalog(content: CatalogContent, locale: SiteLocale): string {
   const groups: readonly LocalizedToolGroup[] = content.catalogGroups?.length
     ? content.catalogGroups
     : content.catalog?.length
@@ -178,7 +178,7 @@ function renderCatalog(content: CatalogContent): string {
             return `<article id="${escapeHTML(tool.id)}">
               <span>${String(toolIndex).padStart(2, "0")}</span>
               <div>
-                <h4>${escapeHTML(tool.title)}</h4>
+                <h4><a href="${localizedPath({ slug: `tools/${tool.id}` }, locale)}">${escapeHTML(tool.title)}</a></h4>
                 <p class="tool-summary">${escapeHTML(tool.summary)}</p>
                 <p class="tool-introduction">${escapeHTML(tool.introduction)}</p>
                 ${tool.highlights.length ? `<ul>${tool.highlights.map((item) => `<li>${escapeHTML(item)}</li>`).join("")}</ul>` : ""}
@@ -189,6 +189,23 @@ function renderCatalog(content: CatalogContent): string {
       </section>`).join("")}
     </div>
   </section>`;
+}
+
+function relatedPages(page: FeaturePage): readonly FeaturePage[] {
+  const pages = featurePages as readonly FeaturePage[];
+  if (page.kind !== "tool") {
+    return pages
+      .filter((candidate) => candidate.kind !== "tool" && candidate.id !== page.id)
+      .slice(0, 6);
+  }
+
+  const tools = pages.filter((candidate) => candidate.kind === "tool");
+  const currentIndex = tools.findIndex((candidate) => candidate.id === page.id);
+  if (currentIndex < 0) return tools.slice(0, 6);
+  return Array.from(
+    { length: Math.min(6, Math.max(0, tools.length - 1)) },
+    (_, offset) => tools[(currentIndex + offset + 1) % tools.length]!,
+  );
 }
 
 export type RenderFeatureDocumentOptions = {
@@ -285,7 +302,7 @@ export function renderFeatureDocument({
             <h1>${escapeHTML(content.heading)}</h1>
             <p class="feature-lead">${escapeHTML(content.lead)}</p>
             <div class="hero-actions">
-              <a class="button button-primary" href="${site.downloadURL}" data-release-download>${escapeHTML(text.download)}</a>
+              <a class="button button-primary" href="${site.downloadURL}">${escapeHTML(text.download)}</a>
               <a class="text-link" href="${site.repositoryURL}">${escapeHTML(text.source)} <span aria-hidden="true">→</span></a>
             </div>
           </div>
@@ -302,7 +319,7 @@ export function renderFeatureDocument({
           </article>`).join("")}
         </section>
 
-        ${renderCatalog(content)}
+        ${renderCatalog(content, locale)}
 
         <section class="feature-details section-shell" aria-labelledby="details-title">
           <header class="section-heading">
@@ -329,7 +346,7 @@ export function renderFeatureDocument({
               <p>${escapeHTML(text.exploreBody)}</p>
             </header>
             <div class="related-links">
-              ${(featurePages as readonly FeaturePage[]).filter((candidate) => candidate.id !== page.id).map((candidate) => `<a href="${localizedPath(candidate, locale)}">
+              ${relatedPages(page).map((candidate) => `<a href="${localizedPath(candidate, locale)}">
                 <span>${escapeHTML(candidate.locales[locale].eyebrow)}</span>
                 <strong>${escapeHTML(candidate.locales[locale].heading)}</strong>
               </a>`).join("")}
@@ -377,7 +394,10 @@ export function renderSitemap(lastModified?: SitemapLastModified): string {
     ...pages.flatMap((page) => supportedLocales.map((locale) => ({
       url: localizedURL(page, locale),
       imageURL: `${site.origin}/assets/${localizedImageName(page.image, locale)}`,
-      lastModified: sitemapLastModified(lastModified, page.id === "utilities" ? "utilities" : "features"),
+      lastModified: sitemapLastModified(
+        lastModified,
+        page.id === "utilities" || page.kind === "tool" ? "utilities" : "features",
+      ),
       alternates: {
         en: localizedURL(page, "en"),
         "zh-CN": localizedURL(page, "zh-CN"),

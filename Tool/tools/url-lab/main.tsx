@@ -34,7 +34,7 @@ function AtomInput({ className, ...props }: Record<string, any>) {
     <Input
       spellCheck={false}
       className={cn(
-        "h-8 min-w-0 border-transparent bg-transparent px-1.5 font-mono shadow-none focus:border-accent focus:bg-field focus:ring-2 focus:ring-accent/25",
+        "h-8 min-w-0 border-transparent bg-transparent px-1.5 font-mono shadow-none focus:border-accent focus:bg-field focus:ring-3 focus:ring-accent/25",
         className,
       )}
       {...props}
@@ -243,7 +243,7 @@ function UrlLabTool() {
                 className="flex items-center gap-1 rounded-control bg-surface px-1.5 py-0.5 ring-1 ring-border/65"
               >
                 <Input
-                  className="h-8 min-w-0 flex-1 border-transparent bg-transparent px-2 font-mono shadow-none focus:border-accent focus:bg-field focus:ring-2 focus:ring-accent/25"
+                  className="h-8 min-w-0 flex-1 border-transparent bg-transparent px-2 font-mono shadow-none focus:border-accent focus:bg-field focus:ring-3 focus:ring-accent/25"
                   value={row.key}
                   placeholder={text.key}
                   onChange={(event: any) => updateQuery(index, { key: event.target.value })}
@@ -251,7 +251,7 @@ function UrlLabTool() {
                 />
                 <Seg>=</Seg>
                 <Input
-                  className="h-8 min-w-0 flex-1 border-transparent bg-transparent px-2 font-mono shadow-none focus:border-accent focus:bg-field focus:ring-2 focus:ring-accent/25"
+                  className="h-8 min-w-0 flex-1 border-transparent bg-transparent px-2 font-mono shadow-none focus:border-accent focus:bg-field focus:ring-3 focus:ring-accent/25"
                   value={row.value}
                   placeholder={text.value}
                   onChange={(event: any) => updateQuery(index, { value: event.target.value })}

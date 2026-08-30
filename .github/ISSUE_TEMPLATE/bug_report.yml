@@ -1,0 +1,56 @@
+name: Bug report
+description: Report a reproducible MachKit defect
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Do not include secrets or sensitive file contents. Report security boundaries privately through the Security tab.
+  - type: input
+    id: version
+    attributes:
+      label: MachKit version
+      placeholder: v2.2.5 or commit SHA
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version and Mac architecture
+      placeholder: macOS 15.6, Apple silicon
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options: [Cleanup, Apps, Storage, Performance, Network, System, Screenshot, Embedded tool, Website, Build or release, Other]
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      description: Include the smallest deterministic sequence and any permissions involved.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include sanitized logs or screenshots when useful.
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I removed personal paths, tokens, credentials, and private file contents.
+          required: true

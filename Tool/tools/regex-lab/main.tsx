@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, type MouseEventHandler, type ReactNode } from "react";
 import { CopySimple, Eraser } from "@phosphor-icons/react";
 import {
   ActionGroup,
@@ -32,7 +32,7 @@ const FLAG_OPTIONS = [
   { key: "m", labelKey: "flagMultiline" },
   { key: "s", labelKey: "flagDotAll" },
   { key: "u", labelKey: "flagUnicode" },
-];
+] as const;
 
 const PRESET_LABELS = {
   email: "presetEmail",
@@ -43,16 +43,16 @@ const PRESET_LABELS = {
   whitespace: "presetWhitespace",
   numbers: "presetNumbers",
   quoted: "presetQuoted",
-};
+} as const;
 
-function toggleFlag(flags: any, key: any, enabled: any) {
+function toggleFlag(flags: string, key: string, enabled: boolean) {
   const set = new Set(normalizeFlags(flags));
   if (enabled) set.add(key);
   else set.delete(key);
   return normalizeFlags([...set].join(""));
 }
 
-function Seg({ children }: Record<string, any>) {
+function Seg({ children }: { children: ReactNode }) {
   return (
     <span className="shrink-0 select-none font-mono text-[13px] text-tertiary" aria-hidden="true">
       {children}
@@ -60,7 +60,12 @@ function Seg({ children }: Record<string, any>) {
   );
 }
 
-function FlagChip({ active, label, title, onClick }: Record<string, any>) {
+function FlagChip({ active, label, title, onClick }: {
+  active: boolean;
+  label: string;
+  title: string;
+  onClick: MouseEventHandler<HTMLButtonElement>;
+}) {
   return (
     <Button
       type="button"
@@ -80,7 +85,7 @@ function FlagChip({ active, label, title, onClick }: Record<string, any>) {
 }
 
 function RegexLab() {
-  const text = useToolMessages(messages) as any;
+  const text = useToolMessages(messages);
   const [mode, setMode] = useState("test");
   const [pattern, setPattern] = useState(String.raw`(\w+)@(\w+\.\w+)`);
   const [flags, setFlags] = useState("gi");
@@ -100,7 +105,7 @@ function RegexLab() {
     [input, matchResult],
   );
 
-  const applyPreset = (preset: any) => {
+  const applyPreset = (preset: (typeof regexPresets)[number]) => {
     setPattern(preset.pattern);
     setFlags(normalizeFlags(preset.flags || "g"));
     setReplacement(preset.replacement ?? "");
@@ -164,7 +169,7 @@ function RegexLab() {
             <Seg>/</Seg>
             <Input
               id="regex-pattern"
-              className="h-8 min-w-0 flex-1 border-transparent bg-transparent px-1.5 font-mono shadow-none focus:border-accent focus:bg-field focus:ring-2 focus:ring-accent/25"
+              className="h-8 min-w-0 flex-1 border-transparent bg-transparent px-1.5 font-mono shadow-none focus:border-accent focus:bg-field focus:ring-3 focus:ring-accent/25"
               value={pattern}
               onChange={(event) => setPattern(event.target.value)}
               placeholder={text.emptyPattern}
@@ -178,7 +183,7 @@ function RegexLab() {
               role="group"
               aria-label={text.flags}
             >
-              {FLAG_OPTIONS.map((flag: any) => (
+              {FLAG_OPTIONS.map((flag) => (
                 <FlagChip
                   key={flag.key}
                   active={flags.includes(flag.key)}
@@ -191,10 +196,10 @@ function RegexLab() {
           </div>
           <ExampleChips
             label={text.presets}
-            options={regexPresets.map((preset: any) => ({
+            options={regexPresets.map((preset) => ({
               id: preset.id,
               value: preset.id,
-              label: (text as any)[(PRESET_LABELS as any)[preset.id]] || preset.id,
+              label: text[PRESET_LABELS[preset.id as keyof typeof PRESET_LABELS]],
             }))}
             onSelect={(id) => {
               const preset = regexPresets.find((item) => item.id === id);
@@ -215,7 +220,7 @@ function RegexLab() {
             <div className="flex items-center gap-1 rounded-panel border border-border bg-surface px-2.5 py-1.5">
               <Input
                 id="regex-replace"
-                className="h-8 min-w-0 flex-1 border-transparent bg-transparent px-1.5 font-mono shadow-none focus:border-accent focus:bg-field focus:ring-2 focus:ring-accent/25"
+                className="h-8 min-w-0 flex-1 border-transparent bg-transparent px-1.5 font-mono shadow-none focus:border-accent focus:bg-field focus:ring-3 focus:ring-accent/25"
                 value={replacement}
                 onChange={(event) => setReplacement(event.target.value)}
                 spellCheck={false}

@@ -16,22 +16,24 @@ import { machkit } from "@/runtime/machkit.js";
 import { mountTool } from "@/runtime/mount-tool.js";
 import { describeMode, inspectPermission, toggleBit, toggleSpecial } from "./chmod.js";
 import { messages } from "./messages.js";
+import type { InlineMessageTone } from "@/ui/inline-message.js";
+import type { ModeDescription } from "./chmod.js";
 
 function ChmodLabTool() {
-  const text = useToolMessages(messages) as any;
+  const text = useToolMessages(messages);
   const [input, setInput] = useState("755");
   const [mode, setMode] = useState(0o755);
 
   const parsed = useMemo(() => inspectPermission(input), [input]);
   const view = useMemo(() => (parsed.ok ? parsed : describeMode(mode)), [parsed, mode]);
 
-  const status = !input.trim()
+  const status: { tone: InlineMessageTone; label: string } = !input.trim()
     ? { tone: "neutral", label: text.empty }
     : !parsed.ok
       ? { tone: "danger", label: text.invalid }
       : { tone: "info", label: `${view.octal} · ${view.symbolic}` };
 
-  function applyMode(next: any) {
+  function applyMode(next: ModeDescription) {
     setMode(next.mode);
     setInput(next.octal);
   }
@@ -47,7 +49,7 @@ function ChmodLabTool() {
             id="chmod-input"
             className="min-w-0 flex-1 font-mono"
             value={input}
-            onChange={(event: any) => {
+            onChange={(event) => {
               setInput(event.target.value);
               const next = inspectPermission(event.target.value);
               if (next.ok) setMode(next.mode);
@@ -74,14 +76,14 @@ function ChmodLabTool() {
           </ActionGroup>
         </ToolToolbar>
 
-        <StatusStrip tone={status.tone as any as any as any}>{status.label}</StatusStrip>
+        <StatusStrip tone={status.tone}>{status.label}</StatusStrip>
 
         <div className="grid gap-3 sm:grid-cols-3">
-          {[
+          {([
             ["octal", view.octal],
             ["symbolic", view.symbolic],
             ["command", view.chmod],
-          ].map(([key, value]) => (
+          ] as const).map(([key, value]) => (
             <ResultPanel
               key={key}
               className="flex items-center justify-between gap-2 px-3 py-2.5"
@@ -92,7 +94,13 @@ function ChmodLabTool() {
                   <div className="text-[11px] text-secondary">{text[key]}</div>
                   <code className="font-mono text-[13px]">{value}</code>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => machkit.copy(value)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  aria-label={`${text.copy}: ${text[key]}`}
+                  title={`${text.copy}: ${text[key]}`}
+                  onClick={() => machkit.copy(value)}
+                >
                   <CopySimple size={15} />
                 </Button>
               </div>

@@ -26,7 +26,7 @@ export PATH
 stamp_path="$output_root/.machkit-build-input.sha256"
 input_hash="$({
     find "$tool_root/src" "$tool_root/tools" -type f -print
-    printf '%s\n' "$tool_root/index.html" "$tool_root/package.json" "$tool_root/package-lock.json" "$tool_root/vite.config.mjs"
+    printf '%s\n' "$tool_root/index.html" "$tool_root/package.json" "$tool_root/package-lock.json" "$tool_root/vite.config.ts"
 } | LC_ALL=C sort | while IFS= read -r input_path; do
     shasum -a 256 "$input_path"
 done | shasum -a 256 | awk '{print $1}')"

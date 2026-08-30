@@ -80,19 +80,6 @@ private struct ToolWindowConfigurator: NSViewRepresentable {
     }
 }
 
-private final class ContextMenuDisabledWebView: WKWebView {
-    override func menu(for event: NSEvent) -> NSMenu? {
-        nil
-    }
-
-    override func willOpenMenu(_ menu: NSMenu, with event: NSEvent) {
-        // Strip Reload / Inspect / Autofill / Writing Tools, then cancel so an
-        // empty menu never flashes on right-click inside editors.
-        menu.removeAllItems()
-        menu.cancelTracking()
-    }
-}
-
 private struct BundledWebView: NSViewRepresentable {
     let toolID: String
     let entryFile: String
@@ -111,12 +98,15 @@ private struct BundledWebView: NSViewRepresentable {
         )
         configuration.userContentController.addUserScript(
             WKUserScript(
-                source: Self.bootstrapScript(localeIdentifier: localeIdentifier, appearance: appearance),
+                source: WebToolBridgePolicy.bootstrapScript(
+                    localeIdentifier: localeIdentifier,
+                    appearance: appearance
+                ),
                 injectionTime: .atDocumentStart,
                 forMainFrameOnly: true
             )
         )
-        let webView = ContextMenuDisabledWebView(frame: .zero, configuration: configuration)
+        let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.underPageBackgroundColor = .clear
         webView.navigationDelegate = context.coordinator
         webView.uiDelegate = context.coordinator
@@ -159,36 +149,6 @@ private struct BundledWebView: NSViewRepresentable {
             entryFile: entryFile,
             capabilities: capabilities
         )
-    }
-
-    private static func sanitized(_ value: String) -> String {
-        WebToolBridgePolicy.sanitizedBootstrapToken(value)
-    }
-
-    private static func bootstrapScript(localeIdentifier: String, appearance: String) -> String {
-        let locale = sanitized(localeIdentifier)
-        let theme = sanitized(appearance)
-        let safeLocale = locale.isEmpty ? "en" : locale
-        let safeAppearance = ["system", "light", "dark"].contains(theme) ? theme : "system"
-        return """
-        window.__MACHKIT__ = Object.freeze({ locale: '\(safeLocale)', appearance: '\(safeAppearance)' });
-        (function () {
-          var appearance = window.__MACHKIT__.appearance;
-          var root = document.documentElement;
-          if (appearance === 'light' || appearance === 'dark') {
-            root.dataset.appearance = appearance;
-            root.style.colorScheme = appearance;
-          } else {
-            delete root.dataset.appearance;
-            root.style.colorScheme = '';
-          }
-          // Block WebKit's page context menu (Reload / Autofill / Inspect, etc.)
-          // so embedded tool editors stay chrome-free.
-          var blockContextMenu = function (event) { event.preventDefault(); };
-          document.addEventListener('contextmenu', blockContextMenu, true);
-          window.addEventListener('contextmenu', blockContextMenu, true);
-        })();
-        """
     }
 
     final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandlerWithReply, WKURLSchemeHandler {
@@ -276,10 +236,12 @@ private struct BundledWebView: NSViewRepresentable {
             self.localeIdentifier = localeIdentifier
             self.appearance = appearance
 
-            let locale = BundledWebView.sanitized(localeIdentifier)
-            let theme = BundledWebView.sanitized(appearance)
-            let safeLocale = locale.isEmpty ? "en" : locale
-            let safeAppearance = ["system", "light", "dark"].contains(theme) ? theme : "system"
+            let preferences = WebToolBridgePolicy.sanitizedPreferences(
+                localeIdentifier: localeIdentifier,
+                appearance: appearance
+            )
+            let safeLocale = preferences.locale
+            let safeAppearance = preferences.appearance
             let script = """
             if (typeof window.__MACHKIT_APPLY_PREFERENCES__ === 'function') {
               window.__MACHKIT_APPLY_PREFERENCES__({ locale: '\(safeLocale)', appearance: '\(safeAppearance)' });

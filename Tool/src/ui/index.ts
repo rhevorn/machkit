@@ -5,7 +5,7 @@ export { DateTimePicker } from "./date-time-picker.js";
 export { EditorPane, SplitWorkspace } from "./editor-pane.js";
 export { ExampleChips } from "./example-chips.js";
 export { Field } from "./field.js";
-export { InlineMessage } from "./inline-message.js";
+export { InlineMessage, type InlineMessageProps, type InlineMessageTone } from "./inline-message.js";
 export { Input } from "./input.js";
 export { PropertyList, PropertyRow } from "./property-list.js";
 export { RadioDot } from "./radio-dot.js";

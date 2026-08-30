@@ -112,7 +112,7 @@ export function ColorPicker({
           aria-label={label}
           className={cn(
             "relative size-[var(--machkit-size-control)] shrink-0 overflow-hidden rounded-control border border-border outline-none transition-colors",
-            "focus-visible:ring-2 focus-visible:ring-accent/35",
+            "focus-visible:ring-3 focus-visible:ring-accent/35",
             className,
           )}
         >
@@ -140,7 +140,7 @@ export function ColorPicker({
             tabIndex={0}
             aria-label="Saturation and brightness"
             aria-valuetext={`S ${Math.round(hsv.s)}%, V ${Math.round(hsv.v)}%`}
-            className="relative h-[140px] w-full touch-none overflow-hidden rounded-control border border-border outline-none focus-visible:ring-2 focus-visible:ring-accent/35"
+            className="relative h-[140px] w-full touch-none overflow-hidden rounded-control border border-border outline-none focus-visible:ring-3 focus-visible:ring-accent/35"
             style={{
               background: `
                 linear-gradient(to top, #000, transparent),
@@ -178,7 +178,7 @@ export function ColorPicker({
             aria-valuemin={0}
             aria-valuemax={360}
             aria-valuenow={Math.round(hsv.h)}
-            className="relative mt-3 h-3 w-full touch-none rounded-full border border-border outline-none focus-visible:ring-2 focus-visible:ring-accent/35"
+            className="relative mt-3 h-3 w-full touch-none rounded-full border border-border outline-none focus-visible:ring-3 focus-visible:ring-accent/35"
             style={{
               background:
                 "linear-gradient(to right, #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00 100%)",

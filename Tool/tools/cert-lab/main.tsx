@@ -7,6 +7,7 @@ import {
   PropertyRow,
   ResultPanel,
   StatusStrip,
+  type InlineMessageTone,
   Textarea,
   ToolContent,
   ToolPage,
@@ -43,7 +44,7 @@ function CertPanel({ cert, index, text }: Record<string, any>) {
               <span className="text-secondary">{text.isCA}</span>
             </>
           ) : null}
-        </>) as any
+        </>)
       }
       actions={
         <Button variant="ghost" size="sm" onClick={() => machkit.copy(cert.pem)}>
@@ -72,7 +73,7 @@ function CertLabTool() {
 
   const result = useMemo(() => inspectCertificatePem(pem), [pem]);
 
-  const status = !pem.trim()
+  const status: { tone: InlineMessageTone; label: string } = !pem.trim()
     ? { tone: "neutral", label: text.empty }
     : !result.ok
       ? {
@@ -136,7 +137,7 @@ function CertLabTool() {
           spellCheck={false}
         />
 
-        <StatusStrip tone={status.tone as any as any}>{status.label}</StatusStrip>
+        <StatusStrip tone={status.tone}>{status.label}</StatusStrip>
 
         {result.ok
           ? result.certificates.map((cert: any, index: any) => (

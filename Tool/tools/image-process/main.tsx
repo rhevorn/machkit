@@ -546,7 +546,13 @@ function ImageProcessTool() {
                               {text.download}
                             </Button>
                           ) : null}
-                          <Button variant="ghost" size="sm" onClick={() => removeItem(item.id)}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            aria-label={text.remove}
+                            title={text.remove}
+                            onClick={() => removeItem(item.id)}
+                          >
                             <Trash size={15} />
                           </Button>
                         </div>

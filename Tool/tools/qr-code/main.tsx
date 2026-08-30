@@ -7,6 +7,7 @@ import {
   SelectControl,
   Slider,
   StatusStrip,
+  type InlineMessageTone,
   ToolContent,
   ToolPage,
 } from "@/ui/index.js";
@@ -208,7 +209,7 @@ function QrCodeTool() {
   }, [content, renderOptions]);
 
   const trimmed = content.trim();
-  const status = !trimmed
+  const status: { tone: InlineMessageTone; label: string } | null = !trimmed
     ? null
     : result.error === "too-large"
       ? { tone: "danger", label: text.tooLarge }
@@ -286,7 +287,7 @@ function QrCodeTool() {
           />
         </div>
 
-        {status ? <StatusStrip tone={status.tone as any}>{status.label}</StatusStrip> : null}
+        {status ? <StatusStrip tone={status.tone}>{status.label}</StatusStrip> : null}
 
         <div className="grid min-h-0 flex-1 gap-3 max-[640px]:grid-cols-1 grid-cols-[minmax(0,1fr)_minmax(220px,248px)]">
           <div className="flex min-w-0 flex-col gap-2.5">

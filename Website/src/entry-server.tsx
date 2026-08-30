@@ -1,5 +1,8 @@
-import { renderToString } from "react-dom/server";
+import { renderToStaticMarkup } from "react-dom/server";
 import { App } from "./App.js";
+
+export { renderFeatureDocument, renderSitemap } from "../scripts/site-renderer.js";
+export { findFeaturePage } from "./seo-pages.js";
 
 export type RenderHomeOptions = {
   locale?: string;
@@ -7,7 +10,7 @@ export type RenderHomeOptions = {
 };
 
 export function renderHome({ locale = "en", assetBase = "." }: RenderHomeOptions = {}): string {
-  return renderToString(
-    <App locale={locale} assetBase={assetBase} initialTheme="light" />,
+  return renderToStaticMarkup(
+    <App locale={locale} assetBase={assetBase} />,
   );
 }

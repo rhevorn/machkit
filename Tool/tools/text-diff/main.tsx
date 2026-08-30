@@ -7,6 +7,7 @@ import {
   EditorPane,
   IconButton,
   StatusStrip,
+  type InlineMessageTone,
   ToolContent,
   ToolPage,
   ToolToolbar,
@@ -222,7 +223,7 @@ function TextDiff() {
     return map;
   }, [result]);
 
-  const status = !left && !right
+  const status: { tone: InlineMessageTone; label: string } = !left && !right
     ? { tone: "neutral", label: text.empty }
     : !result.ok
       ? {
@@ -271,7 +272,7 @@ function TextDiff() {
           </ActionGroup>
         </ToolToolbar>
 
-        <StatusStrip tone={status.tone as any}>{status.label}</StatusStrip>
+        <StatusStrip tone={status.tone}>{status.label}</StatusStrip>
 
         <HorizontalSplit
           label="Resize panels"

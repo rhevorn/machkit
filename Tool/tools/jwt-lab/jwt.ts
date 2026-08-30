@@ -88,28 +88,23 @@ export function defaultGeneratePayload(now = Date.now()) {
   };
 }
 
-async function hmacSign(algorithm: any, secret: any, data: any) {
+async function hmacSign(algorithm: string, secret: unknown, data: string) {
   const hashName = (HASH_NAMES as Record<string, string>)[algorithm];
   if (!hashName) throw new Error("unsupported-alg");
   const keyBytes = new TextEncoder().encode(String(secret ?? ""));
   const dataBytes = new TextEncoder().encode(data);
 
-  if (globalThis.crypto?.subtle) {
-    const key = await globalThis.crypto.subtle.importKey(
-      "raw",
-      keyBytes,
-      { name: "HMAC", hash: hashName },
-      false,
-      ["sign"],
-    );
-    const signature = await globalThis.crypto.subtle.sign("HMAC", key, dataBytes);
-    return bytesToBase64Url(new Uint8Array(signature));
-  }
-
-  const { createHmac } = await import("node:crypto");
-  const nodeAlg = hashName.replace(/-/g, "").toLowerCase(); // sha256
-  const digest = createHmac(nodeAlg, Buffer.from(keyBytes)).update(Buffer.from(dataBytes)).digest();
-  return bytesToBase64Url(digest);
+  const subtle = globalThis.crypto?.subtle;
+  if (!subtle) throw new Error("crypto-unavailable");
+  const key = await subtle.importKey(
+    "raw",
+    keyBytes,
+    { name: "HMAC", hash: hashName },
+    false,
+    ["sign"],
+  );
+  const signature = await subtle.sign("HMAC", key, dataBytes);
+  return bytesToBase64Url(new Uint8Array(signature));
 }
 
 export async function createJwt({ headerText, payloadText, secret = "", algorithm = "HS256" }: { headerText?: string; payloadText?: string; secret?: string; algorithm?: string } = {}) {
@@ -133,7 +128,7 @@ export async function createJwt({ headerText, payloadText, secret = "", algorith
     try {
       signature = await hmacSign(alg, secret, signingInput);
     } catch (error) {
-      return { ok: false as const, error: (error as any)?.message || "sign-failed" };
+      return { ok: false as const, error: error instanceof Error ? error.message : "sign-failed" };
     }
   }
 

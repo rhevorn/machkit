@@ -132,6 +132,7 @@ jobs:
         run: |
           npm ci
           npm test
+          npm run typecheck
           npm run build:app
 
       - name: Build Release app

@@ -1,0 +1,37 @@
+name: Feature request
+description: Propose a focused, local-first improvement
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user problem is difficult today? Describe the workflow, not only a solution.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed outcome
+      description: Explain the smallest useful behavior and its UI surface.
+    validations:
+      required: true
+  - type: textarea
+    id: privacy
+    attributes:
+      label: Privacy and permission impact
+      description: Note any filesystem, network, command, administrator, or WebView capability required. Write "None" if not applicable.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: checkboxes
+    id: principles
+    attributes:
+      label: Product principles
+      options:
+        - label: The proposal is local-first and does not require analytics, tracking, or remote runtime scripts.
+          required: true

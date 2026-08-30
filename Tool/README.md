@@ -110,3 +110,24 @@ popover on `ToolPage`, and let the primary tool content start immediately.
 - Move CPU-heavy transformations to a module worker and cap input or result size
   before adding a tool that accepts arbitrary text.
 - Do not load remote scripts or place secrets in a web tool.
+
+## Verification
+
+Run unit tests and TypeScript checks while iterating:
+
+```bash
+npm test
+npm run typecheck
+```
+
+The Playwright smoke suite opens every tool in light and dark appearances at its
+declared minimum and default window sizes. It checks startup errors, horizontal
+overflow, document structure, and accessible names for visible controls:
+
+```bash
+npx playwright install chromium  # first run only
+npm run test:ui
+```
+
+Playwright is a test-only dependency and is not included in bundled WebTools or
+the MachKit application.

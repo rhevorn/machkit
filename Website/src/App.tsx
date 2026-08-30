@@ -1,25 +1,20 @@
-import { useEffect, useMemo, useState } from "react";
 import {
-  ArrowRight,
-  ChartDonut,
-  Code,
-  DownloadSimple,
-  GithubLogo,
-  Globe,
-  House,
-  Moon,
-  Pulse,
-  ShieldCheck,
-  Sun,
-  Wrench,
+  ArrowRightIcon,
+  ChartDonutIcon,
+  CodeIcon,
+  DownloadSimpleIcon,
+  GithubLogoIcon,
+  GlobeIcon,
+  HouseIcon,
+  MoonIcon,
+  PulseIcon,
+  ShieldCheckIcon,
+  SunIcon,
+  WrenchIcon,
 } from "@phosphor-icons/react";
 import { messages } from "./i18n.js";
-import {
-  fallbackRelease,
-  REPOSITORY_URL,
-} from "./release.js";
+import { site } from "./seo-pages.js";
 
-const THEME_KEY = "machkit-website-theme";
 const SCREEN_SPECS = [
   ["overview", 1600, 1329],
   ["cleanup", 2040, 1648],
@@ -37,25 +32,17 @@ const SCREEN_DIMENSIONS: Record<ScreenKey, { width: number; height: number }> = 
   SCREEN_SPECS.map(([key, width, height]) => [key, { width, height }]),
 ) as Record<ScreenKey, { width: number; height: number }>;
 
-const GROUP_ICONS = [ChartDonut, Wrench, Pulse, Code];
+const GROUP_ICONS = [ChartDonutIcon, WrenchIcon, PulseIcon, CodeIcon];
 
 export type AppProps = {
   locale?: string;
   assetBase?: string;
-  initialTheme?: "light" | "dark";
 };
-
-function preferredTheme(): "light" | "dark" {
-  if (typeof window === "undefined") return "light";
-  const savedTheme = window.localStorage.getItem(THEME_KEY);
-  if (savedTheme === "light" || savedTheme === "dark") return savedTheme;
-  return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
-}
 
 function Brand({ assetBase }: { assetBase: string }) {
   return (
     <a className="brand" href="#top" aria-label="MachKit home">
-      <img src={`${assetBase}/assets/logo.png`} alt="" />
+      <img src={`${assetBase}/assets/logo.png`} alt="" width="28" height="28" />
       <span>MachKit</span>
     </a>
   );
@@ -69,7 +56,7 @@ type CapabilityGroupData = {
 };
 
 function CapabilityGroup({ group, index }: { group: CapabilityGroupData; index: number }) {
-  const Icon = GROUP_ICONS[index] ?? ChartDonut;
+  const Icon = GROUP_ICONS[index] ?? ChartDonutIcon;
   return (
     <article className="capability-group" data-tone={group.tone}>
       <header>
@@ -99,51 +86,19 @@ function resolveLocale(locale: string): keyof typeof messages {
 }
 
 export function App({
-  locale: localeOverride,
-  assetBase: assetBaseOverride,
-  initialTheme = "light",
+  locale: localeOverride = "en",
+  assetBase = ".",
 }: AppProps = {}) {
-  const documentLocale = typeof document !== "undefined" && document.documentElement.dataset.locale === "zh-CN"
-    ? "zh-CN"
-    : "en";
-  const locale = resolveLocale(localeOverride || documentLocale);
-  const assetBase = assetBaseOverride
-    || (typeof document !== "undefined" ? document.documentElement.dataset.assetBase : ".")
-    || ".";
+  const locale = resolveLocale(localeOverride);
   const copy = messages[locale];
-  const [theme, setTheme] = useState<"light" | "dark">(() => initialTheme || preferredTheme());
-  const [selectedScreen, setSelectedScreen] = useState<ScreenKey>("cleanup");
-  const release = fallbackRelease;
 
   const languageURL = locale === "en" ? "./zh-CN/" : "../";
   const languageLabel = locale === "en" ? "中文" : "English";
   const utilitiesURL = "./utilities/";
-
-  const screenImages = useMemo(() => {
-    const localeSuffix = locale === "zh-CN" ? "-zh-CN" : "";
-    return Object.fromEntries(
-      SCREEN_KEYS.map((key) => [key, `${assetBase}/assets/${key}${localeSuffix}.webp`]),
-    ) as Record<ScreenKey, string>;
-  }, [assetBase, locale]);
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    document.documentElement.style.colorScheme = theme;
-    document.querySelector('meta[name="theme-color"]')?.setAttribute(
-      "content",
-      theme === "dark" ? "#101214" : "#f4f5f7",
-    );
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme((current) => {
-      const next = current === "dark" ? "light" : "dark";
-      window.localStorage.setItem(THEME_KEY, next);
-      return next;
-    });
-  };
-
-  const activeScreen = copy.screens.tabs[selectedScreen];
+  const localeSuffix = locale === "zh-CN" ? "-zh-CN" : "";
+  const screenImages = Object.fromEntries(
+    SCREEN_KEYS.map((key) => [key, `${assetBase}/assets/${key}${localeSuffix}.webp`]),
+  ) as Record<ScreenKey, string>;
 
   return (
     <div className="site-shell" id="top">
@@ -158,25 +113,25 @@ export function App({
           </div>
           <div className="nav-actions">
             <a className="language-link" href={languageURL} aria-label={copy.controls.language}>
-              <Globe size={15} aria-hidden="true" />
+              <GlobeIcon size={15} aria-hidden="true" />
               <span>{languageLabel}</span>
             </a>
             <button
               className="theme-button"
               type="button"
-              onClick={toggleTheme}
+              data-theme-toggle
               aria-label={copy.controls.theme}
               title={copy.controls.theme}
             >
               <span className="theme-icon theme-icon-light" aria-hidden="true">
-                <Moon size={18} />
+                <MoonIcon size={18} />
               </span>
               <span className="theme-icon theme-icon-dark" aria-hidden="true">
-                <Sun size={18} />
+                <SunIcon size={18} />
               </span>
             </button>
-            <a className="nav-download" href={release.downloadURL}>
-              <DownloadSimple size={16} weight="bold" />
+            <a className="nav-download" href={site.downloadURL}>
+              <DownloadSimpleIcon size={16} weight="bold" />
               <span>{copy.nav.download}</span>
             </a>
           </div>
@@ -190,14 +145,14 @@ export function App({
             <h1 id="hero-title">{copy.hero.title}</h1>
             <p className="hero-description">{copy.hero.description}</p>
             <div className="hero-actions">
-              <a className="button button-primary" href={release.downloadURL}>
-                <DownloadSimple size={18} weight="bold" />
-                {copy.hero.primary} · {release.tag}
+              <a className="button button-primary" href={site.downloadURL}>
+                <DownloadSimpleIcon size={18} weight="bold" />
+                {copy.hero.primary}
               </a>
-              <a className="text-link" href={REPOSITORY_URL} target="_blank" rel="noreferrer">
-                <GithubLogo size={19} weight="fill" />
+              <a className="text-link" href={site.repositoryURL} target="_blank" rel="noreferrer">
+                <GithubLogoIcon size={19} weight="fill" />
                 {copy.hero.secondary}
-                <ArrowRight size={15} />
+                <ArrowRightIcon size={15} />
               </a>
             </div>
             <p className="compatibility">{copy.hero.compatibility}</p>
@@ -251,33 +206,52 @@ export function App({
               {SCREEN_KEYS.map((key) => (
                 <button
                   key={key}
+                  id={`screen-tab-${key}`}
                   type="button"
                   role="tab"
-                  aria-selected={selectedScreen === key}
-                  className={selectedScreen === key ? "is-active" : ""}
-                  onClick={() => setSelectedScreen(key)}
+                  aria-controls={`screen-panel-${key}`}
+                  aria-selected={key === "cleanup"}
+                  className={key === "cleanup" ? "is-active" : ""}
+                  tabIndex={key === "cleanup" ? 0 : -1}
+                  data-screen-tab={key}
                 >
                   {copy.screens.tabs[key].label}
                 </button>
               ))}
             </div>
 
-            <div className="screen-layout">
-              <div className="screen-copy" aria-live="polite">
-                <span className="screen-index">0{SCREEN_KEYS.indexOf(selectedScreen) + 1}</span>
-                <h3>{activeScreen.title}</h3>
-                <ul className="screen-feature-list">
-                  {activeScreen.features.map((feature: string) => <li key={feature}>{feature}</li>)}
-                </ul>
-              </div>
-              <div className="screen-frame">
-                <img
-                  src={screenImages[selectedScreen]}
-                  alt={activeScreen.alt}
-                  width={SCREEN_DIMENSIONS[selectedScreen].width}
-                  height={SCREEN_DIMENSIONS[selectedScreen].height}
-                />
-              </div>
+            <div className="screen-panels">
+              {SCREEN_KEYS.map((key) => {
+                const screen = copy.screens.tabs[key];
+                return (
+                  <div
+                    key={key}
+                    id={`screen-panel-${key}`}
+                    className="screen-layout"
+                    role="tabpanel"
+                    aria-labelledby={`screen-tab-${key}`}
+                    data-screen-panel={key}
+                    hidden={key !== "cleanup"}
+                  >
+                    <div className="screen-copy">
+                      <span className="screen-index">0{SCREEN_KEYS.indexOf(key) + 1}</span>
+                      <h3>{screen.title}</h3>
+                      <ul className="screen-feature-list">
+                        {screen.features.map((feature: string) => <li key={feature}>{feature}</li>)}
+                      </ul>
+                    </div>
+                    <div className="screen-frame">
+                      <img
+                        src={screenImages[key]}
+                        alt={screen.alt}
+                        width={SCREEN_DIMENSIONS[key].width}
+                        height={SCREEN_DIMENSIONS[key].height}
+                        loading={key === "cleanup" ? "eager" : "lazy"}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -334,26 +308,26 @@ export function App({
                 })}
               </dl>
               <a className="tools-explore-link" href={utilitiesURL}>
-                {copy.tools.explore}<ArrowRight size={15} />
+                {copy.tools.explore}<ArrowRightIcon size={15} />
               </a>
             </div>
           </div>
         </section>
 
         <section className="open-source section-shell" aria-labelledby="open-source-title">
-          <ShieldCheck size={30} weight="duotone" aria-hidden="true" />
+          <ShieldCheckIcon size={30} weight="duotone" aria-hidden="true" />
           <div>
             <p className="kicker">{copy.openSource.kicker}</p>
             <h2 id="open-source-title">{copy.openSource.title}</h2>
             <p>{copy.openSource.description}</p>
           </div>
           <div className="open-source-actions">
-            <a className="button button-primary" href={REPOSITORY_URL} target="_blank" rel="noreferrer">
-              <GithubLogo size={18} weight="fill" />
+            <a className="button button-primary" href={site.repositoryURL} target="_blank" rel="noreferrer">
+              <GithubLogoIcon size={18} weight="fill" />
               {copy.openSource.primary}
             </a>
-            <a className="text-link" href={release.downloadURL} target="_blank" rel="noreferrer">
-              {copy.openSource.secondary}<ArrowRight size={15} />
+            <a className="text-link" href={site.downloadURL} target="_blank" rel="noreferrer">
+              {copy.openSource.secondary}<ArrowRightIcon size={15} />
             </a>
           </div>
         </section>
@@ -367,14 +341,14 @@ export function App({
           </div>
           <div className="footer-links">
             <a href={utilitiesURL}>{copy.footer.tools}</a>
-            <a href={`${REPOSITORY_URL}/releases`} target="_blank" rel="noreferrer">{copy.footer.releases}</a>
-            <a href={`${REPOSITORY_URL}/issues`} target="_blank" rel="noreferrer">{copy.footer.issues}</a>
-            <a href={`${REPOSITORY_URL}/blob/main/LICENSE`} target="_blank" rel="noreferrer">{copy.footer.license}</a>
+            <a href={`${site.repositoryURL}/releases`} target="_blank" rel="noreferrer">{copy.footer.releases}</a>
+            <a href={`${site.repositoryURL}/issues`} target="_blank" rel="noreferrer">{copy.footer.issues}</a>
+            <a href={`${site.repositoryURL}/blob/main/LICENSE`} target="_blank" rel="noreferrer">{copy.footer.license}</a>
           </div>
         </div>
         <div className="footer-bottom section-shell">
           <span>© 2026 MachKit</span>
-          <span><House size={14} weight="duotone" />{copy.footer.local}</span>
+          <span><HouseIcon size={14} weight="duotone" />{copy.footer.local}</span>
           <span>{copy.footer.platform}</span>
         </div>
       </footer>

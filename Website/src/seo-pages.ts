@@ -1,6 +1,14 @@
-import { groupedWebsiteTools, localizedWebsiteTools } from "./tool-catalog.js";
-import type { LocalizedToolGroup, LocalizedWebsiteTool } from "./tool-catalog.js";
-import { fallbackRelease } from "./release.js";
+import {
+  groupedWebsiteTools,
+  localizedTool,
+  localizedWebsiteTools,
+  websiteToolCatalog,
+} from "./tool-catalog.js";
+import type {
+  LocalizedToolGroup,
+  LocalizedWebsiteTool,
+  WebsiteTool,
+} from "./tool-catalog.js";
 
 export type SiteLocale = "en" | "zh-CN";
 
@@ -28,6 +36,7 @@ export type FeaturePage = {
   readonly id: string;
   readonly slug: string;
   readonly image: string;
+  readonly kind?: "feature" | "tool";
   readonly locales: Record<SiteLocale, FeaturePageLocaleCopy>;
 };
 
@@ -35,12 +44,12 @@ export const site = Object.freeze({
   name: "MachKit",
   origin: "https://machkit.app",
   repositoryURL: "https://github.com/rhevorn/machkit",
-  downloadURL: fallbackRelease.downloadURL,
+  downloadURL: "https://github.com/rhevorn/machkit/releases/latest",
 });
 
 export const supportedLocales = Object.freeze(["en", "zh-CN"] as const satisfies readonly SiteLocale[]);
 
-export const featurePages = Object.freeze([
+const primaryFeaturePages = Object.freeze([
   {
     id: "storage-cleanup",
     slug: "features/storage-cleanup",
@@ -302,16 +311,146 @@ export const featurePages = Object.freeze([
     },
   },
   {
+    id: "performance-monitor",
+    slug: "features/performance-monitor",
+    image: "performance.webp",
+    locales: {
+      en: {
+        title: "Mac Performance Monitor for CPU & Memory — MachKit",
+        description: "Monitor CPU, memory pressure, thermal state, disk and network throughput, and resource-heavy Mac apps locally in one native workspace.",
+        eyebrow: "Performance monitoring",
+        heading: "Understand system pressure, not just isolated percentages.",
+        lead: "MachKit combines live CPU, memory, thermal, disk, network, and per-app activity in one native Mac performance view. Sampling stays local and pauses when the relevant workspace is no longer active.",
+        highlights: [
+          ["Live system state", "Follow CPU, memory pressure, thermal state, disk throughput, and network throughput."],
+          ["Application context", "Find running apps using the most CPU, memory, or network capacity."],
+          ["Efficient sampling", "Reuse shared baselines and slow inactive refreshes to avoid becoming the workload being measured."],
+        ],
+        sections: [
+          {
+            title: "See pressure alongside usage",
+            body: "CPU percentages are only one part of performance. MachKit places processor activity next to memory pressure, physical memory, compressed memory, and thermal state so a slowdown has useful context.",
+            items: ["System and per-core CPU activity", "Used, cached, and compressed memory", "Memory pressure and thermal state"],
+          },
+          {
+            title: "Connect resource use to running apps",
+            body: "Per-application rankings help identify the software responsible for current pressure. Helper processes inside an app bundle can be grouped with the parent application where the operating system exposes enough context.",
+            items: ["Per-app CPU and memory", "Application network activity", "Readable app identity instead of PID-only output"],
+          },
+          {
+            title: "Keep monitoring local and proportionate",
+            body: "Metrics come from macOS APIs and local system tools. MachKit does not upload performance samples, and inactive views reduce their refresh cadence instead of continuously performing full snapshots.",
+            items: ["No telemetry or cloud dashboard", "Shared sampling baselines", "Reduced work while the app or page is inactive"],
+          },
+        ],
+      },
+      "zh-CN": {
+        title: "Mac CPU、内存与性能监控 — MachKit",
+        description: "在一个原生工作区中，本地查看 CPU、内存压力、散热状态、磁盘与网络吞吐，以及资源占用较高的 Mac App。",
+        eyebrow: "性能监控",
+        heading: "理解系统压力，而不只是几个孤立的百分比。",
+        lead: "MachKit 在一个原生 Mac 性能界面中整合 CPU、内存、散热、磁盘、网络和应用活动。采样始终留在本机，离开相关工作区后会暂停或降低刷新频率。",
+        highlights: [
+          ["实时系统状态", "查看 CPU、内存压力、散热状态、磁盘吞吐和网络吞吐。"],
+          ["对应具体应用", "找到当前占用 CPU、内存或网络资源最多的运行中 App。"],
+          ["克制的采样", "复用共享基线并降低非活动状态刷新频率，避免监控本身成为负担。"],
+        ],
+        sections: [
+          {
+            title: "把压力和使用量放在一起看",
+            body: "CPU 百分比只是性能的一部分。MachKit 将处理器活动、内存压力、物理内存、压缩内存和散热状态放在一起，为卡顿提供更有用的上下文。",
+            items: ["系统与各核心 CPU 活动", "已用、缓存与压缩内存", "内存压力与散热状态"],
+          },
+          {
+            title: "把资源使用对应到运行中的 App",
+            body: "应用排行帮助找到当前压力来自哪里。在系统能够提供足够上下文时，位于 App 包内的辅助进程会归并到对应应用。",
+            items: ["各 App 的 CPU 与内存", "应用网络活动", "显示可读的 App 身份，而不只是 PID"],
+          },
+          {
+            title: "让监控保持本地且适度",
+            body: "指标来自 macOS API 和本地系统工具。MachKit 不上传性能样本，非活动界面会降低刷新频率，而不是持续进行完整采样。",
+            items: ["没有遥测或云端面板", "共享采样基线", "App 或页面不活动时减少工作量"],
+          },
+        ],
+      },
+    },
+  },
+  {
+    id: "system-inspector",
+    slug: "features/system-inspector",
+    image: "system.webp",
+    locales: {
+      en: {
+        title: "Mac Login Items & Background Activity Inspector — MachKit",
+        description: "Inspect Mac login items, registered background tasks, application extensions, source paths, and confirmed leftovers from one local system workspace.",
+        eyebrow: "System inspection",
+        heading: "Make background activity visible before changing it.",
+        lead: "MachKit organizes login items, background registrations, application extensions, and possible leftovers into a searchable local inventory. It keeps source paths and ownership context visible before offering a system setting or removal action.",
+        highlights: [
+          ["Unified inventory", "Review login items, background activity, and app extensions without hunting through separate settings."],
+          ["Source context", "Search by application, label, identifier, or path and see where an entry comes from."],
+          ["Conservative action", "Open the relevant macOS setting or remove only confirmed, policy-approved leftovers."],
+        ],
+        sections: [
+          {
+            title: "Bring scattered registrations together",
+            body: "Background software can appear through several macOS mechanisms. MachKit groups the available records by purpose while retaining the labels, paths, application identity, and status needed to understand them.",
+            items: ["Login items and launch registrations", "Registered background activity", "Application and system extensions"],
+          },
+          {
+            title: "Search with the original source still visible",
+            body: "Filtering does not reduce an entry to a friendly label alone. Source paths and owning applications remain available so similarly named items can be distinguished before any action.",
+            items: ["Search names, labels, identifiers, and paths", "Reveal related files where supported", "Open the relevant macOS settings"],
+          },
+          {
+            title: "Avoid turning inspection into blind removal",
+            body: "MachKit separates active registrations from likely remnants and validates removal targets against its safety policy. Ambiguous or protected entries remain outside automatic removal.",
+            items: ["Clear active-versus-leftover status", "Protected-path and ownership checks", "Trash-first removal where supported"],
+          },
+        ],
+      },
+      "zh-CN": {
+        title: "Mac 登录项与后台活动检查 — MachKit",
+        description: "在一个本地系统工作区中检查 Mac 登录项、已注册后台任务、应用扩展、来源路径和经过确认的残留。",
+        eyebrow: "系统检查",
+        heading: "先让后台活动变得可见，再决定是否改变它。",
+        lead: "MachKit 将登录项、后台注册、应用扩展和可能的残留整理成可搜索的本地清单。在打开系统设置或提供移除操作前，始终保留来源路径和所属应用等上下文。",
+        highlights: [
+          ["统一清单", "不用在多处设置之间寻找，即可检查登录项、后台活动和应用扩展。"],
+          ["保留来源", "按应用、标签、标识符或路径搜索，并看清每个项目来自哪里。"],
+          ["保守操作", "打开对应的 macOS 设置，或只移除经过确认且符合安全策略的残留。"],
+        ],
+        sections: [
+          {
+            title: "集中查看分散的系统注册",
+            body: "后台软件可能通过多种 macOS 机制出现。MachKit 按用途整理系统能够提供的记录，同时保留理解它们所需的标签、路径、应用身份和状态。",
+            items: ["登录项与启动注册", "已注册后台活动", "应用扩展与系统扩展"],
+          },
+          {
+            title: "搜索时仍然看得到原始来源",
+            body: "筛选不会只留下一个友好名称。来源路径和所属应用仍然可见，因此可以在操作前区分名称相近的项目。",
+            items: ["搜索名称、标签、标识符和路径", "在支持时显示关联文件", "打开对应的 macOS 设置"],
+          },
+          {
+            title: "不要把检查变成盲目移除",
+            body: "MachKit 区分活动中的注册和可能的残留，并通过安全策略验证移除目标。含义不明确或受保护的项目不会进入自动移除。",
+            items: ["明确区分活动项目与残留", "受保护路径与所有权检查", "支持时优先移入废纸篓"],
+          },
+        ],
+      },
+    },
+  },
+  {
     id: "utilities",
     slug: "utilities",
     image: "tools.webp",
     locales: {
       en: {
-        title: "24 Practical Mac Tools in One Local App — MachKit",
-        description: "Use 24 focused Mac tools for text, data, images, networking, security, diagnostics, and everyday tasks. Everything runs locally in one native app.",
+        title: "19 Practical Mac Tools in One Local App — MachKit",
+        description: "Use 19 focused Mac tools for text, data, images, networking, security, diagnostics, and everyday tasks. Everything runs locally in one native app.",
         eyebrow: "A toolkit designed to grow",
         heading: "Small, practical tools should live in one dependable place.",
-        lead: "MachKit brings 24 focused Mac tools into one native, searchable catalog for text, data, images, networking, security, diagnostics, and everyday tasks. Alongside that catalog, a native screenshot workflow lets you capture any region from a global shortcut, annotate with shapes, arrows, highlight, mosaic, and text, then copy or save—without another window or cloud upload. Each tool shares the same shell, language, theme, shortcuts, and privacy model.",
+        lead: "MachKit brings 19 focused Mac tools into one native, searchable catalog for text, data, images, networking, security, diagnostics, and everyday tasks. Alongside that catalog, a native screenshot workflow lets you capture any region from a global shortcut, annotate with shapes, arrows, highlight, mosaic, and text, then copy or save—without another window or cloud upload. Each tool shares the same shell, language, theme, shortcuts, and privacy model.",
         highlights: [
           ["Native screenshot", "Freeze the desktop, annotate in place, and export to the clipboard or a file—entirely on your Mac."],
           ["Useful by design", "Each utility starts with a real recurring task instead of a broad feature checklist."],
@@ -374,6 +513,92 @@ export const featurePages = Object.freeze([
       },
     },
   },
+]);
+
+function toolFeaturePage(tool: WebsiteTool): FeaturePage {
+  const en = localizedTool(tool, "en");
+  const zh = localizedTool(tool, "zh-CN");
+  return Object.freeze({
+    id: `tool-${tool.id}`,
+    slug: `tools/${tool.id}`,
+    image: "tools.webp",
+    kind: "tool",
+    locales: {
+      en: {
+        title: `${en.title} for Mac — Local Utility in MachKit`,
+        description: `${en.summary} Use it locally in the free, open-source MachKit app for macOS.`,
+        eyebrow: en.category,
+        heading: `${en.title}, available locally on your Mac.`,
+        lead: en.introduction,
+        highlights: en.highlights.map((highlight, index) => [
+          highlight,
+          index === 0
+            ? `Start the core ${en.title} workflow without leaving the MachKit toolbox.`
+            : index === 1
+              ? "Keep the working input and generated result on the Mac."
+              : "Copy or continue with the result from the same consistent utility window.",
+        ]),
+        sections: [
+          {
+            title: `What ${en.title} is designed to do`,
+            body: en.introduction,
+            items: en.highlights,
+          },
+          {
+            title: "Keep sensitive working data out of online converters",
+            body: "MachKit runs this utility as bundled local content. It does not require an account, analytics service, remote script, or cloud storage for the tool input.",
+            items: ["Bundled with the native Mac app", "No analytics or advertising", "No upload required for local transformations"],
+          },
+          {
+            title: "Use one utility without installing another standalone app",
+            body: `${en.title} shares MachKit’s searchable tool catalog, light and dark appearance, localization, clipboard feedback, and configurable global shortcuts.`,
+            items: [`Part of the ${en.category} category`, "Searchable from the MachKit tools workspace", "Available through an optional global shortcut"],
+          },
+        ],
+      },
+      "zh-CN": {
+        title: `${zh.title} Mac 本地工具 — MachKit`,
+        description: `${zh.summary} 在免费开源的 MachKit macOS App 中本地使用。`,
+        eyebrow: zh.category,
+        heading: `在 Mac 本机使用${zh.title}。`,
+        lead: zh.introduction,
+        highlights: zh.highlights.map((highlight, index) => [
+          highlight,
+          index === 0
+            ? `无需离开 MachKit 工具箱即可开始${zh.title}的核心流程。`
+            : index === 1
+              ? "输入内容和生成结果始终留在当前 Mac。"
+              : "在同一套一致的工具窗口中复制结果或继续处理。",
+        ]),
+        sections: [
+          {
+            title: `${zh.title}用于解决什么问题`,
+            body: zh.introduction,
+            items: zh.highlights,
+          },
+          {
+            title: "避免把工作内容交给在线转换网站",
+            body: "MachKit 将这个工具作为本地内容打包运行。处理输入时不需要账户、分析服务、远程脚本或云端存储。",
+            items: ["随原生 Mac App 本地打包", "没有分析和广告", "本地转换无需上传"],
+          },
+          {
+            title: "无需再安装一个独立小工具",
+            body: `${zh.title}与 MachKit 的工具搜索、深浅色外观、多语言、复制反馈和可配置全局快捷键共用同一套体验。`,
+            items: [`属于${zh.category}分类`, "可从 MachKit 工具工作区搜索", "可以配置全局快捷键"],
+          },
+        ],
+      },
+    },
+  });
+}
+
+export const toolFeaturePages = Object.freeze(
+  websiteToolCatalog.map((tool) => toolFeaturePage(tool)),
+);
+
+export const featurePages = Object.freeze([
+  ...primaryFeaturePages,
+  ...toolFeaturePages,
 ]);
 
 export function localizedPath(page: Pick<FeaturePage, "slug">, locale: SiteLocale): string {

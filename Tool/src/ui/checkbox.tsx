@@ -35,7 +35,7 @@ export function CheckboxField({
         disabled={disabled}
         className={cn(
           "grid size-4 shrink-0 place-items-center rounded-[4px] border border-border bg-field text-white outline-none transition-colors",
-          "hover:border-accent focus-visible:ring-2 focus-visible:ring-accent/35",
+          "hover:border-accent focus-visible:ring-3 focus-visible:ring-accent/35",
           "data-[state=checked]:border-accent data-[state=checked]:bg-accent",
           "data-[state=indeterminate]:border-accent data-[state=indeterminate]:bg-accent",
           "disabled:pointer-events-none",

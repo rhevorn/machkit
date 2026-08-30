@@ -94,4 +94,41 @@ public enum WebToolBridgePolicy: Sendable {
     public static func sanitizedBootstrapToken(_ value: String) -> String {
         value.filter { $0.isLetter || $0.isNumber || $0 == "-" || $0 == "_" }
     }
+
+    /// Initializes the small, immutable preference surface exposed to bundled tools.
+    /// Interaction behavior (including standard WebKit context menus) stays owned by
+    /// the host instead of being intercepted by page JavaScript.
+    public static func bootstrapScript(localeIdentifier: String, appearance: String) -> String {
+        let preferences = sanitizedPreferences(
+            localeIdentifier: localeIdentifier,
+            appearance: appearance
+        )
+        return """
+        window.__MACHKIT__ = Object.freeze({ locale: '\(preferences.locale)', appearance: '\(preferences.appearance)' });
+        (function () {
+          var appearance = window.__MACHKIT__.appearance;
+          var root = document.documentElement;
+          if (appearance === 'light' || appearance === 'dark') {
+            root.dataset.appearance = appearance;
+            root.style.colorScheme = appearance;
+          } else {
+            delete root.dataset.appearance;
+            root.style.colorScheme = '';
+          }
+        })();
+        """
+    }
+
+    public static func sanitizedPreferences(
+        localeIdentifier: String,
+        appearance: String
+    ) -> (locale: String, appearance: String) {
+        let locale = sanitizedBootstrapToken(localeIdentifier)
+        let safeLocale = locale.isEmpty ? "en" : locale
+        let sanitizedAppearance = sanitizedBootstrapToken(appearance)
+        let safeAppearance = ["system", "light", "dark"].contains(sanitizedAppearance)
+            ? sanitizedAppearance
+            : "system"
+        return (safeLocale, safeAppearance)
+    }
 }

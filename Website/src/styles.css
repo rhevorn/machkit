@@ -528,6 +528,10 @@ h1 {
   margin-top: 46px;
 }
 
+.screen-layout[hidden] {
+  display: none;
+}
+
 .screen-copy {
   padding-top: 18px;
 }

@@ -88,3 +88,23 @@ import Testing
     let debugRules = try #require(JSONSerialization.jsonObject(with: debugData) as? [[String: Any]])
     #expect(debugRules.count == 2)
 }
+
+@Test func webToolBootstrapScriptSanitizesPreferencesWithoutBlockingNativeInteraction() {
+    let preferences = WebToolBridgePolicy.sanitizedPreferences(
+        localeIdentifier: "zh-Hans'; alert(1)",
+        appearance: "dark'; alert(1)"
+    )
+    #expect(preferences.locale == "zh-Hansalert1")
+    #expect(preferences.appearance == "system")
+
+    let script = WebToolBridgePolicy.bootstrapScript(
+        localeIdentifier: "zh-Hans'; alert(1)",
+        appearance: "dark'; alert(1)"
+    )
+
+    #expect(script.contains("locale: 'zh-Hansalert1'"))
+    #expect(script.contains("appearance: 'system'"))
+    #expect(script.contains("Object.freeze"))
+    #expect(script.contains("contextmenu") == false)
+    #expect(script.contains("preventDefault") == false)
+}

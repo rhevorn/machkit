@@ -124,6 +124,8 @@ function PairEditor({
               variant="ghost"
               size="sm"
               className="shrink-0"
+              aria-label={text.removeRow}
+              title={text.removeRow}
               disabled={row.id === EMPTY_PAIR.id && !rows.length}
               onClick={() => removeRow(row.id)}
             >
@@ -224,6 +226,7 @@ function FormFieldEditor({
                 variant="ghost"
                 size="sm"
                 className="shrink-0"
+                aria-label={text.chooseFile}
                 onClick={() => chooseFile(row)}
                 title={text.chooseFile}
               >
@@ -234,6 +237,8 @@ function FormFieldEditor({
               variant="ghost"
               size="sm"
               className="shrink-0"
+              aria-label={text.removeRow}
+              title={text.removeRow}
               onClick={() => onChange(rows.filter((item) => item.id !== row.id))}
             >
               <Trash size={15} />
