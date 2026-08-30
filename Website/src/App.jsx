@@ -20,13 +20,21 @@ import {
 } from "./release.js";
 
 const THEME_KEY = "machkit-website-theme";
-const SCREEN_KEYS = [
-  "cleanup",
-  "apps",
-  "performance",
-  "tools",
-  "settings",
+const SCREEN_SPECS = [
+  ["overview", 1600, 1329],
+  ["cleanup", 2040, 1648],
+  ["apps", 2040, 1648],
+  ["storage", 1600, 1329],
+  ["performance", 2040, 1648],
+  ["network", 1600, 1329],
+  ["tools", 2040, 1648],
+  ["system", 1600, 1329],
+  ["settings", 2040, 1648],
 ];
+const SCREEN_KEYS = SCREEN_SPECS.map(([key]) => key);
+const SCREEN_DIMENSIONS = Object.fromEntries(
+  SCREEN_SPECS.map(([key, width, height]) => [key, { width, height }]),
+);
 
 const GROUP_ICONS = [ChartDonut, Wrench, Pulse, Code];
 
@@ -245,8 +253,8 @@ export function App({
                 <img
                   src={screenImages[selectedScreen]}
                   alt={activeScreen.alt}
-                  width="2040"
-                  height="1648"
+                  width={SCREEN_DIMENSIONS[selectedScreen].width}
+                  height={SCREEN_DIMENSIONS[selectedScreen].height}
                 />
               </div>
             </div>
