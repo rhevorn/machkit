@@ -334,6 +334,11 @@ final class MachKitAppDelegate: NSObject, NSApplicationDelegate {
         super.init()
     }
 
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        // Tool windows are discrete scenes, not a tabbed document group.
+        NSWindow.allowsAutomaticWindowTabbing = false
+    }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         AppAppearance.applyStoredPreference()
         GlobalHotKeyManager.shared.start()
@@ -429,6 +434,7 @@ struct MachKitApp: App {
                 )
             }
         }
+        .commandsRemoved()
         .windowStyle(.titleBar)
         .windowToolbarStyle(.unifiedCompact)
         .defaultSize(
