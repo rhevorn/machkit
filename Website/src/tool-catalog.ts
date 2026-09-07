@@ -140,21 +140,21 @@ export const websiteToolCatalog = Object.freeze([
     category: "text-data",
     en: {
       title: "Codec",
-      summary: "Encode and decode BaseXX, Unicode, UTF-8, URL, ASCII/Native, HTML, Punycode, GBK, and related formats locally.",
-      introduction: "Codec covers everyday encoding and escaping chores. Transform Base16–85, Unicode, UTF-8 bytes, URL, ASCII/Native, HTML, Punycode, GBK, Quoted-Printable, Data URIs, and more—or hash text—without an online converter.",
+      summary: "Encode and decode BaseXX, Unicode, UTF-8, URL, ASCII/Native, HTML, Punycode, GBK, Data URI, radix, and related formats locally.",
+      introduction: "Codec covers everyday encoding and escaping chores. Transform Base16–85, Unicode, UTF-8 bytes, URL, ASCII/Native, HTML, Punycode, GBK, Quoted-Printable, Data URIs, integer radix conversion, and more—or hash text—without an online converter.",
       highlights: [
         "Base16, 32, 36, 58, 62, 64, and 85",
-        "Unicode, UTF-8, URL, ASCII/Native, Punycode, GBK, Data URI",
+        "Unicode, UTF-8, URL, ASCII/Native, Punycode, GBK, Data URI, radix 2–36",
         "Local hashing for quick checks",
       ],
     },
     "zh-CN": {
       title: "编解码",
-      summary: "本机编解码 BaseXX、Unicode、UTF-8、URL、ASCII/Native、HTML、Punycode、GBK 等格式。",
-      introduction: "编解码覆盖日常编码与转义。支持 Base16–85、Unicode、UTF-8 字节、URL、ASCII/Native、HTML、Punycode、GBK、Quoted-Printable、Data URI 等，也可本地 Hash，不必依赖在线转换站。",
+      summary: "本机编解码 BaseXX、Unicode、UTF-8、URL、ASCII/Native、HTML、Punycode、GBK、Data URI、进制等格式。",
+      introduction: "编解码覆盖日常编码与转义。支持 Base16–85、Unicode、UTF-8 字节、URL、ASCII/Native、HTML、Punycode、GBK、Quoted-Printable、Data URI、整数进制转换等，也可本地 Hash，不必依赖在线转换站。",
       highlights: [
         "Base16、32、36、58、62、64、85",
-        "Unicode、UTF-8、URL、ASCII/Native、Punycode、GBK、Data URI",
+        "Unicode、UTF-8、URL、ASCII/Native、Punycode、GBK、Data URI、2–36 进制",
         "本地 Hash 快速校验",
       ],
     },

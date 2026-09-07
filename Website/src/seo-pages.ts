@@ -446,11 +446,11 @@ const primaryFeaturePages = Object.freeze([
     image: "tools.webp",
     locales: {
       en: {
-        title: "19 Practical Mac Tools in One Local App — MachKit",
-        description: "Use 19 focused Mac tools for text, data, images, networking, security, diagnostics, and everyday tasks. Everything runs locally in one native app.",
+        title: "20 Practical Mac Tools in One Local App — MachKit",
+        description: "Use 20 focused Mac tools for text, data, images, networking, security, diagnostics, and everyday tasks. Everything runs locally in one native app.",
         eyebrow: "A toolkit designed to grow",
         heading: "Small, practical tools should live in one dependable place.",
-        lead: "MachKit brings 19 focused Mac tools into one native, searchable catalog for text, data, images, networking, security, diagnostics, and everyday tasks. Alongside that catalog, a native screenshot workflow lets you capture any region from a global shortcut, annotate with shapes, arrows, highlight, mosaic, and text, then copy or save—without another window or cloud upload. Each tool shares the same shell, language, theme, shortcuts, and privacy model.",
+        lead: "MachKit brings 20 focused Mac tools into one native, searchable catalog for text, data, images, networking, security, diagnostics, and everyday tasks. Alongside that catalog, a native screenshot workflow lets you capture any region from a global shortcut, annotate with shapes, arrows, highlight, mosaic, and text, then copy or save—without another window or cloud upload. Each tool shares the same shell, language, theme, shortcuts, and privacy model.",
         highlights: [
           ["Native screenshot", "Freeze the desktop, annotate in place, and export to the clipboard or a file—entirely on your Mac."],
           ["Useful by design", "Each utility starts with a real recurring task instead of a broad feature checklist."],

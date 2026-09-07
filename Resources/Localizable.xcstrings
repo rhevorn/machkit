@@ -24856,61 +24856,61 @@
         }
       }
     },
-    "Encode and decode BaseXX, Unicode, UTF-8, URL, ASCII/Native, HTML, Punycode, GBK, and more" : {
+    "Encode and decode BaseXX, Unicode, UTF-8, URL, ASCII/Native, HTML, Punycode, GBK, Data URI, and more" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "BaseXX, Unicode, UTF-8, URL, ASCII/Native, HTML, Punycode, GBK und mehr kodieren und dekodieren"
+            "value" : "BaseXX, Unicode, UTF-8, URL, ASCII/Native, HTML, Punycode, GBK, Data URI und mehr kodieren und dekodieren"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Codifica y decodifica BaseXX, Unicode, UTF-8, URL, ASCII/Native, HTML, Punycode, GBK y más"
+            "value" : "Codifica y decodifica BaseXX, Unicode, UTF-8, URL, ASCII/Native, HTML, Punycode, GBK, Data URI y más"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Encodez et décodez BaseXX, Unicode, UTF-8, URL, ASCII/Native, HTML, Punycode, GBK et plus"
+            "value" : "Encodez et décodez BaseXX, Unicode, UTF-8, URL, ASCII/Native, HTML, Punycode, GBK, Data URI et plus"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "BaseXX、Unicode、UTF-8、URL、ASCII/Native、HTML、Punycode、GBK などをエンコード／デコード"
+            "value" : "BaseXX、Unicode、UTF-8、URL、ASCII/Native、HTML、Punycode、GBK、Data URI などをエンコード／デコード"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "BaseXX, Unicode, UTF-8, URL, ASCII/Native, HTML, Punycode, GBK 등 인코딩/디코딩"
+            "value" : "BaseXX, Unicode, UTF-8, URL, ASCII/Native, HTML, Punycode, GBK, Data URI 등 인코딩/디코딩"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Codifique e decodifique BaseXX, Unicode, UTF-8, URL, ASCII/Native, HTML, Punycode, GBK e mais"
+            "value" : "Codifique e decodifique BaseXX, Unicode, UTF-8, URL, ASCII/Native, HTML, Punycode, GBK, Data URI e mais"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Кодирование и декодирование BaseXX, Unicode, UTF-8, URL, ASCII/Native, HTML, Punycode, GBK и др."
+            "value" : "Кодирование и декодирование BaseXX, Unicode, UTF-8, URL, ASCII/Native, HTML, Punycode, GBK, Data URI и др."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "编解码 BaseXX、Unicode、UTF-8、URL、ASCII/Native、HTML、Punycode、GBK 等"
+            "value" : "编解码 BaseXX、Unicode、UTF-8、URL、ASCII/Native、HTML、Punycode、GBK、Data URI 等"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "編解碼 BaseXX、Unicode、UTF-8、URL、ASCII/Native、HTML、Punycode、GBK 等"
+            "value" : "編解碼 BaseXX、Unicode、UTF-8、URL、ASCII/Native、HTML、Punycode、GBK、Data URI 等"
           }
         }
       }

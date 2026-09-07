@@ -2,7 +2,7 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md)
 
-A privacy-first macOS utility for storage analysis, cleanup, app uninstall, system monitoring, network inspection, annotated screenshots, and 19 focused local utilities.
+A privacy-first macOS utility for storage analysis, cleanup, app uninstall, system monitoring, network inspection, annotated screenshots, and 20 focused local utilities.
 
 MachKit has no analytics service or cloud backend. Scans read local file metadata only, risky items stay unchecked by default, and removable items go to the Trash unless the UI explicitly identifies an operation as permanent. Network diagnostics and cURL Lab send requests only when you explicitly start them, directly from your Mac.
 
@@ -26,11 +26,12 @@ MachKit has no analytics service or cloud backend. Scans read local file metadat
 - **System** — Review login items, background activity, and extensions
 - **Menu bar** — Keep MachKit in the menu bar for quick access to features and Quit
 - **Screenshot** — Capture any screen region from a global shortcut, freeze the desktop, annotate with rectangles, ellipses, arrows, pen, highlight, mosaic, and text, then copy or save—all on your Mac, without opening another window
-- **Utilities** — Open 19 focused local tools from the Tools workspace, menu, or global shortcuts:
+- **Utilities** — Open 20 focused local tools from the Tools workspace, menu, or global shortcuts:
   - **Hosts Manager** — View `/etc/hosts` and switch shared / environment mappings safely
   - **Timestamp Converter** — Convert dates and Unix timestamps across units and time zones
   - **JSON Formatter** — Format, minify, sort keys, and query values with path expressions
-  - **Codec** — Encode and decode Base64, Base32, Base62, Hex, URL, HTML, Unicode, Escape, and Hash
+  - **Codec** — Encode and decode BaseXX, Unicode, UTF-8, URL, HTML, Punycode, GBK, Data URI, radix, Escape, and Hash
+  - **Cipher** — Encrypt and decrypt with AES, ChaCha, RSA, DES/3DES, and SM2/SM4 locally
   - **String Generator** — Generate UUID v1–v7, ULIDs, Nano IDs, hex strings, and random strings locally
   - **Regex Lab** — Highlight matches, inspect capture groups, and try common replacements
   - **Text Diff** — Compare two texts side by side with line-level highlighting
