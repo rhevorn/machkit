@@ -44,6 +44,7 @@ function localeText(locale: SiteLocale) {
         overview: "概览",
         details: "详细能力",
         detailsHeading: "看清提供的能力，也看清安全边界。",
+        faq: "常见问题",
         explore: "继续了解 MachKit",
         exploreBody: "从一个清晰的原生工作区查看、理解并维护你的 Mac。",
         source: "查看源码",
@@ -67,6 +68,7 @@ function localeText(locale: SiteLocale) {
         overview: "Overview",
         details: "What it covers",
         detailsHeading: "See the capability and the boundary together.",
+        faq: "FAQ",
         explore: "Explore MachKit",
         exploreBody: "See, understand, and maintain your Mac from one clear native workspace.",
         source: "View source",
@@ -248,6 +250,22 @@ export function renderFeatureDocument({
           { "@type": "ListItem", position: 2, name: content.eyebrow, item: canonical },
         ],
       },
+      ...(content.faqs && content.faqs.length > 0
+        ? [
+            {
+              "@type": "FAQPage",
+              "@id": `${canonical}#faq`,
+              mainEntity: content.faqs.map((faq) => ({
+                "@type": "Question",
+                name: faq.question,
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: faq.answer,
+                },
+              })),
+            },
+          ]
+        : []),
     ],
   };
 
@@ -337,6 +355,30 @@ export function renderFeatureDocument({
             </article>`).join("")}
           </div>
         </section>
+
+        ${
+          content.faqs && content.faqs.length > 0
+            ? `<section class="feature-details section-shell" aria-labelledby="faq-title">
+          <header class="section-heading">
+            <p class="kicker">${escapeHTML(text.faq)}</p>
+            <h2 id="faq-title">${escapeHTML(text.faq)}</h2>
+          </header>
+          <div class="feature-detail-list">
+            ${content.faqs
+              .map(
+                (faq, index) => `<article>
+              <span>${String(index + 1).padStart(2, "0")}</span>
+              <div>
+                <h3>${escapeHTML(faq.question)}</h3>
+                <p>${escapeHTML(faq.answer)}</p>
+              </div>
+            </article>`,
+              )
+              .join("")}
+          </div>
+        </section>`
+            : ""
+        }
 
         <section class="feature-related">
           <div class="section-shell">
