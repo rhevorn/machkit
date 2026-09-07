@@ -57,8 +57,8 @@ function CronTool() {
       : null;
 
   return (
-    <ToolPage title={text.title} adaptiveHeight={false}>
-      <ToolContent className="flex h-full min-h-0 flex-1 flex-col gap-3 overflow-hidden pt-3 pb-4">
+    <ToolPage title={text.title}>
+      <ToolContent className="flex h-full min-h-0 flex-1 flex-col gap-3 overflow-hidden">
         <ToolToolbar className="min-h-[var(--machkit-size-control)] shrink-0 gap-2 border-b-0">
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <label htmlFor="cron-expression" className="machkit-control-label whitespace-nowrap">
@@ -105,9 +105,9 @@ function CronTool() {
 
         {result.ok ? (
           <div className="grid min-h-0 flex-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
-            <section className="flex min-h-0 flex-col gap-2">
+            <section className="flex min-h-0 flex-col gap-2 overflow-hidden">
               <div className="machkit-sidebar-label shrink-0">{text.fields}</div>
-              <div className="min-h-0 flex-1 overflow-auto">
+              <div className="shrink-0">
                 {FIELD_KEYS.map((key, index) => (
                   <div
                     key={key}
@@ -132,11 +132,11 @@ function CronTool() {
             <section className="flex min-h-0 flex-col gap-2 border-l border-border/70 pl-6 max-lg:border-l-0 max-lg:pl-0 max-lg:border-t max-lg:pt-4">
               <div className="machkit-sidebar-label shrink-0">{text.nextRuns}</div>
               {result.runs.length ? (
-                <ol className="min-h-0 flex-1 space-y-0.5 overflow-auto">
+                <ol className="min-h-0 flex-1 space-y-0.5 overflow-auto rounded-panel bg-muted/70 p-[6px]">
                   {result.runs.map((run, index) => (
                     <li
                       key={run.toISOString()}
-                      className="flex items-baseline gap-3 rounded-control px-1.5 py-1.5 font-mono text-[12.5px] tabular-nums hover:bg-muted/70"
+                      className="flex items-baseline gap-3 rounded-control px-1.5 py-1.5 font-mono text-[12.5px] tabular-nums hover:bg-muted"
                     >
                       <span className="w-5 shrink-0 text-right text-[11px] text-tertiary">
                         {index + 1}
@@ -146,7 +146,7 @@ function CronTool() {
                   ))}
                 </ol>
               ) : (
-                <p className="py-4 text-xs text-tertiary">{text.noRuns}</p>
+                <p className="rounded-panel bg-muted/70 px-3 py-4 text-xs text-tertiary">{text.noRuns}</p>
               )}
             </section>
           </div>

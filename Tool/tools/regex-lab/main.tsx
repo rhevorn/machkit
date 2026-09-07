@@ -143,8 +143,8 @@ function RegexLab() {
 
   return (
     <ToolPage title={text.title}>
-      <ToolContent className="flex flex-col gap-4 pt-4 pb-6">
-        <ToolToolbar className="gap-2">
+      <ToolContent className="flex min-h-0 flex-col gap-4 overflow-hidden">
+        <ToolToolbar className="shrink-0 gap-2 border-b-0">
           <SegmentedControl
             value={mode}
             onChange={setMode}
@@ -173,7 +173,7 @@ function RegexLab() {
           </ActionGroup>
         </ToolToolbar>
 
-        <div className="flex flex-col gap-2">
+        <div className="flex shrink-0 flex-col gap-2">
           <span className="machkit-sidebar-label">{text.pattern}</span>
           <div
             className={cn(
@@ -224,13 +224,13 @@ function RegexLab() {
         </div>
 
         {patternInvalid ? (
-          <StatusStrip tone="danger">{statusLabel}</StatusStrip>
+          <StatusStrip tone="danger" className="shrink-0">{statusLabel}</StatusStrip>
         ) : (
-          <StatusStrip tone="info">{statusLabel}</StatusStrip>
+          <StatusStrip tone="info" className="shrink-0">{statusLabel}</StatusStrip>
         )}
 
         {mode === "replace" ? (
-          <div className="flex flex-col gap-2">
+          <div className="flex shrink-0 flex-col gap-2">
             <span className="machkit-sidebar-label">{text.replace}</span>
             <div className="flex items-center gap-1 rounded-panel border border-border bg-surface px-2.5 py-1.5">
               <Input
@@ -258,14 +258,22 @@ function RegexLab() {
           </div>
         ) : null}
 
-        <div className="grid min-w-0 gap-3 sm:grid-cols-2">
-          <div className="flex min-w-0 flex-col gap-2">
-            <span className="machkit-sidebar-label">{text.test}</span>
+        <div
+          className={cn(
+            "grid min-h-0 min-w-0 gap-3 sm:grid-cols-2",
+            mode === "replace" ? "flex-1" : "shrink-0",
+          )}
+        >
+          <div className="flex min-h-0 min-w-0 flex-col gap-2">
+            <span className="machkit-sidebar-label shrink-0">{text.test}</span>
             <Textarea
               value={input}
               onChange={(event) => setInput(event.target.value)}
               placeholder={text.emptyInput}
-              className="h-[150px] min-h-[150px] w-full resize-y font-mono text-[12px]"
+              className={cn(
+                "w-full resize-none font-mono text-[12px]",
+                mode === "replace" ? "min-h-0 flex-1" : "h-[150px] min-h-[150px] resize-y",
+              )}
               spellCheck={false}
             />
           </div>
@@ -296,22 +304,22 @@ function RegexLab() {
               </ResultPanel>
             </div>
           ) : (
-            <div className="flex min-w-0 flex-col gap-2">
-              <span className="machkit-sidebar-label">{text.result}</span>
+            <div className="flex min-h-0 min-w-0 flex-col gap-2">
+              <span className="machkit-sidebar-label shrink-0">{text.result}</span>
               <Textarea
                 readOnly
                 value={replaceResult.ok ? replaceResult.value : ""}
                 placeholder={text.result}
-                className="h-[150px] min-h-[150px] w-full resize-y bg-accent-soft/40 font-mono text-[12px]"
+                className="min-h-0 w-full flex-1 resize-none bg-accent-soft/40 font-mono text-[12px]"
               />
             </div>
           )}
         </div>
 
         {mode === "test" ? (
-          <div className="flex flex-col gap-2">
-            <span className="machkit-sidebar-label">{text.matches}</span>
-            <ResultPanel className="max-h-[180px] overflow-auto bg-surface">
+          <div className="flex min-h-0 flex-1 flex-col gap-2">
+            <span className="machkit-sidebar-label shrink-0">{text.matches}</span>
+            <ResultPanel className="min-h-0 flex-1 overflow-auto bg-surface">
               {matchResult.ok && matchResult.matches.length ? (
                 <ul>
                   {matchResult.matches.map((match, index) => (
@@ -352,7 +360,7 @@ function RegexLab() {
                   ))}
                 </ul>
               ) : (
-                <p className="px-3 py-6 text-center text-xs text-tertiary">{text.noMatches}</p>
+                <p className="px-3 py-4 text-center text-xs text-tertiary">{text.noMatches}</p>
               )}
             </ResultPanel>
           </div>
