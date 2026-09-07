@@ -548,17 +548,22 @@ function CodecTool() {
         return;
       }
       if (!input.trim()) return;
+      const dataURI = input.trim();
       clearDataURIMedia();
-      setDataURIInputKind("text");
       setDirection("encode");
       if (decodedText) {
+        setDataURIInputKind("text");
         setInput(decodedText);
         setOutput("");
-      } else {
-        // Binary decode: move data URI into encode as text input
-        setInput(input.trim());
-        setOutput("");
+        setError(null);
+        return;
       }
+      // Binary decode: keep the existing data URI as encode media (do not re-wrap).
+      const inspected = inspectDataURI(dataURI);
+      setDataURIInputKind(inspected.ok && inspected.isImage ? "image" : "file");
+      setInput("");
+      setDataURIMediaURL(dataURI);
+      setOutput(dataURI);
       setError(null);
       return;
     }
