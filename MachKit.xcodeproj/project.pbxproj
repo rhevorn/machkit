@@ -21,6 +21,7 @@
 		A1000000000000000000000C /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000E /* Localization.swift */; };
 		A1000000000000000000000D /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000F /* Localizable.xcstrings */; };
 		A1000000000000000000000E /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000010 /* InfoPlist.xcstrings */; };
+		A10000000000000000000030 /* ToolSearchKeywords.json in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000033 /* ToolSearchKeywords.json */; };
 		A1000000000000000000000F /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000011 /* AppSettings.swift */; };
 		A10000000000000000000010 /* OperationResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000012 /* OperationResultView.swift */; };
 		A10000000000000000000013 /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000015 /* AppPreferences.swift */; };
@@ -77,6 +78,7 @@
 		A2000000000000000000000E /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
 		A2000000000000000000000F /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		A20000000000000000000010 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
+		A20000000000000000000033 /* ToolSearchKeywords.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ToolSearchKeywords.json; sourceTree = "<group>"; };
 		A20000000000000000000011 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		A20000000000000000000012 /* OperationResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationResultView.swift; sourceTree = "<group>"; };
 		A20000000000000000000015 /* AppPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferences.swift; sourceTree = "<group>"; };
@@ -192,6 +194,7 @@
 				A20000000000000000000008 /* Assets.xcassets */,
 				A2000000000000000000000F /* Localizable.xcstrings */,
 				A20000000000000000000010 /* InfoPlist.xcstrings */,
+				A20000000000000000000033 /* ToolSearchKeywords.json */,
 				A20000000000000000000023 /* WebTools */,
 			);
 			path = Resources;
@@ -353,6 +356,7 @@
 				A10000000000000000000006 /* Assets.xcassets in Resources */,
 				A1000000000000000000000D /* Localizable.xcstrings in Resources */,
 				A1000000000000000000000E /* InfoPlist.xcstrings in Resources */,
+				A10000000000000000000030 /* ToolSearchKeywords.json in Resources */,
 				A1000000000000000000001B /* WebTools in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -262,10 +262,10 @@ private struct ToolCard: View {
                 HStack(spacing: 11) {
                     Image(systemName: tool.icon)
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundStyle(tool.accentColor)
+                        .foregroundStyle(tool.iconColor)
                         .environment(\.locale, Locale(identifier: "en"))
                         .frame(width: 34, height: 34)
-                        .background(tool.accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 9))
+                        .background(tool.iconColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 9))
 
                     VStack(alignment: .leading, spacing: 3) {
                         Text(tool.localizedTitle)
@@ -291,7 +291,7 @@ private struct ToolCard: View {
                 Button(action: onTogglePin) {
                     Image(systemName: isPinned ? "pin.fill" : "pin")
                         .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(isHovered || isPinned ? tool.accentColor : Color.secondary)
+                        .foregroundStyle(isHovered || isPinned ? tool.iconColor : Color.secondary)
                         .frame(width: 20, height: 20)
                         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 5))
                 }
@@ -303,7 +303,7 @@ private struct ToolCard: View {
                 Button(action: onShortcut) {
                     Image(systemName: "keyboard")
                         .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(isHovered ? tool.accentColor : Color.secondary)
+                        .foregroundStyle(isHovered ? tool.iconColor : Color.secondary)
                         .frame(width: 20, height: 20)
                         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 5))
                 }
@@ -322,8 +322,8 @@ private struct ToolCard: View {
             RoundedRectangle(cornerRadius: 11)
                 .stroke(
                     isDropTarget
-                        ? tool.accentColor.opacity(0.45)
-                        : (isHovered ? tool.accentColor.opacity(0.28) : Color.primary.opacity(0.05)),
+                        ? tool.iconColor.opacity(0.45)
+                        : (isHovered ? tool.iconColor.opacity(0.28) : Color.primary.opacity(0.05)),
                     lineWidth: 1
                 )
         }

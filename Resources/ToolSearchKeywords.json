@@ -1,0 +1,1252 @@
+{
+  "json-formatter": {
+    "en": [
+      "json",
+      "format",
+      "minify",
+      "sort",
+      "inspect",
+      "pretty",
+      "prettify"
+    ],
+    "zh-Hans": [
+      "格式化",
+      "压缩",
+      "排序",
+      "查看",
+      "美化"
+    ],
+    "zh-Hant": [
+      "格式化",
+      "壓縮",
+      "排序",
+      "查看",
+      "美化"
+    ],
+    "ja": [
+      "フォーマット",
+      "整形",
+      "圧縮",
+      "並べ替え",
+      "検査"
+    ],
+    "ko": [
+      "포맷",
+      "압축",
+      "정렬",
+      "검사",
+      "예쁘게"
+    ],
+    "es": [
+      "formatear",
+      "minificar",
+      "ordenar",
+      "inspeccionar"
+    ],
+    "fr": [
+      "formater",
+      "minifier",
+      "trier",
+      "inspecter"
+    ],
+    "de": [
+      "formatieren",
+      "minifizieren",
+      "sortieren",
+      "prüfen"
+    ],
+    "pt-BR": [
+      "formatar",
+      "minificar",
+      "ordenar",
+      "inspecionar"
+    ],
+    "ru": [
+      "формат",
+      "сжать",
+      "сортировка",
+      "проверка"
+    ]
+  },
+  "timestamp-converter": {
+    "en": [
+      "timestamp",
+      "unix",
+      "date",
+      "time",
+      "timezone",
+      "epoch",
+      "millis",
+      "seconds"
+    ],
+    "zh-Hans": [
+      "时间戳",
+      "日期",
+      "时区",
+      "转换"
+    ],
+    "zh-Hant": [
+      "時間戳",
+      "日期",
+      "時區",
+      "轉換"
+    ],
+    "ja": [
+      "タイムスタンプ",
+      "日付",
+      "タイムゾーン",
+      "変換"
+    ],
+    "ko": [
+      "타임스탬프",
+      "날짜",
+      "시간대",
+      "변환"
+    ],
+    "es": [
+      "marca de tiempo",
+      "fecha",
+      "zona horaria",
+      "convertir"
+    ],
+    "fr": [
+      "horodatage",
+      "date",
+      "fuseau",
+      "convertir"
+    ],
+    "de": [
+      "zeitstempel",
+      "datum",
+      "zeitzone",
+      "umrechnen"
+    ],
+    "pt-BR": [
+      "timestamp",
+      "data",
+      "fuso",
+      "converter"
+    ],
+    "ru": [
+      "метка времени",
+      "дата",
+      "часовой пояс",
+      "конвертер"
+    ]
+  },
+  "codec": {
+    "en": [
+      "base64",
+      "base32",
+      "base62",
+      "hex",
+      "url",
+      "html",
+      "unicode",
+      "escape",
+      "hash",
+      "encode",
+      "decode",
+      "md5",
+      "sha",
+      "sha256"
+    ],
+    "zh-Hans": [
+      "编码",
+      "解码",
+      "哈希",
+      "实体",
+      "转义",
+      "反转义"
+    ],
+    "zh-Hant": [
+      "編碼",
+      "解碼",
+      "雜湊",
+      "實體",
+      "跳脫",
+      "反跳脫"
+    ],
+    "ja": [
+      "エンコード",
+      "デコード",
+      "ハッシュ",
+      "エスケープ"
+    ],
+    "ko": [
+      "인코딩",
+      "디코딩",
+      "해시",
+      "이스케이프"
+    ],
+    "es": [
+      "codificar",
+      "decodificar",
+      "hash",
+      "escapar"
+    ],
+    "fr": [
+      "encoder",
+      "décoder",
+      "hachage",
+      "échapper"
+    ],
+    "de": [
+      "kodieren",
+      "dekodieren",
+      "hash",
+      "escapen"
+    ],
+    "pt-BR": [
+      "codificar",
+      "decodificar",
+      "hash",
+      "escapar"
+    ],
+    "ru": [
+      "кодирование",
+      "декодирование",
+      "хеш",
+      "экранирование"
+    ]
+  },
+  "string-generator": {
+    "en": [
+      "uuid",
+      "ulid",
+      "nanoid",
+      "guid",
+      "random",
+      "id",
+      "hex",
+      "objectid",
+      "string",
+      "password",
+      "passwd",
+      "secret"
+    ],
+    "zh-Hans": [
+      "生成",
+      "随机",
+      "密码",
+      "字符串",
+      "字串"
+    ],
+    "zh-Hant": [
+      "產生",
+      "隨機",
+      "密碼",
+      "字串"
+    ],
+    "ja": [
+      "生成",
+      "ランダム",
+      "パスワード",
+      "文字列"
+    ],
+    "ko": [
+      "생성",
+      "랜덤",
+      "비밀번호",
+      "문자열"
+    ],
+    "es": [
+      "generar",
+      "aleatorio",
+      "contraseña",
+      "cadena"
+    ],
+    "fr": [
+      "générer",
+      "aléatoire",
+      "mot de passe",
+      "chaîne"
+    ],
+    "de": [
+      "generieren",
+      "zufällig",
+      "passwort",
+      "zeichenkette"
+    ],
+    "pt-BR": [
+      "gerar",
+      "aleatório",
+      "senha",
+      "string"
+    ],
+    "ru": [
+      "генератор",
+      "случайный",
+      "пароль",
+      "строка"
+    ]
+  },
+  "hosts-manager": {
+    "en": [
+      "hosts",
+      "dns",
+      "environment",
+      "domain",
+      "network",
+      "localhost",
+      "mapping"
+    ],
+    "zh-Hans": [
+      "域名",
+      "环境",
+      "映射",
+      "hosts"
+    ],
+    "zh-Hant": [
+      "網域",
+      "環境",
+      "對應",
+      "hosts"
+    ],
+    "ja": [
+      "ドメイン",
+      "環境",
+      "マッピング",
+      "hosts"
+    ],
+    "ko": [
+      "도메인",
+      "환경",
+      "매핑",
+      "hosts"
+    ],
+    "es": [
+      "dominio",
+      "entorno",
+      "asignación",
+      "hosts"
+    ],
+    "fr": [
+      "domaine",
+      "environnement",
+      "mapping",
+      "hosts"
+    ],
+    "de": [
+      "domain",
+      "umgebung",
+      "zuordnung",
+      "hosts"
+    ],
+    "pt-BR": [
+      "domínio",
+      "ambiente",
+      "mapeamento",
+      "hosts"
+    ],
+    "ru": [
+      "домен",
+      "среда",
+      "привязка",
+      "hosts"
+    ]
+  },
+  "url-lab": {
+    "en": [
+      "url",
+      "uri",
+      "query",
+      "querystring",
+      "hash",
+      "encode",
+      "decode",
+      "params"
+    ],
+    "zh-Hans": [
+      "链接",
+      "网址",
+      "参数",
+      "查询"
+    ],
+    "zh-Hant": [
+      "連結",
+      "網址",
+      "參數",
+      "查詢"
+    ],
+    "ja": [
+      "リンク",
+      "クエリ",
+      "パラメータ",
+      "URL"
+    ],
+    "ko": [
+      "링크",
+      "쿼리",
+      "파라미터",
+      "주소"
+    ],
+    "es": [
+      "enlace",
+      "consulta",
+      "parámetros"
+    ],
+    "fr": [
+      "lien",
+      "requête",
+      "paramètres"
+    ],
+    "de": [
+      "link",
+      "abfrage",
+      "parameter"
+    ],
+    "pt-BR": [
+      "link",
+      "consulta",
+      "parâmetros"
+    ],
+    "ru": [
+      "ссылка",
+      "запрос",
+      "параметры"
+    ]
+  },
+  "regex-lab": {
+    "en": [
+      "regex",
+      "regexp",
+      "regular expression",
+      "match",
+      "replace",
+      "capture",
+      "group"
+    ],
+    "zh-Hans": [
+      "正则",
+      "匹配",
+      "替换",
+      "分组",
+      "捕获"
+    ],
+    "zh-Hant": [
+      "正則",
+      "匹配",
+      "取代",
+      "分組",
+      "捕獲"
+    ],
+    "ja": [
+      "正規表現",
+      "マッチ",
+      "置換",
+      "キャプチャ",
+      "グループ"
+    ],
+    "ko": [
+      "정규식",
+      "매치",
+      "치환",
+      "캡처",
+      "그룹"
+    ],
+    "es": [
+      "expresión regular",
+      "coincidir",
+      "reemplazar",
+      "grupo"
+    ],
+    "fr": [
+      "expression régulière",
+      "correspondance",
+      "remplacer",
+      "groupe"
+    ],
+    "de": [
+      "regulärer ausdruck",
+      "treffer",
+      "ersetzen",
+      "gruppe"
+    ],
+    "pt-BR": [
+      "expressão regular",
+      "corresponder",
+      "substituir",
+      "grupo"
+    ],
+    "ru": [
+      "регулярное выражение",
+      "совпадение",
+      "замена",
+      "группа"
+    ]
+  },
+  "text-diff": {
+    "en": [
+      "diff",
+      "compare",
+      "difference",
+      "patch",
+      "merge",
+      "text"
+    ],
+    "zh-Hans": [
+      "对比",
+      "差异",
+      "比较",
+      "差分"
+    ],
+    "zh-Hant": [
+      "對比",
+      "差異",
+      "比較",
+      "差分"
+    ],
+    "ja": [
+      "比較",
+      "差分",
+      "対照"
+    ],
+    "ko": [
+      "비교",
+      "차이",
+      "디프"
+    ],
+    "es": [
+      "comparar",
+      "diferencia",
+      "texto"
+    ],
+    "fr": [
+      "comparer",
+      "différence",
+      "texte"
+    ],
+    "de": [
+      "vergleichen",
+      "unterschied",
+      "text"
+    ],
+    "pt-BR": [
+      "comparar",
+      "diferença",
+      "texto"
+    ],
+    "ru": [
+      "сравнение",
+      "разница",
+      "текст"
+    ]
+  },
+  "number-base": {
+    "en": [
+      "binary",
+      "octal",
+      "decimal",
+      "hex",
+      "byte",
+      "kib",
+      "mib",
+      "time",
+      "length",
+      "mass",
+      "temperature",
+      "angle",
+      "speed",
+      "area",
+      "unit",
+      "converter"
+    ],
+    "zh-Hans": [
+      "进制",
+      "字节",
+      "换算",
+      "单位",
+      "时间",
+      "长度",
+      "温度"
+    ],
+    "zh-Hant": [
+      "進位",
+      "位元組",
+      "換算",
+      "單位",
+      "時間",
+      "長度",
+      "溫度"
+    ],
+    "ja": [
+      "進数",
+      "バイト",
+      "単位",
+      "変換",
+      "温度",
+      "長さ"
+    ],
+    "ko": [
+      "진법",
+      "바이트",
+      "단위",
+      "변환",
+      "온도",
+      "길이"
+    ],
+    "es": [
+      "base",
+      "byte",
+      "unidad",
+      "convertir",
+      "temperatura"
+    ],
+    "fr": [
+      "base",
+      "octet",
+      "unité",
+      "convertir",
+      "température"
+    ],
+    "de": [
+      "zahlensystem",
+      "byte",
+      "einheit",
+      "umrechnen",
+      "temperatur"
+    ],
+    "pt-BR": [
+      "base",
+      "byte",
+      "unidade",
+      "converter",
+      "temperatura"
+    ],
+    "ru": [
+      "система счисления",
+      "байт",
+      "единица",
+      "конвертер",
+      "температура"
+    ]
+  },
+  "cron-expression": {
+    "en": [
+      "cron",
+      "schedule",
+      "crontab",
+      "timer",
+      "job",
+      "quartz"
+    ],
+    "zh-Hans": [
+      "定时",
+      "计划任务",
+      "表达式",
+      "调度"
+    ],
+    "zh-Hant": [
+      "定時",
+      "排程",
+      "運算式",
+      "排程任務"
+    ],
+    "ja": [
+      "スケジュール",
+      "式",
+      "定期実行",
+      "ジョブ"
+    ],
+    "ko": [
+      "스케줄",
+      "표현식",
+      "작업",
+      "타이머"
+    ],
+    "es": [
+      "programación",
+      "expresión",
+      "tarea",
+      "temporizador"
+    ],
+    "fr": [
+      "planification",
+      "expression",
+      "tâche",
+      "minuteur"
+    ],
+    "de": [
+      "zeitplan",
+      "ausdruck",
+      "aufgabe",
+      "timer"
+    ],
+    "pt-BR": [
+      "agendamento",
+      "expressão",
+      "tarefa",
+      "timer"
+    ],
+    "ru": [
+      "расписание",
+      "выражение",
+      "задача",
+      "таймер"
+    ]
+  },
+  "ip-cidr": {
+    "en": [
+      "ip",
+      "ipv4",
+      "ipv6",
+      "cidr",
+      "subnet",
+      "netmask",
+      "network",
+      "broadcast",
+      "integer",
+      "arpa",
+      "reverse dns"
+    ],
+    "zh-Hans": [
+      "网段",
+      "掩码",
+      "子网",
+      "地址",
+      "反向"
+    ],
+    "zh-Hant": [
+      "網段",
+      "遮罩",
+      "子網",
+      "位址",
+      "反向"
+    ],
+    "ja": [
+      "サブネット",
+      "ネットマスク",
+      "アドレス",
+      "逆引き"
+    ],
+    "ko": [
+      "서브넷",
+      "넷마스크",
+      "주소",
+      "역방향"
+    ],
+    "es": [
+      "subred",
+      "máscara",
+      "dirección",
+      "red"
+    ],
+    "fr": [
+      "sous-réseau",
+      "masque",
+      "adresse",
+      "réseau"
+    ],
+    "de": [
+      "subnetz",
+      "netzmaske",
+      "adresse",
+      "netzwerk"
+    ],
+    "pt-BR": [
+      "sub-rede",
+      "máscara",
+      "endereço",
+      "rede"
+    ],
+    "ru": [
+      "подсеть",
+      "маска",
+      "адрес",
+      "сеть"
+    ]
+  },
+  "color-lab": {
+    "en": [
+      "color",
+      "hex",
+      "rgb",
+      "hsl",
+      "hsv",
+      "contrast",
+      "picker",
+      "palette"
+    ],
+    "zh-Hans": [
+      "颜色",
+      "色彩",
+      "色值",
+      "对比度",
+      "取色"
+    ],
+    "zh-Hant": [
+      "顏色",
+      "色彩",
+      "色值",
+      "對比度",
+      "取色"
+    ],
+    "ja": [
+      "色",
+      "カラー",
+      "コントラスト",
+      "パレット"
+    ],
+    "ko": [
+      "색상",
+      "컬러",
+      "대비",
+      "팔레트"
+    ],
+    "es": [
+      "color",
+      "contraste",
+      "selector"
+    ],
+    "fr": [
+      "couleur",
+      "contraste",
+      "pipette"
+    ],
+    "de": [
+      "farbe",
+      "kontrast",
+      "pipette"
+    ],
+    "pt-BR": [
+      "cor",
+      "contraste",
+      "seletor"
+    ],
+    "ru": [
+      "цвет",
+      "контраст",
+      "палитра"
+    ]
+  },
+  "image-process": {
+    "en": [
+      "image",
+      "convert",
+      "compress",
+      "jpeg",
+      "png",
+      "webp",
+      "resize",
+      "batch",
+      "quality",
+      "dimensions"
+    ],
+    "zh-Hans": [
+      "图片",
+      "处理",
+      "转换",
+      "压缩",
+      "批量",
+      "质量",
+      "尺寸"
+    ],
+    "zh-Hant": [
+      "圖片",
+      "處理",
+      "轉換",
+      "壓縮",
+      "批次",
+      "品質",
+      "尺寸"
+    ],
+    "ja": [
+      "画像",
+      "変換",
+      "圧縮",
+      "一括",
+      "サイズ",
+      "品質"
+    ],
+    "ko": [
+      "이미지",
+      "변환",
+      "압축",
+      "일괄",
+      "크기",
+      "품질"
+    ],
+    "es": [
+      "imagen",
+      "convertir",
+      "comprimir",
+      "lote",
+      "tamaño"
+    ],
+    "fr": [
+      "image",
+      "convertir",
+      "compresser",
+      "lot",
+      "taille"
+    ],
+    "de": [
+      "bild",
+      "konvertieren",
+      "komprimieren",
+      "stapel",
+      "größe"
+    ],
+    "pt-BR": [
+      "imagem",
+      "converter",
+      "comprimir",
+      "lote",
+      "tamanho"
+    ],
+    "ru": [
+      "изображение",
+      "конвертация",
+      "сжатие",
+      "пакет",
+      "размер"
+    ]
+  },
+  "qr-code": {
+    "en": [
+      "qr",
+      "qrcode",
+      "barcode",
+      "scan",
+      "encode"
+    ],
+    "zh-Hans": [
+      "二维码",
+      "条码",
+      "扫码"
+    ],
+    "zh-Hant": [
+      "QR碼",
+      "條碼",
+      "掃碼"
+    ],
+    "ja": [
+      "二次元コード",
+      "バーコード",
+      "読み取り"
+    ],
+    "ko": [
+      "큐알",
+      "바코드",
+      "스캔"
+    ],
+    "es": [
+      "código qr",
+      "código de barras"
+    ],
+    "fr": [
+      "code qr",
+      "code-barres"
+    ],
+    "de": [
+      "qr-code",
+      "barcode"
+    ],
+    "pt-BR": [
+      "código qr",
+      "código de barras"
+    ],
+    "ru": [
+      "qr-код",
+      "штрихкод"
+    ]
+  },
+  "jwt-lab": {
+    "en": [
+      "jwt",
+      "token",
+      "auth",
+      "bearer",
+      "claims",
+      "exp",
+      "header",
+      "payload"
+    ],
+    "zh-Hans": [
+      "令牌",
+      "鉴权",
+      "解码",
+      "载荷"
+    ],
+    "zh-Hant": [
+      "權杖",
+      "鑑權",
+      "解碼",
+      "承載"
+    ],
+    "ja": [
+      "トークン",
+      "認証",
+      "デコード",
+      "クレーム"
+    ],
+    "ko": [
+      "토큰",
+      "인증",
+      "디코드",
+      "클레임"
+    ],
+    "es": [
+      "token",
+      "autenticación",
+      "decodificar"
+    ],
+    "fr": [
+      "jeton",
+      "authentification",
+      "décoder"
+    ],
+    "de": [
+      "token",
+      "authentifizierung",
+      "dekodieren"
+    ],
+    "pt-BR": [
+      "token",
+      "autenticação",
+      "decodificar"
+    ],
+    "ru": [
+      "токен",
+      "аутентификация",
+      "декодирование"
+    ]
+  },
+  "chmod-lab": {
+    "en": [
+      "chmod",
+      "permission",
+      "unix",
+      "octal",
+      "rwx",
+      "mode"
+    ],
+    "zh-Hans": [
+      "权限",
+      "文件权限",
+      "读写执行"
+    ],
+    "zh-Hant": [
+      "權限",
+      "檔案權限",
+      "讀寫執行"
+    ],
+    "ja": [
+      "権限",
+      "パーミッション",
+      "ファイル権限"
+    ],
+    "ko": [
+      "권한",
+      "퍼미션",
+      "파일 권한"
+    ],
+    "es": [
+      "permisos",
+      "archivo",
+      "octal"
+    ],
+    "fr": [
+      "permissions",
+      "fichier",
+      "octal"
+    ],
+    "de": [
+      "berechtigungen",
+      "dateirechte",
+      "oktal"
+    ],
+    "pt-BR": [
+      "permissões",
+      "arquivo",
+      "octal"
+    ],
+    "ru": [
+      "права",
+      "разрешения",
+      "файл"
+    ]
+  },
+  "cert-lab": {
+    "en": [
+      "certificate",
+      "pem",
+      "crt",
+      "x509",
+      "ssl",
+      "tls",
+      "fingerprint",
+      "san"
+    ],
+    "zh-Hans": [
+      "证书",
+      "公钥",
+      "指纹",
+      "有效期"
+    ],
+    "zh-Hant": [
+      "憑證",
+      "公鑰",
+      "指紋",
+      "有效期"
+    ],
+    "ja": [
+      "証明書",
+      "公開鍵",
+      "フィンガープリント"
+    ],
+    "ko": [
+      "인증서",
+      "공개키",
+      "지문"
+    ],
+    "es": [
+      "certificado",
+      "clave pública",
+      "huella"
+    ],
+    "fr": [
+      "certificat",
+      "clé publique",
+      "empreinte"
+    ],
+    "de": [
+      "zertifikat",
+      "öffentlicher schlüssel",
+      "fingerabdruck"
+    ],
+    "pt-BR": [
+      "certificado",
+      "chave pública",
+      "impressão digital"
+    ],
+    "ru": [
+      "сертификат",
+      "открытый ключ",
+      "отпечаток"
+    ]
+  },
+  "curl-lab": {
+    "en": [
+      "curl",
+      "http",
+      "request",
+      "fetch",
+      "header",
+      "api",
+      "rest"
+    ],
+    "zh-Hans": [
+      "请求",
+      "接口",
+      "请求头"
+    ],
+    "zh-Hant": [
+      "請求",
+      "介面",
+      "標頭"
+    ],
+    "ja": [
+      "リクエスト",
+      "API",
+      "ヘッダー"
+    ],
+    "ko": [
+      "요청",
+      "API",
+      "헤더"
+    ],
+    "es": [
+      "petición",
+      "solicitud",
+      "cabecera",
+      "api"
+    ],
+    "fr": [
+      "requête",
+      "en-tête",
+      "api"
+    ],
+    "de": [
+      "anfrage",
+      "header",
+      "api"
+    ],
+    "pt-BR": [
+      "requisição",
+      "cabeçalho",
+      "api"
+    ],
+    "ru": [
+      "запрос",
+      "заголовок",
+      "api"
+    ]
+  },
+  "port-scan": {
+    "en": [
+      "port",
+      "scan",
+      "tcp",
+      "open",
+      "service",
+      "range",
+      "network"
+    ],
+    "zh-Hans": [
+      "端口",
+      "扫描",
+      "开放",
+      "服务"
+    ],
+    "zh-Hant": [
+      "連接埠",
+      "掃描",
+      "開放",
+      "服務"
+    ],
+    "ja": [
+      "ポート",
+      "スキャン",
+      "開放",
+      "サービス"
+    ],
+    "ko": [
+      "포트",
+      "스캔",
+      "개방",
+      "서비스"
+    ],
+    "es": [
+      "puerto",
+      "escaneo",
+      "abierto",
+      "servicio"
+    ],
+    "fr": [
+      "port",
+      "scan",
+      "ouvert",
+      "service"
+    ],
+    "de": [
+      "port",
+      "scan",
+      "offen",
+      "dienst"
+    ],
+    "pt-BR": [
+      "porta",
+      "varredura",
+      "aberta",
+      "serviço"
+    ],
+    "ru": [
+      "порт",
+      "сканирование",
+      "открытый",
+      "служба"
+    ]
+  }
+}

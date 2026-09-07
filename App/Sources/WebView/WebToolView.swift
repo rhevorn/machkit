@@ -32,7 +32,7 @@ struct WebToolView: View {
                 defaultTitle: tool.localizedTitle,
                 defaultSize: tool.defaultWindowSize,
                 minimumSize: tool.minimumWindowSize,
-                frameVersion: WebToolWidthClass.frameEpoch
+                frameVersion: WebToolWidth.frameEpoch
             )
         )
     }
@@ -60,17 +60,48 @@ private struct ToolWindowConfigurator: NSViewRepresentable {
         window.identifier = MachKitAppLifecycle.toolWindowInterfaceID(for: toolID)
         guard context.coordinator.configuredWindow !== window else { return }
         context.coordinator.configuredWindow = window
+
         window.title = defaultTitle
         window.titlebarSeparatorStyle = .none
         window.contentMinSize = minimumSize
 
-        let autosaveName = "MachKit.WebTool.v\(frameVersion).\(toolID)"
+        let autosaveName =
+            "MachKit.WebTool.v\(frameVersion).\(toolID)."
+            + "\(Int(defaultSize.width.rounded()))x\(Int(defaultSize.height.rounded()))"
         let restoredPreviousFrame = window.setFrameUsingName(autosaveName)
         window.setFrameAutosaveName(autosaveName)
+
+        applyRegisteredContentLayoutSize(window)
         if !restoredPreviousFrame {
-            window.setContentSize(defaultSize)
             window.center()
         }
+        // Titlebar/safe-area insets are often applied one turn later.
+        DispatchQueue.main.async {
+            applyRegisteredContentLayoutSize(window)
+        }
+    }
+
+    /// `DeveloperTool.height` is the usable H5 viewport (Dev dock H), not the
+    /// outer frame. With SwiftUI's unified titlebar, `setContentSize` alone can
+    /// make the contentView include chrome and leave the WebView shorter than H.
+    /// Size the window so `contentLayoutRect` matches the registered size.
+    private func applyRegisteredContentLayoutSize(_ window: NSWindow) {
+        window.contentMinSize = minimumSize
+        var layout = window.contentLayoutRect.size
+        if layout.width < 2 || layout.height < 2 {
+            window.setContentSize(defaultSize)
+            layout = window.contentLayoutRect.size
+        }
+        let deltaWidth = defaultSize.width - layout.width
+        let deltaHeight = defaultSize.height - layout.height
+        guard abs(deltaWidth) > 0.5 || abs(deltaHeight) > 0.5 else { return }
+
+        var frame = window.frame
+        let top = frame.maxY
+        frame.size.width += deltaWidth
+        frame.size.height += deltaHeight
+        frame.origin.y = top - frame.size.height
+        window.setFrame(frame, display: true, animate: false)
     }
 
     func makeCoordinator() -> Coordinator { Coordinator() }
@@ -344,12 +375,7 @@ private struct BundledWebView: NSViewRepresentable {
                 }
                 replyHandler(["text": text], nil)
             case "window.fitContentHeight":
-                guard let height = parameters["height"] as? NSNumber,
-                      let webView = message.webView else {
-                    replyHandler(nil, "Content fitting is not available.")
-                    return
-                }
-                resizeWindowToFit(webView: webView, requestedContentHeight: height.doubleValue)
+                // Height is fixed by DeveloperTool.height; user resizes manually.
                 replyHandler(["ok": true], nil)
             case "window.setTitle":
                 guard let webView = message.webView,
@@ -538,35 +564,6 @@ private struct BundledWebView: NSViewRepresentable {
                 entryFile: entryFile,
                 allowDevelopmentServer: allowDevelopmentServer
             )
-        }
-
-        @MainActor
-        private func resizeWindowToFit(webView: WKWebView, requestedContentHeight: CGFloat) {
-            guard requestedContentHeight.isFinite,
-                  let window = webView.window,
-                  let screen = window.screen ?? NSScreen.main else { return }
-
-            let minimumHeight = max(window.contentMinSize.height, 1)
-            let titlebarHeight = max(0, window.frame.height - window.contentLayoutRect.height)
-            // Cap growth to most of the visible screen; user can still drag taller manually.
-            let screenCap = screen.visibleFrame.height - titlebarHeight
-            let maximumHeight = max(minimumHeight, floor(screenCap * 0.92))
-            let targetContentHeight = min(max(requestedContentHeight, minimumHeight), maximumHeight)
-            let currentContentHeight = window.contentLayoutRect.height
-            guard abs(targetContentHeight - currentContentHeight) >= 2 else { return }
-
-            let top = window.frame.maxY
-            var targetFrame = window.frame
-            targetFrame.size.height += targetContentHeight - currentContentHeight
-            targetFrame.origin.y = top - targetFrame.height
-
-            if targetFrame.minY < screen.visibleFrame.minY {
-                targetFrame.origin.y = screen.visibleFrame.minY
-            }
-            if targetFrame.maxY > screen.visibleFrame.maxY {
-                targetFrame.origin.y = screen.visibleFrame.maxY - targetFrame.height
-            }
-            window.setFrame(targetFrame, display: true, animate: window.isVisible)
         }
 
         func webView(_ webView: WKWebView, start urlSchemeTask: any WKURLSchemeTask) {

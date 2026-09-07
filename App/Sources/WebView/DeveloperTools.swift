@@ -15,101 +15,77 @@ enum DeveloperToolCapability: String, Hashable {
     case curlLab
 }
 
-/// Shared web-tool window size presets (width + default/minimum height).
-enum WebToolWidthClass: String, Equatable {
-    case compact
-    case regular
-    case wide
+/// Fixed web-tool window metrics. Each tool picks a width preset and an explicit height.
+enum WebToolWidth {
+    static let compact: CGFloat = 720
+    static let regular: CGFloat = 840
+    static let wide: CGFloat = 1040
+
+    static let minimumWidth: CGFloat = 640
+    static let minimumHeight: CGFloat = 360
 
     /// Bump to invalidate remembered frames after sizing policy changes.
-    static let frameEpoch = 12
-
-    var width: CGFloat {
-        switch self {
-        case .compact: 720
-        case .regular: 840
-        case .wide: 1040
-        }
-    }
-
-    var height: CGFloat {
-        switch self {
-        case .compact: 560
-        case .regular: 640
-        case .wide: 720
-        }
-    }
-
-    var minimumWidth: CGFloat {
-        switch self {
-        case .compact: 640
-        case .regular: 720
-        case .wide: 860
-        }
-    }
-
-    var minimumHeight: CGFloat {
-        switch self {
-        case .compact: 480
-        case .regular: 520
-        case .wide: 580
-        }
-    }
-
-    var defaultSize: CGSize { CGSize(width: width, height: height) }
-    var minimumSize: CGSize { CGSize(width: minimumWidth, height: minimumHeight) }
+    static let frameEpoch = 26
 }
 
 struct DeveloperTool: Identifiable, Equatable {
     let id: String
     let title: String
     let description: String
-    let keywords: [String]
     let icon: String
-    let widthClass: WebToolWidthClass
+    let iconColor: Color
+    /// One of `WebToolWidth.compact` / `.regular` / `.wide`.
+    let width: CGFloat
+    /// Fixed H5 viewport height in points (Dev dock H). Outer window is taller by the titlebar.
+    let height: CGFloat
     let capabilities: Set<DeveloperToolCapability>
     let presentation: DeveloperToolPresentation
 
     var localizedTitle: String { title.localized }
     var localizedDescription: String { description.localized }
 
-    var defaultWindowSize: CGSize { widthClass.defaultSize }
-    var minimumWindowSize: CGSize { widthClass.minimumSize }
+    var defaultWindowSize: CGSize { CGSize(width: width, height: height) }
 
-    /// Semantic accent for the tool icon badge only (card chrome stays neutral).
-    var accentColor: Color {
-        switch id {
-        case "json-formatter", "string-generator":
-            .blue
-        case "codec", "text-diff":
-            .indigo
-        case "regex-lab", "jwt-lab":
-            .purple
-        case "timestamp-converter", "cron-expression":
-            .orange
-        case "number-base":
-            .mint
-        case "hosts-manager", "url-lab", "ip-cidr":
-            .cyan
-        case "curl-lab", "port-scan":
-            .teal
-        case "color-lab", "image-process":
-            .pink
-        case "qr-code":
-            .purple
-        case "chmod-lab", "cert-lab":
-            .green
-        default:
-            .accentColor
-        }
+    var minimumWindowSize: CGSize {
+        CGSize(width: WebToolWidth.minimumWidth, height: WebToolWidth.minimumHeight)
     }
 
     func matches(_ query: String) -> Bool {
         let query = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else { return true }
-        return ([localizedTitle, localizedDescription] + keywords).contains {
-            $0.localizedCaseInsensitiveContains(query)
+        let haystacks = ToolSearchKeywords.all(for: id)
+            + L10n.allVariants(for: title)
+            + L10n.allVariants(for: description)
+            + [id]
+        return haystacks.contains { $0.localizedCaseInsensitiveContains(query) }
+    }
+}
+
+/// Per-locale search aliases for tools (`Resources/ToolSearchKeywords.json`).
+enum ToolSearchKeywords {
+    private static let catalog: [String: [String: [String]]] = {
+        guard let url = Bundle.main.url(forResource: "ToolSearchKeywords", withExtension: "json"),
+              let data = try? Data(contentsOf: url),
+              let decoded = try? JSONDecoder().decode([String: [String: [String]]].self, from: data)
+        else {
+            return [:]
         }
+        return decoded
+    }()
+
+    /// Flattened keywords across every locale so search is language-agnostic.
+    static func all(for toolID: String) -> [String] {
+        guard let byLocale = catalog[toolID] else { return [] }
+        var seen = Set<String>()
+        var values: [String] = []
+        for keywords in byLocale.values {
+            for keyword in keywords {
+                let trimmed = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !trimmed.isEmpty, seen.insert(trimmed.lowercased()).inserted else { continue }
+                values.append(trimmed)
+            }
+        }
+        return values
     }
 }
 
@@ -119,9 +95,10 @@ enum DeveloperToolRegistry {
             id: "json-formatter",
             title: "JSON Formatter",
             description: "Format, minify, sort, and inspect JSON values",
-            keywords: ["json", "format", "minify", "sort", "inspect", "value", "格式化", "压缩", "排序", "查看"],
             icon: "curlybraces",
-            widthClass: .wide,
+            iconColor: .blue,
+            width: WebToolWidth.wide,
+            height: 640,
             capabilities: [.clipboard, .storage],
             presentation: .bundledWeb(entryFile: "WebTools/tools/json-formatter/index.html")
         ),
@@ -129,9 +106,10 @@ enum DeveloperToolRegistry {
             id: "timestamp-converter",
             title: "Timestamp Converter",
             description: "Convert dates and Unix timestamps across units and time zones",
-            keywords: ["timestamp", "unix", "date", "time zone", "时间戳", "日期", "时区"],
             icon: "clock.arrow.trianglehead.counterclockwise.rotate.90",
-            widthClass: .compact,
+            iconColor: .orange,
+            width: WebToolWidth.compact,
+            height: 580,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/timestamp-converter/index.html")
         ),
@@ -139,12 +117,10 @@ enum DeveloperToolRegistry {
             id: "codec",
             title: "Codec",
             description: "Encode and decode Base64, Base32, Base62, Hex, URL, HTML, Unicode, Escape, and Hash",
-            keywords: [
-                "base64", "base32", "base62", "hex", "url", "html", "unicode", "escape", "hash",
-                "encode", "decode", "md5", "sha", "编码", "解码", "哈希", "实体", "转义", "反转义"
-            ],
             icon: "lock.rectangle.on.rectangle",
-            widthClass: .compact,
+            iconColor: .indigo,
+            width: WebToolWidth.compact,
+            height: 416,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/codec/index.html")
         ),
@@ -152,12 +128,10 @@ enum DeveloperToolRegistry {
             id: "string-generator",
             title: "String Generator",
             description: "Generate UUIDs, random IDs, and strings locally",
-            keywords: [
-                "uuid", "ulid", "nanoid", "guid", "random", "id", "hex", "objectid", "string",
-                "password", "passwd", "secret", "生成", "随机", "密码", "字符串", "字串"
-            ],
             icon: "textformat.abc",
-            widthClass: .compact,
+            iconColor: .blue,
+            width: WebToolWidth.compact,
+            height: 364,
             capabilities: [.clipboard, .storage],
             presentation: .bundledWeb(entryFile: "WebTools/tools/string-generator/index.html")
         ),
@@ -165,9 +139,10 @@ enum DeveloperToolRegistry {
             id: "hosts-manager",
             title: "Hosts Manager",
             description: "View the system hosts file and switch mappings between development environments",
-            keywords: ["hosts", "dns", "environment", "domain", "network", "域名", "环境"],
             icon: "network.badge.shield.half.filled",
-            widthClass: .regular,
+            iconColor: .cyan,
+            width: WebToolWidth.regular,
+            height: 500,
             capabilities: [.clipboard, .hosts],
             presentation: .bundledWeb(entryFile: "WebTools/tools/hosts-manager/index.html")
         ),
@@ -175,12 +150,10 @@ enum DeveloperToolRegistry {
             id: "url-lab",
             title: "URL Lab",
             description: "Parse and rebuild URLs with query and hash editing",
-            keywords: [
-                "url", "uri", "query", "querystring", "hash", "encode",
-                "链接", "网址", "参数"
-            ],
             icon: "link",
-            widthClass: .compact,
+            iconColor: .cyan,
+            width: WebToolWidth.compact,
+            height: 516,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/url-lab/index.html")
         ),
@@ -188,12 +161,10 @@ enum DeveloperToolRegistry {
             id: "regex-lab",
             title: "Regex Lab",
             description: "Highlight matches, inspect capture groups, and try common replacements",
-            keywords: [
-                "regex", "regexp", "regular expression", "match", "replace", "capture", "group",
-                "正则", "正則", "匹配", "替换", "取代", "分组", "捕获"
-            ],
             icon: "text.magnifyingglass",
-            widthClass: .compact,
+            iconColor: .purple,
+            width: WebToolWidth.compact,
+            height: 552,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/regex-lab/index.html")
         ),
@@ -201,12 +172,10 @@ enum DeveloperToolRegistry {
             id: "text-diff",
             title: "Text Diff",
             description: "Compare two texts side by side with line-level highlighting",
-            keywords: [
-                "diff", "compare", "difference", "patch", "merge", "text",
-                "对比", "差異", "差异", "比较", "差分"
-            ],
             icon: "square.split.2x1",
-            widthClass: .wide,
+            iconColor: .indigo,
+            width: WebToolWidth.wide,
+            height: 640,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/text-diff/index.html")
         ),
@@ -214,13 +183,10 @@ enum DeveloperToolRegistry {
             id: "number-base",
             title: "Unit Converter",
             description: "Convert bases, bytes, time, length, mass, temperature, and more locally",
-            keywords: [
-                "binary", "octal", "decimal", "hex", "byte", "kib", "mib",
-                "time", "length", "mass", "temperature", "angle", "speed", "area",
-                "进制", "字节", "换算", "单位", "时间", "长度", "温度"
-            ],
             icon: "number",
-            widthClass: .compact,
+            iconColor: .mint,
+            width: WebToolWidth.compact,
+            height: 436,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/number-base/index.html")
         ),
@@ -228,12 +194,10 @@ enum DeveloperToolRegistry {
             id: "cron-expression",
             title: "Cron Expression",
             description: "Build five-field cron schedules and preview upcoming runs",
-            keywords: [
-                "cron", "schedule", "crontab", "timer", "job",
-                "定时", "计划任务", "表达式"
-            ],
             icon: "calendar.badge.clock",
-            widthClass: .compact,
+            iconColor: .orange,
+            width: WebToolWidth.compact,
+            height: 520,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/cron-expression/index.html")
         ),
@@ -241,12 +205,10 @@ enum DeveloperToolRegistry {
             id: "ip-cidr",
             title: "IP / CIDR",
             description: "Inspect IPv4 and IPv6 addresses or calculate IPv4 CIDR ranges locally",
-            keywords: [
-                "ip", "ipv4", "ipv6", "cidr", "subnet", "netmask", "network", "broadcast",
-                "integer", "arpa", "reverse dns", "网段", "掩码", "子网", "地址", "反向"
-            ],
             icon: "point.3.connected.trianglepath.dotted",
-            widthClass: .regular,
+            iconColor: .cyan,
+            width: WebToolWidth.regular,
+            height: 456,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/ip-cidr/index.html")
         ),
@@ -254,12 +216,10 @@ enum DeveloperToolRegistry {
             id: "color-lab",
             title: "Color Lab",
             description: "Convert HEX, RGB, HSL, and HSV with local contrast checks",
-            keywords: [
-                "color", "hex", "rgb", "hsl", "hsv", "contrast", "picker",
-                "颜色", "色彩", "色值", "对比度"
-            ],
             icon: "paintpalette",
-            widthClass: .regular,
+            iconColor: .pink,
+            width: WebToolWidth.compact,
+            height: 504,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/color-lab/index.html")
         ),
@@ -267,13 +227,10 @@ enum DeveloperToolRegistry {
             id: "image-process",
             title: "Image Tools",
             description: "Convert formats and control output by quality, target size, or dimensions",
-            keywords: [
-                "image", "convert", "compress", "jpeg", "png", "webp", "resize", "batch",
-                "quality", "target size", "dimensions",
-                "图片", "处理", "转换", "压缩", "批量", "质量", "尺寸"
-            ],
             icon: "photo.on.rectangle.angled",
-            widthClass: .wide,
+            iconColor: .pink,
+            width: WebToolWidth.wide,
+            height: 580,
             capabilities: [.clipboard, .files],
             presentation: .bundledWeb(entryFile: "WebTools/tools/image-process/index.html")
         ),
@@ -281,12 +238,10 @@ enum DeveloperToolRegistry {
             id: "qr-code",
             title: "QR Code",
             description: "Generate QR codes from text or URLs locally",
-            keywords: [
-                "qr", "qrcode", "barcode", "scan", "encode",
-                "二维码", "QR", "条码"
-            ],
             icon: "qrcode",
-            widthClass: .compact,
+            iconColor: .purple,
+            width: WebToolWidth.compact,
+            height: 504,
             capabilities: [.clipboard, .files],
             presentation: .bundledWeb(entryFile: "WebTools/tools/qr-code/index.html")
         ),
@@ -294,12 +249,10 @@ enum DeveloperToolRegistry {
             id: "jwt-lab",
             title: "JWT Lab",
             description: "Decode JWT headers and payloads locally without uploading tokens",
-            keywords: [
-                "jwt", "token", "auth", "bearer", "claims", "exp",
-                "令牌", "鉴权", "解码"
-            ],
             icon: "key.horizontal",
-            widthClass: .regular,
+            iconColor: .purple,
+            width: WebToolWidth.regular,
+            height: 560,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/jwt-lab/index.html")
         ),
@@ -307,12 +260,10 @@ enum DeveloperToolRegistry {
             id: "chmod-lab",
             title: "chmod Lab",
             description: "Convert Unix file modes between octal, symbolic, and permission bits",
-            keywords: [
-                "chmod", "permission", "unix", "octal", "rwx",
-                "权限", "文件权限"
-            ],
             icon: "lock.shield",
-            widthClass: .compact,
+            iconColor: .green,
+            width: WebToolWidth.compact,
+            height: 408,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/chmod-lab/index.html")
         ),
@@ -320,12 +271,10 @@ enum DeveloperToolRegistry {
             id: "cert-lab",
             title: "Certificate Lab",
             description: "Inspect PEM certificates, validity, fingerprints, and SANs locally",
-            keywords: [
-                "certificate", "pem", "crt", "x509", "ssl", "tls", "fingerprint",
-                "证书", "公钥"
-            ],
             icon: "checkmark.seal",
-            widthClass: .regular,
+            iconColor: .green,
+            width: WebToolWidth.regular,
+            height: 544,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/cert-lab/index.html")
         ),
@@ -333,12 +282,10 @@ enum DeveloperToolRegistry {
             id: "curl-lab",
             title: "cURL Lab",
             description: "Visually edit HTTP requests and convert to or from cURL",
-            keywords: [
-                "curl", "http", "request", "fetch", "header", "api",
-                "请求", "接口"
-            ],
             icon: "network",
-            widthClass: .wide,
+            iconColor: .teal,
+            width: WebToolWidth.wide,
+            height: 580,
             capabilities: [.clipboard, .files, .curlLab],
             presentation: .bundledWeb(entryFile: "WebTools/tools/curl-lab/index.html")
         ),
@@ -346,13 +293,11 @@ enum DeveloperToolRegistry {
             id: "port-scan",
             title: "Port Scanner",
             description: "Scan any TCP port or range with progress and open-port results",
-            keywords: [
-                "port", "scan", "tcp", "open", "service", "range", "network",
-                "端口", "扫描", "开放", "服务"
-            ],
             icon: "dot.radiowaves.left.and.right",
-            widthClass: .regular,
-            capabilities: [.clipboard, .portScan],
+            iconColor: .teal,
+            width: WebToolWidth.regular,
+            height: 560,
+            capabilities: [.clipboard, .storage, .portScan],
             presentation: .bundledWeb(entryFile: "WebTools/tools/port-scan/index.html")
         )
 
