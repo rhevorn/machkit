@@ -97,7 +97,8 @@ export type RsaKeyPairPem = {
   privateKey: string;
 };
 
-const MAX_INPUT_CHARS = 2_000_000;
+export const maxCipherInputChars = 100 * 1024 * 1024;
+const MAX_INPUT_CHARS = maxCipherInputChars;
 const { sm2, sm4 } = smCrypto as {
   sm2: {
     generateKeyPairHex: () => { publicKey: string; privateKey: string };

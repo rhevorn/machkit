@@ -9,6 +9,7 @@ import {
   generateSm2KeyPair,
   generateSm2PrivateKey,
   getAlgorithmMeta,
+  maxCipherInputChars,
   publicKeyFromSm2PrivateKey,
   publicKeyPemFromRsaPrivateKey,
   runCipher,
@@ -270,4 +271,17 @@ test("rejects invalid DES key and XChaCha nonce lengths", async () => {
     iv: bytesToHex(randomBytes(12)),
   });
   assert.equal(badIv.error, "invalid-iv-xchacha");
+});
+
+test("rejects input larger than the configured maximum", async () => {
+  const oversized = "x".repeat(maxCipherInputChars + 1);
+  const result = await runCipher({
+    mode: "AES-GCM",
+    direction: "encrypt",
+    input: oversized,
+    key: suggestedKey(256),
+    iv: suggestedIV("AES-GCM"),
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.error, "input-too-large");
 });
