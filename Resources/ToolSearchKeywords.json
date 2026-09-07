@@ -137,19 +137,34 @@
   "codec": {
     "en": [
       "base64",
+      "base16",
       "base32",
+      "base36",
+      "base58",
       "base62",
+      "base85",
       "hex",
       "url",
       "html",
       "unicode",
+      "utf-8",
+      "ascii",
+      "native",
       "escape",
       "hash",
       "encode",
       "decode",
       "md5",
       "sha",
-      "sha256"
+      "sha256",
+      "punycode",
+      "escape",
+      "quoted-printable",
+      "data-uri",
+      "radix",
+      "base conversion",
+      "gbk",
+      "idn"
     ],
     "zh-Hans": [
       "编码",
@@ -157,7 +172,15 @@
       "哈希",
       "实体",
       "转义",
-      "反转义"
+      "反转义",
+      "域名",
+      "国标",
+      "转码",
+      "进制",
+      "data uri",
+      "unicode",
+      "utf-8",
+      "ascii"
     ],
     "zh-Hant": [
       "編碼",
@@ -165,7 +188,15 @@
       "雜湊",
       "實體",
       "跳脫",
-      "反跳脫"
+      "反跳脫",
+      "網域",
+      "國標",
+      "轉碼",
+      "進制",
+      "data uri",
+      "unicode",
+      "utf-8",
+      "ascii"
     ],
     "ja": [
       "エンコード",
@@ -208,6 +239,94 @@
       "декодирование",
       "хеш",
       "экранирование"
+    ]
+  },
+  "cipher": {
+    "en": [
+      "aes",
+      "gcm",
+      "cbc",
+      "ctr",
+      "ecb",
+      "des",
+      "3des",
+      "chacha",
+      "xchacha",
+      "rsa",
+      "pkcs1",
+      "sm2",
+      "sm4",
+      "encrypt",
+      "decrypt",
+      "cipher",
+      "crypto",
+      "iv",
+      "nonce",
+      "key",
+      "hex",
+      "base64"
+    ],
+    "zh-Hans": [
+      "加密",
+      "解密",
+      "加解密",
+      "密钥",
+      "对称",
+      "国密",
+      "非对称",
+      "des",
+      "3des"
+    ],
+    "zh-Hant": [
+      "加密",
+      "解密",
+      "加解密",
+      "金鑰",
+      "對稱",
+      "國密",
+      "非對稱"
+    ],
+    "ja": [
+      "暗号化",
+      "復号",
+      "暗号",
+      "鍵"
+    ],
+    "ko": [
+      "암호화",
+      "복호화",
+      "암호",
+      "키"
+    ],
+    "es": [
+      "cifrar",
+      "descifrar",
+      "cifrado",
+      "clave"
+    ],
+    "fr": [
+      "chiffrer",
+      "déchiffrer",
+      "chiffrement",
+      "clé"
+    ],
+    "de": [
+      "verschlüsseln",
+      "entschlüsseln",
+      "chiffre",
+      "schlüssel"
+    ],
+    "pt-BR": [
+      "cifrar",
+      "decifrar",
+      "cifra",
+      "chave"
+    ],
+    "ru": [
+      "шифрование",
+      "расшифровка",
+      "шифр",
+      "ключ"
     ]
   },
   "string-generator": {
@@ -1267,94 +1386,6 @@
       "температура",
       "number-base",
       "Number Base"
-    ]
-  },
-  "cipher": {
-    "en": [
-      "aes",
-      "gcm",
-      "cbc",
-      "ctr",
-      "ecb",
-      "des",
-      "3des",
-      "chacha",
-      "xchacha",
-      "rsa",
-      "pkcs1",
-      "sm2",
-      "sm4",
-      "encrypt",
-      "decrypt",
-      "cipher",
-      "crypto",
-      "iv",
-      "nonce",
-      "key",
-      "hex",
-      "base64"
-    ],
-    "zh-Hans": [
-      "加密",
-      "解密",
-      "加解密",
-      "密钥",
-      "对称",
-      "国密",
-      "非对称",
-      "des",
-      "3des"
-    ],
-    "zh-Hant": [
-      "加密",
-      "解密",
-      "加解密",
-      "金鑰",
-      "對稱",
-      "國密",
-      "非對稱"
-    ],
-    "ja": [
-      "暗号化",
-      "復号",
-      "暗号",
-      "鍵"
-    ],
-    "ko": [
-      "암호화",
-      "복호화",
-      "암호",
-      "키"
-    ],
-    "es": [
-      "cifrar",
-      "descifrar",
-      "cifrado",
-      "clave"
-    ],
-    "fr": [
-      "chiffrer",
-      "déchiffrer",
-      "chiffrement",
-      "clé"
-    ],
-    "de": [
-      "verschlüsseln",
-      "entschlüsseln",
-      "chiffre",
-      "schlüssel"
-    ],
-    "pt-BR": [
-      "cifrar",
-      "decifrar",
-      "cifra",
-      "chave"
-    ],
-    "ru": [
-      "шифрование",
-      "расшифровка",
-      "шифр",
-      "ключ"
     ]
   }
 }

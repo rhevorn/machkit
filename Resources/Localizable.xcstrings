@@ -1,124 +1,6 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "Cipher" : {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verschlüsselung"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cifrado"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chiffrement"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "暗号化"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "암호화"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Criptografia"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Шифрование"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "加解密"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "加解密"
-          }
-        }
-      }
-    },
-    "Encrypt and decrypt with AES, ChaCha20-Poly1305, RSA, and SM2/SM4 locally" : {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lokal verschlüsseln und entschlüsseln mit AES, ChaCha20-Poly1305, RSA und SM2/SM4"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cifra y descifra localmente con AES, ChaCha20-Poly1305, RSA y SM2/SM4"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chiffrez et déchiffrez localement avec AES, ChaCha20-Poly1305, RSA et SM2/SM4"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "AES、ChaCha20-Poly1305、RSA、SM2/SM4 でローカルに暗号化／復号"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "AES, ChaCha20-Poly1305, RSA, SM2/SM4로 로컬에서 암호화/복호화"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Criptografe e descriptografe localmente com AES, ChaCha20-Poly1305, RSA e SM2/SM4"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Шифрование и расшифровка локально с AES, ChaCha20-Poly1305, RSA и SM2/SM4"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "本机使用 AES、ChaCha20-Poly1305、RSA 与国密 SM2/SM4 加密解密"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "本機使用 AES、ChaCha20-Poly1305、RSA 與國密 SM2/SM4 加密解密"
-          }
-        }
-      }
-    },
     "—" : {
       "localizations" : {
         "de" : {
@@ -17627,6 +17509,65 @@
         }
       }
     },
+    "Cipher" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verschlüsselung"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cifrado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiffrement"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暗号化"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "암호화"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Criptografia"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Шифрование"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "加解密"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "加解密"
+          }
+        }
+      }
+    },
     "Collecting performance data…" : {
       "localizations" : {
         "de" : {
@@ -24915,61 +24856,120 @@
         }
       }
     },
-    "Encode and decode Base64, Base32, Base62, Hex, URL, HTML, Unicode, Escape, and Hash" : {
+    "Encode and decode BaseXX, Unicode, UTF-8, URL, ASCII/Native, HTML, Punycode, GBK, and more" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Base64, Base32, Base62, Hex, URL, HTML, Unicode, Escape und Hash kodieren und dekodieren"
+            "value" : "BaseXX, Unicode, UTF-8, URL, ASCII/Native, HTML, Punycode, GBK und mehr kodieren und dekodieren"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Codifica y decodifica Base64, Base32, Base62, Hex, URL, HTML, Unicode, Escape y Hash"
+            "value" : "Codifica y decodifica BaseXX, Unicode, UTF-8, URL, ASCII/Native, HTML, Punycode, GBK y más"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Encodez et décodez Base64, Base32, Base62, Hex, URL, HTML, Unicode, échappement et Hash"
+            "value" : "Encodez et décodez BaseXX, Unicode, UTF-8, URL, ASCII/Native, HTML, Punycode, GBK et plus"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Base64、Base32、Base62、Hex、URL、HTML、Unicode、エスケープ、Hash をエンコード／デコード"
+            "value" : "BaseXX、Unicode、UTF-8、URL、ASCII/Native、HTML、Punycode、GBK などをエンコード／デコード"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Base64, Base32, Base62, Hex, URL, HTML, Unicode, 이스케이프, Hash 인코딩/디코딩"
+            "value" : "BaseXX, Unicode, UTF-8, URL, ASCII/Native, HTML, Punycode, GBK 등 인코딩/디코딩"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Codifique e decodifique Base64, Base32, Base62, Hex, URL, HTML, Unicode, Escape e Hash"
+            "value" : "Codifique e decodifique BaseXX, Unicode, UTF-8, URL, ASCII/Native, HTML, Punycode, GBK e mais"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Кодирование и декодирование Base64, Base32, Base62, Hex, URL, HTML, Unicode, экранирования и Hash"
+            "value" : "Кодирование и декодирование BaseXX, Unicode, UTF-8, URL, ASCII/Native, HTML, Punycode, GBK и др."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "编解码 Base64、Base32、Base62、Hex、URL、HTML、Unicode、转义 与 Hash"
+            "value" : "编解码 BaseXX、Unicode、UTF-8、URL、ASCII/Native、HTML、Punycode、GBK 等"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "編解碼 Base64、Base32、Base62、Hex、URL、HTML、Unicode、跳脫 與 Hash"
+            "value" : "編解碼 BaseXX、Unicode、UTF-8、URL、ASCII/Native、HTML、Punycode、GBK 等"
+          }
+        }
+      }
+    },
+    "Encrypt and decrypt with AES, ChaCha20-Poly1305, RSA, and SM2/SM4 locally" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lokal verschlüsseln und entschlüsseln mit AES, ChaCha20-Poly1305, RSA und SM2/SM4"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cifra y descifra localmente con AES, ChaCha20-Poly1305, RSA y SM2/SM4"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiffrez et déchiffrez localement avec AES, ChaCha20-Poly1305, RSA et SM2/SM4"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AES、ChaCha20-Poly1305、RSA、SM2/SM4 でローカルに暗号化／復号"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AES, ChaCha20-Poly1305, RSA, SM2/SM4로 로컬에서 암호화/복호화"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Criptografe e descriptografe localmente com AES, ChaCha20-Poly1305, RSA e SM2/SM4"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Шифрование и расшифровка локально с AES, ChaCha20-Poly1305, RSA и SM2/SM4"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本机使用 AES、ChaCha20-Poly1305、RSA 与国密 SM2/SM4 加密解密"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本機使用 AES、ChaCha20-Poly1305、RSA 與國密 SM2/SM4 加密解密"
           }
         }
       }

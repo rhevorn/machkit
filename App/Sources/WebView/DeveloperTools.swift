@@ -116,11 +116,11 @@ enum DeveloperToolRegistry {
         DeveloperTool(
             id: "codec",
             title: "Codec",
-            description: "Encode and decode Base64, Base32, Base62, Hex, URL, HTML, Unicode, Escape, and Hash",
+            description: "Encode and decode Base64, Hex, Binary, URL, HTML, JSON, Punycode, GBK, and more",
             icon: "lock.rectangle.on.rectangle",
             iconColor: .indigo,
-            width: WebToolWidth.compact,
-            height: 416,
+            width: WebToolWidth.regular,
+            height: 600,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/codec/index.html")
         ),
