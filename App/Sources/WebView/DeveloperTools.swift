@@ -25,7 +25,7 @@ enum WebToolWidth {
     static let minimumHeight: CGFloat = 360
 
     /// Bump to invalidate remembered frames after sizing policy changes.
-    static let frameEpoch = 26
+    static let frameEpoch = 29
 }
 
 struct DeveloperTool: Identifiable, Equatable {
@@ -123,6 +123,17 @@ enum DeveloperToolRegistry {
             height: 416,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/codec/index.html")
+        ),
+        DeveloperTool(
+            id: "cipher",
+            title: "Cipher",
+            description: "Encrypt and decrypt with AES, ChaCha20-Poly1305, RSA, and SM2/SM4 locally",
+            icon: "lock.fill",
+            iconColor: .indigo,
+            width: WebToolWidth.regular,
+            height: 600,
+            capabilities: [.clipboard],
+            presentation: .bundledWeb(entryFile: "WebTools/tools/cipher/index.html")
         ),
         DeveloperTool(
             id: "string-generator",

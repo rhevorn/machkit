@@ -1,6 +1,124 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Cipher" : {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verschlüsselung"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cifrado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiffrement"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暗号化"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "암호화"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Criptografia"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Шифрование"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加解密"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加解密"
+          }
+        }
+      }
+    },
+    "Encrypt and decrypt with AES, ChaCha20-Poly1305, RSA, and SM2/SM4 locally" : {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lokal verschlüsseln und entschlüsseln mit AES, ChaCha20-Poly1305, RSA und SM2/SM4"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cifra y descifra localmente con AES, ChaCha20-Poly1305, RSA y SM2/SM4"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiffrez et déchiffrez localement avec AES, ChaCha20-Poly1305, RSA et SM2/SM4"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AES、ChaCha20-Poly1305、RSA、SM2/SM4 でローカルに暗号化／復号"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AES, ChaCha20-Poly1305, RSA, SM2/SM4로 로컬에서 암호화/복호화"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Criptografe e descriptografe localmente com AES, ChaCha20-Poly1305, RSA e SM2/SM4"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Шифрование и расшифровка локально с AES, ChaCha20-Poly1305, RSA и SM2/SM4"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本机使用 AES、ChaCha20-Poly1305、RSA 与国密 SM2/SM4 加密解密"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本機使用 AES、ChaCha20-Poly1305、RSA 與國密 SM2/SM4 加密解密"
+          }
+        }
+      }
+    },
     "—" : {
       "localizations" : {
         "de" : {

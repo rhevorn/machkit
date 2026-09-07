@@ -15,6 +15,7 @@ const tools: Array<{ id: string; windowClass: WindowClass }> = [
   { id: "json-formatter", windowClass: "wide" },
   { id: "timestamp-converter", windowClass: "compact" },
   { id: "codec", windowClass: "compact" },
+  { id: "cipher", windowClass: "regular" },
   { id: "string-generator", windowClass: "compact" },
   { id: "hosts-manager", windowClass: "regular" },
   { id: "url-lab", windowClass: "compact" },

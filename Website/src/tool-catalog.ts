@@ -160,6 +160,30 @@ export const websiteToolCatalog = Object.freeze([
     },
   }),
   tool({
+    id: "cipher",
+    category: "text-data",
+    en: {
+      title: "Cipher",
+      summary: "Encrypt and decrypt with AES, ChaCha, RSA, DES/3DES, and SM2/SM4 entirely on your Mac.",
+      introduction: "Cipher keeps cryptography local. Use AES and ChaCha modes, RSA, DES/3DES, and SM2/SM4—without uploading secrets to a website.",
+      highlights: [
+        "AES-GCM, CBC, CTR, and ECB",
+        "ChaCha20 / XChaCha20-Poly1305, RSA-OAEP / PKCS1, SM2/SM4",
+        "DES / 3DES",
+      ],
+    },
+    "zh-CN": {
+      title: "加解密",
+      summary: "在本机使用 AES、ChaCha、RSA、DES/3DES 与国密 SM2/SM4 加密、解密。",
+      introduction: "加解密把密码学操作留在 Mac 本机。支持 AES 与 ChaCha、RSA、DES/3DES 与国密 SM2/SM4，不必把密钥上传到网站。",
+      highlights: [
+        "AES-GCM、CBC、CTR、ECB",
+        "ChaCha20 / XChaCha20-Poly1305、RSA-OAEP / PKCS1、国密 SM2/SM4",
+        "DES / 3DES",
+      ],
+    },
+  }),
+  tool({
     id: "string-generator",
     category: "text-data",
     en: {

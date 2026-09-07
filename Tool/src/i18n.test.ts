@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { catalogIssues, supportedLocales } from "./i18n-catalog.js";
 import { messages as timestampMessages } from "../tools/timestamp-converter/messages.js";
 import { messages as codecMessages } from "../tools/codec/messages.js";
+import { messages as cipherMessages } from "../tools/cipher/messages.js";
 import { messages as jsonMessages } from "../tools/json-formatter/messages.js";
 import { messages as stringMessages } from "../tools/string-generator/messages.js";
 import { labels as hostsMessages } from "../tools/hosts-manager/messages.js";
@@ -26,6 +27,7 @@ import { messages as urlMessages } from "../tools/url-lab/messages.js";
 const localizedCatalogs = {
   timestamp: timestampMessages,
   codec: codecMessages,
+  cipher: cipherMessages,
   json: jsonMessages,
   string: stringMessages,
   hosts: hostsMessages,

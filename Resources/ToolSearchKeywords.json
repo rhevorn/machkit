@@ -1268,5 +1268,93 @@
       "number-base",
       "Number Base"
     ]
+  },
+  "cipher": {
+    "en": [
+      "aes",
+      "gcm",
+      "cbc",
+      "ctr",
+      "ecb",
+      "des",
+      "3des",
+      "chacha",
+      "xchacha",
+      "rsa",
+      "pkcs1",
+      "sm2",
+      "sm4",
+      "encrypt",
+      "decrypt",
+      "cipher",
+      "crypto",
+      "iv",
+      "nonce",
+      "key",
+      "hex",
+      "base64"
+    ],
+    "zh-Hans": [
+      "加密",
+      "解密",
+      "加解密",
+      "密钥",
+      "对称",
+      "国密",
+      "非对称",
+      "des",
+      "3des"
+    ],
+    "zh-Hant": [
+      "加密",
+      "解密",
+      "加解密",
+      "金鑰",
+      "對稱",
+      "國密",
+      "非對稱"
+    ],
+    "ja": [
+      "暗号化",
+      "復号",
+      "暗号",
+      "鍵"
+    ],
+    "ko": [
+      "암호화",
+      "복호화",
+      "암호",
+      "키"
+    ],
+    "es": [
+      "cifrar",
+      "descifrar",
+      "cifrado",
+      "clave"
+    ],
+    "fr": [
+      "chiffrer",
+      "déchiffrer",
+      "chiffrement",
+      "clé"
+    ],
+    "de": [
+      "verschlüsseln",
+      "entschlüsseln",
+      "chiffre",
+      "schlüssel"
+    ],
+    "pt-BR": [
+      "cifrar",
+      "decifrar",
+      "cifra",
+      "chave"
+    ],
+    "ru": [
+      "шифрование",
+      "расшифровка",
+      "шифр",
+      "ключ"
+    ]
   }
 }
