@@ -338,7 +338,7 @@ function OptionsDialog({
           onCheckedChange={(checked) => patchRequest({ compressed: Boolean(checked) })}
           label={text.compressed}
         />
-        <div className="-mx-4 -mb-4 mt-1 flex justify-end border-t border-border px-4 py-3">
+        <div className="mt-3 flex justify-end border-t border-border pt-3">
           <Button variant="secondary" size="sm" onClick={onClose}>
             {text.close}
           </Button>
@@ -655,8 +655,8 @@ function CurlLabTool() {
       : text.response;
 
   return (
-    <ToolPage title={text.title} adaptiveHeight={false}>
-      <ToolContent className="flex h-full min-h-0 flex-col gap-2 pt-3 pb-4">
+    <ToolPage title={text.title}>
+      <ToolContent className="flex h-full min-h-0 flex-col gap-2">
         {status ? <StatusStrip tone={status.tone}>{status.label}</StatusStrip> : null}
 
         <HorizontalSplit

@@ -85,8 +85,9 @@
   --machkit-size-icon: 16px;
   --machkit-size-icon-large: 18px;
   --machkit-layout-min-width: 420px;
-  --machkit-layout-content-padding: 28px;
-  --machkit-layout-content-padding-compact: 24px;
+  /* Page edge: top tighter under the titlebar; sides/bottom stay compact 16. */
+  --machkit-layout-content-padding: 16px;
+  --machkit-layout-content-padding-top: 4px;
   --machkit-layout-section-gap: 12px;
 
   /* Typography roles */

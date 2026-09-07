@@ -442,7 +442,7 @@ function StringGenerator() {
 
   return (
     <ToolPage title={text.title}>
-      <ToolContent className="flex flex-col gap-3 pt-4 pb-5">
+      <ToolContent className="flex flex-col gap-3">
         <ToolToolbar className="gap-2">
           <SegmentedControl
             value={format}

@@ -101,7 +101,7 @@ function CertLabTool() {
 
   return (
     <ToolPage title={text.title}>
-      <ToolContent className="flex flex-col gap-3 pt-3 pb-4">
+      <ToolContent className="flex flex-col gap-3">
         <ToolToolbar className="gap-2">
           <span className="machkit-control-label shrink-0">{text.pem}</span>
           <div className="mx-1 h-5 w-px shrink-0 bg-border" aria-hidden="true" />

@@ -263,7 +263,7 @@ function TextDiff() {
 
   return (
     <ToolPage title={text.title}>
-      <ToolContent className="flex h-full min-h-0 flex-1 flex-col gap-2 overflow-hidden pt-3 pb-4">
+      <ToolContent className="flex h-full min-h-0 flex-1 flex-col gap-2 overflow-hidden">
         <ToolToolbar className="min-h-[var(--machkit-size-control)] gap-2 border-b-0">
           <CheckboxField
             checked={ignoreWhitespace}

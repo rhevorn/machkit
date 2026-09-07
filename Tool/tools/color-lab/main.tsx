@@ -64,7 +64,7 @@ function ColorLabTool() {
 
   return (
     <ToolPage title={text.title}>
-      <ToolContent className="flex flex-col gap-3 pt-3 pb-4">
+      <ToolContent className="flex flex-col gap-3">
         <ToolToolbar className="gap-2">
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <label htmlFor="color-input" className="machkit-control-label whitespace-nowrap">

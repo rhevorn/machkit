@@ -303,8 +303,8 @@ function TimestampTool() {
   };
 
   return (
-    <ToolPage title={text.title} adaptiveHeight>
-      <ToolContent className="flex flex-col pt-4 pb-6">
+    <ToolPage title={text.title}>
+      <ToolContent className="flex flex-col">
         <ToolToolbar className="gap-2">
           <SegmentedControl
             value={tab}

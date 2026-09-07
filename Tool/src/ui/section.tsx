@@ -15,11 +15,26 @@ export function Section({ title, className, children, ...props }: SectionProps) 
 }
 
 export function EmptyToolState({ children }: { children?: ReactNode }) {
-  return <div className="grid min-h-[360px] place-items-center px-6 text-sm text-secondary">{children}</div>;
+  return <div className="grid min-h-[360px] place-items-center text-sm text-secondary">{children}</div>;
 }
 
 export type ToolContentProps = ComponentPropsWithoutRef<"div">;
 
+/**
+ * Sole page-edge inset for every tool. Do not override `p` / `pt` / `pb` / `px`
+ * on this wrapper — inner spacing must come from `gap` and section spacing only.
+ * `overflow-hidden` keeps flex children from painting over the padding inset.
+ */
 export function ToolContent({ className, ...props }: ToolContentProps) {
-  return <div data-machkit-tool-content className={cn("w-full px-7 pb-6 max-[680px]:px-6", className)} {...props} />;
+  return (
+    <div
+      data-machkit-tool-content
+      className={cn(
+        "box-border h-full min-h-0 w-full overflow-hidden",
+        "px-[var(--machkit-layout-content-padding)] pb-[var(--machkit-layout-content-padding)] pt-[var(--machkit-layout-content-padding-top)]",
+        className,
+      )}
+      {...props}
+    />
+  );
 }

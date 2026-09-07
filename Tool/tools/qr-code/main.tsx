@@ -278,8 +278,8 @@ function QrCodeTool() {
       : null;
 
   return (
-    <ToolPage title={text.title} adaptiveHeight={false}>
-      <ToolContent className="flex h-full min-h-0 flex-1 flex-col gap-2.5 overflow-auto pt-3 pb-4">
+    <ToolPage title={text.title}>
+      <ToolContent className="flex h-full min-h-0 flex-1 flex-col gap-2.5 overflow-auto">
         <div className="flex shrink-0 flex-col gap-1">
           <label htmlFor="qr-content" className="machkit-control-label">
             {text.content}
