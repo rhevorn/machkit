@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { CaretDownIcon, CheckIcon } from "@phosphor-icons/react";
 import * as Select from "@radix-ui/react-select";
+import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils.js";
 
 export type SelectOption = {
@@ -8,26 +9,46 @@ export type SelectOption = {
   label: ReactNode;
 };
 
+const selectTriggerVariants = cva(
+  "flex min-w-0 shrink-0 items-center justify-between gap-1.5 rounded-control text-[13px] leading-none outline-none",
+  {
+    variants: {
+      variant: {
+        default:
+          "h-[var(--machkit-size-control)] min-h-[var(--machkit-size-control)] w-full gap-2 border border-border bg-field px-3 text-foreground hover:bg-muted focus:border-accent focus:ring-3 focus:ring-accent-soft",
+        ghost:
+          "h-6 w-auto border-0 bg-transparent px-1 text-[11px] text-tertiary hover:bg-muted hover:text-secondary focus-visible:ring-3 focus-visible:ring-accent/35 data-[state=open]:bg-muted data-[state=open]:text-secondary",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  },
+);
+
 export type SelectControlProps = {
   value: string;
   options: SelectOption[];
   onChange: (value: string) => void;
   label?: string;
   className?: string;
-};
+} & VariantProps<typeof selectTriggerVariants>;
 
-export function SelectControl({ value, options, onChange, label, className }: SelectControlProps) {
+export function SelectControl({
+  value,
+  options,
+  onChange,
+  label,
+  className,
+  variant = "default",
+}: SelectControlProps) {
   return (
     <Select.Root value={value} onValueChange={onChange}>
-      <Select.Trigger
-        aria-label={label}
-        className={cn(
-          "flex h-[var(--machkit-size-control)] min-h-[var(--machkit-size-control)] min-w-0 w-full shrink-0 items-center justify-between gap-2 rounded-control border border-border bg-field px-3 text-[13px] leading-none text-foreground outline-none hover:bg-muted focus:border-accent focus:ring-3 focus:ring-accent-soft",
-          className,
-        )}
-      >
+      <Select.Trigger aria-label={label} className={cn(selectTriggerVariants({ variant }), className)}>
         <Select.Value className="min-w-0 truncate" />
-        <Select.Icon className="shrink-0 text-secondary"><CaretDownIcon size={14} /></Select.Icon>
+        <Select.Icon className={cn("shrink-0", variant === "ghost" ? "text-tertiary" : "text-secondary")}>
+          <CaretDownIcon size={variant === "ghost" ? 11 : 14} />
+        </Select.Icon>
       </Select.Trigger>
       <Select.Portal>
         <Select.Content
