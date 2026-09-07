@@ -15,6 +15,7 @@ run_in() {
 echo "Verifying MachKit from $repo_root"
 
 run_in "$repo_root" node Scripts/verify_npm_registries.mjs
+run_in "$repo_root" node Scripts/verify_tool_catalog.mjs
 
 run_in "$repo_root" swift test
 

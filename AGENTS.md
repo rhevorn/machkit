@@ -21,10 +21,10 @@ MachKit is a privacy-first, local-first macOS utility.
 
 ## Repository boundaries
 
-- `App/`: SwiftUI UI, app orchestration, preferences, system adapters, WebView hosting, and screenshot sessions.
-- `Sources/MachKitCore/`: reusable, deterministic business logic, policies, parsers, scanners, command boundaries, and geometry.
+- `App/`: SwiftUI UI, app orchestration, preferences, system adapters, WebView hosting, and screenshot sessions. Domain folders under `App/Sources/` (`Network/`, `Cleaner/`, `Settings/`, `Screenshot/`, `WebView/`) group large feature surfaces.
+- `Sources/MachKitCore/`: reusable, deterministic business logic organized by domain (`Network/`, `Cleanup/`, `Software/`, `WebTools/`, `Safety/`, `Screenshot/`), plus shared runners at the module root.
 - `Tests/MachKitCoreTests/`: unit, safety, and regression tests for the core module.
-- `Tool/`: bundled React/TypeScript/Vite utilities. Its nested `AGENTS.md` is authoritative for H5 architecture and UI.
+- `Tool/`: bundled React/TypeScript/Vite utilities. Its nested `AGENTS.md` is authoritative for H5 architecture and UI. Keep tool IDs aligned via `Scripts/verify_tool_catalog.mjs`.
 - `Website/`: React/TypeScript/Vite website with SSR and prerender verification.
 - `Resources/`: app assets and localization catalogs.
 - `Scripts/`: build, verification, localization, packaging, and release automation.

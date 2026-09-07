@@ -109,7 +109,7 @@ enum DeveloperToolRegistry {
             icon: "clock.arrow.trianglehead.counterclockwise.rotate.90",
             iconColor: .orange,
             width: WebToolWidth.compact,
-            height: 580,
+            height: 590,
             capabilities: [.clipboard],
             presentation: .bundledWeb(entryFile: "WebTools/tools/timestamp-converter/index.html")
         ),
@@ -180,7 +180,7 @@ enum DeveloperToolRegistry {
             presentation: .bundledWeb(entryFile: "WebTools/tools/text-diff/index.html")
         ),
         DeveloperTool(
-            id: "number-base",
+            id: "unit-converter",
             title: "Unit Converter",
             description: "Convert bases, bytes, time, length, mass, temperature, and more locally",
             icon: "number",
@@ -188,7 +188,7 @@ enum DeveloperToolRegistry {
             width: WebToolWidth.compact,
             height: 436,
             capabilities: [.clipboard],
-            presentation: .bundledWeb(entryFile: "WebTools/tools/number-base/index.html")
+            presentation: .bundledWeb(entryFile: "WebTools/tools/unit-converter/index.html")
         ),
         DeveloperTool(
             id: "cron-expression",

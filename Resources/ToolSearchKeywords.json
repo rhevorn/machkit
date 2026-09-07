@@ -533,95 +533,6 @@
       "текст"
     ]
   },
-  "number-base": {
-    "en": [
-      "binary",
-      "octal",
-      "decimal",
-      "hex",
-      "byte",
-      "kib",
-      "mib",
-      "time",
-      "length",
-      "mass",
-      "temperature",
-      "angle",
-      "speed",
-      "area",
-      "unit",
-      "converter"
-    ],
-    "zh-Hans": [
-      "进制",
-      "字节",
-      "换算",
-      "单位",
-      "时间",
-      "长度",
-      "温度"
-    ],
-    "zh-Hant": [
-      "進位",
-      "位元組",
-      "換算",
-      "單位",
-      "時間",
-      "長度",
-      "溫度"
-    ],
-    "ja": [
-      "進数",
-      "バイト",
-      "単位",
-      "変換",
-      "温度",
-      "長さ"
-    ],
-    "ko": [
-      "진법",
-      "바이트",
-      "단위",
-      "변환",
-      "온도",
-      "길이"
-    ],
-    "es": [
-      "base",
-      "byte",
-      "unidad",
-      "convertir",
-      "temperatura"
-    ],
-    "fr": [
-      "base",
-      "octet",
-      "unité",
-      "convertir",
-      "température"
-    ],
-    "de": [
-      "zahlensystem",
-      "byte",
-      "einheit",
-      "umrechnen",
-      "temperatur"
-    ],
-    "pt-BR": [
-      "base",
-      "byte",
-      "unidade",
-      "converter",
-      "temperatura"
-    ],
-    "ru": [
-      "система счисления",
-      "байт",
-      "единица",
-      "конвертер",
-      "температура"
-    ]
-  },
   "cron-expression": {
     "en": [
       "cron",
@@ -1247,6 +1158,115 @@
       "сканирование",
       "открытый",
       "служба"
+    ]
+  },
+  "unit-converter": {
+    "en": [
+      "binary",
+      "octal",
+      "decimal",
+      "hex",
+      "byte",
+      "kib",
+      "mib",
+      "time",
+      "length",
+      "mass",
+      "temperature",
+      "angle",
+      "speed",
+      "area",
+      "unit",
+      "converter",
+      "number-base",
+      "Number Base"
+    ],
+    "zh-Hans": [
+      "进制",
+      "字节",
+      "换算",
+      "单位",
+      "时间",
+      "长度",
+      "温度",
+      "number-base",
+      "Number Base"
+    ],
+    "zh-Hant": [
+      "進位",
+      "位元組",
+      "換算",
+      "單位",
+      "時間",
+      "長度",
+      "溫度",
+      "number-base",
+      "Number Base"
+    ],
+    "ja": [
+      "進数",
+      "バイト",
+      "単位",
+      "変換",
+      "温度",
+      "長さ",
+      "number-base",
+      "Number Base"
+    ],
+    "ko": [
+      "진법",
+      "바이트",
+      "단위",
+      "변환",
+      "온도",
+      "길이",
+      "number-base",
+      "Number Base"
+    ],
+    "es": [
+      "base",
+      "byte",
+      "unidad",
+      "convertir",
+      "temperatura",
+      "number-base",
+      "Number Base"
+    ],
+    "fr": [
+      "base",
+      "octet",
+      "unité",
+      "convertir",
+      "température",
+      "number-base",
+      "Number Base"
+    ],
+    "de": [
+      "zahlensystem",
+      "byte",
+      "einheit",
+      "umrechnen",
+      "temperatur",
+      "number-base",
+      "Number Base"
+    ],
+    "pt-BR": [
+      "base",
+      "byte",
+      "unidade",
+      "converter",
+      "temperatura",
+      "number-base",
+      "Number Base"
+    ],
+    "ru": [
+      "система счисления",
+      "байт",
+      "единица",
+      "конвертер",
+      "температура",
+      "number-base",
+      "Number Base"
     ]
   }
 }

@@ -46,6 +46,9 @@ Browser choices are remembered in `localStorage` and synced into the URL.
    `width` (`WebToolWidth.compact` / `.regular` / `.wide`), a fixed `height`,
    and grant only the native capabilities the tool needs (`clipboard`, `hosts`,
    or `storage`).
+   Keep the same tool id in `Tool/src/tools-catalog.ts` (preferred order) and
+   `Website/src/tool-catalog.ts`. Run `node Scripts/verify_tool_catalog.mjs`
+   (also part of `Scripts/verify.sh` / CI) to confirm the id sets match.
    Add multilingual search aliases for the tool id in
    `Resources/ToolSearchKeywords.json` (`en` plus every supported app locale).
    The `clipboard` capability covers both **read and write**

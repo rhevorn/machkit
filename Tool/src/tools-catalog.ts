@@ -12,7 +12,7 @@ const preferredOrder = [
   "url-lab",
   "regex-lab",
   "text-diff",
-  "number-base",
+  "unit-converter",
   "cron-expression",
   "ip-cidr",
   "color-lab",
@@ -339,7 +339,7 @@ export const toolMeta = {
       ru: "Разбор и сборка URL с query и hash",
     },
   },
-  "number-base": {
+  "unit-converter": {
     title: {
       en: "Unit Converter",
       "zh-Hans": "单位换算",

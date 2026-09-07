@@ -2,7 +2,8 @@ import AppKit
 import Foundation
 import SwiftUI
 
-struct AppSettingsView: View {
+/// Settings page UI. Preference keys and value types live in `AppPreferences.swift`.
+struct SettingsView: View {
     @AppStorage(AppPreferenceKey.language) private var languageRawValue = AppLanguage.system.rawValue
     @AppStorage(AppPreferenceKey.appearance) private var appearanceRawValue = AppAppearance.system.rawValue
     @AppStorage(AppPreferenceKey.showMenuBar) private var showMenuBar = true

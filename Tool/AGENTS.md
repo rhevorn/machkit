@@ -197,7 +197,7 @@ and information architecture intact.
    region composed from property rows or result panels. Use for IP, CIDR, and
    calculator-style tools.
 3. **Sidebar workbench** — a narrow mode/navigation sidebar plus a primary editor
-   or output workspace. Use for codec and number-base tools with multiple modes.
+   or output workspace. Use for codec and unit-converter tools with multiple modes.
 4. **Task/progress** — explicit inputs and primary action followed by progress,
    cancellation, partial results, completion, and error states. Use for scans and
    other asynchronous native operations.

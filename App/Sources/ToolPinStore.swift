@@ -12,7 +12,10 @@ final class ToolPinStore: ObservableObject {
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         if let saved = defaults.array(forKey: storageKey) as? [String] {
-            pinnedIDs = saved
+            pinnedIDs = ToolPinOrder.migrateLegacyIDs(saved)
+            if pinnedIDs != saved {
+                defaults.set(pinnedIDs, forKey: storageKey)
+            }
         } else {
             pinnedIDs = []
         }

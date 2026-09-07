@@ -36,7 +36,7 @@ function tabLabel(text: ToolText, id: string): string {
   return typeof label === "string" ? label : id;
 }
 
-function NumberBaseTool() {
+function UnitConverterTool() {
   const text = useToolMessages(messages);
   const [category, setCategory] = useState<UnitCategory>("bases");
   const [input, setInput] = useState("255");
@@ -186,4 +186,4 @@ function NumberBaseTool() {
   );
 }
 
-mountTool(<NumberBaseTool />, { name: "Unit Converter" });
+mountTool(<UnitConverterTool />, { name: "Unit Converter" });

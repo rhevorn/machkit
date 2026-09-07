@@ -20,7 +20,7 @@ const tools: Array<{ id: string; windowClass: WindowClass }> = [
   { id: "url-lab", windowClass: "compact" },
   { id: "regex-lab", windowClass: "compact" },
   { id: "text-diff", windowClass: "wide" },
-  { id: "number-base", windowClass: "compact" },
+  { id: "unit-converter", windowClass: "compact" },
   { id: "cron-expression", windowClass: "compact" },
   { id: "ip-cidr", windowClass: "regular" },
   { id: "color-lab", windowClass: "regular" },

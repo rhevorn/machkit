@@ -256,7 +256,7 @@ export const websiteToolCatalog = Object.freeze([
     },
   }),
   tool({
-    id: "number-base",
+    id: "unit-converter",
     category: "text-data",
     en: {
       title: "Unit Converter",
