@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ComponentType, type SVGProps
 import { createPortal } from "react-dom";
 import CodeMirror from "@uiw/react-codemirror";
 import { DesktopIcon, HardDrivesIcon, LinkIcon, PlusIcon } from "@phosphor-icons/react";
-import { Button, Input, SidebarNavItem, StatusStrip, ToolPage, ToolSidebar } from "@/ui/index.js";
+import { Button, Input, SidebarNavItem, StatusStrip, ToolContent, ToolPage, ToolSidebar } from "@/ui/index.js";
 import { cn } from "@/lib/utils.js";
 import { useMachKitEditorTheme } from "@/ui/codemirror-theme.js";
 import { useToolMessages } from "@/i18n.js";
@@ -344,7 +344,9 @@ function HostsManager() {
   if (!data) {
     return (
       <ToolPage title={text.title}>
-        <div className="grid h-full place-items-center text-xs text-secondary">{message || "…"}</div>
+        <ToolContent className="grid place-items-center text-xs text-secondary">
+          {message || "…"}
+        </ToolContent>
       </ToolPage>
     );
   }
@@ -362,54 +364,62 @@ function HostsManager() {
 
   return (
     <ToolPage title={text.title}>
-      <div className="flex min-h-0 flex-1 bg-surface">
-        <ToolSidebar width={220} className="bg-surface py-3 pl-3 pr-1">
-          <div className="machkit-sidebar-label px-2 pt-1 pb-1.5">{text.system}</div>
-          {rows.slice(0, 1).map((row) => (
-            <SidebarNavItem
-              key={row.id}
-              icon={row.icon}
-              label={row.name}
-              hint={row.hint}
-              active={selection === row.id}
-              onClick={() => setSelection(row.id)}
-              className={SIDEBAR_ITEM_CLASS}
-            />
-          ))}
-          <div className="machkit-sidebar-label px-2 pt-3 pb-1.5">{text.shared}</div>
-          {rows.slice(1, 2).map((row) => (
-            <SidebarNavItem
-              key={row.id}
-              icon={row.icon}
-              label={row.name}
-              hint={row.hint}
-              active={selection === row.id}
-              onClick={() => setSelection(row.id)}
-              className={SIDEBAR_ITEM_CLASS}
-            />
-          ))}
-          <div className="mt-3 flex h-9 shrink-0 items-center pl-2 pr-1.5">
-            <span className="machkit-sidebar-label min-w-0 flex-1">{text.environments}</span>
-            <Button variant="ghost" size="icon" className="size-5" onClick={addEnvironment} aria-label={text.add}><PlusIcon size={14} /></Button>
-          </div>
-          <div className="space-y-1.5 overflow-auto">
-            {rows.slice(2).map((row) => (
-              <EnvironmentRow
+      <ToolContent className="flex min-h-0 flex-1 gap-[var(--machkit-layout-content-padding)] bg-surface">
+        <ToolSidebar width={220} muted className="min-h-0 self-stretch">
+          <div className="flex flex-col gap-[4px]">
+            <div className="machkit-sidebar-label px-2 py-[4px]">{text.system}</div>
+            {rows.slice(0, 1).map((row) => (
+              <SidebarNavItem
                 key={row.id}
-                row={row}
-                text={text}
-                busy={busy}
-                selected={sameEnvironmentID(selection, row.id)}
-                active={sameEnvironmentID(row.id, data.activeEnvironmentID)}
-                onSelect={setSelection}
-                onDelete={removeEnvironment}
+                icon={row.icon}
+                label={row.name}
+                hint={row.hint}
+                active={selection === row.id}
+                onClick={() => setSelection(row.id)}
+                className={SIDEBAR_ITEM_CLASS}
               />
             ))}
           </div>
+          <div className="flex flex-col gap-[4px]">
+            <div className="machkit-sidebar-label px-2 py-[4px]">{text.shared}</div>
+            {rows.slice(1, 2).map((row) => (
+              <SidebarNavItem
+                key={row.id}
+                icon={row.icon}
+                label={row.name}
+                hint={row.hint}
+                active={selection === row.id}
+                onClick={() => setSelection(row.id)}
+                className={SIDEBAR_ITEM_CLASS}
+              />
+            ))}
+          </div>
+          <div className="flex min-h-0 flex-1 flex-col gap-[4px]">
+            <div className="flex h-9 shrink-0 items-center gap-1 px-2">
+              <span className="machkit-sidebar-label min-w-0 flex-1">{text.environments}</span>
+              <Button variant="ghost" size="icon" className="size-5" onClick={addEnvironment} aria-label={text.add}>
+                <PlusIcon size={14} />
+              </Button>
+            </div>
+            <div className="flex min-h-0 flex-1 flex-col gap-[4px] overflow-auto">
+              {rows.slice(2).map((row) => (
+                <EnvironmentRow
+                  key={row.id}
+                  row={row}
+                  text={text}
+                  busy={busy}
+                  selected={sameEnvironmentID(selection, row.id)}
+                  active={sameEnvironmentID(row.id, data.activeEnvironmentID)}
+                  onSelect={setSelection}
+                  onDelete={removeEnvironment}
+                />
+              ))}
+            </div>
+          </div>
         </ToolSidebar>
 
-        <section className="flex min-w-0 flex-1 flex-col">
-          <header className="flex min-h-[var(--machkit-size-toolbar)] shrink-0 items-center gap-3 px-5">
+        <section className="flex min-h-0 min-w-0 flex-1 flex-col">
+          <header className="flex min-h-[var(--machkit-size-toolbar)] shrink-0 items-center gap-3">
             <div className="min-w-0 flex-1">
               {selectedEnvironment ? (
                 <Input
@@ -452,7 +462,7 @@ function HostsManager() {
               </Button>
             ) : null}
           </header>
-          <div className="min-h-0 flex-1 px-5 pb-5">
+          <div className="min-h-0 flex-1">
             <CodeMirror
               value={editorValue}
               height="100%"
@@ -474,9 +484,9 @@ function HostsManager() {
               className="hosts-code-editor machkit-panel h-full min-h-0"
             />
           </div>
-          {message ? <div className="px-3 pb-3"><StatusStrip tone="danger">{message}</StatusStrip></div> : null}
+          {message ? <div className="pt-3"><StatusStrip tone="danger">{message}</StatusStrip></div> : null}
         </section>
-      </div>
+      </ToolContent>
     </ToolPage>
   );
 }
@@ -521,7 +531,7 @@ function EnvironmentRow({
   return (
     <div
       className={cn(
-        "relative flex h-12 w-full shrink-0 items-center rounded-control pr-2 transition-colors",
+        "relative flex h-12 w-full shrink-0 items-center rounded-control transition-colors",
         selected ? "bg-accent-soft text-accent" : "text-secondary hover:bg-foreground/[0.04] hover:text-foreground",
       )}
       onContextMenu={(event) => {
@@ -530,12 +540,6 @@ function EnvironmentRow({
         setMenu({ x: event.clientX, y: event.clientY });
       }}
     >
-      {selected ? (
-        <span
-          className="absolute top-1.5 bottom-1.5 left-0 w-0.5 rounded-full bg-accent"
-          aria-hidden="true"
-        />
-      ) : null}
       <Button
         variant="ghost"
         onClick={() => onSelect(row.id)}

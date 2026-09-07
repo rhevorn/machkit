@@ -8,6 +8,7 @@ import {
   PropertyRow,
   SidebarNavItem,
   ToolPage,
+  ToolContent,
   ToolSidebar,
   ValueUnitField,
 } from "@/ui/index.js";
@@ -108,23 +109,25 @@ function NumberBaseTool() {
 
   return (
     <ToolPage title={text.title}>
-      <div className="flex min-h-0 flex-1 bg-surface">
-        <ToolSidebar width={136} className="px-2 py-3">
-          <div className="machkit-sidebar-label px-2.5 pb-2">{text.category}</div>
-          <nav className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-auto" aria-label={text.category}>
-            {unitCategories.map((id) => (
-              <SidebarNavItem
-                key={id}
-                active={category === id}
-                label={tabLabel(text, id)}
-                onClick={() => onCategoryChange(id)}
-              />
-            ))}
-          </nav>
+      <ToolContent className="flex min-h-0 flex-1 gap-[var(--machkit-layout-content-padding)] bg-surface">
+        <ToolSidebar width={136} muted className="min-h-0 self-stretch">
+          <div className="flex min-h-0 flex-1 flex-col gap-[4px]">
+            <div className="machkit-sidebar-label px-2 py-[4px]">{text.category}</div>
+            <nav className="flex min-h-0 flex-1 flex-col gap-[4px] overflow-auto" aria-label={text.category}>
+              {unitCategories.map((id) => (
+                <SidebarNavItem
+                  key={id}
+                  active={category === id}
+                  label={tabLabel(text, id)}
+                  onClick={() => onCategoryChange(id)}
+                />
+              ))}
+            </nav>
+          </div>
         </ToolSidebar>
 
-        <section className="flex min-w-0 flex-1 flex-col border-l border-border/60">
-          <header className="flex h-[var(--machkit-size-toolbar)] shrink-0 items-center gap-2 px-5">
+        <section className="flex min-h-0 min-w-0 flex-1 flex-col">
+          <header className="flex h-[var(--machkit-size-toolbar)] shrink-0 items-center gap-2">
             <span className="truncate text-sm font-semibold">
               {tabLabel(text, category)}
             </span>
@@ -136,7 +139,7 @@ function NumberBaseTool() {
             </ActionGroup>
           </header>
 
-          <div className="flex min-h-0 flex-1 flex-col px-5 pb-5">
+          <div className="flex min-h-0 flex-1 flex-col">
             <Field label={text.input} htmlFor="unit-input">
               <ValueUnitField
                 id="unit-input"
@@ -178,7 +181,7 @@ function NumberBaseTool() {
             </PropertyList>
           </div>
         </section>
-      </div>
+      </ToolContent>
     </ToolPage>
   );
 }

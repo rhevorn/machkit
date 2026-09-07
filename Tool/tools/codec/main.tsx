@@ -10,6 +10,7 @@ import {
   SidebarNavItem,
   StatusStrip,
   Textarea,
+  ToolContent,
   ToolPage,
   ToolSidebar,
   ToolToolbar,
@@ -143,12 +144,12 @@ function CodecTool() {
 
   return (
     <ToolPage title={text.title}>
-      <div className="flex min-h-0 flex-1 bg-surface">
-        <ToolSidebar width={148} className="p-2.5" muted>
+      <ToolContent className="flex min-h-0 flex-1 gap-[var(--machkit-layout-content-padding)] bg-surface">
+        <ToolSidebar width={148} muted className="min-h-0 self-stretch">
             {CODEC_GROUPS.map((group) => (
-              <div key={group.id}>
-                <div className="machkit-sidebar-label px-2 pb-1.5">{groupLabels[group.id]}</div>
-                <nav className="flex flex-col gap-0.5" aria-label={groupLabels[group.id]}>
+              <div key={group.id} className="flex flex-col gap-[4px]">
+                <div className="machkit-sidebar-label px-2 py-[4px]">{groupLabels[group.id]}</div>
+                <nav className="flex flex-col gap-[4px]" aria-label={groupLabels[group.id]}>
                   {group.items.map((item) => (
                     <SidebarNavItem
                       key={item.id}
@@ -163,8 +164,8 @@ function CodecTool() {
             ))}
         </ToolSidebar>
 
-        <section className="flex min-w-0 flex-1 flex-col">
-          <header className="flex h-11 shrink-0 items-center gap-2 px-4">
+        <section className="flex min-h-0 min-w-0 flex-1 flex-col">
+          <header className="flex h-11 shrink-0 items-center gap-2">
             <span className="truncate text-sm font-semibold">{tabLabel}</span>
             <ActionGroup>
               <Button
@@ -183,8 +184,8 @@ function CodecTool() {
             </ActionGroup>
           </header>
 
-          <div className="flex min-h-0 flex-1 flex-col gap-2.5 px-4 pb-4">
-            <ToolToolbar className="flex-wrap gap-2">
+          <div className="flex min-h-0 flex-1 flex-col gap-2.5 overflow-hidden">
+            <ToolToolbar className="flex-wrap gap-2 border-b-0">
               {tab === "hash" ? (
                 <SegmentedControl
                   value={algorithm}
@@ -251,47 +252,47 @@ function CodecTool() {
               ) : null}
             </ToolToolbar>
 
-            <div className="flex min-h-0 flex-1 flex-col gap-2.5">
-              <label className="flex min-h-0 min-w-0 flex-1 flex-col gap-1.5">
+            <div className="flex min-h-0 flex-1 flex-col gap-2.5 overflow-hidden">
+              <div className="flex h-8 shrink-0 items-center gap-2">
                 <span className="machkit-control-label">{text.input}</span>
-                <Textarea
-                  value={input}
-                  onChange={(event) => setInput(event.target.value)}
-                  placeholder={text.placeholder}
-                  className="min-h-[120px] w-full flex-1 resize-y"
-                />
-              </label>
-
-              <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-1.5">
-                <div className="flex items-center gap-2">
-                  <span className="machkit-control-label">{text.output}</span>
-                  <ActionGroup>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      disabled={!output}
-                      onClick={() => machkit.copy(output)}
-                    >
-                      <CopySimpleIcon size={15} />
-                      {text.copy}
-                    </Button>
-                  </ActionGroup>
-                </div>
-                <Textarea
-                  value={output}
-                  readOnly
-                  placeholder={text.empty}
-                  invalid={Boolean(error)}
-                  className="min-h-[120px] w-full flex-1 resize-y bg-field"
-                />
-                {error ? (
-                  <StatusStrip tone="danger">{messageFor(text, error)}</StatusStrip>
-                ) : null}
               </div>
+              <Textarea
+                value={input}
+                onChange={(event) => setInput(event.target.value)}
+                placeholder={text.placeholder}
+                aria-label={text.input}
+                className="min-h-0 w-full flex-1 basis-0 resize-none"
+              />
+
+              <div className="flex h-8 shrink-0 items-center gap-2">
+                <span className="machkit-control-label">{text.output}</span>
+                <ActionGroup>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={!output}
+                    onClick={() => machkit.copy(output)}
+                  >
+                    <CopySimpleIcon size={15} />
+                    {text.copy}
+                  </Button>
+                </ActionGroup>
+              </div>
+              <Textarea
+                value={output}
+                readOnly
+                placeholder={text.empty}
+                invalid={Boolean(error)}
+                aria-label={text.output}
+                className="min-h-0 w-full flex-1 basis-0 resize-none bg-field"
+              />
+              {error ? (
+                <StatusStrip tone="danger">{messageFor(text, error)}</StatusStrip>
+              ) : null}
             </div>
           </div>
         </section>
-      </div>
+      </ToolContent>
     </ToolPage>
   );
 }
