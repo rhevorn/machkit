@@ -143,7 +143,7 @@ function RegexLab() {
 
   return (
     <ToolPage title={text.title}>
-      <ToolContent className="flex min-h-0 flex-col gap-4 overflow-hidden">
+      <ToolContent className="flex min-h-0 flex-col gap-4">
         <ToolToolbar className="shrink-0 gap-2 border-b-0">
           <SegmentedControl
             value={mode}
@@ -223,11 +223,9 @@ function RegexLab() {
           />
         </div>
 
-        {patternInvalid ? (
-          <StatusStrip tone="danger" className="shrink-0">{statusLabel}</StatusStrip>
-        ) : (
-          <StatusStrip tone="info" className="shrink-0">{statusLabel}</StatusStrip>
-        )}
+        <StatusStrip tone={patternInvalid ? "danger" : "info"} className="shrink-0">
+          {statusLabel}
+        </StatusStrip>
 
         {mode === "replace" ? (
           <div className="flex shrink-0 flex-col gap-2">
@@ -271,8 +269,8 @@ function RegexLab() {
               onChange={(event) => setInput(event.target.value)}
               placeholder={text.emptyInput}
               className={cn(
-                "w-full resize-none font-mono text-[12px]",
-                mode === "replace" ? "min-h-0 flex-1" : "h-[150px] min-h-[150px] resize-y",
+                "w-full font-mono text-[12px]",
+                mode === "replace" ? "min-h-0 flex-1 resize-none" : "h-[150px] min-h-[150px] resize-y",
               )}
               spellCheck={false}
             />

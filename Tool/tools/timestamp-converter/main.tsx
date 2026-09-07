@@ -304,8 +304,8 @@ function TimestampTool() {
 
   return (
     <ToolPage title={text.title}>
-      <ToolContent className="flex flex-col">
-        <ToolToolbar className="gap-2">
+      <ToolContent className="flex min-h-0 flex-col gap-0">
+        <ToolToolbar className="shrink-0 gap-2">
           <SegmentedControl
             value={tab}
             onChange={setTab}
@@ -320,6 +320,7 @@ function TimestampTool() {
           </ActionGroup>
         </ToolToolbar>
 
+        <div className="min-h-0 flex-1 overflow-auto">
         {tab === "convert" ? (
           <>
             <div className="mt-3 grid gap-3 min-[620px]:grid-cols-[minmax(250px,0.9fr)_minmax(280px,1.1fr)]">
@@ -537,6 +538,7 @@ function TimestampTool() {
             </section>
           </>
         )}
+        </div>
       </ToolContent>
     </ToolPage>
   );

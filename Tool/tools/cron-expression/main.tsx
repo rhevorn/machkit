@@ -11,7 +11,6 @@ import {
   ToolPage,
   ToolToolbar,
 } from "@/ui/index.js";
-import { cn } from "@/lib/utils.js";
 import { useToolMessages } from "@/i18n.js";
 import { machkit } from "@/runtime/machkit.js";
 import { mountTool } from "@/runtime/mount-tool.js";
@@ -58,7 +57,7 @@ function CronTool() {
 
   return (
     <ToolPage title={text.title}>
-      <ToolContent className="flex h-full min-h-0 flex-1 flex-col gap-3 overflow-hidden">
+      <ToolContent className="flex h-full min-h-0 flex-1 flex-col gap-3">
         <ToolToolbar className="min-h-[var(--machkit-size-control)] shrink-0 gap-2 border-b-0">
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <label htmlFor="cron-expression" className="machkit-control-label whitespace-nowrap">
@@ -111,9 +110,7 @@ function CronTool() {
                 {FIELD_KEYS.map((key, index) => (
                   <div
                     key={key}
-                    className={cn(
-                      "flex items-start gap-3 border-b border-border/70 py-2.5 last:border-b-0",
-                    )}
+                    className="flex items-start gap-3 border-b border-border/70 py-2.5 last:border-b-0"
                   >
                     <span className="w-[4.5rem] shrink-0 pt-0.5 text-[12px] text-secondary">
                       {text[key]}
@@ -146,7 +143,7 @@ function CronTool() {
                   ))}
                 </ol>
               ) : (
-                <p className="rounded-panel bg-muted/70 px-3 py-4 text-xs text-tertiary">{text.noRuns}</p>
+                <p className="rounded-panel bg-muted/70 p-[6px] text-xs text-tertiary">{text.noRuns}</p>
               )}
             </section>
           </div>

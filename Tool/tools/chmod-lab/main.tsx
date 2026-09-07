@@ -40,7 +40,7 @@ function ChmodLabTool() {
 
   return (
     <ToolPage title={text.title}>
-      <ToolContent className="flex min-h-0 flex-col gap-3 overflow-hidden">
+      <ToolContent className="flex min-h-0 flex-col gap-3">
         <ToolToolbar className="shrink-0 gap-2 border-b-0">
           <label htmlFor="chmod-input" className="machkit-control-label whitespace-nowrap">
             {text.input}

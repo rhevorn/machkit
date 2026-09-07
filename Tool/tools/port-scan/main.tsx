@@ -28,10 +28,10 @@ import {
 import { messages } from "./messages.js";
 
 const POLL_INTERVAL = 250;
-const OPEN_PORT_ROW_PX = 36;
-const OPEN_PORT_VISIBLE_ROWS = 5;
+const OPEN_PORT_LIST_H = "h-[180px]"; // 5 × h-9 rows
 const HOST_PREFS_KEY = "port-scan.host";
 const DEFAULT_HOST = "localhost";
+const HOST_PERSIST_MS = 300;
 
 type StatusTone = "neutral" | "info" | "success" | "warning" | "danger";
 type ToolText = (typeof messages)["en"];
@@ -43,13 +43,15 @@ function PortScanTool() {
   const generationRef = useRef(0);
   const scanIDRef = useRef<string | null>(null);
   const [host, setHost] = useState(DEFAULT_HOST);
-  const [hostReady, setHostReady] = useState(false);
   const [preset, setPreset] = useState<PresetSelection>("common");
   const [ports, setPorts] = useState<string>(presets.common);
   const [timeout, setTimeoutValue] = useState("300");
   const [result, setResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [running, setRunning] = useState(false);
+  const hostHydratedRef = useRef(false);
+  const hostDirtyRef = useRef(false);
+  const hostPersistTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const portInspection = useMemo(() => inspectPortExpression(ports), [ports]);
   const percent = progressPercent(result?.completed ?? 0, result?.total ?? portInspection.count);
@@ -58,19 +60,16 @@ function PortScanTool() {
   useEffect(() => () => {
     generationRef.current += 1;
     if (timerRef.current) clearTimeout(timerRef.current);
+    if (hostPersistTimerRef.current) clearTimeout(hostPersistTimerRef.current);
   }, []);
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      try {
-        const raw = await machkit.getItem(HOST_PREFS_KEY);
-        if (!cancelled && typeof raw === "string") setHost(raw);
-      } catch {
-        // Keep default host when storage is unavailable.
-      } finally {
-        if (!cancelled) setHostReady(true);
-      }
+      const raw = await machkit.getItem(HOST_PREFS_KEY);
+      if (cancelled) return;
+      if (typeof raw === "string" && raw.trim() && !hostDirtyRef.current) setHost(raw);
+      hostHydratedRef.current = true;
     })();
     return () => {
       cancelled = true;
@@ -78,9 +77,16 @@ function PortScanTool() {
   }, []);
 
   useEffect(() => {
-    if (!hostReady) return;
-    void machkit.setItem(HOST_PREFS_KEY, host).catch(() => undefined);
-  }, [host, hostReady]);
+    if (!hostHydratedRef.current) return;
+    if (hostPersistTimerRef.current) clearTimeout(hostPersistTimerRef.current);
+    hostPersistTimerRef.current = setTimeout(() => {
+      const value = host.trim() || DEFAULT_HOST;
+      void machkit.setItem(HOST_PREFS_KEY, value).catch(() => {});
+    }, HOST_PERSIST_MS);
+    return () => {
+      if (hostPersistTimerRef.current) clearTimeout(hostPersistTimerRef.current);
+    };
+  }, [host]);
 
   function errorLabel(code: unknown): string {
     const key = `err_${String(code || "failed").replace(/-/g, "_")}` as keyof ToolText;
@@ -185,7 +191,8 @@ function PortScanTool() {
   }
 
   function clearAll(): void {
-    setHost("");
+    hostDirtyRef.current = true;
+    setHost(DEFAULT_HOST);
     setPorts("");
     setPreset("custom");
     setResult(null);
@@ -209,7 +216,10 @@ function PortScanTool() {
           <Input
             className="min-w-[180px] flex-1 font-mono text-[12px]"
             value={host}
-            onChange={(event) => setHost(event.target.value)}
+            onChange={(event) => {
+              hostDirtyRef.current = true;
+              setHost(event.target.value);
+            }}
             onKeyDown={(event) => {
               if (event.key === "Enter" && !running) void startScan();
             }}
@@ -329,10 +339,7 @@ function PortScanTool() {
               <span>{text.service}</span>
               <span className="text-right">{text.latency}</span>
             </div>
-            <div
-              className="overflow-auto"
-              style={{ height: OPEN_PORT_VISIBLE_ROWS * OPEN_PORT_ROW_PX }}
-            >
+            <div className={`overflow-auto ${OPEN_PORT_LIST_H}`}>
               {openPorts.map((item) => (
                 <div
                   key={item.port}
