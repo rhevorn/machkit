@@ -102,8 +102,8 @@ assert.match(utilities, /id="port-scan"/);
 assert.match(utilities, /href="\/tools\/port-scan\/"/);
 
 const toolPage = await fs.readFile(path.join(clientDirectory, "tools/json-formatter/index.html"), "utf8");
-assert.match(toolPage, /JSON Formatter for Mac/);
-assert.match(toolPage, /<h1>JSON Formatter, available locally on your Mac\.<\/h1>/);
+assert.match(toolPage, /JSON Formatter &amp; Minifier for Mac/);
+assert.match(toolPage, /<h1>Local JSON format, minify, and path query for Mac\.<\/h1>/);
 
 const sitemap = await fs.readFile(path.join(clientDirectory, "sitemap.xml"), "utf8");
 assert.equal((sitemap.match(/<url>/g) || []).length, expectedIndexablePages);
