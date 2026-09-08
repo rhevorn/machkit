@@ -1,9 +1,13 @@
 name: Deploy website to GitHub Pages
 
+# Run after a successful macOS release so download URLs point at the
+# published ZIP. Manual dispatch still rebuilds from the selected ref.
 on:
-  push:
-    tags:
-      - "v*"
+  workflow_run:
+    workflows:
+      - Release macOS app
+    types:
+      - completed
   workflow_dispatch:
 
 permissions:
@@ -15,27 +19,22 @@ concurrency:
 
 jobs:
   build:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: npm
-          cache-dependency-path: Website/package-lock.json
-
       - name: Resolve release tag for download links
         id: release
         env:
           GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          WORKFLOW_HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
         run: |
           set -euo pipefail
-          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
-            tag="${GITHUB_REF_NAME}"
-          else
+          tag=""
+          if [[ "$EVENT_NAME" == "workflow_run" && "$WORKFLOW_HEAD_BRANCH" == v* ]]; then
+            tag="$WORKFLOW_HEAD_BRANCH"
+          fi
+          if [[ -z "$tag" ]]; then
             tag="$(gh api "repos/${GITHUB_REPOSITORY}/releases/latest" --jq .tag_name)"
           fi
           if [[ -z "$tag" || "$tag" == "null" ]]; then
@@ -44,6 +43,20 @@ jobs:
           fi
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "Baked download tag: \`$tag\`" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          # After a release, build the site from the shipped tag. Manual
+          # dispatch keeps the selected branch/commit (usually main).
+          ref: ${{ github.event_name == 'workflow_run' && steps.release.outputs.tag || github.sha }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: Website/package-lock.json
 
       - name: Install dependencies
         working-directory: Website
