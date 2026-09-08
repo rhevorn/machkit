@@ -191,11 +191,8 @@ export const machkit = Object.freeze({
     }
   },
 
-  fitContentHeight(height: number): Promise<boolean> {
-    if (!Number.isFinite(height) || height <= 0 || !this.isEmbedded) return Promise.resolve(false);
-    return this.request("window.fitContentHeight", { height: Math.ceil(height) })
-      .then(() => true)
-      .catch(() => false);
+  fitContentHeight(_height: number): Promise<boolean> {
+    return Promise.resolve(false);
   },
 
   setWindowTitle(title: unknown): Promise<boolean> {

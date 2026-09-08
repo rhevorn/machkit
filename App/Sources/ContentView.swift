@@ -103,7 +103,7 @@ struct ContentView: View {
                 case .loginItems: loginItemsView
                 case .backgroundActivity: backgroundActivityView
                 case .extensions: extensionsView
-                case .settings: AppSettingsView()
+                case .settings: SettingsView()
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)

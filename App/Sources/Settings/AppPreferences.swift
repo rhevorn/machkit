@@ -1,3 +1,5 @@
+/// Persisted preference keys and value types (language, appearance, menu bar).
+/// The Settings UI lives in `SettingsView.swift`.
 import AppKit
 import Foundation
 import SwiftUI

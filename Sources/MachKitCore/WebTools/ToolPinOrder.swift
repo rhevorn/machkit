@@ -5,6 +5,14 @@ import Foundation
 /// Persistence stores raw tool IDs. Callers must pass the current registry IDs so
 /// removed tools are silently dropped and never surface in the UI.
 public enum ToolPinOrder {
+    /// Renames persisted tool IDs after registry renames.
+    public static func migrateLegacyIDs(_ pinnedIDs: [String]) -> [String] {
+        let aliases = [
+            "number-base": "unit-converter",
+        ]
+        return pinnedIDs.map { aliases[$0] ?? $0 }
+    }
+
     /// Keeps saved order, drops unknown IDs, and de-duplicates.
     public static func resolve(pinnedIDs: [String], availableIDs: Set<String>) -> [String] {
         var seen = Set<String>()

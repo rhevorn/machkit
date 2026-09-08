@@ -33,7 +33,7 @@ export function SidebarNavItem({
       onClick={onClick}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "group relative flex w-full items-center gap-2 rounded-control px-2 text-left outline-none transition-colors focus-visible:ring-3 focus-visible:ring-accent/35",
+        "group flex w-full items-center gap-2 rounded-control px-2 text-left outline-none transition-colors focus-visible:ring-3 focus-visible:ring-accent/35",
         hint || Icon ? "min-h-9 py-1.5" : "h-9",
         active
           ? "bg-accent-soft text-accent"
@@ -42,17 +42,11 @@ export function SidebarNavItem({
       )}
       {...props}
     >
-      {active ? (
-        <span
-          className="absolute top-1.5 bottom-1.5 left-0 w-0.5 rounded-full bg-accent"
-          aria-hidden="true"
-        />
-      ) : null}
       {code ? (
         <span
           className={cn(
-            "grid size-6 shrink-0 place-items-center rounded-xs font-mono text-[10px] leading-none tracking-tight",
-            active ? "bg-accent/15 text-accent" : "bg-muted text-tertiary group-hover:text-secondary",
+            "grid size-6 shrink-0 place-items-center font-mono text-[10px] leading-none tracking-tight",
+            active ? "text-accent" : "text-tertiary group-hover:text-secondary",
           )}
         >
           {code}

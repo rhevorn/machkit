@@ -66,6 +66,15 @@ struct MachKitCommands: Commands {
     @Environment(\.openWindow) private var openWindow
 
     var body: some Commands {
+        CommandGroup(replacing: .newItem) {}
+
+        CommandGroup(replacing: .help) {
+            Button("MachKit Help".localized) {
+                guard let url = URL(string: "https://github.com/rhevorn/machkit") else { return }
+                NSWorkspace.shared.open(url)
+            }
+        }
+
         CommandGroup(after: .appInfo) {
             Button {
                 AppUpdateChecker.shared.checkForUpdates()

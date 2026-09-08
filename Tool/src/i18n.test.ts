@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { catalogIssues, supportedLocales } from "./i18n-catalog.js";
 import { messages as timestampMessages } from "../tools/timestamp-converter/messages.js";
 import { messages as codecMessages } from "../tools/codec/messages.js";
+import { messages as cipherMessages } from "../tools/cipher/messages.js";
 import { messages as jsonMessages } from "../tools/json-formatter/messages.js";
 import { messages as stringMessages } from "../tools/string-generator/messages.js";
 import { labels as hostsMessages } from "../tools/hosts-manager/messages.js";
@@ -16,7 +17,7 @@ import { messages as curlMessages } from "../tools/curl-lab/messages.js";
 import { messages as imageMessages } from "../tools/image-process/messages.js";
 import { messages as ipMessages } from "../tools/ip-cidr/messages.js";
 import { messages as jwtMessages } from "../tools/jwt-lab/messages.js";
-import { messages as numberMessages } from "../tools/number-base/messages.js";
+import { messages as numberMessages } from "../tools/unit-converter/messages.js";
 import { messages as portMessages } from "../tools/port-scan/messages.js";
 import { messages as qrMessages } from "../tools/qr-code/messages.js";
 import { messages as regexMessages } from "../tools/regex-lab/messages.js";
@@ -26,6 +27,7 @@ import { messages as urlMessages } from "../tools/url-lab/messages.js";
 const localizedCatalogs = {
   timestamp: timestampMessages,
   codec: codecMessages,
+  cipher: cipherMessages,
   json: jsonMessages,
   string: stringMessages,
   hosts: hostsMessages,

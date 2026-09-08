@@ -349,8 +349,8 @@ function ImageProcessTool() {
   );
 
   return (
-    <ToolPage title={text.title} adaptiveHeight={false}>
-      <ToolContent className="flex h-full min-h-0 flex-1 flex-col gap-3 overflow-hidden pt-3 pb-4">
+    <ToolPage title={text.title}>
+      <ToolContent className="flex h-full min-h-0 flex-1 flex-col gap-3 overflow-hidden">
         <div className="grid min-h-0 flex-1 gap-4 max-[780px]:grid-cols-1 grid-cols-[minmax(220px,260px)_minmax(0,1fr)]">
           <aside className="flex min-h-0 min-w-0 flex-col gap-3 overflow-auto">
             <ControlField label={text.convertTo}>

@@ -334,6 +334,11 @@ final class MachKitAppDelegate: NSObject, NSApplicationDelegate {
         super.init()
     }
 
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        // Tool windows are discrete scenes, not a tabbed document group.
+        NSWindow.allowsAutomaticWindowTabbing = false
+    }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         AppAppearance.applyStoredPreference()
         GlobalHotKeyManager.shared.start()
@@ -417,7 +422,9 @@ struct MachKitApp: App {
                 WebToolView(tool: tool)
                     .frame(
                         minWidth: tool.minimumWindowSize.width,
-                        minHeight: tool.minimumWindowSize.height
+                        idealWidth: tool.defaultWindowSize.width,
+                        minHeight: tool.minimumWindowSize.height,
+                        idealHeight: tool.defaultWindowSize.height
                     )
                     .background(GlobalShortcutBridge(model: model))
                     .environment(\.locale, language.locale)
@@ -429,12 +436,9 @@ struct MachKitApp: App {
                 )
             }
         }
+        .commandsRemoved()
         .windowStyle(.titleBar)
         .windowToolbarStyle(.unifiedCompact)
-        .defaultSize(
-            width: WebToolWidthClass.compact.width,
-            height: WebToolWidthClass.compact.height
-        )
 
         MenuBarExtra(
             "MachKit",

@@ -140,22 +140,46 @@ export const websiteToolCatalog = Object.freeze([
     category: "text-data",
     en: {
       title: "Codec",
-      summary: "Encode, decode, escape, and hash text with Base64, Base32, Base62, Hex, URL, HTML, Unicode, and more.",
-      introduction: "Codec covers the encoding and escaping chores that show up in debugging, packaging, and content hand-offs. Encode or decode Base64, Hex, URL, HTML, Unicode, and related formats, or generate hashes locally when you need a quick transform without an online converter.",
+      summary: "Encode and decode BaseXX, Unicode, UTF-8, URL, ASCII/Native, HTML, Punycode, GBK, Data URI, radix, and related formats locally.",
+      introduction: "Codec covers everyday encoding and escaping chores. Transform Base16–85, Unicode, UTF-8 bytes, URL, ASCII/Native, HTML, Punycode, GBK, Quoted-Printable, Data URIs, integer radix conversion, and more—or hash text—without an online converter.",
       highlights: [
-        "Base64, Base32, Base62, Hex, and more",
-        "URL, HTML, and Unicode escaping",
+        "Base16, 32, 36, 58, 62, 64, and 85",
+        "Unicode, UTF-8, URL, ASCII/Native, Punycode, GBK, Data URI, radix 2–36",
         "Local hashing for quick checks",
       ],
     },
     "zh-CN": {
       title: "编解码",
-      summary: "使用 Base64、Base32、Base62、Hex、URL、HTML、Unicode 等方式编码、解码、转义与 Hash。",
-      introduction: "编解码覆盖调试、打包和内容交接中常见的编码与转义操作。可在本机处理 Base64、Hex、URL、HTML、Unicode 等格式的编解码，或生成 Hash，不必再依赖在线转换网站。",
+      summary: "本机编解码 BaseXX、Unicode、UTF-8、URL、ASCII/Native、HTML、Punycode、GBK、Data URI、进制等格式。",
+      introduction: "编解码覆盖日常编码与转义。支持 Base16–85、Unicode、UTF-8 字节、URL、ASCII/Native、HTML、Punycode、GBK、Quoted-Printable、Data URI、整数进制转换等，也可本地 Hash，不必依赖在线转换站。",
       highlights: [
-        "Base64、Base32、Base62、Hex 等",
-        "URL、HTML 与 Unicode 转义",
+        "Base16、32、36、58、62、64、85",
+        "Unicode、UTF-8、URL、ASCII/Native、Punycode、GBK、Data URI、2–36 进制",
         "本地 Hash 快速校验",
+      ],
+    },
+  }),
+  tool({
+    id: "cipher",
+    category: "text-data",
+    en: {
+      title: "Cipher",
+      summary: "Encrypt and decrypt with AES, ChaCha, RSA, DES/3DES, and SM2/SM4 entirely on your Mac.",
+      introduction: "Cipher keeps cryptography local. Use AES and ChaCha modes, RSA, DES/3DES, and SM2/SM4—without uploading secrets to a website.",
+      highlights: [
+        "AES-GCM, CBC, CTR, and ECB",
+        "ChaCha20 / XChaCha20-Poly1305, RSA-OAEP / PKCS1, SM2/SM4",
+        "DES / 3DES",
+      ],
+    },
+    "zh-CN": {
+      title: "加解密",
+      summary: "在本机使用 AES、ChaCha、RSA、DES/3DES 与国密 SM2/SM4 加密、解密。",
+      introduction: "加解密把密码学操作留在 Mac 本机。支持 AES 与 ChaCha、RSA、DES/3DES 与国密 SM2/SM4，不必把密钥上传到网站。",
+      highlights: [
+        "AES-GCM、CBC、CTR、ECB",
+        "ChaCha20 / XChaCha20-Poly1305、RSA-OAEP / PKCS1、国密 SM2/SM4",
+        "DES / 3DES",
       ],
     },
   }),
@@ -256,7 +280,7 @@ export const websiteToolCatalog = Object.freeze([
     },
   }),
   tool({
-    id: "number-base",
+    id: "unit-converter",
     category: "text-data",
     en: {
       title: "Unit Converter",

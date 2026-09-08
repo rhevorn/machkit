@@ -2,13 +2,32 @@ import Foundation
 
 enum L10n {
     static func string(_ key: String) -> String {
-        let language = AppLanguage.selected
+        string(key, language: AppLanguage.selected)
+    }
+
+    static func string(_ key: String, language: AppLanguage) -> String {
         if language == .system {
             return Bundle.main.localizedString(forKey: key, value: key, table: nil)
         }
         guard let path = Bundle.main.path(forResource: language.rawValue, ofType: "lproj"),
               let bundle = Bundle(path: path) else { return key }
         return bundle.localizedString(forKey: key, value: key, table: nil)
+    }
+
+    /// English source key plus every explicit app language translation (for search).
+    static func allVariants(for key: String) -> [String] {
+        var seen = Set<String>()
+        var values: [String] = []
+        func append(_ value: String) {
+            let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty, seen.insert(trimmed.lowercased()).inserted else { return }
+            values.append(trimmed)
+        }
+        append(key)
+        for language in AppLanguage.allCases where language != .system {
+            append(string(key, language: language))
+        }
+        return values
     }
 
     static func format(_ key: String, _ arguments: CVarArg...) -> String {

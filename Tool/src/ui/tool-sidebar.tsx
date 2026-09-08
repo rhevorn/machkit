@@ -25,7 +25,7 @@ export function ToolSidebar({
   return (
     <aside className={cn("flex shrink-0 flex-col", className)} style={widthStyle} {...props}>
       {muted ? (
-        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-auto rounded-panel bg-muted/70 px-1.5 py-2">
+        <div className="flex min-h-0 flex-1 flex-col gap-[4px] overflow-auto rounded-panel bg-muted/70 p-[6px]">
           {children}
         </div>
       ) : (

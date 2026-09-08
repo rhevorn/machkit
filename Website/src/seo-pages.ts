@@ -19,6 +19,11 @@ export type FeatureSection = {
   items: readonly string[];
 };
 
+export type FeatureFaq = {
+  question: string;
+  answer: string;
+};
+
 export type FeaturePageLocaleCopy = {
   title: string;
   description: string;
@@ -27,6 +32,7 @@ export type FeaturePageLocaleCopy = {
   lead: string;
   highlights: ReadonlyArray<readonly [string, string] | readonly string[]>;
   sections: readonly FeatureSection[];
+  faqs?: readonly FeatureFaq[];
   catalogTitle?: string;
   catalogIntro?: string;
   catalog?: readonly LocalizedWebsiteTool[];
@@ -447,11 +453,11 @@ const primaryFeaturePages = Object.freeze([
     image: "tools.webp",
     locales: {
       en: {
-        title: "19 Practical Mac Tools in One Local App — MachKit",
-        description: "Use 19 focused Mac tools for text, data, images, networking, security, diagnostics, and everyday tasks. Everything runs locally in one native app.",
+        title: "20 Practical Mac Tools in One Local App — MachKit",
+        description: "Use 20 focused Mac tools for text, data, images, networking, security, diagnostics, and everyday tasks. Everything runs locally in one native app.",
         eyebrow: "A toolkit designed to grow",
         heading: "Small, practical tools should live in one dependable place.",
-        lead: "MachKit brings 19 focused Mac tools into one native, searchable catalog for text, data, images, networking, security, diagnostics, and everyday tasks. Alongside that catalog, a native screenshot workflow lets you capture any region from a global shortcut, annotate with shapes, arrows, highlight, mosaic, and text, then copy or save—without another window or cloud upload. Each tool shares the same shell, language, theme, shortcuts, and privacy model.",
+        lead: "MachKit brings 20 focused Mac tools into one native, searchable catalog for text, data, images, networking, security, diagnostics, and everyday tasks. Alongside that catalog, a native screenshot workflow lets you capture any region from a global shortcut, annotate with shapes, arrows, highlight, mosaic, and text, then copy or save—without another window or cloud upload. Each tool shares the same shell, language, theme, shortcuts, and privacy model.",
         highlights: [
           ["Native screenshot", "Freeze the desktop, annotate in place, and export to the clipboard or a file—entirely on your Mac."],
           ["Useful by design", "Each utility starts with a real recurring task instead of a broad feature checklist."],
@@ -461,6 +467,23 @@ const primaryFeaturePages = Object.freeze([
         catalogIntro: "Browse the full catalog by category. Each utility includes a short summary, a fuller introduction, and the concrete jobs it is meant to cover.",
         catalog: localizedWebsiteTools("en"),
         catalogGroups: groupedWebsiteTools("en"),
+        faqs: [
+          {
+            question: "Do MachKit utilities upload my text or files?",
+            answer:
+              "No. Bundled tools such as Codec, Cipher, and JSON Formatter run locally inside the Mac app. They do not require an account or send tool input to a cloud converter.",
+          },
+          {
+            question: "Can I open a single tool with a keyboard shortcut?",
+            answer:
+              "Yes. Assign an optional global shortcut per utility so Codec, Cipher, or another tool opens without searching the full catalog first.",
+          },
+          {
+            question: "Is MachKit free and open source?",
+            answer:
+              "Yes. MachKit is free to download from GitHub Releases and the source is published under the MIT license.",
+          },
+        ],
         sections: [
           {
             title: "Capture and annotate without leaving your flow",
@@ -494,6 +517,21 @@ const primaryFeaturePages = Object.freeze([
         catalogIntro: "按分类浏览完整目录。每个工具都包含简短摘要、完整介绍，以及它具体能解决哪些问题。",
         catalog: localizedWebsiteTools("zh-CN"),
         catalogGroups: groupedWebsiteTools("zh-CN"),
+        faqs: [
+          {
+            question: "MachKit 的工具会上传我的文本或文件吗？",
+            answer:
+              "不会。编解码、加解密、JSON 格式化等内嵌工具都在 Mac 本机运行，不需要账户，也不会把输入发到在线转换网站。",
+          },
+          {
+            question: "可以为单个工具设置全局快捷键吗？",
+            answer: "可以。你可以为编解码、加解密或其他工具单独配置全局快捷键，不必每次都从完整目录里查找。",
+          },
+          {
+            question: "MachKit 是免费开源的吗？",
+            answer: "是的。可从 GitHub Releases 免费下载，源代码以 MIT 许可证发布。",
+          },
+        ],
         sections: [
           {
             title: "不打断当前工作流的截图与标注",
@@ -519,6 +557,7 @@ const primaryFeaturePages = Object.freeze([
 function toolFeaturePage(tool: WebsiteTool): FeaturePage {
   const en = localizedTool(tool, "en");
   const zh = localizedTool(tool, "zh-CN");
+  const seo = toolSeoOverrides[tool.id];
   return Object.freeze({
     id: `tool-${tool.id}`,
     slug: `tools/${tool.id}`,
@@ -526,10 +565,12 @@ function toolFeaturePage(tool: WebsiteTool): FeaturePage {
     kind: "tool",
     locales: {
       en: {
-        title: `${en.title} for Mac — Local Utility in MachKit`,
-        description: `${en.summary} Use it locally in the free, open-source MachKit app for macOS.`,
+        title: seo?.en?.title ?? `${en.title} for Mac — Local Utility in MachKit`,
+        description:
+          seo?.en?.description ??
+          `${en.summary} Use it locally in the free, open-source MachKit app for macOS.`,
         eyebrow: en.category,
-        heading: `${en.title}, available locally on your Mac.`,
+        heading: seo?.en?.heading ?? `${en.title}, available locally on your Mac.`,
         lead: en.introduction,
         highlights: en.highlights.map((highlight, index) => [
           highlight,
@@ -539,6 +580,7 @@ function toolFeaturePage(tool: WebsiteTool): FeaturePage {
               ? "Keep the working input and generated result on the Mac."
               : "Copy or continue with the result from the same consistent utility window.",
         ]),
+        faqs: seo?.faqs?.en,
         sections: [
           {
             title: `What ${en.title} is designed to do`,
@@ -558,10 +600,11 @@ function toolFeaturePage(tool: WebsiteTool): FeaturePage {
         ],
       },
       "zh-CN": {
-        title: `${zh.title} Mac 本地工具 — MachKit`,
-        description: `${zh.summary} 在免费开源的 MachKit macOS App 中本地使用。`,
+        title: seo?.["zh-CN"]?.title ?? `${zh.title} Mac 本地工具 — MachKit`,
+        description:
+          seo?.["zh-CN"]?.description ?? `${zh.summary} 在免费开源的 MachKit macOS App 中本地使用。`,
         eyebrow: zh.category,
-        heading: `在 Mac 本机使用${zh.title}。`,
+        heading: seo?.["zh-CN"]?.heading ?? `在 Mac 本机使用${zh.title}。`,
         lead: zh.introduction,
         highlights: zh.highlights.map((highlight, index) => [
           highlight,
@@ -571,6 +614,7 @@ function toolFeaturePage(tool: WebsiteTool): FeaturePage {
               ? "输入内容和生成结果始终留在当前 Mac。"
               : "在同一套一致的工具窗口中复制结果或继续处理。",
         ]),
+        faqs: seo?.faqs?.["zh-CN"],
         sections: [
           {
             title: `${zh.title}用于解决什么问题`,
@@ -593,12 +637,207 @@ function toolFeaturePage(tool: WebsiteTool): FeaturePage {
   });
 }
 
+type ToolSeoOverride = {
+  en?: { title?: string; description?: string; heading?: string };
+  "zh-CN"?: { title?: string; description?: string; heading?: string };
+  faqs?: { en: readonly FeatureFaq[]; "zh-CN": readonly FeatureFaq[] };
+};
+
+const toolSeoOverrides: Readonly<Record<string, ToolSeoOverride>> = Object.freeze({
+  codec: {
+    en: {
+      title: "Base64 & Data URI Encoder for Mac — Local Codec in MachKit",
+      description:
+        "Encode and decode Base64, Data URI, URL, Unicode, GBK, and radix on your Mac. Free open-source MachKit keeps text and files local—no online converter upload.",
+      heading: "Local Base64, Data URI, and everyday encoding for Mac.",
+    },
+    "zh-CN": {
+      title: "Mac 本地 Base64 / Data URI 编解码 — MachKit",
+      description:
+        "在 Mac 本机编解码 Base64、Data URI、URL、Unicode、GBK 与进制转换。开源 MachKit 本地处理，无需上传到在线转换站。",
+      heading: "Mac 本机 Base64、Data URI 与常用编解码。",
+    },
+    faqs: {
+      en: [
+        {
+          question: "Is MachKit Codec an online Base64 website?",
+          answer:
+            "No. Codec runs inside the native Mac app. Text, images, and Data URI payloads stay on your computer.",
+        },
+        {
+          question: "Which formats does Codec cover?",
+          answer:
+            "Base16–85, Unicode, UTF-8, URL, ASCII/Native, HTML, Punycode, GBK, Quoted-Printable, Data URI, radix 2–36, Escape, and local hashing.",
+        },
+      ],
+      "zh-CN": [
+        {
+          question: "MachKit 编解码是在线 Base64 网站吗？",
+          answer: "不是。编解码在原生 Mac App 内运行，文本、图片和 Data URI 都留在本机。",
+        },
+        {
+          question: "编解码支持哪些格式？",
+          answer:
+            "Base16–85、Unicode、UTF-8、URL、ASCII/Native、HTML、Punycode、GBK、Quoted-Printable、Data URI、2–36 进制、转义以及本地 Hash。",
+        },
+      ],
+    },
+  },
+  cipher: {
+    en: {
+      title: "AES & RSA Encrypt Decrypt for Mac — Local Cipher in MachKit",
+      description:
+        "Encrypt and decrypt with AES, ChaCha20, RSA, DES/3DES, and SM2/SM4 on your Mac. MachKit keeps keys and plaintext local—no cloud crypto service.",
+      heading: "Local AES, ChaCha, RSA, and SM crypto for Mac.",
+    },
+    "zh-CN": {
+      title: "Mac 本地 AES / RSA 加解密 — MachKit",
+      description:
+        "在 Mac 本机使用 AES、ChaCha20、RSA、DES/3DES 与国密 SM2/SM4 加解密。密钥与明文留在本机，不依赖云端密码服务。",
+      heading: "Mac 本机 AES、ChaCha、RSA 与国密加解密。",
+    },
+    faqs: {
+      en: [
+        {
+          question: "Does Cipher send my keys or plaintext online?",
+          answer: "No. Encryption and decryption run locally in MachKit. Nothing is uploaded for the Cipher workflow.",
+        },
+        {
+          question: "Which algorithms are included?",
+          answer:
+            "AES-GCM/CBC/CTR/ECB, ChaCha20/XChaCha20-Poly1305, RSA-OAEP/PKCS1, DES/3DES, and SM2/SM4.",
+        },
+      ],
+      "zh-CN": [
+        {
+          question: "加解密会上传密钥或明文吗？",
+          answer: "不会。加密与解密都在 MachKit 本机完成，加解密流程不会上传内容。",
+        },
+        {
+          question: "支持哪些算法？",
+          answer: "AES-GCM/CBC/CTR/ECB、ChaCha20/XChaCha20-Poly1305、RSA-OAEP/PKCS1、DES/3DES 以及国密 SM2/SM4。",
+        },
+      ],
+    },
+  },
+  "json-formatter": {
+    en: {
+      title: "JSON Formatter & Minifier for Mac — Local Tool in MachKit",
+      description:
+        "Format, minify, sort, and query JSON locally on your Mac. Free open-source MachKit keeps JSON payloads offline.",
+      heading: "Local JSON format, minify, and path query for Mac.",
+    },
+    "zh-CN": {
+      title: "Mac 本地 JSON 格式化 / 压缩 — MachKit",
+      description: "在 Mac 本机格式化、压缩、排序并查询 JSON。开源 MachKit 离线处理，不必粘贴到在线 JSON 网站。",
+      heading: "Mac 本机 JSON 格式化、压缩与路径查询。",
+    },
+  },
+});
+
+const guidePages = Object.freeze([
+  {
+    id: "local-vs-online-converters",
+    slug: "guides/local-vs-online-converters",
+    image: "tools.webp",
+    locales: {
+      en: {
+        title: "Local Mac Converters vs Online Tools — Why MachKit Keeps Data Offline",
+        description:
+          "Compare local Mac utilities with online Base64, JSON, and crypto converters. See why MachKit runs Codec and Cipher on-device without uploads.",
+        eyebrow: "Privacy guide",
+        heading: "Online converters are convenient. Local tools are safer for real work.",
+        lead: "Paste-a-string websites are fine for throwaway samples. For production configs, customer data, tokens, or private keys, a local Mac utility avoids an unnecessary upload. MachKit bundles Codec, Cipher, JSON Formatter, and related tools so those jobs stay on your computer.",
+        highlights: [
+          ["No upload step", "Text and files never leave the Mac for bundled transformations."],
+          ["Same jobs, offline", "Base64, Data URI, JSON, AES/RSA, and related chores without a browser tab."],
+          ["One install", "Searchable utilities share shortcuts, theme, and localization inside MachKit."],
+        ],
+        faqs: [
+          {
+            question: "When is an online converter still okay?",
+            answer:
+              "Use them for non-sensitive throwaway examples. Prefer MachKit when the payload could identify a person, system, or secret.",
+          },
+          {
+            question: "Which MachKit tools replace common converter sites?",
+            answer:
+              "Start with Codec for Base64/Data URI/URL encodings, Cipher for AES/RSA/SM crypto, and JSON Formatter for format/minify/query.",
+          },
+        ],
+        sections: [
+          {
+            title: "What online converters quietly require",
+            body: "Most web converters receive your full input in a request or client script context you do not control. Even honest sites create copy-paste risk, history leakage, and third-party script exposure.",
+            items: ["Payload enters a remote origin", "Browser extensions can observe page content", "Harder to audit than a local open-source app"],
+          },
+          {
+            title: "What MachKit does instead",
+            body: "MachKit ships utilities as local bundled content inside a native macOS app. Transformations for Codec and Cipher do not require an account or cloud round trip.",
+            items: ["Open-source MIT licensed app", "No analytics or advertising SDKs", "Optional global shortcuts to the exact tool"],
+          },
+          {
+            title: "Practical next steps",
+            body: "Install MachKit from GitHub Releases, open the Tools workspace, and pin Codec or Cipher if you convert data often.",
+            items: [
+              "Browse /utilities/ for the full catalog",
+              "Open /tools/codec/ for encoding details",
+              "Open /tools/cipher/ for local encrypt/decrypt details",
+            ],
+          },
+        ],
+      },
+      "zh-CN": {
+        title: "Mac 本地转换 vs 在线工具 — 为什么 MachKit 不上传数据",
+        description:
+          "对比 Mac 本地工具与在线 Base64、JSON、加解密网站。了解 MachKit 如何在本机运行编解码与加解密，避免把内容上传到转换站。",
+        eyebrow: "隐私指南",
+        heading: "在线转换很方便；真正的工作内容更适合留在本机。",
+        lead: "随手试试的样例可以丢给网站。配置、客户数据、令牌或私钥则不应默认上传。MachKit 把编解码、加解密、JSON 格式化等工具打包进原生 App，让这些任务留在你的 Mac。",
+        highlights: [
+          ["无需上传", "内嵌转换流程中，文本和文件不离开本机。"],
+          ["同样的事，离线完成", "Base64、Data URI、JSON、AES/RSA 等不必再开浏览器标签。"],
+          ["一次安装", "工具共享搜索、快捷键、主题和多语言。"],
+        ],
+        faqs: [
+          {
+            question: "什么时候还能用在线转换站？",
+            answer: "只处理不敏感、可丢弃的样例时可以。一旦内容可能关联人或系统机密，优先使用 MachKit。",
+          },
+          {
+            question: "MachKit 哪些工具能替代常见转换网站？",
+            answer: "编解码覆盖 Base64/Data URI/URL 等；加解密覆盖 AES/RSA/国密；JSON 格式化负责格式化、压缩与查询。",
+          },
+        ],
+        sections: [
+          {
+            title: "在线转换站通常意味着什么",
+            body: "多数网页会把完整输入送进你无法完全控制的请求或脚本环境。即便站点善意运营，仍有粘贴泄露、历史记录和第三方脚本风险。",
+            items: ["内容进入远程源站", "浏览器扩展可能读取页面", "比开源本地 App 更难审计"],
+          },
+          {
+            title: "MachKit 的做法",
+            body: "MachKit 以原生 macOS App 本地打包工具内容。编解码与加解密不需要账户，也不依赖云端往返。",
+            items: ["MIT 开源", "无分析与广告 SDK", "可为具体工具配置全局快捷键"],
+          },
+          {
+            title: "接下来可以怎么用",
+            body: "从 GitHub Releases 安装 MachKit，打开工具工作区；若经常转换数据，可把编解码或加解密固定到快捷键。",
+            items: ["浏览 /zh-CN/utilities/ 看完整目录", "打开 /zh-CN/tools/codec/ 了解编解码", "打开 /zh-CN/tools/cipher/ 了解加解密"],
+          },
+        ],
+      },
+    },
+  },
+] as const satisfies readonly FeaturePage[]);
+
 export const toolFeaturePages = Object.freeze(
   websiteToolCatalog.map((tool) => toolFeaturePage(tool)),
 );
 
 export const featurePages = Object.freeze([
   ...primaryFeaturePages,
+  ...guidePages,
   ...toolFeaturePages,
 ]);
 

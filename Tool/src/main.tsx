@@ -18,7 +18,7 @@ function HomePage() {
   const tools = useMemo(() => listTools(locale), [locale]);
 
   return (
-    <ToolPage title={text.title} adaptiveHeight={false}>
+    <ToolPage title={text.title}>
       <ToolContent className="mx-auto flex h-full w-full max-w-[720px] flex-col gap-6 overflow-y-auto px-6 py-10">
         <header className="flex flex-col gap-2">
           <p className="text-[11px] font-semibold tracking-[0.04em] text-accent uppercase">

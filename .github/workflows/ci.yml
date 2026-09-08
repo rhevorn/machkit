@@ -23,6 +23,9 @@ jobs:
       - name: Validate npm lockfile registries
         run: node Scripts/verify_npm_registries.mjs
 
+      - name: Validate tool catalog IDs
+        run: node Scripts/verify_tool_catalog.mjs
+
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:

@@ -147,7 +147,11 @@ MachKit rhythm and should only change as a deliberate system-wide design decisio
   high. Keep Input / Select / Segmented / Button `sm` on the same `34` px token.
 - Icon sizes: `14`, `16`, and `18` px. Typography sizes: `11` px caption, `12` px
   label, `13` px body/control, and `14` px compact title.
-- Standard content padding is `28` px; compact content padding is `24` px.
+- Standard content padding is `16` px on the sides and bottom via `ToolContent`,
+  with `4` px on top. Do not override `p` / `pt` / `pb` / `px` on `ToolContent`,
+  and do not use negative margins to pull blocks to the window edge. Inner spacing
+  uses `gap` and section spacing. Registry `height` is the viewport (Dev dock H);
+  budget content as viewport minus top padding minus bottom padding.
 - Standard borders are `1` px. The focus-visible ring is `3` px. Disabled opacity
   is `0.45` unless contrast or platform behavior requires a documented exception.
 - Motion durations are `120`, `180`, and `240` ms with
@@ -193,7 +197,7 @@ and information architecture intact.
    region composed from property rows or result panels. Use for IP, CIDR, and
    calculator-style tools.
 3. **Sidebar workbench** — a narrow mode/navigation sidebar plus a primary editor
-   or output workspace. Use for codec and number-base tools with multiple modes.
+   or output workspace. Use for codec and unit-converter tools with multiple modes.
 4. **Task/progress** — explicit inputs and primary action followed by progress,
    cancellation, partial results, completion, and error states. Use for scans and
    other asynchronous native operations.
@@ -220,6 +224,21 @@ and information architecture intact.
 - Long localized text, paths, JSON, URLs, and error messages must wrap or truncate
   deliberately without expanding the window unexpectedly.
 - Results that appear conditionally must not cause avoidable layout jumps.
+
+### Native window size
+
+Each tool declares fixed metrics in `DeveloperToolRegistry`:
+- `width`: `WebToolWidth.compact` (720) / `.regular` (840) / `.wide` (1040)
+- `height`: H5 viewport height in points (Dev dock `H` = `window.innerHeight`;
+  outer macOS window is taller by the titlebar)
+
+Page edge inset is only `ToolContent` (`16` px sides/bottom, `4` px top). When
+sizing a layout, budget content height as `viewport − 4 − 16`. Do not add
+extra page-edge padding inside the tool.
+
+Shared floors: `WebToolWidth.minimumWidth` (640) and `.minimumHeight` (360).
+The window opens at `width × height` and does not auto-resize; the user can drag
+to change size afterward. Design the H5 layout to fill that viewport (`h-full`).
 
 ## Accessibility and interaction
 

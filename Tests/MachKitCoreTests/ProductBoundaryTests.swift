@@ -116,7 +116,7 @@ private func formatPlaceholders(in value: String) -> [String] {
 }
 
 @Test func cleanupRuleRegistryKeepsOneRulePerDefinitionFile() throws {
-    let rulesDirectory = repositoryRoot.appending(path: "Sources/MachKitCore/CleanupRules", directoryHint: .isDirectory)
+    let rulesDirectory = repositoryRoot.appending(path: "Sources/MachKitCore/Cleanup/Rules", directoryHint: .isDirectory)
     let definitionFiles = try FileManager.default.contentsOfDirectory(
         at: rulesDirectory,
         includingPropertiesForKeys: nil
@@ -1035,7 +1035,7 @@ private final class LockedCleanupProgress: @unchecked Sendable {
         let source = try String(contentsOf: file, encoding: .utf8)
         let range = NSRange(source.startIndex..., in: source)
         var expressions = runtimeExpressions
-        if file.lastPathComponent == "AppSettings.swift" {
+        if file.lastPathComponent == "SettingsView.swift" {
             expressions.append(settingsRowExpression)
         }
         for expression in expressions {
@@ -1072,7 +1072,7 @@ private final class LockedCleanupProgress: @unchecked Sendable {
 }
 
 @Test func changingPagesDoesNotCancelOrClearAnActiveCleanupScan() throws {
-    let sourceURL = repositoryRoot.appending(path: "App/Sources/CleanerViewModel.swift")
+    let sourceURL = repositoryRoot.appending(path: "App/Sources/Cleaner/CleanerViewModel.swift")
     let source = try String(contentsOf: sourceURL, encoding: .utf8)
     let start = try #require(source.range(of: "func changeMode(_ newMode: FeatureMode)"))
     let tail = source[start.lowerBound...]

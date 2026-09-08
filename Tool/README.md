@@ -43,14 +43,22 @@ Browser choices are remembered in `localStorage` and synced into the URL.
 3. Add the tool to `DeveloperToolRegistry` in
    `App/Sources/WebView/DeveloperTools.swift` with
    `.bundledWeb(entryFile: "WebTools/tools/<tool-id>/index.html")`, pick a
-   `WebToolWidthClass` (`.compact` / `.regular` / `.wide`), and grant only the
-   native capabilities the tool needs (`clipboard`, `hosts`, or `storage`).
+   `width` (`WebToolWidth.compact` / `.regular` / `.wide`), a fixed `height`,
+   and grant only the native capabilities the tool needs (`clipboard`, `hosts`,
+   or `storage`).
+   Keep the same tool id in `Tool/src/tools-catalog.ts` (preferred order) and
+   `Website/src/tool-catalog.ts`. Run `node Scripts/verify_tool_catalog.mjs`
+   (also part of `Scripts/verify.sh` / CI) to confirm the id sets match.
+   Add multilingual search aliases for the tool id in
+   `Resources/ToolSearchKeywords.json` (`en` plus every supported app locale).
    The `clipboard` capability covers both **read and write**
    (`machkit.readClipboard()` / `machkit.copy()`). Prefer reading the clipboard
    only on intentional tool open or user actions, and keep large-paste size
    caps in the tool itself.
-   Each width class sets both default and minimum width/height; pages that
-   enable adaptive height can still grow up to a screen cap.
+   Design the H5 page to fill that fixed width×height viewport. Page edge inset
+   comes only from `ToolContent` (`16` px sides/bottom, `4` px top); budget
+   content as viewport minus top and bottom padding. The native window does not
+   auto-adjust height on open.
 4. Run `npm run build:app` to build all H5 tools into the app's
    `Resources/WebTools` directory. This directory is generated and ignored by
    Git. Xcode runs the same build automatically before compiling app resources.

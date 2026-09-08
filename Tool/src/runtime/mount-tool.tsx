@@ -69,6 +69,8 @@ type DockDragState = {
   pointerId: number;
   offsetX: number;
   offsetY: number;
+  startX: number;
+  startY: number;
   moved: boolean;
 };
 
@@ -125,14 +127,29 @@ function clampDockPosition(x: number, y: number, width: number, height: number):
   };
 }
 
+function measureToolViewportSize(): { width: number; height: number } {
+  return {
+    width: Math.ceil(window.innerWidth),
+    height: Math.ceil(window.innerHeight),
+  };
+}
+
 function DevPreferencesDock() {
   useLocale();
   const preferences = machkit.getPreferences();
   const panelRef = useRef<HTMLElement | null>(null);
   const dragRef = useRef<DockDragState | null>(null);
+  const layoutRef = useRef<DockLayout>(readDockLayout());
   const suppressClickRef = useRef(false);
-  const [layout, setLayout] = useState<DockLayout>(() => readDockLayout());
+  const [layout, setLayout] = useState<DockLayout>(() => layoutRef.current);
+  const [contentSize, setContentSize] = useState(() => measureToolViewportSize());
+  const [copiedField, setCopiedField] = useState<"height" | "size" | null>(null);
   const homeLink = homeHref();
+
+  // Keep ref aligned with React state, but never while a drag owns the position.
+  if (!dragRef.current) {
+    layoutRef.current = layout;
+  }
 
   useEffect(() => {
     try {
@@ -144,56 +161,134 @@ function DevPreferencesDock() {
 
   useEffect(() => {
     const keepInViewport = () => {
+      if (dragRef.current) return;
       const node = panelRef.current;
       if (!node) return;
-      const next = clampDockPosition(layout.x, layout.y, node.offsetWidth, node.offsetHeight);
-      if (next.x !== layout.x || next.y !== layout.y) {
-        setLayout((current) => ({ ...current, ...next }));
+      const current = layoutRef.current;
+      const next = clampDockPosition(current.x, current.y, node.offsetWidth, node.offsetHeight);
+      if (next.x !== current.x || next.y !== current.y) {
+        setLayout((value) => ({ ...value, ...next }));
       }
     };
     window.addEventListener("resize", keepInViewport);
     keepInViewport();
     return () => window.removeEventListener("resize", keepInViewport);
-  }, [layout.collapsed, layout.x, layout.y]);
+  }, [layout.collapsed]);
+
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      if (dragRef.current) return;
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        setContentSize(measureToolViewportSize());
+      });
+    };
+    update();
+    const root = document.getElementById("root");
+    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : null;
+    if (root && observer) observer.observe(root);
+    window.addEventListener("resize", update);
+    document.fonts?.ready.then(update);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      observer?.disconnect();
+      window.removeEventListener("resize", update);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!copiedField) return undefined;
+    const timer = window.setTimeout(() => setCopiedField(null), 1200);
+    return () => window.clearTimeout(timer);
+  }, [copiedField]);
+
+  const copyMetric = async (field: "height" | "size") => {
+    const text = field === "height"
+      ? String(contentSize.height)
+      : `${contentSize.width}×${contentSize.height}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedField(field);
+    } catch {
+      // Clipboard may be blocked in some browser contexts.
+    }
+  };
 
   const beginDrag = (event: ReactPointerEvent<HTMLElement>) => {
-    if (event.button !== 0) return;
+    // Mouse: primary button only. Touch/pen: button is often 0 or -1.
+    if (event.pointerType === "mouse" && event.button !== 0) return;
     const node = panelRef.current;
-    if (!node) return;
+    if (!node || dragRef.current) return;
     event.preventDefault();
-    dragRef.current = {
+    event.stopPropagation();
+
+    const origin = layoutRef.current;
+    const drag: DockDragState = {
       pointerId: event.pointerId,
-      offsetX: event.clientX - layout.x,
-      offsetY: event.clientY - layout.y,
+      offsetX: event.clientX - origin.x,
+      offsetY: event.clientY - origin.y,
+      startX: origin.x,
+      startY: origin.y,
       moved: false,
     };
-    event.currentTarget.setPointerCapture(event.pointerId);
-  };
+    dragRef.current = drag;
 
-  const onDragMove = (event: ReactPointerEvent<HTMLElement>) => {
-    const drag = dragRef.current;
-    const node = panelRef.current;
-    if (!drag || drag.pointerId !== event.pointerId || !node) return;
-    const next = clampDockPosition(
-      event.clientX - drag.offsetX,
-      event.clientY - drag.offsetY,
-      node.offsetWidth,
-      node.offsetHeight,
-    );
-    if (Math.abs(next.x - layout.x) > 2 || Math.abs(next.y - layout.y) > 2) drag.moved = true;
-    setLayout((current) => ({ ...current, ...next }));
-  };
-
-  const endDrag = (event: ReactPointerEvent<HTMLElement>) => {
-    const drag = dragRef.current;
-    if (!drag || drag.pointerId !== event.pointerId) return;
-    if (drag.moved) suppressClickRef.current = true;
-    dragRef.current = null;
+    // Capture on the moving panel so touch doesn't scroll the page / lose the gesture.
     try {
-      event.currentTarget.releasePointerCapture(event.pointerId);
+      node.setPointerCapture(event.pointerId);
     } catch {
-      // Ignore if capture was already released.
+      // Some browsers reject capture on the wrong target; window listeners still work.
     }
+    const previousTouchAction = node.style.touchAction;
+    const previousUserSelect = document.documentElement.style.userSelect;
+    node.style.touchAction = "none";
+    document.documentElement.style.userSelect = "none";
+
+    const onMove = (moveEvent: PointerEvent) => {
+      if (moveEvent.pointerId !== drag.pointerId) return;
+      moveEvent.preventDefault();
+      const next = clampDockPosition(
+        moveEvent.clientX - drag.offsetX,
+        moveEvent.clientY - drag.offsetY,
+        node.offsetWidth,
+        node.offsetHeight,
+      );
+      if (Math.abs(next.x - drag.startX) > 2 || Math.abs(next.y - drag.startY) > 2) {
+        drag.moved = true;
+      }
+      node.style.left = `${next.x}px`;
+      node.style.top = `${next.y}px`;
+      layoutRef.current = { ...layoutRef.current, x: next.x, y: next.y };
+    };
+
+    const onUp = (upEvent: PointerEvent) => {
+      if (upEvent.pointerId !== drag.pointerId) return;
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+      try {
+        if (node.hasPointerCapture(upEvent.pointerId)) {
+          node.releasePointerCapture(upEvent.pointerId);
+        }
+      } catch {
+        // Ignore.
+      }
+      node.style.touchAction = previousTouchAction;
+      document.documentElement.style.userSelect = previousUserSelect;
+      dragRef.current = null;
+      if (drag.moved) suppressClickRef.current = true;
+      setLayout((current) => ({
+        ...current,
+        x: layoutRef.current.x,
+        y: layoutRef.current.y,
+      }));
+    };
+
+    // passive: false so preventDefault can block touch page scroll while dragging.
+    window.addEventListener("pointermove", onMove, { passive: false });
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
   };
 
   if (layout.collapsed) {
@@ -202,12 +297,10 @@ function DevPreferencesDock() {
         ref={panelRef as React.RefObject<HTMLButtonElement>}
         type="button"
         className="fixed z-[1000] flex h-8 cursor-grab items-center rounded-full border border-border bg-surface/95 px-3 text-[11px] font-semibold text-secondary shadow-popover backdrop-blur-sm active:cursor-grabbing"
-        style={{ left: layout.x, top: layout.y }}
+        style={{ left: layout.x, top: layout.y, touchAction: "none" }}
         title="Show language and theme controls"
+        data-dock-drag=""
         onPointerDown={beginDrag}
-        onPointerMove={onDragMove}
-        onPointerUp={endDrag}
-        onPointerCancel={endDrag}
         onClick={() => {
           if (suppressClickRef.current) {
             suppressClickRef.current = false;
@@ -216,7 +309,7 @@ function DevPreferencesDock() {
           setLayout((current) => ({ ...current, collapsed: false }));
         }}
       >
-        Dev
+        Dev · {contentSize.height}
       </button>
     );
   }
@@ -225,16 +318,22 @@ function DevPreferencesDock() {
     <div
       ref={panelRef as React.RefObject<HTMLDivElement>}
       className="fixed z-[1000] flex max-w-[calc(100vw-16px)] flex-wrap items-center gap-2 rounded-panel border border-border bg-surface/95 px-2 py-2 shadow-popover backdrop-blur-sm"
-      style={{ left: layout.x, top: layout.y }}
+      style={{ left: layout.x, top: layout.y, touchAction: "none" }}
+      onPointerDown={(event) => {
+        const target = event.target as HTMLElement | null;
+        if (!target) return;
+        // Touch: allow dragging from chrome padding; ignore real controls.
+        if (target.closest("select, a, label, input, textarea, button:not([data-dock-drag])")) return;
+        beginDrag(event);
+      }}
     >
       <button
         type="button"
+        data-dock-drag=""
         className="flex h-7 cursor-grab items-center gap-1 rounded-control px-2 text-[10px] font-semibold tracking-wide text-tertiary uppercase active:cursor-grabbing"
+        style={{ touchAction: "none" }}
         title="Drag to move"
         onPointerDown={beginDrag}
-        onPointerMove={onDragMove}
-        onPointerUp={endDrag}
-        onPointerCancel={endDrag}
       >
         <span aria-hidden="true">⋮⋮</span>
         Dev
@@ -265,6 +364,22 @@ function DevPreferencesDock() {
           ))}
         </select>
       </label>
+      <button
+        type="button"
+        className="h-7 rounded-control border border-border bg-field px-2 font-mono text-[11px] text-foreground hover:bg-muted"
+        title="Copy viewport height for DeveloperTool.height"
+        onClick={() => void copyMetric("height")}
+      >
+        {copiedField === "height" ? "Copied" : `H ${contentSize.height}`}
+      </button>
+      <button
+        type="button"
+        className="h-7 rounded-control px-2 font-mono text-[11px] text-secondary hover:bg-muted hover:text-foreground"
+        title="Copy viewport size (width×height) for DeveloperTool"
+        onClick={() => void copyMetric("size")}
+      >
+        {copiedField === "size" ? "Copied" : `${contentSize.width}×${contentSize.height}`}
+      </button>
       {homeLink ? (
         <a
           href={homeLink}

@@ -2,7 +2,6 @@ import React, { type ReactNode } from "react";
 import { CheckCircleIcon, WarningCircleIcon } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils.js";
 import { useLocale } from "@/i18n.js";
-import { machkit } from "@/runtime/machkit.js";
 
 const copiedLabels = {
   en: { success: "Copied", failure: "Copy failed" },
@@ -21,49 +20,16 @@ type CopyToast = { id: number; ok: boolean };
 
 export type ToolPageProps = {
   title: string;
-  adaptiveHeight?: boolean;
   children?: ReactNode;
 };
 
-export function ToolPage({ title, adaptiveHeight = true, children }: ToolPageProps) {
-  const pageRef = React.useRef<HTMLElement | null>(null);
-
+export function ToolPage({ title, children }: ToolPageProps) {
   React.useEffect(() => {
     document.title = title;
   }, [title]);
 
-  React.useEffect(() => {
-    if (!adaptiveHeight || !machkit.isEmbedded || typeof ResizeObserver === "undefined") return undefined;
-
-    const content =
-      pageRef.current?.querySelector(":scope > [data-machkit-tool-content]") ?? pageRef.current;
-    if (!content) return undefined;
-
-    let animationFrame = 0;
-    let lastHeight = 0;
-    const measure = () => {
-      window.cancelAnimationFrame(animationFrame);
-      animationFrame = window.requestAnimationFrame(() => {
-        const height = Math.ceil(Math.max(content.scrollHeight, content.getBoundingClientRect().height));
-        if (Math.abs(height - lastHeight) < 2) return;
-        lastHeight = height;
-        machkit.fitContentHeight(height);
-      });
-    };
-
-    const observer = new ResizeObserver(measure);
-    observer.observe(content);
-    measure();
-    document.fonts?.ready.then(measure);
-
-    return () => {
-      observer.disconnect();
-      window.cancelAnimationFrame(animationFrame);
-    };
-  }, [adaptiveHeight]);
-
   return (
-    <main ref={pageRef} className="relative flex h-full min-h-full w-full min-w-0 flex-col overflow-hidden bg-surface font-sans text-[13px] text-foreground">
+    <main className="relative flex h-full min-h-full w-full min-w-0 flex-col overflow-hidden bg-surface font-sans text-[13px] text-foreground">
       {children}
       <CopyFeedbackToast />
     </main>

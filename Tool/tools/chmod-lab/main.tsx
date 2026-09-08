@@ -40,8 +40,8 @@ function ChmodLabTool() {
 
   return (
     <ToolPage title={text.title}>
-      <ToolContent className="flex flex-col gap-3 pt-3 pb-4">
-        <ToolToolbar className="gap-2">
+      <ToolContent className="flex min-h-0 flex-col gap-3">
+        <ToolToolbar className="shrink-0 gap-2 border-b-0">
           <label htmlFor="chmod-input" className="machkit-control-label whitespace-nowrap">
             {text.input}
           </label>
@@ -76,9 +76,9 @@ function ChmodLabTool() {
           </ActionGroup>
         </ToolToolbar>
 
-        <StatusStrip tone={status.tone}>{status.label}</StatusStrip>
+        <StatusStrip tone={status.tone} className="shrink-0">{status.label}</StatusStrip>
 
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid shrink-0 gap-3 sm:grid-cols-3">
           {([
             ["octal", view.octal],
             ["symbolic", view.symbolic],
@@ -108,7 +108,7 @@ function ChmodLabTool() {
           ))}
         </div>
 
-        <ResultPanel>
+        <ResultPanel className="shrink-0">
           <div className="grid grid-cols-[7rem_repeat(3,minmax(0,1fr))] border-b border-border px-3 py-2 text-[11px] text-secondary">
             <span />
             <span>{text.read}</span>
@@ -133,7 +133,7 @@ function ChmodLabTool() {
           ))}
         </ResultPanel>
 
-        <ResultPanel bodyClassName="flex flex-col gap-2 px-3 py-3">
+        <ResultPanel className="min-h-0 flex-1" bodyClassName="flex h-full min-h-0 flex-col gap-2 px-3 py-3">
           <div className="flex flex-wrap items-center gap-4">
             <span className="text-[12px] text-secondary">{text.special}</span>
             {(["setuid", "setgid", "sticky"] as const).map((flag) => (

@@ -88,3 +88,11 @@ private let available: Set<String> = ["a", "b", "c", "d"]
     )
     #expect(result == ["a", "b"])
 }
+
+@Test func toolPinOrderMigratesLegacyIDs() {
+    #expect(ToolPinOrder.migrateLegacyIDs(["codec", "number-base", "json-formatter"]) == [
+        "codec",
+        "unit-converter",
+        "json-formatter",
+    ])
+}

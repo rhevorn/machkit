@@ -4,7 +4,7 @@ export const messages = {
   en: {
     meta: {
       title: "MachKit — Free Mac Cleaner, Screenshot & Utility Tools",
-      description: "Free, open-source Mac cleanup and utility app for storage analysis, safe cleaning, app uninstall, system monitoring, screenshots, networking, and 19 local tools.",
+      description: "Free, open-source Mac cleanup and utility app for storage analysis, safe cleaning, app uninstall, system monitoring, screenshots, networking, and 20 local tools.",
     },
     nav: {
       capabilities: "Capabilities",
@@ -21,7 +21,7 @@ export const messages = {
     hero: {
       eyebrow: "Native macOS utility",
       title: "Keep your Mac understandable.",
-      description: "MachKit is a free, open-source Mac cleanup and utility app for storage analysis, app removal, system monitoring, networking, annotated screenshots, and 19 practical local tools.",
+      description: "MachKit is a free, open-source Mac cleanup and utility app for storage analysis, app removal, system monitoring, networking, annotated screenshots, and 20 practical local tools.",
       primary: "Download for macOS",
       secondary: "View source",
       compatibility: "Free and open source · macOS 14 or later",

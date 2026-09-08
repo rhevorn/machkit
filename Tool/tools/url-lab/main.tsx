@@ -102,7 +102,7 @@ function UrlLabTool() {
 
   return (
     <ToolPage title={text.title}>
-      <ToolContent className="flex flex-col gap-4 pt-4 pb-6">
+      <ToolContent className="flex flex-col gap-4">
         <ToolToolbar className="gap-2">
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <label htmlFor="url-raw" className="machkit-control-label whitespace-nowrap">

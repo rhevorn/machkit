@@ -123,6 +123,33 @@ test("screenshot page has localized capture and annotation content", () => {
   assert.match(page.locales.en.sections[1].body, /mosaic/i);
 });
 
+test("high-intent tools use demand-phrase SEO titles and FAQ schema", () => {
+  const codec = toolFeaturePages.find((page) => page.id === "tool-codec");
+  const cipher = toolFeaturePages.find((page) => page.id === "tool-cipher");
+  assert.ok(codec);
+  assert.ok(cipher);
+  assert.match(codec.locales.en.title, /Base64/);
+  assert.match(codec.locales.en.title, /Data URI/);
+  assert.match(codec.locales["zh-CN"].title, /Base64/);
+  assert.match(cipher.locales.en.title, /AES/);
+  assert.ok((codec.locales.en.faqs?.length ?? 0) >= 2);
+  const html = renderFeatureDocument({ page: codec, locale: "en", stylesheetHref: "/assets/site.css" });
+  assert.match(html, /"@type": "FAQPage"/);
+  assert.match(html, /Base64 &amp; Data URI Encoder for Mac/);
+});
+
+test("local-vs-online guide page is published for both locales", () => {
+  const page = (featurePages as readonly FeaturePage[]).find(
+    (candidate) => candidate.id === "local-vs-online-converters",
+  );
+  assert.ok(page);
+  assert.equal(page.slug, "guides/local-vs-online-converters");
+  assert.match(page.locales.en.title, /Local Mac Converters/);
+  assert.match(page.locales["zh-CN"].title, /本地转换/);
+  assert.match(renderSitemap({}), /\/guides\/local-vs-online-converters\//);
+  assert.match(renderSitemap({}), /\/zh-CN\/guides\/local-vs-online-converters\//);
+});
+
 test("sitemap includes every localized homepage and feature page", () => {
   const sitemap = renderSitemap("2026-08-15");
   const expectedPages = 2 + featurePages.length * supportedLocales.length;

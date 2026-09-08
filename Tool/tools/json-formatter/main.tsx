@@ -691,7 +691,7 @@ function JsonFormatter() {
 
   return (
     <ToolPage title={text.title}>
-      <ToolContent className="flex min-h-0 min-w-0 flex-1 flex-col gap-1.5 overflow-x-hidden pt-1">
+      <ToolContent className="flex min-h-0 min-w-0 flex-1 flex-col gap-1.5 overflow-x-hidden">
         <div className="machkit-toolbar min-h-0 flex-wrap gap-x-2 gap-y-1.5 border-b-0 px-0.5 py-0.5">
           <ActionGroup className="ml-0 gap-1.5">
             <Button

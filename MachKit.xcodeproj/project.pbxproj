@@ -21,15 +21,13 @@
 		A1000000000000000000000C /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000E /* Localization.swift */; };
 		A1000000000000000000000D /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000F /* Localizable.xcstrings */; };
 		A1000000000000000000000E /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000010 /* InfoPlist.xcstrings */; };
-		A1000000000000000000000F /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000011 /* AppSettings.swift */; };
+		A1000000000000000000000F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000011 /* SettingsView.swift */; };
 		A10000000000000000000010 /* OperationResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000012 /* OperationResultView.swift */; };
 		A10000000000000000000013 /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000015 /* AppPreferences.swift */; };
 		A10000000000000000000014 /* FeatureModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000016 /* FeatureModels.swift */; };
 		A10000000000000000000015 /* StatusBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000017 /* StatusBar.swift */; };
 		A10000000000000000000016 /* SystemMonitorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20000000000000000000001 /* SystemMonitorService.swift */; };
 		A10000000000000000000017 /* ToolsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000019 /* ToolsView.swift */; };
-		G10000000000000000000001 /* ToolPinStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = G20000000000000000000001 /* ToolPinStore.swift */; };
-		F10000000000000000000001 /* MachKitLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000001 /* MachKitLayout.swift */; };
 		A10000000000000000000019 /* DeveloperTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000021 /* DeveloperTools.swift */; };
 		A1000000000000000000001A /* WebToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000022 /* WebToolView.swift */; };
 		A1000000000000000000001B /* WebTools in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000023 /* WebTools */; };
@@ -47,6 +45,7 @@
 		A10000000000000000000028 /* ScreenshotEditorModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000030 /* ScreenshotEditorModel.swift */; };
 		A10000000000000000000029 /* ScreenshotAnnotatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000031 /* ScreenshotAnnotatorView.swift */; };
 		A1000000000000000000002A /* ScreenshotSelectionChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000032 /* ScreenshotSelectionChrome.swift */; };
+		A10000000000000000000030 /* ToolSearchKeywords.json in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000033 /* ToolSearchKeywords.json */; };
 		B10000000000000000000001 /* HostsManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* HostsManagerTests.swift */; };
 		B10000000000000000000003 /* CurlLabRunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000003 /* CurlLabRunnerTests.swift */; };
 		B10000000000000000000004 /* TCPPortScanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000004 /* TCPPortScanTests.swift */; };
@@ -57,7 +56,9 @@
 		C10000000000000000000004 /* ContentViewStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000004 /* ContentViewStorage.swift */; };
 		E10000000000000000000001 /* AppUpdateChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000001 /* AppUpdateChecker.swift */; };
 		E10000000000000000000002 /* AppUpdateCheckTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000002 /* AppUpdateCheckTests.swift */; };
+		F10000000000000000000001 /* MachKitLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000001 /* MachKitLayout.swift */; };
 		F91882353042DFB800998E0C /* SoCMetrics in Frameworks */ = {isa = PBXBuildFile; productRef = A90000000000000000000003 /* SoCMetrics */; };
+		G10000000000000000000001 /* ToolPinStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = G20000000000000000000001 /* ToolPinStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -77,14 +78,12 @@
 		A2000000000000000000000E /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
 		A2000000000000000000000F /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		A20000000000000000000010 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
-		A20000000000000000000011 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		A20000000000000000000011 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		A20000000000000000000012 /* OperationResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationResultView.swift; sourceTree = "<group>"; };
 		A20000000000000000000015 /* AppPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferences.swift; sourceTree = "<group>"; };
-		F20000000000000000000001 /* MachKitLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MachKitLayout.swift; sourceTree = "<group>"; };
 		A20000000000000000000016 /* FeatureModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureModels.swift; sourceTree = "<group>"; };
 		A20000000000000000000017 /* StatusBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBar.swift; sourceTree = "<group>"; };
 		A20000000000000000000019 /* ToolsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsView.swift; sourceTree = "<group>"; };
-		G20000000000000000000001 /* ToolPinStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolPinStore.swift; sourceTree = "<group>"; };
 		A20000000000000000000021 /* DeveloperTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperTools.swift; sourceTree = "<group>"; };
 		A20000000000000000000022 /* WebToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebToolView.swift; sourceTree = "<group>"; };
 		A20000000000000000000023 /* WebTools */ = {isa = PBXFileReference; lastKnownFileType = folder; path = WebTools; sourceTree = "<group>"; };
@@ -102,6 +101,7 @@
 		A20000000000000000000030 /* ScreenshotEditorModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotEditorModel.swift; sourceTree = "<group>"; };
 		A20000000000000000000031 /* ScreenshotAnnotatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotAnnotatorView.swift; sourceTree = "<group>"; };
 		A20000000000000000000032 /* ScreenshotSelectionChrome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotSelectionChrome.swift; sourceTree = "<group>"; };
+		A20000000000000000000033 /* ToolSearchKeywords.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ToolSearchKeywords.json; sourceTree = "<group>"; };
 		B20000000000000000000001 /* HostsManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostsManagerTests.swift; sourceTree = "<group>"; };
 		B20000000000000000000003 /* CurlLabRunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurlLabRunnerTests.swift; sourceTree = "<group>"; };
 		B20000000000000000000004 /* TCPPortScanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPPortScanTests.swift; sourceTree = "<group>"; };
@@ -113,6 +113,8 @@
 		D20000000000000000000001 /* SystemMonitorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMonitorService.swift; sourceTree = "<group>"; };
 		E20000000000000000000001 /* AppUpdateChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdateChecker.swift; sourceTree = "<group>"; };
 		E20000000000000000000002 /* AppUpdateCheckTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdateCheckTests.swift; sourceTree = "<group>"; };
+		F20000000000000000000001 /* MachKitLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MachKitLayout.swift; sourceTree = "<group>"; };
+		G20000000000000000000001 /* ToolPinStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolPinStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -162,9 +164,6 @@
 				A20000000000000000000001 /* MachKitApp.swift */,
 				A20000000000000000000002 /* ContentView.swift */,
 				C20000000000000000000002 /* ContentViewSoftware.swift */,
-				C20000000000000000000003 /* ContentViewNetwork.swift */,
-				C20000000000000000000004 /* ContentViewStorage.swift */,
-				A20000000000000000000003 /* CleanerViewModel.swift */,
 				C20000000000000000000001 /* AppSnapshotStore.swift */,
 				A20000000000000000000004 /* PerformanceMonitor.swift */,
 				D20000000000000000000001 /* SystemMonitorService.swift */,
@@ -172,14 +171,15 @@
 				A2000000000000000000000D /* FeatureMode.swift */,
 				A2000000000000000000000E /* Localization.swift */,
 				F20000000000000000000001 /* MachKitLayout.swift */,
-				A20000000000000000000011 /* AppSettings.swift */,
 				A20000000000000000000012 /* OperationResultView.swift */,
-				A20000000000000000000015 /* AppPreferences.swift */,
 				E20000000000000000000001 /* AppUpdateChecker.swift */,
 				A20000000000000000000016 /* FeatureModels.swift */,
 				A20000000000000000000017 /* StatusBar.swift */,
 				A20000000000000000000019 /* ToolsView.swift */,
 				G20000000000000000000001 /* ToolPinStore.swift */,
+				A40000000000000000000009 /* Network */,
+				A4000000000000000000000A /* Cleaner */,
+				A4000000000000000000000B /* Settings */,
 				A40000000000000000000008 /* Screenshot */,
 				A40000000000000000000007 /* WebView */,
 			);
@@ -192,6 +192,7 @@
 				A20000000000000000000008 /* Assets.xcassets */,
 				A2000000000000000000000F /* Localizable.xcstrings */,
 				A20000000000000000000010 /* InfoPlist.xcstrings */,
+				A20000000000000000000033 /* ToolSearchKeywords.json */,
 				A20000000000000000000023 /* WebTools */,
 			);
 			path = Resources;
@@ -250,6 +251,32 @@
 			path = Screenshot;
 			sourceTree = "<group>";
 		};
+		A40000000000000000000009 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				C20000000000000000000003 /* ContentViewNetwork.swift */,
+			);
+			path = Network;
+			sourceTree = "<group>";
+		};
+		A4000000000000000000000A /* Cleaner */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000003 /* CleanerViewModel.swift */,
+				C20000000000000000000004 /* ContentViewStorage.swift */,
+			);
+			path = Cleaner;
+			sourceTree = "<group>";
+		};
+		A4000000000000000000000B /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000015 /* AppPreferences.swift */,
+				A20000000000000000000011 /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -300,7 +327,7 @@
 		A60000000000000000000001 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				BuildIndependentTargetsInParallel = 1;
+				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 2660;
 				LastUpgradeCheck = 2660;
 				TargetAttributes = {
@@ -353,6 +380,7 @@
 				A10000000000000000000006 /* Assets.xcassets in Resources */,
 				A1000000000000000000000D /* Localizable.xcstrings in Resources */,
 				A1000000000000000000000E /* InfoPlist.xcstrings in Resources */,
+				A10000000000000000000030 /* ToolSearchKeywords.json in Resources */,
 				A1000000000000000000001B /* WebTools in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -399,7 +427,7 @@
 				A1000000000000000000000B /* FeatureMode.swift in Sources */,
 				A1000000000000000000000C /* Localization.swift in Sources */,
 				F10000000000000000000001 /* MachKitLayout.swift in Sources */,
-				A1000000000000000000000F /* AppSettings.swift in Sources */,
+				A1000000000000000000000F /* SettingsView.swift in Sources */,
 				A10000000000000000000010 /* OperationResultView.swift in Sources */,
 				A10000000000000000000013 /* AppPreferences.swift in Sources */,
 				E10000000000000000000001 /* AppUpdateChecker.swift in Sources */,
@@ -450,6 +478,7 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -497,6 +526,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -514,6 +544,7 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -555,6 +586,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;

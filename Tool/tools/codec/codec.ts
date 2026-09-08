@@ -1,7 +1,52 @@
+import {
+  convertRadix,
+  decodeBinary,
+  decodeDataURI,
+  decodeDecimal,
+  decodeGbk,
+  decodeJsonString,
+  decodePunycode,
+  decodeQuotedPrintable,
+  decodeRot13,
+  encodeBinary,
+  encodeDataURI,
+  encodeDecimal,
+  encodeGbk,
+  encodeJsonString,
+  encodePunycode,
+  encodeQuotedPrintable,
+  encodeRot13,
+} from "./codec-extra.js";
+
+export {
+  convertRadix,
+  decodeBinary,
+  decodeDataURI,
+  decodeDecimal,
+  decodeGbk,
+  decodeJsonString,
+  decodePunycode,
+  decodeQuotedPrintable,
+  decodeRot13,
+  encodeBinary,
+  encodeDataURI,
+  encodeDecimal,
+  encodeGbk,
+  encodeJsonString,
+  encodePunycode,
+  encodeQuotedPrintable,
+  encodeRot13,
+  inspectDataURI,
+} from "./codec-extra.js";
+
+export type { DataURIInfo, DataURIInspectResult } from "./codec-extra.js";
+
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder("utf-8", { fatal: true });
 
 const BASE62_ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+const BASE36_ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 
 export type CodecOk = { ok: true; value: string; error?: null };
 export type CodecErr = { ok: false; value: string; error: string };
@@ -12,13 +57,29 @@ export type CodecDirection = "encode" | "decode" | string;
 export type CodecTab =
   | "hash"
   | "base64"
-  | "url"
+  | "base16"
+  | "base32"
+  | "base36"
+  | "base58"
   | "base62"
+  | "base85"
+  | "url"
   | "hex"
   | "html"
   | "unicode"
+  | "utf-8"
+  | "ascii"
+  | "native"
   | "escape"
-  | "base32"
+  | "binary"
+  | "decimal"
+  | "punycode"
+  | "json"
+  | "quoted-printable"
+  | "rot13"
+  | "data-uri"
+  | "gbk"
+  | "radix"
   | string;
 
 export type ConvertCodecParams = {
@@ -28,6 +89,9 @@ export type ConvertCodecParams = {
   urlMode?: UrlMode;
   base64URL?: boolean;
   algorithm?: string;
+  hmacKey?: string;
+  fromRadix?: number;
+  toRadix?: number;
 };
 
 export type ConvertCodecResult = {
@@ -341,42 +405,48 @@ export function decodeBase32(raw: unknown): CodecResult {
   return decodedTextResult(Uint8Array.from(bytes), "invalid-base32");
 }
 
-function divideBigIntBase62(bytes: Uint8Array): string {
-  let value = 0n;
-  for (const byte of bytes) value = (value << 8n) + BigInt(byte);
-  if (value === 0n) return "0";
-
-  let result = "";
-  while (value > 0n) {
-    const remainder = Number(value % 62n);
-    result = BASE62_ALPHABET[remainder] + result;
-    value /= 62n;
-  }
-  return result;
-}
-
-export function encodeBase62(text: unknown): string {
+function encodeWithAlphabet(
+  text: unknown,
+  alphabet: string,
+  zeroChar: string,
+): string {
   const bytes = bytesFromText(text);
   if (!bytes.length) return "";
+  const base = BigInt(alphabet.length);
   let leadingZeroCount = 0;
   while (leadingZeroCount < bytes.length && bytes[leadingZeroCount] === 0) leadingZeroCount += 1;
-  const prefix = "0".repeat(leadingZeroCount);
+  const prefix = zeroChar.repeat(leadingZeroCount);
   if (leadingZeroCount === bytes.length) return prefix;
-  return prefix + divideBigIntBase62(bytes.slice(leadingZeroCount));
+
+  let value = 0n;
+  for (const byte of bytes.slice(leadingZeroCount)) value = (value << 8n) + BigInt(byte);
+  let result = "";
+  while (value > 0n) {
+    const remainder = Number(value % base);
+    result = alphabet[remainder] + result;
+    value /= base;
+  }
+  return prefix + result;
 }
 
-export function decodeBase62(raw: unknown): CodecResult {
-  const value = String(raw ?? "").trim();
+function decodeWithAlphabet(
+  raw: unknown,
+  alphabet: string,
+  zeroChar: string,
+  error: string,
+  normalize?: (value: string) => string,
+): CodecResult {
+  const value = (normalize ? normalize(String(raw ?? "").trim()) : String(raw ?? "").trim());
   if (!value) return { ok: true, value: "" };
-  if (!/^[0-9A-Za-z]+$/.test(value)) return { ok: false, error: "invalid-base62", value: "" };
 
+  const base = BigInt(alphabet.length);
   let leadingZeroCount = 0;
-  while (leadingZeroCount < value.length && value[leadingZeroCount] === "0") leadingZeroCount += 1;
+  while (leadingZeroCount < value.length && value[leadingZeroCount] === zeroChar) leadingZeroCount += 1;
   let number = 0n;
   for (const char of value.slice(leadingZeroCount)) {
-    const index = BASE62_ALPHABET.indexOf(char);
-    if (index < 0) return { ok: false, error: "invalid-base62", value: "" };
-    number = number * 62n + BigInt(index);
+    const index = alphabet.indexOf(char);
+    if (index < 0) return { ok: false, error, value: "" };
+    number = number * base + BigInt(index);
   }
 
   const significantBytes: number[] = [];
@@ -385,14 +455,161 @@ export function decodeBase62(raw: unknown): CodecResult {
     number >>= 8n;
   }
   const bytes = [...Array(leadingZeroCount).fill(0), ...significantBytes];
-  return decodedTextResult(Uint8Array.from(bytes), "invalid-base62");
+  return decodedTextResult(Uint8Array.from(bytes), error);
+}
+
+export function encodeBase16(text: unknown): string {
+  return encodeHex(text);
+}
+
+export function decodeBase16(raw: unknown): CodecResult {
+  return decodeHex(raw);
+}
+
+export function encodeBase36(text: unknown): string {
+  return encodeWithAlphabet(text, BASE36_ALPHABET, "0");
+}
+
+export function decodeBase36(raw: unknown): CodecResult {
+  return decodeWithAlphabet(raw, BASE36_ALPHABET, "0", "invalid-base36", (value) => value.toUpperCase());
+}
+
+export function encodeBase58(text: unknown): string {
+  return encodeWithAlphabet(text, BASE58_ALPHABET, "1");
+}
+
+export function decodeBase58(raw: unknown): CodecResult {
+  return decodeWithAlphabet(raw, BASE58_ALPHABET, "1", "invalid-base58");
+}
+
+export function encodeBase62(text: unknown): string {
+  return encodeWithAlphabet(text, BASE62_ALPHABET, "0");
+}
+
+export function decodeBase62(raw: unknown): CodecResult {
+  return decodeWithAlphabet(raw, BASE62_ALPHABET, "0", "invalid-base62");
+}
+
+/** Adobe Ascii85 / Base85. */
+export function encodeBase85(text: unknown): string {
+  const bytes = bytesFromText(text);
+  if (!bytes.length) return "";
+  let output = "";
+  for (let index = 0; index < bytes.length; index += 4) {
+    const chunk = bytes.subarray(index, Math.min(index + 4, bytes.length));
+    const padding = 4 - chunk.length;
+    let value = 0;
+    for (let offset = 0; offset < 4; offset += 1) {
+      value = ((value << 8) + (offset < chunk.length ? chunk[offset]! : 0)) >>> 0;
+    }
+    if (chunk.length === 4 && value === 0) {
+      output += "z";
+      continue;
+    }
+    const digits = Array<string>(5);
+    for (let digit = 4; digit >= 0; digit -= 1) {
+      digits[digit] = String.fromCharCode((value % 85) + 33);
+      value = Math.floor(value / 85);
+    }
+    output += digits.slice(0, 5 - padding).join("");
+  }
+  return output;
+}
+
+export function decodeBase85(raw: unknown): CodecResult {
+  const source = String(raw ?? "").replace(/\s+/g, "");
+  if (!source) return { ok: true, value: "" };
+  const bytes: number[] = [];
+  let index = 0;
+  while (index < source.length) {
+    if (source[index] === "z") {
+      bytes.push(0, 0, 0, 0);
+      index += 1;
+      continue;
+    }
+    const chunk = source.slice(index, index + 5);
+    if (!chunk.length) break;
+    if (chunk.length < 2) return { ok: false, error: "invalid-base85", value: "" };
+    const padding = 5 - chunk.length;
+    let value = 0;
+    for (let offset = 0; offset < 5; offset += 1) {
+      const char = offset < chunk.length ? chunk[offset]! : "u";
+      const code = char.charCodeAt(0) - 33;
+      if (code < 0 || code > 84) return { ok: false, error: "invalid-base85", value: "" };
+      value = value * 85 + code;
+    }
+    if (value > 0xffffffff) return { ok: false, error: "invalid-base85", value: "" };
+    const decoded = [
+      (value >>> 24) & 0xff,
+      (value >>> 16) & 0xff,
+      (value >>> 8) & 0xff,
+      value & 0xff,
+    ];
+    bytes.push(...decoded.slice(0, 4 - padding));
+    index += chunk.length;
+  }
+  return decodedTextResult(Uint8Array.from(bytes), "invalid-base85");
+}
+
+/** UTF-8 bytes as spaced hex, e.g. `E4 BD A0`. */
+export function encodeUTF8Bytes(text: unknown): string {
+  return Array.from(bytesFromText(text), (byte) => byte.toString(16).padStart(2, "0").toUpperCase()).join(
+    " ",
+  );
+}
+
+export function decodeUTF8Bytes(raw: unknown): CodecResult {
+  return decodeHex(String(raw ?? "").replace(/\\x/gi, ""));
+}
+
+/** Code points as decimals, e.g. `72 105`. */
+export function encodeASCII(text: unknown): string {
+  return Array.from(String(text ?? ""), (char) => String(char.codePointAt(0) ?? 0)).join(" ");
+}
+
+export function decodeASCII(raw: unknown): CodecResult {
+  const value = String(raw ?? "").trim();
+  if (!value) return { ok: true, value: "" };
+  const parts = value.split(/[\s,;]+/).filter(Boolean);
+  try {
+    return {
+      ok: true,
+      value: parts
+        .map((part) => {
+          if (!/^\d+$/.test(part)) throw new Error("invalid-ascii");
+          const code = Number.parseInt(part, 10);
+          if (!Number.isFinite(code) || code < 0 || code > 0x10ffff) throw new Error("invalid-ascii");
+          return String.fromCodePoint(code);
+        })
+        .join(""),
+    };
+  } catch {
+    return { ok: false, error: "invalid-ascii", value: "" };
+  }
+}
+
+/** Java-style Native2Ascii: non-ASCII → `\uXXXX`, ASCII left as-is. */
+export function encodeNative(text: unknown): string {
+  return Array.from(String(text ?? ""), (char) => {
+    const code = char.codePointAt(0);
+    if (code === undefined) return char;
+    if (code >= 0x20 && code <= 0x7e) return char;
+    if (code <= 0xffff) return `\\u${code.toString(16).padStart(4, "0")}`;
+    const high = Math.floor((code - 0x10000) / 0x400) + 0xd800;
+    const low = ((code - 0x10000) % 0x400) + 0xdc00;
+    return `\\u${high.toString(16).padStart(4, "0")}\\u${low.toString(16).padStart(4, "0")}`;
+  }).join("");
+}
+
+export function decodeNative(raw: unknown): CodecResult {
+  return decodeUnicode(raw);
 }
 
 function rotateLeft(value: number, bits: number): number {
   return (value << bits) | (value >>> (32 - bits));
 }
 
-function md5ToHex(bytes: Uint8Array): string {
+function md5Digest(bytes: Uint8Array): Uint8Array {
   const originalLength = bytes.length;
   const bitLength = BigInt(originalLength) * 8n;
   const withOne = new Uint8Array(((originalLength + 9 + 63) >> 6) << 6);
@@ -457,18 +674,148 @@ function md5ToHex(bytes: Uint8Array): string {
   digestView.setUint32(4, b0, true);
   digestView.setUint32(8, c0, true);
   digestView.setUint32(12, d0, true);
-  return Array.from(digest, (byte) => byte.toString(16).padStart(2, "0")).join("");
+  return digest;
 }
 
-export async function hashText(text: unknown, algorithm = "SHA-256"): Promise<string> {
-  const bytes = bytesFromText(text);
-  if (algorithm === "MD5") return md5ToHex(bytes);
-
-  const digest = await crypto.subtle.digest(algorithm, bytes as BufferSource);
-  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+function bytesToHex(bytes: Uint8Array): string {
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
-export const hashAlgorithms = Object.freeze(["MD5", "SHA-1", "SHA-256", "SHA-384", "SHA-512"]);
+function md5ToHex(bytes: Uint8Array): string {
+  return bytesToHex(md5Digest(bytes));
+}
+
+function hmacMD5(keyBytes: Uint8Array, messageBytes: Uint8Array): string {
+  const blockSize = 64;
+  let key = keyBytes;
+  if (key.length > blockSize) key = md5Digest(key);
+  if (key.length < blockSize) {
+    const padded = new Uint8Array(blockSize);
+    padded.set(key);
+    key = padded;
+  }
+
+  const inner = new Uint8Array(blockSize + messageBytes.length);
+  const outerPrefix = new Uint8Array(blockSize);
+  for (let index = 0; index < blockSize; index += 1) {
+    const value = key[index] ?? 0;
+    inner[index] = value ^ 0x36;
+    outerPrefix[index] = value ^ 0x5c;
+  }
+  inner.set(messageBytes, blockSize);
+
+  const outer = new Uint8Array(blockSize + 16);
+  outer.set(outerPrefix);
+  outer.set(md5Digest(inner), blockSize);
+  return bytesToHex(md5Digest(outer));
+}
+
+function subtleHashName(algorithm: string): string | null {
+  switch (algorithm) {
+    case "SHA-1":
+    case "SHA-256":
+    case "SHA-384":
+    case "SHA-512":
+      return algorithm;
+    default:
+      return null;
+  }
+}
+
+export function isHMACAlgorithm(algorithm: string): boolean {
+  return algorithm.startsWith("HMAC-");
+}
+
+export function hmacHashName(algorithm: string): string | null {
+  if (!isHMACAlgorithm(algorithm)) return null;
+  return algorithm.slice("HMAC-".length);
+}
+
+export async function hashText(
+  text: unknown,
+  algorithm = "SHA-256",
+  hmacKey: unknown = "",
+): Promise<string> {
+  const message = bytesFromText(text);
+  if (algorithm === "MD5") return md5ToHex(message);
+
+  if (isHMACAlgorithm(algorithm)) {
+    const hashName = hmacHashName(algorithm);
+    const key = bytesFromText(hmacKey);
+    if (hashName === "MD5") return hmacMD5(key, message);
+    const subtleHash = hashName ? subtleHashName(hashName) : null;
+    if (!subtleHash) throw new Error("unsupported");
+    const cryptoKey = await crypto.subtle.importKey(
+      "raw",
+      key as BufferSource,
+      { name: "HMAC", hash: subtleHash },
+      false,
+      ["sign"],
+    );
+    const signature = await crypto.subtle.sign("HMAC", cryptoKey, message as BufferSource);
+    return bytesToHex(new Uint8Array(signature));
+  }
+
+  const subtleHash = subtleHashName(algorithm);
+  if (!subtleHash) throw new Error("unsupported");
+  const digest = await crypto.subtle.digest(subtleHash, message as BufferSource);
+  return bytesToHex(new Uint8Array(digest));
+}
+
+/** MD5 hex forms commonly shown by Chinese hash utilities. */
+export type MD5Variants = {
+  lower32: string;
+  upper32: string;
+  lower16: string;
+  upper16: string;
+};
+
+export function md5VariantsFromHex(hex: string): MD5Variants {
+  const lower32 = String(hex || "").toLowerCase();
+  const upper32 = lower32.toUpperCase();
+  return {
+    lower32,
+    upper32,
+    lower16: lower32.slice(0, 16),
+    upper16: upper32.slice(0, 16),
+  };
+}
+
+export type HexCaseVariants = {
+  lower: string;
+  upper: string;
+};
+
+export function hexCaseVariants(hex: string): HexCaseVariants {
+  const lower = String(hex || "").toLowerCase();
+  return { lower, upper: lower.toUpperCase() };
+}
+
+export async function hashMD5Variants(text: unknown): Promise<MD5Variants> {
+  return md5VariantsFromHex(await hashText(text, "MD5"));
+}
+
+export const hashAlgorithmGroups = Object.freeze([
+  { id: "digest" as const, items: Object.freeze(["MD5"] as const) },
+  {
+    id: "sha" as const,
+    items: Object.freeze(["SHA-1", "SHA-256", "SHA-384", "SHA-512"] as const),
+  },
+  {
+    id: "hmac" as const,
+    items: Object.freeze([
+      "HMAC-MD5",
+      "HMAC-SHA-1",
+      "HMAC-SHA-256",
+      "HMAC-SHA-384",
+      "HMAC-SHA-512",
+    ] as const),
+  },
+]);
+
+export const hashAlgorithms = Object.freeze(
+  hashAlgorithmGroups.flatMap((group) => [...group.items]),
+);
 
 export function convertCodec({
   tab,
@@ -476,12 +823,26 @@ export function convertCodec({
   input,
   urlMode = "component",
   base64URL = false,
-  algorithm = "SHA-256",
+  algorithm = "MD5",
+  hmacKey = "",
+  fromRadix = 10,
+  toRadix = 16,
 }: ConvertCodecParams): Promise<ConvertCodecResult> {
   const value = String(input ?? "");
 
   if (tab === "hash") {
-    return hashText(value, algorithm).then((hash) => ({ ok: true, value: hash, error: null }));
+    return hashText(value, algorithm, hmacKey)
+      .then((hash) => ({ ok: true, value: hash, error: null }))
+      .catch(() => ({ ok: false, value: "", error: "unsupported" }));
+  }
+
+  if (tab === "radix") {
+    const result = convertRadix(value, fromRadix, toRadix);
+    return Promise.resolve({
+      ok: result.ok,
+      value: result.value,
+      error: result.ok ? null : result.error,
+    });
   }
 
   if (tab === "base64") {
@@ -504,6 +865,30 @@ export function convertCodec({
     return Promise.resolve({ ok: result.ok, value: result.value, error: result.ok ? null : result.error });
   }
 
+  if (tab === "base16" || tab === "hex") {
+    if (direction === "encode") {
+      return Promise.resolve({ ok: true, value: encodeBase16(value), error: null });
+    }
+    const result = decodeBase16(value);
+    return Promise.resolve({ ok: result.ok, value: result.value, error: result.ok ? null : result.error });
+  }
+
+  if (tab === "base36") {
+    if (direction === "encode") {
+      return Promise.resolve({ ok: true, value: encodeBase36(value), error: null });
+    }
+    const result = decodeBase36(value);
+    return Promise.resolve({ ok: result.ok, value: result.value, error: result.ok ? null : result.error });
+  }
+
+  if (tab === "base58") {
+    if (direction === "encode") {
+      return Promise.resolve({ ok: true, value: encodeBase58(value), error: null });
+    }
+    const result = decodeBase58(value);
+    return Promise.resolve({ ok: result.ok, value: result.value, error: result.ok ? null : result.error });
+  }
+
   if (tab === "base62") {
     if (direction === "encode") {
       return Promise.resolve({ ok: true, value: encodeBase62(value), error: null });
@@ -512,11 +897,11 @@ export function convertCodec({
     return Promise.resolve({ ok: result.ok, value: result.value, error: result.ok ? null : result.error });
   }
 
-  if (tab === "hex") {
+  if (tab === "base85") {
     if (direction === "encode") {
-      return Promise.resolve({ ok: true, value: encodeHex(value), error: null });
+      return Promise.resolve({ ok: true, value: encodeBase85(value), error: null });
     }
-    const result = decodeHex(value);
+    const result = decodeBase85(value);
     return Promise.resolve({ ok: result.ok, value: result.value, error: result.ok ? null : result.error });
   }
 
@@ -536,6 +921,30 @@ export function convertCodec({
     return Promise.resolve({ ok: result.ok, value: result.value, error: result.ok ? null : result.error });
   }
 
+  if (tab === "utf-8") {
+    if (direction === "encode") {
+      return Promise.resolve({ ok: true, value: encodeUTF8Bytes(value), error: null });
+    }
+    const result = decodeUTF8Bytes(value);
+    return Promise.resolve({ ok: result.ok, value: result.value, error: result.ok ? null : result.error });
+  }
+
+  if (tab === "ascii") {
+    if (direction === "encode") {
+      return Promise.resolve({ ok: true, value: encodeASCII(value), error: null });
+    }
+    const result = decodeASCII(value);
+    return Promise.resolve({ ok: result.ok, value: result.value, error: result.ok ? null : result.error });
+  }
+
+  if (tab === "native") {
+    if (direction === "encode") {
+      return Promise.resolve({ ok: true, value: encodeNative(value), error: null });
+    }
+    const result = decodeNative(value);
+    return Promise.resolve({ ok: result.ok, value: result.value, error: result.ok ? null : result.error });
+  }
+
   if (tab === "escape") {
     if (direction === "encode") {
       return Promise.resolve({ ok: true, value: encodeEscape(value), error: null });
@@ -549,6 +958,78 @@ export function convertCodec({
       return Promise.resolve({ ok: true, value: encodeBase32(value), error: null });
     }
     const result = decodeBase32(value);
+    return Promise.resolve({ ok: result.ok, value: result.value, error: result.ok ? null : result.error });
+  }
+
+  if (tab === "binary") {
+    if (direction === "encode") {
+      return Promise.resolve({ ok: true, value: encodeBinary(value), error: null });
+    }
+    const result = decodeBinary(value);
+    return Promise.resolve({ ok: result.ok, value: result.value, error: result.ok ? null : result.error });
+  }
+
+  if (tab === "decimal") {
+    if (direction === "encode") {
+      return Promise.resolve({ ok: true, value: encodeDecimal(value), error: null });
+    }
+    const result = decodeDecimal(value);
+    return Promise.resolve({ ok: result.ok, value: result.value, error: result.ok ? null : result.error });
+  }
+
+  if (tab === "punycode") {
+    if (direction === "encode") {
+      try {
+        return Promise.resolve({ ok: true, value: encodePunycode(value), error: null });
+      } catch {
+        return Promise.resolve({ ok: false, value: "", error: "invalid-punycode" });
+      }
+    }
+    const result = decodePunycode(value);
+    return Promise.resolve({ ok: result.ok, value: result.value, error: result.ok ? null : result.error });
+  }
+
+  if (tab === "json") {
+    if (direction === "encode") {
+      return Promise.resolve({ ok: true, value: encodeJsonString(value), error: null });
+    }
+    const result = decodeJsonString(value);
+    return Promise.resolve({ ok: result.ok, value: result.value, error: result.ok ? null : result.error });
+  }
+
+  if (tab === "quoted-printable") {
+    if (direction === "encode") {
+      return Promise.resolve({ ok: true, value: encodeQuotedPrintable(value), error: null });
+    }
+    const result = decodeQuotedPrintable(value);
+    return Promise.resolve({ ok: result.ok, value: result.value, error: result.ok ? null : result.error });
+  }
+
+  if (tab === "rot13") {
+    if (direction === "encode") {
+      return Promise.resolve({ ok: true, value: encodeRot13(value), error: null });
+    }
+    const result = decodeRot13(value);
+    return Promise.resolve({ ok: result.ok, value: result.value, error: null });
+  }
+
+  if (tab === "data-uri") {
+    if (direction === "encode") {
+      return Promise.resolve({ ok: true, value: encodeDataURI(value), error: null });
+    }
+    const result = decodeDataURI(value);
+    return Promise.resolve({ ok: result.ok, value: result.value, error: result.ok ? null : result.error });
+  }
+
+  if (tab === "gbk") {
+    if (direction === "encode") {
+      try {
+        return Promise.resolve({ ok: true, value: encodeGbk(value), error: null });
+      } catch {
+        return Promise.resolve({ ok: false, value: "", error: "invalid-gbk" });
+      }
+    }
+    const result = decodeGbk(value);
     return Promise.resolve({ ok: result.ok, value: result.value, error: result.ok ? null : result.error });
   }
 

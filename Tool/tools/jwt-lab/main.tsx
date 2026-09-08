@@ -192,7 +192,7 @@ function JwtLabTool() {
 
   return (
     <ToolPage title={text.title}>
-      <ToolContent className="flex flex-col gap-3 pt-3 pb-4">
+      <ToolContent className="flex flex-col gap-3">
         <ToolToolbar className="flex-wrap gap-y-2">
           <SegmentedControl
             value={mode}

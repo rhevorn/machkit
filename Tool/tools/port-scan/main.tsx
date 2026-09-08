@@ -28,6 +28,10 @@ import {
 import { messages } from "./messages.js";
 
 const POLL_INTERVAL = 250;
+const OPEN_PORT_LIST_H = "h-[180px]"; // 5 × h-9 rows
+const HOST_PREFS_KEY = "port-scan.host";
+const DEFAULT_HOST = "localhost";
+const HOST_PERSIST_MS = 300;
 
 type StatusTone = "neutral" | "info" | "success" | "warning" | "danger";
 type ToolText = (typeof messages)["en"];
@@ -38,13 +42,16 @@ function PortScanTool() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const generationRef = useRef(0);
   const scanIDRef = useRef<string | null>(null);
-  const [host, setHost] = useState("localhost");
+  const [host, setHost] = useState(DEFAULT_HOST);
   const [preset, setPreset] = useState<PresetSelection>("common");
   const [ports, setPorts] = useState<string>(presets.common);
   const [timeout, setTimeoutValue] = useState("300");
   const [result, setResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [running, setRunning] = useState(false);
+  const hostHydratedRef = useRef(false);
+  const hostDirtyRef = useRef(false);
+  const hostPersistTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const portInspection = useMemo(() => inspectPortExpression(ports), [ports]);
   const percent = progressPercent(result?.completed ?? 0, result?.total ?? portInspection.count);
@@ -53,7 +60,33 @@ function PortScanTool() {
   useEffect(() => () => {
     generationRef.current += 1;
     if (timerRef.current) clearTimeout(timerRef.current);
+    if (hostPersistTimerRef.current) clearTimeout(hostPersistTimerRef.current);
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const raw = await machkit.getItem(HOST_PREFS_KEY);
+      if (cancelled) return;
+      if (typeof raw === "string" && raw.trim() && !hostDirtyRef.current) setHost(raw);
+      hostHydratedRef.current = true;
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!hostHydratedRef.current) return;
+    if (hostPersistTimerRef.current) clearTimeout(hostPersistTimerRef.current);
+    hostPersistTimerRef.current = setTimeout(() => {
+      const value = host.trim() || DEFAULT_HOST;
+      void machkit.setItem(HOST_PREFS_KEY, value).catch(() => {});
+    }, HOST_PERSIST_MS);
+    return () => {
+      if (hostPersistTimerRef.current) clearTimeout(hostPersistTimerRef.current);
+    };
+  }, [host]);
 
   function errorLabel(code: unknown): string {
     const key = `err_${String(code || "failed").replace(/-/g, "_")}` as keyof ToolText;
@@ -158,7 +191,8 @@ function PortScanTool() {
   }
 
   function clearAll(): void {
-    setHost("");
+    hostDirtyRef.current = true;
+    setHost(DEFAULT_HOST);
     setPorts("");
     setPreset("custom");
     setResult(null);
@@ -177,12 +211,15 @@ function PortScanTool() {
 
   return (
     <ToolPage title={text.title}>
-      <ToolContent className="flex flex-col gap-3 pt-3 pb-4">
+      <ToolContent className="flex flex-col gap-3">
         <ToolToolbar className="flex-wrap gap-2">
           <Input
             className="min-w-[180px] flex-1 font-mono text-[12px]"
             value={host}
-            onChange={(event) => setHost(event.target.value)}
+            onChange={(event) => {
+              hostDirtyRef.current = true;
+              setHost(event.target.value);
+            }}
             onKeyDown={(event) => {
               if (event.key === "Enter" && !running) void startScan();
             }}
@@ -262,17 +299,14 @@ function PortScanTool() {
         <StatusStrip tone={status.tone}>{status.label}</StatusStrip>
 
         {running || result ? (
-          <ResultPanel bodyClassName="flex flex-col gap-2 px-3 py-3">
-            <div className="flex items-center justify-between text-[11px] text-secondary">
-              <span>{result?.completed ?? 0} / {result?.total ?? portInspection.count}</span>
-              <span>{percent}%</span>
-            </div>
+          <ResultPanel bodyClassName="flex flex-col gap-2.5 px-3 py-3">
             <div
               className="h-1.5 overflow-hidden rounded-full bg-border"
               role="progressbar"
               aria-valuemin={0}
               aria-valuemax={100}
               aria-valuenow={percent}
+              aria-label={`${percent}%`}
             >
               <div className="h-full rounded-full bg-accent transition-[width] duration-200" style={{ width: `${percent}%` }} />
             </div>
@@ -286,25 +320,9 @@ function PortScanTool() {
         ) : null}
 
         {openPorts.length ? (
-          <ResultPanel>
-            <div className="grid grid-cols-[7rem_minmax(0,1fr)_7rem] border-b border-border px-3 py-2 text-[11px] text-secondary">
-              <span>{text.port}</span>
-              <span>{text.service}</span>
-              <span className="text-right">{text.latency}</span>
-            </div>
-            {openPorts.map((item) => (
-              <div
-                key={item.port}
-                className="grid grid-cols-[7rem_minmax(0,1fr)_7rem] items-center border-b border-border px-3 py-2 last:border-b-0"
-              >
-                <code className="font-mono text-[13px] text-accent">{item.port}</code>
-                <span className="text-[12px] text-secondary">{item.service || text.unknown}</span>
-                <span className="text-right font-mono text-[11px] text-tertiary">
-                  {item.latencyMs == null ? "—" : `${item.latencyMs} ms`}
-                </span>
-              </div>
-            ))}
-            <div className="flex justify-end border-t border-border px-2 py-1.5">
+          <ResultPanel
+            title={`${openPorts.length} ${text.open}`}
+            actions={
               <Button
                 variant="ghost"
                 size="sm"
@@ -313,6 +331,27 @@ function PortScanTool() {
                 <CopySimpleIcon size={15} />
                 {text.copy}
               </Button>
+            }
+            bodyClassName="p-0"
+          >
+            <div className="grid h-9 grid-cols-[5.5rem_minmax(0,1fr)_5.5rem] items-center gap-2 border-b border-border/70 bg-muted/45 px-3 text-[11px] text-secondary">
+              <span>{text.port}</span>
+              <span>{text.service}</span>
+              <span className="text-right">{text.latency}</span>
+            </div>
+            <div className={`overflow-auto ${OPEN_PORT_LIST_H}`}>
+              {openPorts.map((item) => (
+                <div
+                  key={item.port}
+                  className="grid h-9 grid-cols-[5.5rem_minmax(0,1fr)_5.5rem] items-center gap-2 border-b border-border/50 px-3 last:border-b-0 hover:bg-muted/35"
+                >
+                  <code className="font-mono text-[13px] tabular-nums text-accent">{item.port}</code>
+                  <span className="truncate text-[12px] text-secondary">{item.service || text.unknown}</span>
+                  <span className="text-right font-mono text-[11px] tabular-nums text-tertiary">
+                    {item.latencyMs == null ? "—" : `${item.latencyMs} ms`}
+                  </span>
+                </div>
+              ))}
             </div>
           </ResultPanel>
         ) : result?.state === "completed" ? (
