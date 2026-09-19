@@ -284,7 +284,7 @@ private final class ScreenshotSelectionView: NSView {
 
         if selection == nil {
             ScreenshotSelectionChrome.drawInstruction(
-                "Drag to capture · Esc to cancel".localized,
+                "Drag to capture · C copies color · Esc to cancel".localized,
                 in: bounds
             )
         }
@@ -334,10 +334,39 @@ private final class ScreenshotSelectionView: NSView {
             onCancel()
             return
         }
+        let character = event.charactersIgnoringModifiers?.lowercased() ?? ""
+        if character == "c",
+           dragStart == nil,
+           completedSelectionRect == nil,
+           copySampledColor() {
+            return
+        }
         super.keyDown(with: event)
     }
 
     override func cancelOperation(_ sender: Any?) { onCancel() }
+
+    @discardableResult
+    private func copySampledColor() -> Bool {
+        guard let probe = cursorPoint,
+              let frozenCGImage,
+              let pixel = ScreenshotGeometry.pixelPoint(
+                at: probe,
+                viewSize: bounds.size,
+                imageWidth: frozenCGImage.width,
+                imageHeight: frozenCGImage.height
+              ),
+              let color = ScreenshotPixelSampling.color(
+                in: frozenCGImage,
+                atX: pixel.x,
+                atY: pixel.y
+              )
+        else { return false }
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(color.hexString, forType: .string)
+        return true
+    }
 
     private var selectionRect: CGRect? {
         if let completedSelectionRect { return completedSelectionRect }
