@@ -12,6 +12,7 @@ final class ScreenshotSelectionSession {
     private var windows: [ScreenshotSelectionWindow] = []
     private var isFinished = false
     private(set) var isInteractive = false
+    private var keyMonitor: Any?
 
     init(
         onSelect: @escaping (ScreenshotSelection) -> Void,
@@ -60,6 +61,7 @@ final class ScreenshotSelectionSession {
         let pointer = NSEvent.mouseLocation
         let keyWindow = windows.first { $0.frame.contains(pointer) } ?? windows.first
         keyWindow?.makeKeyAndOrderFront(nil)
+        keyWindow?.makeFirstResponder(keyWindow?.contentView)
     }
 
     func applySnapshot(_ snapshot: ScreenshotDesktopSnapshot) {
@@ -70,6 +72,7 @@ final class ScreenshotSelectionSession {
     }
 
     func dismiss() {
+        stopKeyMonitor()
         let existing = windows
         windows.removeAll()
         for window in existing {
@@ -90,11 +93,52 @@ final class ScreenshotSelectionSession {
         for window in windows {
             window.ignoresMouseEvents = !enabled
         }
+        if enabled {
+            startKeyMonitor()
+        } else {
+            stopKeyMonitor()
+        }
+    }
+
+    private func startKeyMonitor() {
+        stopKeyMonitor()
+        // Local monitor keeps C/Esc reliable under IME and nonactivating panels.
+        keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            guard let self, !self.isFinished, self.isInteractive else { return event }
+            if event.keyCode == 53 {
+                self.cancel()
+                return nil
+            }
+            if Self.isCopyColorKey(event), self.copyColorUnderPointer() {
+                return nil
+            }
+            return event
+        }
+    }
+
+    private func stopKeyMonitor() {
+        if let keyMonitor {
+            NSEvent.removeMonitor(keyMonitor)
+            self.keyMonitor = nil
+        }
+    }
+
+    private func copyColorUnderPointer() -> Bool {
+        let pointer = NSEvent.mouseLocation
+        let window = windows.first { $0.frame.contains(pointer) } ?? windows.first
+        return window?.copySampledColor() == true
+    }
+
+    fileprivate static func isCopyColorKey(_ event: NSEvent) -> Bool {
+        // ANSI keyboard: C == 8 (works even when CJK IME suppresses characters).
+        if event.keyCode == 8 { return true }
+        return event.charactersIgnoringModifiers?.lowercased() == "c"
     }
 
     private func select(_ selection: ScreenshotSelection) {
         guard !isFinished else { return }
         isFinished = true
+        stopKeyMonitor()
         // Defer so mouseUp finishes before the selection session tears down.
         DispatchQueue.main.async { [onSelect] in onSelect(selection) }
     }
@@ -102,6 +146,7 @@ final class ScreenshotSelectionSession {
     private func cancel() {
         guard !isFinished else { return }
         isFinished = true
+        stopKeyMonitor()
         // Defer so key handling finishes before the selection session tears down.
         DispatchQueue.main.async { [onCancel] in onCancel() }
     }
@@ -150,6 +195,11 @@ private final class ScreenshotSelectionWindow: NSPanel, ScreenshotOverlayWindowM
     func setFrozenImage(_ image: CGImage) {
         selectionView.setFrozenImage(image)
     }
+
+    @discardableResult
+    func copySampledColor() -> Bool {
+        selectionView.copySampledColor()
+    }
 }
 
 enum ScreenshotCursorRestore {
@@ -176,6 +226,9 @@ private final class ScreenshotSelectionView: NSView {
     /// Last hover chrome (reticle + loupe + hex HUD) invalidate region.
     private var samplingDirtyRect: CGRect?
     private var loupeTileCache = ScreenshotSelectionChrome.LoupeTileCache()
+    /// Brief “Copied” label after C copies the hovered hex.
+    private var colorCopyFeedbackUntil: Date?
+    private var colorCopyFeedbackWorkItem: DispatchWorkItem?
 
     init(
         displayID: CGDirectDisplayID,
@@ -273,11 +326,13 @@ private final class ScreenshotSelectionView: NSView {
         if dragStart == nil, completedSelectionRect == nil, let probe = cursorPoint {
             ScreenshotSelectionChrome.drawReticle(at: probe)
             if let frozenCGImage {
+                let showCopied = (colorCopyFeedbackUntil ?? .distantPast) > Date()
                 ScreenshotSelectionChrome.drawLoupe(
                     at: probe,
                     in: bounds,
                     image: frozenCGImage,
-                    cache: &loupeTileCache
+                    cache: &loupeTileCache,
+                    copiedLabel: showCopied ? "Copied".localized : nil
                 )
             }
         }
@@ -334,8 +389,9 @@ private final class ScreenshotSelectionView: NSView {
             onCancel()
             return
         }
-        let character = event.charactersIgnoringModifiers?.lowercased() ?? ""
-        if character == "c",
+        // Prefer keyCode so C still works under CJK input methods that
+        // leave charactersIgnoringModifiers empty until composition ends.
+        if ScreenshotSelectionSession.isCopyColorKey(event),
            dragStart == nil,
            completedSelectionRect == nil,
            copySampledColor() {
@@ -344,10 +400,20 @@ private final class ScreenshotSelectionView: NSView {
         super.keyDown(with: event)
     }
 
+    override func performKeyEquivalent(with event: NSEvent) -> Bool {
+        if ScreenshotSelectionSession.isCopyColorKey(event),
+           dragStart == nil,
+           completedSelectionRect == nil,
+           copySampledColor() {
+            return true
+        }
+        return super.performKeyEquivalent(with: event)
+    }
+
     override func cancelOperation(_ sender: Any?) { onCancel() }
 
     @discardableResult
-    private func copySampledColor() -> Bool {
+    func copySampledColor() -> Bool {
         guard let probe = cursorPoint,
               let frozenCGImage,
               let pixel = ScreenshotGeometry.pixelPoint(
@@ -365,7 +431,21 @@ private final class ScreenshotSelectionView: NSView {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         pasteboard.setString(color.hexString, forType: .string)
+        showColorCopyFeedback()
         return true
+    }
+
+    private func showColorCopyFeedback() {
+        colorCopyFeedbackWorkItem?.cancel()
+        colorCopyFeedbackUntil = Date().addingTimeInterval(0.9)
+        invalidateSamplingChrome(around: cursorPoint)
+        let work = DispatchWorkItem { [weak self] in
+            guard let self else { return }
+            self.colorCopyFeedbackUntil = nil
+            self.invalidateSamplingChrome(around: self.cursorPoint)
+        }
+        colorCopyFeedbackWorkItem = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.9, execute: work)
     }
 
     private var selectionRect: CGRect? {

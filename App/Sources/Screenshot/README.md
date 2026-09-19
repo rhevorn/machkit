@@ -7,8 +7,9 @@ Capture flow:
    `SCShareableContent`, then freezes displays under them via ScreenCaptureKit
    (with short retries—new panels are often missing from the first query).
 3. While hovering, a compact reticle with magnifier and hex HUD samples color
-   (`C` copies `#RRGGBB`); once the user starts dragging a region, that chrome
-   hides and only the selection frame / size label remain
+   (press `C` to copy `#RRGGBB` — works under CJK IME via key-code monitoring;
+   the HUD briefly shows “Copied”); once the user starts dragging a region,
+   that chrome hides and only the selection frame / size label remain
    (`ScreenshotSelectionChrome`). `ScreenshotGeometry` maps AppKit screen space
    to CGImage pixels.
 4. `ScreenshotEditorController` presents annotation UI on an AppKit-frozen desktop backdrop.

@@ -111,7 +111,8 @@ enum ScreenshotSelectionChrome {
         at point: CGPoint,
         in bounds: CGRect,
         image: CGImage,
-        cache: inout LoupeTileCache
+        cache: inout LoupeTileCache,
+        copiedLabel: String? = nil
     ) {
         guard let pixel = ScreenshotGeometry.pixelPoint(
             at: point,
@@ -182,7 +183,12 @@ enum ScreenshotSelectionChrome {
         NSGraphicsContext.restoreGraphicsState()
 
         if let color {
-            drawColorHUD(color, under: loupe, in: bounds)
+            drawColorHUD(
+                color,
+                under: loupe,
+                in: bounds,
+                label: copiedLabel
+            )
         }
     }
 
@@ -215,10 +221,15 @@ enum ScreenshotSelectionChrome {
     private static let hudLabelFont = NSFont.monospacedDigitSystemFont(ofSize: 11, weight: .medium)
     private static let hudTextColor = NSColor.white.withAlphaComponent(0.92)
 
-    private static func drawColorHUD(_ color: ScreenshotPixelColor, under loupe: CGRect, in bounds: CGRect) {
-        let hex = color.hexString
+    private static func drawColorHUD(
+        _ color: ScreenshotPixelColor,
+        under loupe: CGRect,
+        in bounds: CGRect,
+        label: String? = nil
+    ) {
+        let text = label ?? color.hexString
         let attributes = hudTextAttributes(font: hudLabelFont)
-        let textSize = (hex as NSString).size(withAttributes: attributes)
+        let textSize = (text as NSString).size(withAttributes: attributes)
         let swatch: CGFloat = 10
         let paddingX: CGFloat = 9
         let width = paddingX + swatch + 6 + textSize.width + paddingX
@@ -249,12 +260,12 @@ enum ScreenshotSelectionChrome {
             alpha: 1
         ).setFill()
         NSBezierPath(roundedRect: swatchRect, xRadius: 2.5, yRadius: 2.5).fill()
-        NSColor.white.withAlphaComponent(0.28).setStroke()
+        NSColor.white.withAlphaComponent(label == nil ? 0.28 : 0.55).setStroke()
         let swatchBorder = NSBezierPath(roundedRect: swatchRect.insetBy(dx: 0.5, dy: 0.5), xRadius: 2.5, yRadius: 2.5)
         swatchBorder.lineWidth = 1
         swatchBorder.stroke()
 
-        (hex as NSString).draw(
+        (text as NSString).draw(
             at: CGPoint(x: swatchRect.maxX + 6, y: frame.minY + (hudHeight - textSize.height) / 2),
             withAttributes: attributes
         )
