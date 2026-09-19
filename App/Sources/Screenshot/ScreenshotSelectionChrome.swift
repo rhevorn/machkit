@@ -204,31 +204,29 @@ enum ScreenshotSelectionChrome {
         }
         drawHUD(
             label,
-            font: NSFont.monospacedDigitSystemFont(ofSize: 11, weight: .medium),
+            font: hudLabelFont,
             at: center,
             in: bounds,
             monospaced: true
         )
     }
 
+    private static let hudHeight: CGFloat = 24
+    private static let hudLabelFont = NSFont.monospacedDigitSystemFont(ofSize: 11, weight: .medium)
+    private static let hudTextColor = NSColor.white.withAlphaComponent(0.92)
+
     private static func drawColorHUD(_ color: ScreenshotPixelColor, under loupe: CGRect, in bounds: CGRect) {
         let hex = color.hexString
-        // monospacedSystemFont has crashed CoreText sizeWithAttributes on newer macOS.
-        let font = NSFont.monospacedDigitSystemFont(ofSize: 11, weight: .medium)
-        let attributes: [NSAttributedString.Key: Any] = [
-            .font: font,
-            .foregroundColor: NSColor.white.withAlphaComponent(0.92),
-        ]
+        let attributes = hudTextAttributes(font: hudLabelFont)
         let textSize = (hex as NSString).size(withAttributes: attributes)
         let swatch: CGFloat = 10
         let paddingX: CGFloat = 9
-        let height: CGFloat = 24
         let width = paddingX + swatch + 6 + textSize.width + paddingX
         var frame = CGRect(
             x: loupe.midX - width / 2,
-            y: loupe.minY - height - 5,
+            y: loupe.minY - hudHeight - 5,
             width: width,
-            height: height
+            height: hudHeight
         )
         frame = clampHUD(frame, in: bounds)
         if frame.maxY > loupe.minY - 4, frame.minY < loupe.maxY {
@@ -257,7 +255,7 @@ enum ScreenshotSelectionChrome {
         swatchBorder.stroke()
 
         (hex as NSString).draw(
-            at: CGPoint(x: swatchRect.maxX + 6, y: frame.minY + (height - textSize.height) / 2),
+            at: CGPoint(x: swatchRect.maxX + 6, y: frame.minY + (hudHeight - textSize.height) / 2),
             withAttributes: attributes
         )
     }
@@ -269,24 +267,28 @@ enum ScreenshotSelectionChrome {
         in bounds: CGRect,
         monospaced: Bool
     ) {
-        let attributes: [NSAttributedString.Key: Any] = [
-            .font: font,
-            .foregroundColor: NSColor.white.withAlphaComponent(0.92),
-        ]
+        let attributes = hudTextAttributes(font: font)
         let size = (text as NSString).size(withAttributes: attributes)
         let paddingX: CGFloat = monospaced ? 10 : 12
         var frame = CGRect(
             x: center.x - size.width / 2 - paddingX,
             y: center.y - 12,
             width: size.width + paddingX * 2,
-            height: 24
+            height: hudHeight
         )
         frame = clampHUD(frame, in: bounds)
         fillHUD(frame)
         (text as NSString).draw(
-            at: CGPoint(x: frame.minX + paddingX, y: frame.minY + (24 - size.height) / 2),
+            at: CGPoint(x: frame.minX + paddingX, y: frame.minY + (hudHeight - size.height) / 2),
             withAttributes: attributes
         )
+    }
+
+    private static func hudTextAttributes(font: NSFont) -> [NSAttributedString.Key: Any] {
+        [
+            .font: font,
+            .foregroundColor: hudTextColor,
+        ]
     }
 
     private static func fillHUD(_ frame: CGRect) {
