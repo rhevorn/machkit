@@ -24437,61 +24437,61 @@
         }
       }
     },
-    "Drag to capture · C copies color · Esc to cancel" : {
+    "Click copies color · Drag to capture · Esc to cancel" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zum Aufnehmen ziehen · C kopiert Farbe · Esc zum Abbrechen"
+            "value" : "Klick kopiert Farbe · Zum Aufnehmen ziehen · Esc zum Abbrechen"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Arrastra para capturar · C copia el color · Esc para cancelar"
+            "value" : "Clic copia el color · Arrastra para capturar · Esc para cancelar"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Faites glisser pour capturer · C copie la couleur · Échap pour annuler"
+            "value" : "Clic copie la couleur · Faites glisser pour capturer · Échap pour annuler"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ドラッグしてキャプチャ · Cで色をコピー · Escでキャンセル"
+            "value" : "クリックで色をコピー · ドラッグしてキャプチャ · Escでキャンセル"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "드래그하여 캡처 · C로 색 복사 · Esc로 취소"
+            "value" : "클릭으로 색 복사 · 드래그하여 캡처 · Esc로 취소"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Arraste para capturar · C copia a cor · Esc para cancelar"
+            "value" : "Clique copia a cor · Arraste para capturar · Esc para cancelar"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Потяните для снимка · C копирует цвет · Esc для отмены"
+            "value" : "Клик копирует цвет · Потяните для снимка · Esc для отмены"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "拖动框选截图 · C 复制色值 · Esc 取消"
+            "value" : "单击复制色值 · 拖动框选截图 · Esc 取消"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "拖曳框選截圖 · C 複製色值 · Esc 取消"
+            "value" : "單擊複製色值 · 拖曳框選截圖 · Esc 取消"
           }
         }
       }

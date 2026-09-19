@@ -58,6 +58,9 @@ final class ScreenshotSelectionSession {
     /// becoming key lets any open context menu close, but its pixels are
     /// already preserved in the frozen image, so it appears to stay open.
     func makeKeyForInteraction() {
+        // Hotkey-started captures often leave another app frontmost; activate so
+        // local key monitors and panel keyDown actually receive C/Esc.
+        NSApp.activate(ignoringOtherApps: true)
         let pointer = NSEvent.mouseLocation
         let keyWindow = windows.first { $0.frame.contains(pointer) } ?? windows.first
         keyWindow?.makeKeyAndOrderFront(nil)
@@ -130,9 +133,10 @@ final class ScreenshotSelectionSession {
     }
 
     fileprivate static func isCopyColorKey(_ event: NSEvent) -> Bool {
-        // ANSI keyboard: C == 8 (works even when CJK IME suppresses characters).
-        if event.keyCode == 8 { return true }
-        return event.charactersIgnoringModifiers?.lowercased() == "c"
+        // ANSI: C == 8, Space == 49 (Space survives CJK IME more reliably than letters).
+        if event.keyCode == 8 || event.keyCode == 49 { return true }
+        let character = event.charactersIgnoringModifiers?.lowercased() ?? ""
+        return character == "c" || character == " "
     }
 
     private func select(_ selection: ScreenshotSelection) {
@@ -339,7 +343,7 @@ private final class ScreenshotSelectionView: NSView {
 
         if selection == nil {
             ScreenshotSelectionChrome.drawInstruction(
-                "Drag to capture · C copies color · Esc to cancel".localized,
+                "Click copies color · Drag to capture · Esc to cancel".localized,
                 in: bounds
             )
         }
@@ -369,10 +373,11 @@ private final class ScreenshotSelectionView: NSView {
         let end = clipped(convert(event.locationInWindow, from: nil))
         let rect = normalized(start, end).intersection(bounds)
         guard rect.width >= 3, rect.height >= 3 else {
+            // Tiny press = color sample click, not a capture region.
             dragStart = nil
             dragCurrent = nil
             cursorPoint = end
-            needsDisplay = true
+            _ = copySampledColor(at: end)
             return
         }
         completedSelectionRect = rect
@@ -413,8 +418,8 @@ private final class ScreenshotSelectionView: NSView {
     override func cancelOperation(_ sender: Any?) { onCancel() }
 
     @discardableResult
-    func copySampledColor() -> Bool {
-        guard let probe = cursorPoint,
+    func copySampledColor(at explicitPoint: CGPoint? = nil) -> Bool {
+        guard let probe = explicitPoint ?? samplingProbePoint(),
               let frozenCGImage,
               let pixel = ScreenshotGeometry.pixelPoint(
                 at: probe,
@@ -428,11 +433,22 @@ private final class ScreenshotSelectionView: NSView {
                 atY: pixel.y
               )
         else { return false }
+        cursorPoint = probe
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         pasteboard.setString(color.hexString, forType: .string)
         showColorCopyFeedback()
         return true
+    }
+
+    /// Prefer the last hover point; fall back to the live mouse position.
+    private func samplingProbePoint() -> CGPoint? {
+        if let cursorPoint { return cursorPoint }
+        guard let window else { return nil }
+        let screenPoint = NSEvent.mouseLocation
+        let windowPoint = window.convertPoint(fromScreen: screenPoint)
+        let point = clipped(convert(windowPoint, from: nil))
+        return bounds.contains(point) ? point : nil
     }
 
     private func showColorCopyFeedback() {
