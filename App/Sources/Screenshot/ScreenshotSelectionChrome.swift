@@ -192,7 +192,8 @@ enum ScreenshotSelectionChrome {
 
     private static func drawColorHUD(_ color: ScreenshotPixelColor, under loupe: CGRect, in bounds: CGRect) {
         let hex = color.hexString
-        let font = NSFont.monospacedSystemFont(ofSize: 11, weight: .medium)
+        // monospacedSystemFont has crashed CoreText sizeWithAttributes on newer macOS.
+        let font = NSFont.monospacedDigitSystemFont(ofSize: 11, weight: .medium)
         let attributes: [NSAttributedString.Key: Any] = [
             .font: font,
             .foregroundColor: NSColor.white.withAlphaComponent(0.92),

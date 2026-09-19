@@ -264,8 +264,9 @@ private final class ScreenshotSelectionView: NSView {
             ScreenshotSelectionChrome.drawSizeLabel(for: selection, in: bounds)
         }
 
-        // Color sampling (reticle + loupe + hex) is hover-only; hide once a drag starts.
-        if dragStart == nil, let probe = cursorPoint {
+        // Color sampling is hover-only: hide while dragging and after a region is committed
+        // (mouseUp clears dragStart before the overlay dismisses, which would otherwise flash).
+        if dragStart == nil, completedSelectionRect == nil, let probe = cursorPoint {
             ScreenshotSelectionChrome.drawReticle(at: probe)
             if let frozenCGImage {
                 ScreenshotSelectionChrome.drawLoupe(at: probe, in: bounds, image: frozenCGImage)
@@ -311,6 +312,7 @@ private final class ScreenshotSelectionView: NSView {
         completedSelectionRect = rect
         dragStart = nil
         dragCurrent = nil
+        cursorPoint = nil
         needsDisplay = true
         let origin = window?.convertPoint(toScreen: rect.origin) ?? rect.origin
         onSelect(ScreenshotSelection(rect: CGRect(origin: origin, size: rect.size), displayID: displayID))

@@ -557,10 +557,9 @@ final class CleanerViewModel: ObservableObject {
             let analysis = await fileAnalyzer.fullStorageAnalysis(
                 root: selectedRoot,
                 volumeURL: URL(fileURLWithPath: "/", isDirectory: true)
-            ) { [weak self] progress in
+            ) { progress in
                 Task { @MainActor in
-                    guard let self,
-                          self.storageAnalysisGeneration == generation else { return }
+                    guard self.storageAnalysisGeneration == generation else { return }
                     self.storageInspectedFiles = progress.inspectedFiles
                     self.storageScannedBytes = progress.scannedBytes
                     self.inspectedFileCount = progress.inspectedFiles
