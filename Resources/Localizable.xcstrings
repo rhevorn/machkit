@@ -24386,49 +24386,49 @@
             "state" : "translated",
             "value" : "Klicken zum Kopieren"
           }
-        }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Clic para copiar"
           }
-        }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cliquer pour copier"
           }
-        }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "クリックでコピー"
           }
-        }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "클릭하여 복사"
           }
-        }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Clique para copiar"
           }
-        }
+        },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Нажмите, чтобы скопировать"
           }
-        }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "点击复制"
           }
-        }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",

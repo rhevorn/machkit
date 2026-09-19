@@ -212,7 +212,7 @@ enum ScreenshotSelectionChrome {
         }
         drawHUD(
             label,
-            font: hudLabelFont,
+            font: hudLabelFont(),
             at: center,
             in: bounds,
             monospaced: true
@@ -220,9 +220,15 @@ enum ScreenshotSelectionChrome {
     }
 
     private static let hudHeight: CGFloat = 26
-    private static let hudLabelFont = NSFont.monospacedDigitSystemFont(ofSize: 11, weight: .medium)
-    private static let hudActionFont = NSFont.systemFont(ofSize: 11, weight: .semibold)
     private static let hudTextColor = NSColor.white.withAlphaComponent(0.92)
+
+    private static func hudLabelFont() -> NSFont {
+        NSFont.monospacedDigitSystemFont(ofSize: 11, weight: .medium)
+    }
+
+    private static func hudActionFont() -> NSFont {
+        NSFont.systemFont(ofSize: 11, weight: .semibold)
+    }
 
     private static func drawColorHUD(
         _ color: ScreenshotPixelColor,
@@ -232,9 +238,9 @@ enum ScreenshotSelectionChrome {
         actionHint: String
     ) {
         let hex = color.hexString
-        let hexAttributes = hudTextAttributes(font: hudLabelFont)
+        let hexAttributes = hudTextAttributes(font: hudLabelFont())
         let actionAttributes = hudTextAttributes(
-            font: hudActionFont,
+            font: hudActionFont(),
             color: label == nil
                 ? NSColor.white.withAlphaComponent(0.78)
                 : hudTextColor
