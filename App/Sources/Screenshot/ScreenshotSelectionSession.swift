@@ -313,7 +313,7 @@ private final class ScreenshotSelectionView: NSView {
         dragStart = nil
         dragCurrent = nil
         cursorPoint = nil
-        needsDisplay = true
+        // Skip needsDisplay — overlay dismisses immediately via onSelect.
         let origin = window?.convertPoint(toScreen: rect.origin) ?? rect.origin
         onSelect(ScreenshotSelection(rect: CGRect(origin: origin, size: rect.size), displayID: displayID))
     }
