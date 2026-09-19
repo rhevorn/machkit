@@ -34,6 +34,21 @@ enum L10n {
         String(format: string(key), locale: AppLanguage.selected.locale, arguments: arguments)
     }
 
+    /// Locale-aware percent string (e.g. `42%` / `42 %`) for embedding as `%@`.
+    /// Pass values already on a 0…100 scale. The sign is placed by the locale,
+    /// so callers must not append or prepend `%` themselves.
+    static func percent(_ value: Double, fractionDigits: Int = 0) -> String {
+        (value / 100).formatted(
+            .percent
+                .precision(.fractionLength(fractionDigits))
+                .locale(AppLanguage.selected.locale)
+        )
+    }
+
+    static func percent<Value: BinaryInteger>(_ value: Value, fractionDigits: Int = 0) -> String {
+        percent(Double(value), fractionDigits: fractionDigits)
+    }
+
     static func diagnostic(_ message: String) -> String {
         let dynamicPrefixes: [(prefix: String, key: String)] = [
             ("Unable to read active connections: ", "Unable to read active connections: %@"),

@@ -392,7 +392,7 @@ struct ContentView: View {
                     .stroke(color, style: StrokeStyle(lineWidth: 9, lineCap: .round))
                     .rotationEffect(.degrees(-90))
                 VStack(spacing: 1) {
-                    Text(storage.totalCapacity > 0 ? "\(percent)%" : "—")
+                    Text(storage.totalCapacity > 0 ? L10n.percent(percent) : "—")
                         .font(.system(size: 19, weight: .semibold, design: .rounded))
                         .monospacedDigit()
                     Text("Used".localized).font(.system(size: 9)).foregroundStyle(.secondary)
@@ -446,14 +446,14 @@ struct ContentView: View {
         return HStack(spacing: 10) {
             homeMetricCard(
                 title: "CPU",
-                value: metrics.map { "\(Int($0.cpuPercent.rounded()))%" } ?? "—",
+                value: metrics.map { L10n.percent($0.cpuPercent.rounded()) } ?? "—",
                 detail: "System Usage",
                 icon: "cpu",
                 color: .blue
             )
             homeMetricCard(
                 title: "Memory",
-                value: metrics.map { "\(Int(($0.memoryPressure * 100).rounded()))%" } ?? "—",
+                value: metrics.map { L10n.percent(($0.memoryPressure * 100).rounded()) } ?? "—",
                 detail: metrics.map { $0.memoryPressureLevel.rawValue } ?? "Loading",
                 icon: "memorychip",
                 color: memoryColor
@@ -855,7 +855,7 @@ struct ContentView: View {
                     .stroke(color, style: StrokeStyle(lineWidth: 9, lineCap: .round))
                     .rotationEffect(.degrees(-90))
                 VStack(spacing: 1) {
-                    Text(storage.totalCapacity > 0 ? "\(percent)%" : "—")
+                    Text(storage.totalCapacity > 0 ? L10n.percent(percent) : "—")
                         .font(.system(size: 19, weight: .semibold, design: .rounded))
                         .monospacedDigit()
                     Text("Used".localized).font(.system(size: 9)).foregroundStyle(.secondary)
@@ -997,7 +997,7 @@ struct ContentView: View {
                             .stroke(Color.accentColor, style: StrokeStyle(lineWidth: 10, lineCap: .round))
                             .rotationEffect(.degrees(-90))
                         VStack(spacing: 2) {
-                            Text("\(percent)%")
+                            Text(L10n.percent(percent))
                                 .font(.system(size: 22, weight: .semibold, design: .rounded))
                                 .monospacedDigit()
                                 .contentTransition(.numericText())
@@ -1217,7 +1217,7 @@ struct ContentView: View {
                         .rotationEffect(.degrees(-90))
                         .animation(.easeOut(duration: 0.22), value: model.selectedBytes)
                     VStack(spacing: 1) {
-                        Text("\(percent)%")
+                        Text(L10n.percent(percent))
                             .font(.system(size: 19, weight: .semibold, design: .rounded))
                             .monospacedDigit()
                             .contentTransition(.numericText())

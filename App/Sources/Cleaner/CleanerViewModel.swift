@@ -779,9 +779,9 @@ final class CleanerViewModel: ObservableObject {
                     performanceHistory.removeFirst(performanceHistory.count - 30)
                 }
                 status = L10n.format(
-                    "CPU %lld%% · GPU %@ · Memory pressure: %@",
-                    Int64(snapshot.cpuPercent.rounded()),
-                    snapshot.gpuPercent.map { "\(Int($0.rounded()))%" } ?? "—",
+                    "CPU %@ · GPU %@ · Memory pressure: %@",
+                    L10n.percent(snapshot.cpuPercent.rounded()),
+                    snapshot.gpuPercent.map { L10n.percent($0.rounded()) } ?? "—",
                     snapshot.memoryPressureLevel.rawValue.localized
                 )
                 try? await Task.sleep(for: .seconds(2))

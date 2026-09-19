@@ -203,17 +203,17 @@ extension ContentView {
             let percent = Int((Double(top.bytes) / Double(analysis.scannedBytes) * 100).rounded())
             if let large = analysis.largeFiles.first {
                 return L10n.format(
-                    "%@ is about %lld%% of scanned space. Largest file: %@ (%@).",
+                    "%@ is about %@ of scanned space. Largest file: %@ (%@).",
                     top.category.titleKey.localized,
-                    Int64(percent),
+                    L10n.percent(percent),
                     large.url.lastPathComponent,
                     formatted(large.bytes)
                 )
             }
             return L10n.format(
-                "%@ is about %lld%% of scanned space across %lld files.",
+                "%@ is about %@ of scanned space across %lld files.",
                 top.category.titleKey.localized,
-                Int64(percent),
+                L10n.percent(percent),
                 Int64(top.fileCount)
             )
         }

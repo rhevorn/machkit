@@ -959,7 +959,7 @@ extension ContentView {
                     icon: "brain.head.profile",
                     progress: nePercent.map { $0 / 100 },
                     tint: .purple,
-                    valueText: nePercent.map { "\($0.formatted(.number.precision(.fractionLength(0))))%" } ?? "—",
+                    valueText: nePercent.map { L10n.percent($0) } ?? "—",
                     detail: nePercent != nil
                         ? "\(L10n.string("Estimated")) · \(snapshot.neuralEnginePowerWatts.map { L10n.format("%.2f W", $0) } ?? "—")"
                         : "Neural Engine power counters are unavailable on this Mac."
@@ -977,7 +977,7 @@ extension ContentView {
                 icon: "memorychip.fill",
                 progress: snapshot.memoryPressure,
                 tint: memoryColor,
-                valueText: "\(pressurePercent.formatted(.number.precision(.fractionLength(0))))%",
+                valueText: L10n.percent(pressurePercent),
                 detail: "\(formatted(snapshot.usedMemory)) / \(formatted(snapshot.physicalMemory))"
             ) {
                 Button { showingMemoryHelp.toggle() } label: {
@@ -1050,9 +1050,8 @@ extension ContentView {
             .frame(height: 20, alignment: .leading)
 
             HStack(alignment: .firstTextBaseline, spacing: 4) {
-                Text(snapshot.cpuPercent.formatted(.number.precision(.fractionLength(0))))
+                Text(L10n.percent(snapshot.cpuPercent))
                     .font(.system(size: 32, weight: .semibold, design: .rounded)).monospacedDigit()
-                Text("%").font(.system(size: 15, weight: .medium)).foregroundStyle(.secondary)
                 Spacer(minLength: 0)
             }
             .frame(height: 38, alignment: .leading)
@@ -1107,7 +1106,7 @@ extension ContentView {
                 percent: core.percent,
                 label: coreBarLabel(core, compact: cores.count > 16),
                 color: coreBarColor(core),
-                helpText: L10n.format("Core %lld · %lld%%", core.index + 1, Int64(core.percent.rounded()))
+                helpText: L10n.format("Core %lld · %@", core.index + 1, L10n.percent(core.percent.rounded()))
             )
         }
     }
@@ -1215,11 +1214,8 @@ extension ContentView {
             .frame(height: 20, alignment: .leading)
 
             HStack(alignment: .firstTextBaseline, spacing: 4) {
-                Text(snapshot.gpuPercent.map { $0.formatted(.number.precision(.fractionLength(0))) } ?? "—")
+                Text(snapshot.gpuPercent.map { L10n.percent($0) } ?? "—")
                     .font(.system(size: 32, weight: .semibold, design: .rounded)).monospacedDigit()
-                if gpuLive {
-                    Text("%").font(.system(size: 15, weight: .medium)).foregroundStyle(.secondary)
-                }
                 Spacer(minLength: 0)
             }
             .frame(height: 38, alignment: .leading)
@@ -1257,7 +1253,7 @@ extension ContentView {
                 percent: core.percent,
                 label: "\(core.index + 1)",
                 color: core.percent > 85 ? .orange : .blue,
-                helpText: L10n.format("GPU core %lld · %lld%%", core.index + 1, Int64(core.percent.rounded()))
+                helpText: L10n.format("GPU core %lld · %@", core.index + 1, L10n.percent(core.percent.rounded()))
             )
         }
     }
@@ -1332,7 +1328,7 @@ extension ContentView {
     }
 
     func percentText(_ value: Double) -> String {
-        "\(value.formatted(.number.precision(.fractionLength(0))))%"
+        L10n.percent(value)
     }
 
     func optionalPercentText(_ value: Double?) -> String {
@@ -1483,7 +1479,7 @@ extension ContentView {
             .chartYAxis {
                 AxisMarks(position: .leading, values: [0, 50, 100]) { value in
                     AxisGridLine().foregroundStyle(Color.secondary.opacity(0.12))
-                    AxisValueLabel { if let number = value.as(Int.self) { Text("\(number)%") } }
+                    AxisValueLabel { if let number = value.as(Int.self) { Text(L10n.percent(number)) } }
                 }
             }
             .frame(height: 138)
@@ -1549,7 +1545,7 @@ extension ContentView {
                 Text("PID \(application.processIdentifier)").font(.caption2).foregroundStyle(.tertiary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            Text("\(application.cpuPercentOfSystem.formatted(.number.precision(.fractionLength(1))))%")
+            Text(L10n.percent(application.cpuPercentOfSystem, fractionDigits: 1))
                 .font(.system(size: 12)).monospacedDigit().frame(width: 70, alignment: .trailing)
                 .help(L10n.string("Share of total CPU capacity across all cores."))
             Text(formatted(application.memoryBytes))

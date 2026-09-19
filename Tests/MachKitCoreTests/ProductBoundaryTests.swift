@@ -20,6 +20,21 @@ private func formatPlaceholders(in value: String) -> [String] {
     }.sorted()
 }
 
+private func appSourceSwiftFiles(at sources: URL) throws -> [URL] {
+    guard let enumerator = FileManager.default.enumerator(
+        at: sources,
+        includingPropertiesForKeys: [.isRegularFileKey],
+        options: [.skipsHiddenFiles]
+    ) else {
+        return []
+    }
+    var files: [URL] = []
+    for case let file as URL in enumerator where file.pathExtension == "swift" {
+        files.append(file)
+    }
+    return files
+}
+
 @Test func systemCommandsHaveADeadlineInsteadOfHangingForever() throws {
     let startedAt = Date()
     do {
@@ -1019,10 +1034,7 @@ private final class LockedCleanupProgress: @unchecked Sendable {
     let strings = try #require(object["strings"] as? [String: Any])
     let catalogKeys = Set(strings.keys)
     let sources = repositoryRoot.appending(path: "App/Sources")
-    let files = try FileManager.default.contentsOfDirectory(
-        at: sources,
-        includingPropertiesForKeys: nil
-    ).filter { $0.pathExtension == "swift" }
+    let files = try appSourceSwiftFiles(at: sources)
     let runtimeExpressions = try [
         #"L10n\s*\.\s*(?:format|string)\s*\(\s*\"((?:\\.|[^\"\\])*)\""#,
         #"\"((?:\\.|[^\"\\])*)\"\s*\.localized"#
@@ -1050,10 +1062,7 @@ private final class LockedCleanupProgress: @unchecked Sendable {
 
 @Test func appSourcesNeverCreateEmptyLocalizationKeys() throws {
     let sources = repositoryRoot.appending(path: "App/Sources")
-    let files = try FileManager.default.contentsOfDirectory(
-        at: sources,
-        includingPropertiesForKeys: nil
-    ).filter { $0.pathExtension == "swift" }
+    let files = try appSourceSwiftFiles(at: sources)
     let expressions = try [
         #"L10n\s*\.\s*(?:format|string)\s*\(\s*\"\""#,
         #"Toggle\s*\(\s*\"\""#
