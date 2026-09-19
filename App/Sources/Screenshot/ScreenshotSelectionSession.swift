@@ -264,8 +264,8 @@ private final class ScreenshotSelectionView: NSView {
             ScreenshotSelectionChrome.drawSizeLabel(for: selection, in: bounds)
         }
 
-        let probe = dragCurrent ?? cursorPoint
-        if let probe {
+        // Color sampling (reticle + loupe + hex) is hover-only; hide once a drag starts.
+        if dragStart == nil, let probe = cursorPoint {
             ScreenshotSelectionChrome.drawReticle(at: probe)
             if let frozenCGImage {
                 ScreenshotSelectionChrome.drawLoupe(at: probe, in: bounds, image: frozenCGImage)
