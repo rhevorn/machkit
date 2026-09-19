@@ -212,7 +212,7 @@ enum ScreenshotSelectionChrome {
         }
         drawHUD(
             label,
-            font: hudLabelFont(),
+            font: NSFont.monospacedDigitSystemFont(ofSize: 11, weight: .medium),
             at: center,
             in: bounds,
             monospaced: true
@@ -220,15 +220,6 @@ enum ScreenshotSelectionChrome {
     }
 
     private static let hudHeight: CGFloat = 26
-    private static let hudTextColor = NSColor.white.withAlphaComponent(0.92)
-
-    private static func hudLabelFont() -> NSFont {
-        NSFont.monospacedDigitSystemFont(ofSize: 11, weight: .medium)
-    }
-
-    private static func hudActionFont() -> NSFont {
-        NSFont.systemFont(ofSize: 11, weight: .semibold)
-    }
 
     private static func drawColorHUD(
         _ color: ScreenshotPixelColor,
@@ -238,12 +229,15 @@ enum ScreenshotSelectionChrome {
         actionHint: String
     ) {
         let hex = color.hexString
-        let hexAttributes = hudTextAttributes(font: hudLabelFont())
+        let labelFont = NSFont.monospacedDigitSystemFont(ofSize: 11, weight: .medium)
+        let actionFont = NSFont.systemFont(ofSize: 11, weight: .semibold)
+        let primaryColor = NSColor.white.withAlphaComponent(0.92)
+        let hexAttributes = hudTextAttributes(font: labelFont, color: primaryColor)
         let actionAttributes = hudTextAttributes(
-            font: hudActionFont(),
+            font: actionFont,
             color: label == nil
                 ? NSColor.white.withAlphaComponent(0.78)
-                : hudTextColor
+                : primaryColor
         )
         let primary = (label ?? hex) as NSString
         let secondary: NSString? = label == nil ? (actionHint as NSString) : nil
@@ -331,7 +325,10 @@ enum ScreenshotSelectionChrome {
         in bounds: CGRect,
         monospaced: Bool
     ) {
-        let attributes = hudTextAttributes(font: font)
+        let attributes = hudTextAttributes(
+            font: font,
+            color: NSColor.white.withAlphaComponent(0.92)
+        )
         let size = (text as NSString).size(withAttributes: attributes)
         let paddingX: CGFloat = monospaced ? 10 : 12
         var frame = CGRect(
@@ -350,7 +347,7 @@ enum ScreenshotSelectionChrome {
 
     private static func hudTextAttributes(
         font: NSFont,
-        color: NSColor = hudTextColor
+        color: NSColor
     ) -> [NSAttributedString.Key: Any] {
         [
             .font: font,
