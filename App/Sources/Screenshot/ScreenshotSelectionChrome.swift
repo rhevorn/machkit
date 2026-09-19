@@ -14,6 +14,17 @@ enum ScreenshotSelectionChrome {
     static let loupeDiameter: CGFloat = 96
     static let loupeGap: CGFloat = 8
 
+    /// Reuses the last cropped loupe tile while the source pixel rect is unchanged.
+    struct LoupeTileCache {
+        var sourceRect: CGRect?
+        var image: NSImage?
+
+        mutating func reset() {
+            sourceRect = nil
+            image = nil
+        }
+    }
+
     static func fillDim(in bounds: CGRect, punching selection: CGRect?) {
         dimFill.setFill()
         guard let selection, selection.width >= 1, selection.height >= 1 else {
@@ -99,7 +110,8 @@ enum ScreenshotSelectionChrome {
     static func drawLoupe(
         at point: CGPoint,
         in bounds: CGRect,
-        image: CGImage
+        image: CGImage,
+        cache: inout LoupeTileCache
     ) {
         guard let pixel = ScreenshotGeometry.pixelPoint(
             at: point,
@@ -112,8 +124,7 @@ enum ScreenshotSelectionChrome {
             pixelY: pixel.y,
             imageWidth: image.width,
             imageHeight: image.height
-        ),
-        let cropped = image.cropping(to: source)
+        )
         else { return }
 
         let loupe = ScreenshotGeometry.loupeFrame(
@@ -124,10 +135,20 @@ enum ScreenshotSelectionChrome {
         )
         let color = ScreenshotPixelSampling.color(in: image, atX: pixel.x, atY: pixel.y)
 
+        let loupeImage: NSImage
+        if cache.sourceRect == source, let cached = cache.image, cached.size == loupe.size {
+            loupeImage = cached
+        } else {
+            guard let cropped = image.cropping(to: source) else { return }
+            let built = NSImage(cgImage: cropped, size: loupe.size)
+            cache.sourceRect = source
+            cache.image = built
+            loupeImage = built
+        }
+
         NSGraphicsContext.saveGraphicsState()
         NSBezierPath(ovalIn: loupe).addClip()
 
-        let loupeImage = NSImage(cgImage: cropped, size: loupe.size)
         loupeImage.draw(
             in: loupe,
             from: .zero,

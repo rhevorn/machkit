@@ -175,6 +175,7 @@ private final class ScreenshotSelectionView: NSView {
     private var cursorPoint: CGPoint?
     /// Last hover chrome (reticle + loupe + hex HUD) invalidate region.
     private var samplingDirtyRect: CGRect?
+    private var loupeTileCache = ScreenshotSelectionChrome.LoupeTileCache()
 
     init(
         displayID: CGDirectDisplayID,
@@ -202,6 +203,7 @@ private final class ScreenshotSelectionView: NSView {
             cgImage: image,
             size: NSSize(width: image.width, height: image.height)
         )
+        loupeTileCache.reset()
         needsDisplay = true
         displayIfNeeded()
     }
@@ -271,7 +273,12 @@ private final class ScreenshotSelectionView: NSView {
         if dragStart == nil, completedSelectionRect == nil, let probe = cursorPoint {
             ScreenshotSelectionChrome.drawReticle(at: probe)
             if let frozenCGImage {
-                ScreenshotSelectionChrome.drawLoupe(at: probe, in: bounds, image: frozenCGImage)
+                ScreenshotSelectionChrome.drawLoupe(
+                    at: probe,
+                    in: bounds,
+                    image: frozenCGImage,
+                    cache: &loupeTileCache
+                )
             }
         }
 
