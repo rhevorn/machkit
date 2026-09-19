@@ -173,6 +173,8 @@ private final class ScreenshotSelectionView: NSView {
     private var dragCurrent: CGPoint?
     private var completedSelectionRect: CGRect?
     private var cursorPoint: CGPoint?
+    /// Last hover chrome (reticle + loupe + hex HUD) invalidate region.
+    private var samplingDirtyRect: CGRect?
 
     init(
         displayID: CGDirectDisplayID,
@@ -244,7 +246,7 @@ private final class ScreenshotSelectionView: NSView {
 
     override func mouseExited(with event: NSEvent) {
         cursorPoint = nil
-        needsDisplay = true
+        invalidateSamplingChrome()
     }
 
     override func draw(_ dirtyRect: NSRect) {
@@ -287,6 +289,8 @@ private final class ScreenshotSelectionView: NSView {
         dragStart = point
         dragCurrent = point
         cursorPoint = point
+        // Drop hover chrome, then redraw for the nascent selection frame.
+        invalidateSamplingChrome()
         needsDisplay = true
     }
 
@@ -336,8 +340,47 @@ private final class ScreenshotSelectionView: NSView {
 
     private func updateCursor(from event: NSEvent) {
         let point = clipped(convert(event.locationInWindow, from: nil))
+        if cursorPoint == point { return }
         cursorPoint = point
-        needsDisplay = true
+        // While dragging, mouseDragged owns full-view redraws for the selection mask.
+        guard dragStart == nil, completedSelectionRect == nil else { return }
+        invalidateSamplingChrome(around: point)
+    }
+
+    /// Marks only reticle + loupe + hex HUD for redraw instead of the full screen.
+    private func invalidateSamplingChrome(around point: CGPoint? = nil) {
+        let previous = samplingDirtyRect
+        let next = point.map { Self.samplingChromeRect(around: $0, in: bounds) }
+        samplingDirtyRect = next
+        switch (previous, next) {
+        case let (old?, new?):
+            setNeedsDisplay(old.union(new))
+        case let (old?, nil):
+            setNeedsDisplay(old)
+        case let (nil, new?):
+            setNeedsDisplay(new)
+        case (nil, nil):
+            break
+        }
+    }
+
+    private static func samplingChromeRect(around point: CGPoint, in bounds: CGRect) -> CGRect {
+        let reticlePad: CGFloat = 12
+        let reticle = CGRect(
+            x: point.x - reticlePad,
+            y: point.y - reticlePad,
+            width: reticlePad * 2,
+            height: reticlePad * 2
+        )
+        let loupe = ScreenshotGeometry.loupeFrame(
+            cursor: point,
+            viewBounds: bounds,
+            diameter: ScreenshotSelectionChrome.loupeDiameter,
+            gap: ScreenshotSelectionChrome.loupeGap
+        )
+        // Hex HUD sits under or above the loupe; pad enough to cover either side.
+        let loupePad = loupe.insetBy(dx: -10, dy: -40)
+        return reticle.union(loupePad).intersection(bounds)
     }
 
     private func normalized(_ first: CGPoint, _ second: CGPoint) -> CGRect {
