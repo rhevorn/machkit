@@ -218,6 +218,11 @@ enum ScreenshotCursorRestore {
 }
 
 private final class ScreenshotSelectionView: NSView {
+    /// Movement past this distance promotes a press into region capture.
+    private static let regionDragThreshold: CGFloat = 10
+    /// Reject sloppy captures that are still too small to be intentional.
+    private static let minimumCaptureSide: CGFloat = 12
+
     private let displayID: CGDirectDisplayID
     private let onSelect: (ScreenshotSelection) -> Void
     private let onCancel: () -> Void
@@ -225,6 +230,8 @@ private final class ScreenshotSelectionView: NSView {
     private var frozenNSImage: NSImage?
     private var dragStart: CGPoint?
     private var dragCurrent: CGPoint?
+    /// False until the pointer moves past `regionDragThreshold` — keeps clicks for color copy.
+    private var isDraggingRegion = false
     private var completedSelectionRect: CGRect?
     private var cursorPoint: CGPoint?
     /// Last hover chrome (reticle + loupe + hex HUD) invalidate region.
@@ -325,9 +332,8 @@ private final class ScreenshotSelectionView: NSView {
             ScreenshotSelectionChrome.drawSizeLabel(for: selection, in: bounds)
         }
 
-        // Color sampling is hover-only: hide while dragging and after a region is committed
-        // (mouseUp clears dragStart before the overlay dismisses, which would otherwise flash).
-        if dragStart == nil, completedSelectionRect == nil, let probe = cursorPoint {
+        // Color sampling stays up during a click; hide only after a real drag starts.
+        if !isDraggingRegion, completedSelectionRect == nil, let probe = cursorPoint {
             ScreenshotSelectionChrome.drawReticle(at: probe)
             if let frozenCGImage {
                 let showCopied = (colorCopyFeedbackUntil ?? .distantPast) > Date()
@@ -355,35 +361,54 @@ private final class ScreenshotSelectionView: NSView {
         completedSelectionRect = nil
         dragStart = point
         dragCurrent = point
+        isDraggingRegion = false
         cursorPoint = point
-        // Drop hover chrome, then redraw for the nascent selection frame.
-        invalidateSamplingChrome()
-        needsDisplay = true
+        // Keep loupe visible; region chrome starts only after the drag threshold.
+        invalidateSamplingChrome(around: point)
     }
 
     override func mouseDragged(with event: NSEvent) {
-        guard dragStart != nil else { return }
+        guard let start = dragStart else { return }
         let point = clipped(convert(event.locationInWindow, from: nil))
         dragCurrent = point
         cursorPoint = point
+        if !isDraggingRegion {
+            let distance = hypot(point.x - start.x, point.y - start.y)
+            guard distance >= Self.regionDragThreshold else {
+                invalidateSamplingChrome(around: point)
+                return
+            }
+            isDraggingRegion = true
+            invalidateSamplingChrome()
+        }
         needsDisplay = true
     }
 
     override func mouseUp(with event: NSEvent) {
         guard let start = dragStart else { return }
         let end = clipped(convert(event.locationInWindow, from: nil))
-        let rect = normalized(start, end).intersection(bounds)
-        guard rect.width >= 3, rect.height >= 3 else {
-            // Tiny press = color sample click, not a capture region.
+        defer {
             dragStart = nil
             dragCurrent = nil
+            isDraggingRegion = false
+        }
+
+        if !isDraggingRegion {
             cursorPoint = end
             _ = copySampledColor(at: end)
             return
         }
+
+        let rect = normalized(start, end).intersection(bounds)
+        guard rect.width >= Self.minimumCaptureSide,
+              rect.height >= Self.minimumCaptureSide
+        else {
+            cursorPoint = end
+            invalidateSamplingChrome(around: end)
+            needsDisplay = true
+            return
+        }
         completedSelectionRect = rect
-        dragStart = nil
-        dragCurrent = nil
         cursorPoint = nil
         // Skip needsDisplay — overlay dismisses immediately via onSelect.
         let origin = window?.convertPoint(toScreen: rect.origin) ?? rect.origin
@@ -398,7 +423,7 @@ private final class ScreenshotSelectionView: NSView {
         // Prefer keyCode so C still works under CJK input methods that
         // leave charactersIgnoringModifiers empty until composition ends.
         if ScreenshotSelectionSession.isCopyColorKey(event),
-           dragStart == nil,
+           !isDraggingRegion,
            completedSelectionRect == nil,
            copySampledColor() {
             return
@@ -408,7 +433,7 @@ private final class ScreenshotSelectionView: NSView {
 
     override func performKeyEquivalent(with event: NSEvent) -> Bool {
         if ScreenshotSelectionSession.isCopyColorKey(event),
-           dragStart == nil,
+           !isDraggingRegion,
            completedSelectionRect == nil,
            copySampledColor() {
             return true
@@ -467,7 +492,7 @@ private final class ScreenshotSelectionView: NSView {
 
     private var selectionRect: CGRect? {
         if let completedSelectionRect { return completedSelectionRect }
-        guard let dragStart, let dragCurrent else { return nil }
+        guard isDraggingRegion, let dragStart, let dragCurrent else { return nil }
         return normalized(dragStart, dragCurrent).intersection(bounds)
     }
 
@@ -475,8 +500,8 @@ private final class ScreenshotSelectionView: NSView {
         let point = clipped(convert(event.locationInWindow, from: nil))
         if cursorPoint == point { return }
         cursorPoint = point
-        // While dragging, mouseDragged owns full-view redraws for the selection mask.
-        guard dragStart == nil, completedSelectionRect == nil else { return }
+        // While dragging a region, mouseDragged owns full-view redraws.
+        guard !isDraggingRegion, completedSelectionRect == nil else { return }
         invalidateSamplingChrome(around: point)
     }
 
