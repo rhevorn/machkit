@@ -9,7 +9,8 @@ Capture flow:
 3. While hovering, a compact reticle with magnifier and a color chip
    (`#RRGGBB · Click to copy`) samples color. A click (movement under ~10pt)
    copies the hex; only dragging past that threshold starts a capture region.
-   `C` / Space also copy once the overlay is key. During a real drag, sampling
+   `C` also copies once the overlay is key. A drag that stays smaller than the
+   minimum capture size falls back to color copy. During a real drag, sampling
    chrome hides and the selection frame / size label remain
    (`ScreenshotSelectionChrome`). `ScreenshotGeometry` maps AppKit screen space
    to CGImage pixels.

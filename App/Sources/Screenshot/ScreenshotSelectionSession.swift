@@ -133,10 +133,15 @@ final class ScreenshotSelectionSession {
     }
 
     fileprivate static func isCopyColorKey(_ event: NSEvent) -> Bool {
-        // ANSI: C == 8, Space == 49 (Space survives CJK IME more reliably than letters).
-        if event.keyCode == 8 || event.keyCode == 49 { return true }
+        // Ignore chords like ⌘C so the system pasteboard shortcut stays untouched.
+        let mods = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+        if !mods.isDisjoint(with: [.command, .control, .option]) {
+            return false
+        }
+        // Prefer keyCode so C still works under CJK IMEs that leave characters empty.
+        if event.keyCode == 8 { return true }
         let character = event.charactersIgnoringModifiers?.lowercased() ?? ""
-        return character == "c" || character == " "
+        return character == "c"
     }
 
     private func select(_ selection: ScreenshotSelection) {
@@ -350,7 +355,7 @@ private final class ScreenshotSelectionView: NSView {
 
         if selection == nil {
             ScreenshotSelectionChrome.drawInstruction(
-                "Drag to capture · Esc to cancel".localized,
+                "Click to copy color · Drag to capture · Esc to cancel".localized,
                 in: bounds
             )
         }
@@ -403,9 +408,10 @@ private final class ScreenshotSelectionView: NSView {
         guard rect.width >= Self.minimumCaptureSide,
               rect.height >= Self.minimumCaptureSide
         else {
+            // Crossed the drag threshold but the rect is still too small to capture —
+            // treat it as a color sample instead of dropping the gesture.
             cursorPoint = end
-            invalidateSamplingChrome(around: end)
-            needsDisplay = true
+            _ = copySampledColor(at: end)
             return
         }
         completedSelectionRect = rect
@@ -536,9 +542,25 @@ private final class ScreenshotSelectionView: NSView {
             diameter: ScreenshotSelectionChrome.loupeDiameter,
             gap: ScreenshotSelectionChrome.loupeGap
         )
-        // Hex HUD sits under/above loupe and may include a "Click to copy" action.
-        let loupePad = loupe.insetBy(dx: -80, dy: -44)
-        return reticle.union(loupePad).intersection(bounds)
+        // Chip width varies by locale ("Click to copy" vs long translations); pad from measure.
+        let chip = ScreenshotSelectionChrome.colorChipBounds(
+            under: loupe,
+            in: bounds,
+            primary: "#XXXXXX",
+            secondary: "Click to copy".localized
+        )
+        let copiedChip = ScreenshotSelectionChrome.colorChipBounds(
+            under: loupe,
+            in: bounds,
+            primary: "Copied".localized,
+            secondary: nil
+        )
+        return reticle
+            .union(loupe)
+            .union(chip)
+            .union(copiedChip)
+            .insetBy(dx: -2, dy: -2)
+            .intersection(bounds)
     }
 
     private func normalized(_ first: CGPoint, _ second: CGPoint) -> CGRect {

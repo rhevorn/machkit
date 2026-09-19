@@ -17892,65 +17892,6 @@
         }
       }
     },
-    "Drag to capture · Esc to cancel" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zum Aufnehmen ziehen · Esc zum Abbrechen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Arrastra para capturar · Esc para cancelar"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Faites glisser pour capturer · Échap pour annuler"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ドラッグしてキャプチャ · Escでキャンセル"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "드래그하여 캡처 · Esc로 취소"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Arraste para capturar · Esc para cancelar"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Потяните для снимка · Esc для отмены"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "拖动框选截图 · Esc 取消"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "拖曳框選截圖 · Esc 取消"
-          }
-        }
-      }
-    },
     "Drag to select an area, then annotate or copy the screenshot." : {
       "extractionState" : "manual",
       "localizations" : {

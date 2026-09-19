@@ -4,11 +4,13 @@ import MachKitCore
 /// Calm, precise chrome for the region-selection overlay.
 /// Drawn with AppKit so the full-screen mask stays cheap to refresh.
 enum ScreenshotSelectionChrome {
-    static let dimFill = NSColor.black.withAlphaComponent(0.30)
-    static let hairlineOuter = NSColor.black.withAlphaComponent(0.28)
-    static let hairlineInner = NSColor.white.withAlphaComponent(0.92)
-    static let hudFill = NSColor.black.withAlphaComponent(0.55)
-    static let hudStroke = NSColor.white.withAlphaComponent(0.16)
+    // Colors are computed (not stored static lets) so Swift 6 concurrency
+    // does not treat non-Sendable NSColor as shared mutable global state.
+    static var dimFill: NSColor { NSColor.black.withAlphaComponent(0.30) }
+    static var hairlineOuter: NSColor { NSColor.black.withAlphaComponent(0.28) }
+    static var hairlineInner: NSColor { NSColor.white.withAlphaComponent(0.92) }
+    static var hudFill: NSColor { NSColor.black.withAlphaComponent(0.55) }
+    static var hudStroke: NSColor { NSColor.white.withAlphaComponent(0.16) }
     static let hudRadius: CGFloat = 10
     static let cornerMark: CGFloat = 7
     static let loupeDiameter: CGFloat = 96
@@ -221,37 +223,44 @@ enum ScreenshotSelectionChrome {
 
     private static let hudHeight: CGFloat = 26
 
-    private static func drawColorHUD(
-        _ color: ScreenshotPixelColor,
+    /// Measured chip frame for dirty-rect invalidation (matches `drawColorHUD` layout).
+    static func colorChipBounds(
         under loupe: CGRect,
         in bounds: CGRect,
-        label: String? = nil,
-        actionHint: String
-    ) {
-        let hex = color.hexString
+        primary: String,
+        secondary: String?
+    ) -> CGRect {
+        colorChipFrame(under: loupe, in: bounds, primary: primary, secondary: secondary)
+    }
+
+    private static func colorChipFrame(
+        under loupe: CGRect,
+        in bounds: CGRect,
+        primary: String,
+        secondary: String?
+    ) -> CGRect {
         let labelFont = NSFont.monospacedDigitSystemFont(ofSize: 11, weight: .medium)
         let actionFont = NSFont.systemFont(ofSize: 11, weight: .semibold)
-        let primaryColor = NSColor.white.withAlphaComponent(0.92)
-        let hexAttributes = hudTextAttributes(font: labelFont, color: primaryColor)
-        let actionAttributes = hudTextAttributes(
-            font: actionFont,
-            color: label == nil
-                ? NSColor.white.withAlphaComponent(0.78)
-                : primaryColor
+        let primaryAttributes = hudTextAttributes(
+            font: labelFont,
+            color: NSColor.white
         )
-        let primary = (label ?? hex) as NSString
-        let secondary: NSString? = label == nil ? (actionHint as NSString) : nil
-        let primarySize = primary.size(withAttributes: hexAttributes)
-        let secondarySize = secondary?.size(withAttributes: actionAttributes) ?? .zero
+        let secondaryAttributes = hudTextAttributes(
+            font: actionFont,
+            color: NSColor.white
+        )
+        let primarySize = (primary as NSString).size(withAttributes: primaryAttributes)
+        let secondarySize = secondary.map {
+            ($0 as NSString).size(withAttributes: secondaryAttributes)
+        } ?? .zero
         let swatch: CGFloat = 11
         let paddingX: CGFloat = 10
         let gap: CGFloat = 8
-        let dividerGap: CGFloat = secondary == nil ? 0 : gap
         let width = paddingX
             + swatch
             + 6
             + primarySize.width
-            + (secondary == nil ? 0 : dividerGap + secondarySize.width)
+            + (secondary == nil ? 0 : gap + secondarySize.width)
             + paddingX
         var frame = CGRect(
             x: loupe.midX - width / 2,
@@ -264,6 +273,42 @@ enum ScreenshotSelectionChrome {
             frame.origin.y = loupe.maxY + 6
             frame = clampHUD(frame, in: bounds)
         }
+        return frame
+    }
+
+    private static func drawColorHUD(
+        _ color: ScreenshotPixelColor,
+        under loupe: CGRect,
+        in bounds: CGRect,
+        label: String? = nil,
+        actionHint: String
+    ) {
+        let hex = color.hexString
+        let primary = label ?? hex
+        let secondary = label == nil ? actionHint : nil
+        let frame = colorChipFrame(
+            under: loupe,
+            in: bounds,
+            primary: primary,
+            secondary: secondary
+        )
+        let labelFont = NSFont.monospacedDigitSystemFont(ofSize: 11, weight: .medium)
+        let actionFont = NSFont.systemFont(ofSize: 11, weight: .semibold)
+        let primaryColor = NSColor.white.withAlphaComponent(0.92)
+        let hexAttributes = hudTextAttributes(font: labelFont, color: primaryColor)
+        let actionAttributes = hudTextAttributes(
+            font: actionFont,
+            color: label == nil
+                ? NSColor.white.withAlphaComponent(0.78)
+                : primaryColor
+        )
+        let primarySize = (primary as NSString).size(withAttributes: hexAttributes)
+        let secondarySize = secondary.map {
+            ($0 as NSString).size(withAttributes: actionAttributes)
+        } ?? .zero
+        let swatch: CGFloat = 11
+        let paddingX: CGFloat = 10
+        let gap: CGFloat = 8
 
         // Stronger chip so it reads as a tappable control, not a passive readout.
         fillColorChip(frame, emphasized: label != nil)
@@ -287,7 +332,7 @@ enum ScreenshotSelectionChrome {
         swatchBorder.stroke()
 
         var textX = swatchRect.maxX + 6
-        primary.draw(
+        (primary as NSString).draw(
             at: CGPoint(x: textX, y: frame.minY + (hudHeight - primarySize.height) / 2),
             withAttributes: hexAttributes
         )
@@ -298,7 +343,7 @@ enum ScreenshotSelectionChrome {
             NSColor.white.withAlphaComponent(0.22).setFill()
             let divider = CGRect(x: textX - gap / 2 - 0.5, y: frame.minY + 6, width: 1, height: hudHeight - 12)
             NSBezierPath(rect: divider).fill()
-            secondary.draw(
+            (secondary as NSString).draw(
                 at: CGPoint(x: textX, y: frame.minY + (hudHeight - secondarySize.height) / 2),
                 withAttributes: actionAttributes
             )
