@@ -336,14 +336,15 @@ private final class ScreenshotSelectionView: NSView {
                     in: bounds,
                     image: frozenCGImage,
                     cache: &loupeTileCache,
-                    copiedLabel: showCopied ? "Copied".localized : nil
+                    copiedLabel: showCopied ? "Copied".localized : nil,
+                    actionHint: "Click to copy".localized
                 )
             }
         }
 
         if selection == nil {
             ScreenshotSelectionChrome.drawInstruction(
-                "Click copies color · Drag to capture · Esc to cancel".localized,
+                "Drag to capture · Esc to cancel".localized,
                 in: bounds
             )
         }
@@ -510,8 +511,8 @@ private final class ScreenshotSelectionView: NSView {
             diameter: ScreenshotSelectionChrome.loupeDiameter,
             gap: ScreenshotSelectionChrome.loupeGap
         )
-        // Hex HUD sits under or above the loupe; pad enough to cover either side.
-        let loupePad = loupe.insetBy(dx: -10, dy: -40)
+        // Hex HUD sits under/above loupe and may include a "Click to copy" action.
+        let loupePad = loupe.insetBy(dx: -80, dy: -44)
         return reticle.union(loupePad).intersection(bounds)
     }
 

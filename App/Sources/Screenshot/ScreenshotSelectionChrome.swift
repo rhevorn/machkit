@@ -112,7 +112,8 @@ enum ScreenshotSelectionChrome {
         in bounds: CGRect,
         image: CGImage,
         cache: inout LoupeTileCache,
-        copiedLabel: String? = nil
+        copiedLabel: String? = nil,
+        actionHint: String
     ) {
         guard let pixel = ScreenshotGeometry.pixelPoint(
             at: point,
@@ -187,7 +188,8 @@ enum ScreenshotSelectionChrome {
                 color,
                 under: loupe,
                 in: bounds,
-                label: copiedLabel
+                label: copiedLabel,
+                actionHint: actionHint
             )
         }
     }
@@ -217,35 +219,54 @@ enum ScreenshotSelectionChrome {
         )
     }
 
-    private static let hudHeight: CGFloat = 24
+    private static let hudHeight: CGFloat = 26
     private static let hudLabelFont = NSFont.monospacedDigitSystemFont(ofSize: 11, weight: .medium)
+    private static let hudActionFont = NSFont.systemFont(ofSize: 11, weight: .semibold)
     private static let hudTextColor = NSColor.white.withAlphaComponent(0.92)
 
     private static func drawColorHUD(
         _ color: ScreenshotPixelColor,
         under loupe: CGRect,
         in bounds: CGRect,
-        label: String? = nil
+        label: String? = nil,
+        actionHint: String
     ) {
-        let text = label ?? color.hexString
-        let attributes = hudTextAttributes(font: hudLabelFont)
-        let textSize = (text as NSString).size(withAttributes: attributes)
-        let swatch: CGFloat = 10
-        let paddingX: CGFloat = 9
-        let width = paddingX + swatch + 6 + textSize.width + paddingX
+        let hex = color.hexString
+        let hexAttributes = hudTextAttributes(font: hudLabelFont)
+        let actionAttributes = hudTextAttributes(
+            font: hudActionFont,
+            color: label == nil
+                ? NSColor.white.withAlphaComponent(0.78)
+                : hudTextColor
+        )
+        let primary = (label ?? hex) as NSString
+        let secondary: NSString? = label == nil ? (actionHint as NSString) : nil
+        let primarySize = primary.size(withAttributes: hexAttributes)
+        let secondarySize = secondary?.size(withAttributes: actionAttributes) ?? .zero
+        let swatch: CGFloat = 11
+        let paddingX: CGFloat = 10
+        let gap: CGFloat = 8
+        let dividerGap: CGFloat = secondary == nil ? 0 : gap
+        let width = paddingX
+            + swatch
+            + 6
+            + primarySize.width
+            + (secondary == nil ? 0 : dividerGap + secondarySize.width)
+            + paddingX
         var frame = CGRect(
             x: loupe.midX - width / 2,
-            y: loupe.minY - hudHeight - 5,
+            y: loupe.minY - hudHeight - 6,
             width: width,
             height: hudHeight
         )
         frame = clampHUD(frame, in: bounds)
         if frame.maxY > loupe.minY - 4, frame.minY < loupe.maxY {
-            frame.origin.y = loupe.maxY + 5
+            frame.origin.y = loupe.maxY + 6
             frame = clampHUD(frame, in: bounds)
         }
 
-        fillHUD(frame)
+        // Stronger chip so it reads as a tappable control, not a passive readout.
+        fillColorChip(frame, emphasized: label != nil)
 
         let swatchRect = CGRect(
             x: frame.minX + paddingX,
@@ -260,15 +281,41 @@ enum ScreenshotSelectionChrome {
             alpha: 1
         ).setFill()
         NSBezierPath(roundedRect: swatchRect, xRadius: 2.5, yRadius: 2.5).fill()
-        NSColor.white.withAlphaComponent(label == nil ? 0.28 : 0.55).setStroke()
+        NSColor.white.withAlphaComponent(0.4).setStroke()
         let swatchBorder = NSBezierPath(roundedRect: swatchRect.insetBy(dx: 0.5, dy: 0.5), xRadius: 2.5, yRadius: 2.5)
         swatchBorder.lineWidth = 1
         swatchBorder.stroke()
 
-        (text as NSString).draw(
-            at: CGPoint(x: swatchRect.maxX + 6, y: frame.minY + (hudHeight - textSize.height) / 2),
-            withAttributes: attributes
+        var textX = swatchRect.maxX + 6
+        primary.draw(
+            at: CGPoint(x: textX, y: frame.minY + (hudHeight - primarySize.height) / 2),
+            withAttributes: hexAttributes
         )
+        textX += primarySize.width
+
+        if let secondary {
+            textX += gap
+            NSColor.white.withAlphaComponent(0.22).setFill()
+            let divider = CGRect(x: textX - gap / 2 - 0.5, y: frame.minY + 6, width: 1, height: hudHeight - 12)
+            NSBezierPath(rect: divider).fill()
+            secondary.draw(
+                at: CGPoint(x: textX, y: frame.minY + (hudHeight - secondarySize.height) / 2),
+                withAttributes: actionAttributes
+            )
+        }
+    }
+
+    private static func fillColorChip(_ frame: CGRect, emphasized: Bool) {
+        NSColor.black.withAlphaComponent(emphasized ? 0.72 : 0.62).setFill()
+        NSBezierPath(roundedRect: frame, xRadius: hudRadius, yRadius: hudRadius).fill()
+        NSColor.white.withAlphaComponent(emphasized ? 0.42 : 0.28).setStroke()
+        let border = NSBezierPath(
+            roundedRect: frame.insetBy(dx: 0.5, dy: 0.5),
+            xRadius: hudRadius - 0.5,
+            yRadius: hudRadius - 0.5
+        )
+        border.lineWidth = emphasized ? 1.5 : 1
+        border.stroke()
     }
 
     private static func drawHUD(
@@ -285,20 +332,23 @@ enum ScreenshotSelectionChrome {
             x: center.x - size.width / 2 - paddingX,
             y: center.y - 12,
             width: size.width + paddingX * 2,
-            height: hudHeight
+            height: 24
         )
         frame = clampHUD(frame, in: bounds)
         fillHUD(frame)
         (text as NSString).draw(
-            at: CGPoint(x: frame.minX + paddingX, y: frame.minY + (hudHeight - size.height) / 2),
+            at: CGPoint(x: frame.minX + paddingX, y: frame.minY + (24 - size.height) / 2),
             withAttributes: attributes
         )
     }
 
-    private static func hudTextAttributes(font: NSFont) -> [NSAttributedString.Key: Any] {
+    private static func hudTextAttributes(
+        font: NSFont,
+        color: NSColor = hudTextColor
+    ) -> [NSAttributedString.Key: Any] {
         [
             .font: font,
-            .foregroundColor: hudTextColor,
+            .foregroundColor: color,
         ]
     }
 

@@ -24378,6 +24378,65 @@
         }
       }
     },
+    "Click to copy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klicken zum Kopieren"
+          }
+        }
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clic para copiar"
+          }
+        }
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cliquer pour copier"
+          }
+        }
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "クリックでコピー"
+          }
+        }
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "클릭하여 복사"
+          }
+        }
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clique para copiar"
+          }
+        }
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нажмите, чтобы скопировать"
+          }
+        }
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点击复制"
+          }
+        }
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "點一下複製"
+          }
+        }
+      }
+    },
     "Copied" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -24437,61 +24496,61 @@
         }
       }
     },
-    "Click copies color · Drag to capture · Esc to cancel" : {
+    "Drag to capture · Esc to cancel" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Klick kopiert Farbe · Zum Aufnehmen ziehen · Esc zum Abbrechen"
+            "value" : "Zum Aufnehmen ziehen · Esc zum Abbrechen"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Clic copia el color · Arrastra para capturar · Esc para cancelar"
+            "value" : "Arrastra para capturar · Esc para cancelar"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Clic copie la couleur · Faites glisser pour capturer · Échap pour annuler"
+            "value" : "Faites glisser pour capturer · Échap pour annuler"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "クリックで色をコピー · ドラッグしてキャプチャ · Escでキャンセル"
+            "value" : "ドラッグしてキャプチャ · Escでキャンセル"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "클릭으로 색 복사 · 드래그하여 캡처 · Esc로 취소"
+            "value" : "드래그하여 캡처 · Esc로 취소"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Clique copia a cor · Arraste para capturar · Esc para cancelar"
+            "value" : "Arraste para capturar · Esc para cancelar"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Клик копирует цвет · Потяните для снимка · Esc для отмены"
+            "value" : "Потяните для снимка · Esc для отмены"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "单击复制色值 · 拖动框选截图 · Esc 取消"
+            "value" : "拖动框选截图 · Esc 取消"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "單擊複製色值 · 拖曳框選截圖 · Esc 取消"
+            "value" : "拖曳框選截圖 · Esc 取消"
           }
         }
       }

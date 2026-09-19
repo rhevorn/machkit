@@ -6,11 +6,12 @@ Capture flow:
 2. `ScreenshotCapture` waits until those overlay window IDs appear in
    `SCShareableContent`, then freezes displays under them via ScreenCaptureKit
    (with short retries—new panels are often missing from the first query).
-3. While hovering, a compact reticle with magnifier and hex HUD samples color.
-   Click (without dragging) copies `#RRGGBB` and briefly shows “Copied”; `C` or
-   Space also copy once the overlay is key. Dragging a region hides that chrome
-   and shows only the selection frame / size label (`ScreenshotSelectionChrome`).
-   `ScreenshotGeometry` maps AppKit screen space to CGImage pixels.
+3. While hovering, a compact reticle with magnifier and a color chip
+   (`#RRGGBB · Click to copy`) samples color. Clicking without dragging copies
+   the hex (HUD shows “Copied”); `C` / Space also copy once the overlay is key.
+   Dragging a region hides that chrome and shows only the selection frame /
+   size label (`ScreenshotSelectionChrome`). `ScreenshotGeometry` maps AppKit
+   screen space to CGImage pixels.
 4. `ScreenshotEditorController` presents annotation UI on an AppKit-frozen desktop backdrop.
 5. Export draws strokes through `ScreenshotStrokeRenderer` (same geometry as the canvas preview).
 
