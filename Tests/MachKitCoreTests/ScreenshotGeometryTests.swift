@@ -1,4 +1,5 @@
 import CoreGraphics
+import Foundation
 import Testing
 @testable import MachKitCore
 
@@ -175,4 +176,50 @@ import Testing
 
 @Test func screenshotPixelColorHexFormatsRGB() {
     #expect(ScreenshotPixelColor(red: 15, green: 128, blue: 255).hexString == "#0F80FF")
+}
+
+@Test func screenshotPixelSamplingReadsRGBABitmapDirectly() throws {
+    var bytes: [UInt8] = [
+        15, 128, 255, 255,
+        0, 0, 0, 255,
+    ]
+    let image = try #require(makeTestBitmapImage(bytes: &bytes, width: 2, height: 1, alphaFirst: false, littleEndian: false))
+    #expect(ScreenshotPixelSampling.color(in: image, atX: 0, atY: 0) == ScreenshotPixelColor(red: 15, green: 128, blue: 255))
+}
+
+@Test func screenshotPixelSamplingReadsBGRABitmapDirectly() throws {
+    var bytes: [UInt8] = [
+        255, 128, 15, 255,
+        0, 0, 0, 255,
+    ]
+    let image = try #require(makeTestBitmapImage(bytes: &bytes, width: 2, height: 1, alphaFirst: true, littleEndian: true))
+    #expect(ScreenshotPixelSampling.color(in: image, atX: 0, atY: 0) == ScreenshotPixelColor(red: 15, green: 128, blue: 255))
+}
+
+private func makeTestBitmapImage(
+    bytes: inout [UInt8],
+    width: Int,
+    height: Int,
+    alphaFirst: Bool,
+    littleEndian: Bool
+) -> CGImage? {
+    let alpha: CGImageAlphaInfo = alphaFirst ? .premultipliedFirst : .premultipliedLast
+    var bitmapInfo = CGBitmapInfo(rawValue: alpha.rawValue)
+    if littleEndian {
+        bitmapInfo.insert(.byteOrder32Little)
+    }
+    guard let provider = CGDataProvider(data: Data(bytes) as CFData) else { return nil }
+    return CGImage(
+        width: width,
+        height: height,
+        bitsPerComponent: 8,
+        bitsPerPixel: 32,
+        bytesPerRow: width * 4,
+        space: CGColorSpaceCreateDeviceRGB(),
+        bitmapInfo: bitmapInfo,
+        provider: provider,
+        decode: nil,
+        shouldInterpolate: false,
+        intent: .defaultIntent
+    )
 }

@@ -219,6 +219,51 @@ public enum ScreenshotPixelSampling {
     /// Samples one pixel from a CGImage using top-left image coordinates.
     public static func color(in image: CGImage, atX x: Int, atY y: Int) -> ScreenshotPixelColor? {
         guard x >= 0, y >= 0, x < image.width, y < image.height else { return nil }
+        if let direct = readDirectBytePixel(in: image, atX: x, atY: y) {
+            return direct
+        }
+        return readViaScratchContext(in: image, atX: x, atY: y)
+    }
+
+    /// Fast path for common 8-bit 32bpp buffers (ScreenCaptureKit / bitmap contexts).
+    private static func readDirectBytePixel(in image: CGImage, atX x: Int, atY y: Int) -> ScreenshotPixelColor? {
+        guard image.bitsPerComponent == 8,
+              image.bitsPerPixel == 32,
+              let data = image.dataProvider?.data,
+              let bytes = CFDataGetBytePtr(data)
+        else { return nil }
+
+        let bytesPerPixel = 4
+        let bytesPerRow = image.bytesPerRow
+        let offset = y * bytesPerRow + x * bytesPerPixel
+        guard offset >= 0, offset + bytesPerPixel <= CFDataGetLength(data) else { return nil }
+
+        let b0 = bytes[offset]
+        let b1 = bytes[offset + 1]
+        let b2 = bytes[offset + 2]
+        let b3 = bytes[offset + 3]
+
+        let alphaInfo = CGImageAlphaInfo(
+            rawValue: image.bitmapInfo.rawValue & CGBitmapInfo.alphaInfoMask.rawValue
+        )
+        let order = CGBitmapInfo(rawValue: image.bitmapInfo.rawValue & CGBitmapInfo.byteOrderMask.rawValue)
+        let little = order.contains(.byteOrder32Little)
+
+        switch (alphaInfo, little) {
+        case (.premultipliedLast, false), (.last, false), (.noneSkipLast, false):
+            return ScreenshotPixelColor(red: b0, green: b1, blue: b2)
+        case (.premultipliedLast, true), (.last, true), (.noneSkipLast, true):
+            return ScreenshotPixelColor(red: b3, green: b2, blue: b1)
+        case (.premultipliedFirst, true), (.first, true), (.noneSkipFirst, true):
+            return ScreenshotPixelColor(red: b2, green: b1, blue: b0)
+        case (.premultipliedFirst, false), (.first, false), (.noneSkipFirst, false):
+            return ScreenshotPixelColor(red: b1, green: b2, blue: b3)
+        default:
+            return nil
+        }
+    }
+
+    private static func readViaScratchContext(in image: CGImage, atX x: Int, atY y: Int) -> ScreenshotPixelColor? {
         let rect = CGRect(x: x, y: y, width: 1, height: 1)
         guard let cropped = image.cropping(to: rect) else { return nil }
 
