@@ -7,6 +7,20 @@ private let repositoryRoot = URL(fileURLWithPath: #filePath)
     .deletingLastPathComponent()
     .deletingLastPathComponent()
 
+private struct RemovingTrashMover: TrashMoving {
+    func trashItem(at url: URL) throws {
+        try FileManager.default.removeItem(at: url)
+    }
+}
+
+private struct FailingTrashMover: TrashMoving {
+    struct Failure: Error {}
+
+    func trashItem(at url: URL) throws {
+        throw Failure()
+    }
+}
+
 private func formatPlaceholders(in value: String) -> [String] {
     let expression = try! NSRegularExpression(pattern: #"%(?:\d+\$)?(?:lld|llu|ld|lu|zd|zu|d|u|f|g|s|c|@)"#)
     let range = NSRange(value.startIndex..., in: value)
@@ -196,11 +210,13 @@ private func appSourceSwiftFiles(at sources: URL) throws -> [URL] {
 
     let trashScan = ScanItem(url: trashItem, bytes: 5, modifiedAt: Date(), rule: TrashRule.rule)
     let cacheScan = ScanItem(url: cacheItem, bytes: 5, modifiedAt: Date(), rule: UserCachesRule.rule)
-    let result = await Cleaner().moveToTrash(items: [trashScan, cacheScan], selectedRoot: root)
+    let result = await Cleaner(trashMover: RemovingTrashMover())
+        .moveToTrash(items: [trashScan, cacheScan], selectedRoot: root)
 
     #expect(result.permanentlyDeleted.map(\.path) == [trashItem.path])
     #expect(result.movedToTrash.map(\.path) == [cacheItem.path])
     #expect(!FileManager.default.fileExists(atPath: trashItem.path))
+    #expect(!FileManager.default.fileExists(atPath: cacheItem.path))
 }
 
 @Test func failedApplicationRemovalPreservesItsResidues() async throws {
@@ -232,7 +248,8 @@ private func appSourceSwiftFiles(at sources: URL) throws -> [URL] {
         risk: .review
     )
 
-    let result = await ApplicationScanner().moveToTrash(app: app, residues: [residue], home: home)
+    let result = await ApplicationScanner(trashMover: FailingTrashMover())
+        .moveToTrash(app: app, residues: [residue], home: home)
 
     #expect(result.movedToTrash.isEmpty)
     #expect(result.failures.map(\.url) == [missingAppURL])

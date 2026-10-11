@@ -41,9 +41,14 @@ private actor ResidueProgressTracker {
 
 public actor ApplicationScanner {
     private let fileManager: FileManager
+    private let trashMover: any TrashMoving
 
-    public init(fileManager: FileManager = .default) {
+    public init(
+        fileManager: FileManager = .default,
+        trashMover: any TrashMoving = SystemTrashMover()
+    ) {
         self.fileManager = fileManager
+        self.trashMover = trashMover
     }
 
     public func applications(in root: URL) -> [InstalledApplication] {
@@ -433,8 +438,7 @@ public actor ApplicationScanner {
         // keep its preferences and data intact so an installed app is never reset
         // by a partially successful uninstall.
         do {
-            var resultingURL: NSURL?
-            try fileManager.trashItem(at: app.bundleURL, resultingItemURL: &resultingURL)
+            try trashMover.trashItem(at: app.bundleURL)
             moved.append(app.bundleURL)
         } catch {
             failures.append(CleanFailure(url: app.bundleURL, reason: error.localizedDescription))
@@ -443,8 +447,7 @@ public actor ApplicationScanner {
 
         for url in allowedResidues.map(\.url) {
             do {
-                var resultingURL: NSURL?
-                try fileManager.trashItem(at: url, resultingItemURL: &resultingURL)
+                try trashMover.trashItem(at: url)
                 moved.append(url)
             } catch {
                 failures.append(CleanFailure(url: url, reason: error.localizedDescription))

@@ -2,9 +2,14 @@ import Foundation
 
 public actor Cleaner {
     private let fileManager: FileManager
+    private let trashMover: any TrashMoving
 
-    public init(fileManager: FileManager = .default) {
+    public init(
+        fileManager: FileManager = .default,
+        trashMover: any TrashMoving = SystemTrashMover()
+    ) {
         self.fileManager = fileManager
+        self.trashMover = trashMover
     }
 
     public func moveToTrash(items: [ScanItem], selectedRoot: URL) -> CleanResult {
@@ -20,8 +25,7 @@ public actor Cleaner {
                     try fileManager.removeItem(at: item.url)
                     permanentlyDeleted.append(item.url)
                 case .moveToTrash:
-                    var destination: NSURL?
-                    try fileManager.trashItem(at: item.url, resultingItemURL: &destination)
+                    try trashMover.trashItem(at: item.url)
                     moved.append(item.url)
                 case .privilegedMoveToTrash:
                     let domain: PrivilegedCommandRunner.ProtectedCleanupDomain
