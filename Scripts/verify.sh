@@ -42,6 +42,22 @@ run_in "$repo_root" xcodebuild \
   CODE_SIGNING_ALLOWED=NO \
   build
 
+if [[ "${MACHKIT_RUN_NATIVE_UI_TESTS:-0}" == "1" ]]; then
+  run_in "$repo_root" xcodebuild \
+    -project MachKit.xcodeproj \
+    -scheme "MachKit App" \
+    -configuration Debug \
+    -destination "platform=macOS" \
+    -derivedDataPath build/XcodeDerivedData \
+    -only-testing:MachKitUITests \
+    CODE_SIGN_IDENTITY=- \
+    CODE_SIGN_STYLE=Manual \
+    DEVELOPMENT_TEAM= \
+    test
+else
+  echo "Skipping native UI smoke tests (set MACHKIT_RUN_NATIVE_UI_TESTS=1 to include them)."
+fi
+
 run_in "$repo_root" git diff --check
 
 echo "MachKit verification passed."

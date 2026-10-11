@@ -29,6 +29,20 @@
             buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "H50000000000000000000001"
+               BuildableName = "MachKitUITests.xctest"
+               BlueprintName = "MachKitUITests"
+               ReferencedContainer = "container:MachKit.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "A50000000000000000000002"
                BuildableName = "MachKitCoreTests.xctest"
                BlueprintName = "MachKitCoreTests"
@@ -52,6 +66,17 @@
                BlueprintIdentifier = "A50000000000000000000002"
                BuildableName = "MachKitCoreTests.xctest"
                BlueprintName = "MachKitCoreTests"
+               ReferencedContainer = "container:MachKit.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "H50000000000000000000001"
+               BuildableName = "MachKitUITests.xctest"
+               BlueprintName = "MachKitUITests"
                ReferencedContainer = "container:MachKit.xcodeproj">
             </BuildableReference>
          </TestableReference>

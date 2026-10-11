@@ -58,6 +58,20 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             build
 
+      - name: Run native UI smoke tests
+        run: |
+          xcodebuild \
+            -project MachKit.xcodeproj \
+            -scheme "MachKit App" \
+            -configuration Debug \
+            -destination "platform=macOS" \
+            -derivedDataPath build/XcodeDerivedData \
+            -only-testing:MachKitUITests \
+            CODE_SIGN_IDENTITY=- \
+            CODE_SIGN_STYLE=Manual \
+            DEVELOPMENT_TEAM= \
+            test
+
       - name: Check patch formatting
         run: git diff --check
 

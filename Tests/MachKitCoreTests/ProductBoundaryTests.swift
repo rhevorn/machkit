@@ -107,6 +107,15 @@ private func appSourceSwiftFiles(at sources: URL) throws -> [URL] {
     #expect(source.contains("defaults.set(true, forKey: AppPreferenceKey.showMenuBar)"))
 }
 
+@Test func nativeHelpMenuIsReplacedOnceAndTargetsTheProjectPage() throws {
+    let statusBarSource = repositoryRoot.appending(path: "App/Sources/StatusBar.swift")
+    let source = try String(contentsOf: statusBarSource, encoding: .utf8)
+
+    #expect(source.components(separatedBy: "CommandGroup(replacing: .help)").count - 1 == 1)
+    #expect(source.components(separatedBy: "Button(\"MachKit Help\".localized)").count - 1 == 1)
+    #expect(source.contains("https://github.com/rhevorn/machkit"))
+}
+
 @Test func privacyPromptUsesEnglishFallbackAndAllSupportedTranslations() throws {
     let plistData = try Data(contentsOf: repositoryRoot.appending(path: "App/Info.plist"))
     let plist = try #require(

@@ -59,7 +59,18 @@
 		F10000000000000000000001 /* MachKitLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000001 /* MachKitLayout.swift */; };
 		F91882353042DFB800998E0C /* SoCMetrics in Frameworks */ = {isa = PBXBuildFile; productRef = A90000000000000000000003 /* SoCMetrics */; };
 		G10000000000000000000001 /* ToolPinStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = G20000000000000000000001 /* ToolPinStore.swift */; };
+		H10000000000000000000001 /* MachKitUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = H20000000000000000000001 /* MachKitUITests.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		H80000000000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A60000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A50000000000000000000001;
+			remoteInfo = "MachKit App";
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		A20000000000000000000001 /* MachKitApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MachKitApp.swift; sourceTree = "<group>"; };
@@ -115,6 +126,8 @@
 		E20000000000000000000002 /* AppUpdateCheckTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdateCheckTests.swift; sourceTree = "<group>"; };
 		F20000000000000000000001 /* MachKitLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MachKitLayout.swift; sourceTree = "<group>"; };
 		G20000000000000000000001 /* ToolPinStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolPinStore.swift; sourceTree = "<group>"; };
+		H20000000000000000000001 /* MachKitUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MachKitUITests.swift; sourceTree = "<group>"; };
+		H20000000000000000000002 /* MachKitUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MachKitUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -135,6 +148,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		H30000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -145,6 +165,7 @@
 				A40000000000000000000003 /* App/Sources */,
 				A40000000000000000000004 /* Resources */,
 				A40000000000000000000006 /* Tests/MachKitCoreTests */,
+				H40000000000000000000001 /* Tests/MachKitUITests */,
 				A40000000000000000000005 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -203,6 +224,7 @@
 			children = (
 				A20000000000000000000009 /* MachKit.app */,
 				A2000000000000000000000C /* MachKitCoreTests.xctest */,
+				H20000000000000000000002 /* MachKitUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -219,6 +241,14 @@
 				E20000000000000000000002 /* AppUpdateCheckTests.swift */,
 			);
 			path = Tests/MachKitCoreTests;
+			sourceTree = "<group>";
+		};
+		H40000000000000000000001 /* Tests/MachKitUITests */ = {
+			isa = PBXGroup;
+			children = (
+				H20000000000000000000001 /* MachKitUITests.swift */,
+			);
+			path = Tests/MachKitUITests;
 			sourceTree = "<group>";
 		};
 		A40000000000000000000007 /* WebView */ = {
@@ -321,6 +351,26 @@
 			productReference = A2000000000000000000000C /* MachKitCoreTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		H50000000000000000000001 /* MachKitUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = H70000000000000000000001 /* Build configuration list for PBXNativeTarget "MachKitUITests" */;
+			buildPhases = (
+				H30000000000000000000003 /* Sources */,
+				H30000000000000000000001 /* Frameworks */,
+				H30000000000000000000002 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				H90000000000000000000001 /* PBXTargetDependency */,
+			);
+			name = MachKitUITests;
+			packageProductDependencies = (
+			);
+			productName = MachKitUITests;
+			productReference = H20000000000000000000002 /* MachKitUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -336,6 +386,10 @@
 					};
 					A50000000000000000000002 = {
 						CreatedOnToolsVersion = 26.0;
+					};
+					H50000000000000000000001 = {
+						CreatedOnToolsVersion = 26.0;
+						TestTargetID = A50000000000000000000001;
 					};
 				};
 			};
@@ -368,6 +422,7 @@
 			targets = (
 				A50000000000000000000001 /* MachKit App */,
 				A50000000000000000000002 /* MachKitCoreTests */,
+				H50000000000000000000001 /* MachKitUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -382,6 +437,13 @@
 				A1000000000000000000000E /* InfoPlist.xcstrings in Resources */,
 				A10000000000000000000030 /* ToolSearchKeywords.json in Resources */,
 				A1000000000000000000001B /* WebTools in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		H30000000000000000000002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -468,7 +530,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		H30000000000000000000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				H10000000000000000000001 /* MachKitUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		H90000000000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A50000000000000000000001 /* MachKit App */;
+			targetProxy = H80000000000000000000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		A71000000000000000000001 /* Debug */ = {
@@ -683,6 +761,36 @@
 			};
 			name = Release;
 		};
+		H71000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.machkit.ui-tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
+				TEST_TARGET_NAME = "MachKit App";
+			};
+			name = Debug;
+		};
+		H71000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.machkit.ui-tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
+				TEST_TARGET_NAME = "MachKit App";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -709,6 +817,15 @@
 			buildConfigurations = (
 				A73000000000000000000001 /* Debug */,
 				A73000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		H70000000000000000000001 /* Build configuration list for PBXNativeTarget "MachKitUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				H71000000000000000000001 /* Debug */,
+				H71000000000000000000002 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
