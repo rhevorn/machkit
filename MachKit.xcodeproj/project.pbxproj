@@ -64,6 +64,7 @@
 		I10000000000000000000002 /* ContentViewHome.swift in Sources */ = {isa = PBXBuildFile; fileRef = I20000000000000000000002 /* ContentViewHome.swift */; };
 		I10000000000000000000003 /* ContentViewJunk.swift in Sources */ = {isa = PBXBuildFile; fileRef = I20000000000000000000003 /* ContentViewJunk.swift */; };
 		I10000000000000000000004 /* ContentViewPerformance.swift in Sources */ = {isa = PBXBuildFile; fileRef = I20000000000000000000004 /* ContentViewPerformance.swift */; };
+		J10000000000000000000001 /* CleanupBoundaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = J20000000000000000000001 /* CleanupBoundaryTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -136,6 +137,7 @@
 		I20000000000000000000002 /* ContentViewHome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewHome.swift; sourceTree = "<group>"; };
 		I20000000000000000000003 /* ContentViewJunk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewJunk.swift; sourceTree = "<group>"; };
 		I20000000000000000000004 /* ContentViewPerformance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewPerformance.swift; sourceTree = "<group>"; };
+		J20000000000000000000001 /* CleanupBoundaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CleanupBoundaryTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -244,6 +246,7 @@
 			isa = PBXGroup;
 			children = (
 				A2000000000000000000000A /* ProductBoundaryTests.swift */,
+				J20000000000000000000001 /* CleanupBoundaryTests.swift */,
 				A2000000000000000000000B /* SafetyPolicyTests.swift */,
 				B20000000000000000000001 /* HostsManagerTests.swift */,
 				B20000000000000000000003 /* CurlLabRunnerTests.swift */,
@@ -537,6 +540,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A10000000000000000000008 /* ProductBoundaryTests.swift in Sources */,
+				J10000000000000000000001 /* CleanupBoundaryTests.swift in Sources */,
 				A10000000000000000000009 /* SafetyPolicyTests.swift in Sources */,
 				B10000000000000000000001 /* HostsManagerTests.swift in Sources */,
 				B10000000000000000000003 /* CurlLabRunnerTests.swift in Sources */,
