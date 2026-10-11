@@ -203,6 +203,42 @@ private func appSourceSwiftFiles(at sources: URL) throws -> [URL] {
     #expect(!FileManager.default.fileExists(atPath: trashItem.path))
 }
 
+@Test func failedApplicationRemovalPreservesItsResidues() async throws {
+    let home = FileManager.default.temporaryDirectory
+        .appending(path: "machkit-uninstall-\(UUID().uuidString)", directoryHint: .isDirectory)
+    defer { try? FileManager.default.removeItem(at: home) }
+    let residueURL = home.appending(path: "Library/Preferences/com.example.app.plist")
+    try FileManager.default.createDirectory(
+        at: residueURL.deletingLastPathComponent(),
+        withIntermediateDirectories: true
+    )
+    try Data("preferences".utf8).write(to: residueURL)
+
+    let missingAppURL = URL(
+        fileURLWithPath: "/Applications/MachKitMissing-\(UUID().uuidString).app",
+        isDirectory: true
+    )
+    let app = InstalledApplication(
+        name: "Missing App",
+        bundleURL: missingAppURL,
+        bundleIdentifier: "com.example.app",
+        version: nil,
+        bytes: 0
+    )
+    let residue = ApplicationResidue(
+        url: residueURL,
+        kind: .preferences,
+        bytes: 11,
+        risk: .review
+    )
+
+    let result = await ApplicationScanner().moveToTrash(app: app, residues: [residue], home: home)
+
+    #expect(result.movedToTrash.isEmpty)
+    #expect(result.failures.map(\.url) == [missingAppURL])
+    #expect(FileManager.default.fileExists(atPath: residueURL.path))
+}
+
 @Test func unavailableSimulatorEnumerationDoesNotMatchActiveDevicesWithoutSimctlSignal() async throws {
     let root = FileManager.default.temporaryDirectory
         .appending(path: "machkit-sim-\(UUID().uuidString)", directoryHint: .isDirectory)

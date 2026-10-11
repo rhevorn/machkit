@@ -428,7 +428,20 @@ public actor ApplicationScanner {
         }
         var moved: [URL] = []
         var failures: [CleanFailure] = []
-        for url in [app.bundleURL] + allowedResidues.map(\.url) {
+
+        // The application is the transaction boundary. If it cannot be removed,
+        // keep its preferences and data intact so an installed app is never reset
+        // by a partially successful uninstall.
+        do {
+            var resultingURL: NSURL?
+            try fileManager.trashItem(at: app.bundleURL, resultingItemURL: &resultingURL)
+            moved.append(app.bundleURL)
+        } catch {
+            failures.append(CleanFailure(url: app.bundleURL, reason: error.localizedDescription))
+            return CleanResult(movedToTrash: moved, failures: failures)
+        }
+
+        for url in allowedResidues.map(\.url) {
             do {
                 var resultingURL: NSURL?
                 try fileManager.trashItem(at: url, resultingItemURL: &resultingURL)
