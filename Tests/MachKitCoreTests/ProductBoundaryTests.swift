@@ -347,14 +347,17 @@ private func appSourceSwiftFiles(at sources: URL) throws -> [URL] {
     let root = FileManager.default.temporaryDirectory
         .appending(path: "machkit-cleanup-engine-\(UUID().uuidString)", directoryHint: .isDirectory)
     defer { try? FileManager.default.removeItem(at: root) }
-    let first = root.appending(path: "Alpha/old.one")
+    let first = root.appending(path: "Alpha/group/old.one")
+    let firstSibling = root.appending(path: "Alpha/group/older.one")
     let second = root.appending(path: "Beta/old.two")
     try FileManager.default.createDirectory(at: first.deletingLastPathComponent(), withIntermediateDirectories: true)
     try FileManager.default.createDirectory(at: second.deletingLastPathComponent(), withIntermediateDirectories: true)
     try Data("one".utf8).write(to: first)
+    try Data("one-more".utf8).write(to: firstSibling)
     try Data("two".utf8).write(to: second)
     let oldDate = Date(timeIntervalSinceNow: -3 * 24 * 60 * 60)
     try FileManager.default.setAttributes([.modificationDate: oldDate], ofItemAtPath: first.path)
+    try FileManager.default.setAttributes([.modificationDate: oldDate], ofItemAtPath: firstSibling.path)
     try FileManager.default.setAttributes([.modificationDate: oldDate], ofItemAtPath: second.path)
 
     let categories = [
@@ -380,12 +383,15 @@ private func appSourceSwiftFiles(at sources: URL) throws -> [URL] {
     #expect(progress.categoryIDs == ["a", "b"])
     #expect(items.count == 2)
     #expect(progress.maxOverall >= 0.99)
+    #expect(progress.inspectionCountIsMonotonic)
 }
 
 private final class LockedCleanupProgress: @unchecked Sendable {
     private let lock = NSLock()
     private(set) var categoryIDs: [String] = []
     private(set) var maxOverall = 0.0
+    private(set) var inspectionCountIsMonotonic = true
+    private var lastInspectedFiles = 0
 
     func observe(_ event: CleanupScanProgressEvent) {
         lock.lock()
@@ -394,6 +400,10 @@ private final class LockedCleanupProgress: @unchecked Sendable {
             categoryIDs.append(event.categoryID)
         }
         maxOverall = max(maxOverall, event.overallFraction)
+        if event.inspectedFiles < lastInspectedFiles {
+            inspectionCountIsMonotonic = false
+        }
+        lastInspectedFiles = event.inspectedFiles
     }
 }
 

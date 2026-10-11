@@ -1,5 +1,22 @@
 import Foundation
 
+private final class LockedInspectionCount: @unchecked Sendable {
+    private let lock = NSLock()
+    private var value = 0
+
+    func record(_ newValue: Int) {
+        lock.lock()
+        value = max(value, newValue)
+        lock.unlock()
+    }
+
+    var latest: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return value
+    }
+}
+
 /// One serial cleanup category (UI phase). Rules run left-to-right inside the category.
 public struct CleanupCategorySpec: Sendable, Identifiable {
     public let id: String
@@ -170,8 +187,10 @@ public actor CleanupScanEngine {
             let baselineMatchedFiles = matchedFiles
             let baselineMatchedBytes = matchedBytes
             let baselineInspected = inspectedFiles
+            let inspectionCount = LockedInspectionCount()
 
             let scanned = await scanner.scan(root: root, rules: [rule]) { progress in
+                inspectionCount.record(progress.inspectedFiles)
                 let withinRule = Self.activityFraction(inspected: progress.currentRuleInspectedFiles)
                 let categoryFraction = min(0.999, (Double(ruleIndex) + withinRule) / ruleCount)
                 let overall = (Double(categoryIndex) + categoryFraction) / Double(categoryCount)
@@ -191,8 +210,7 @@ public actor CleanupScanEngine {
             collected.append(contentsOf: scanned)
             matchedFiles = baselineMatchedFiles + scanned.count
             matchedBytes = baselineMatchedBytes + scanned.reduce(0) { $0 + $1.bytes }
-            // Prefer last progress inspected count when available.
-            inspectedFiles = baselineInspected + max(scanned.count, 1)
+            inspectedFiles = baselineInspected + inspectionCount.latest
             await Task.yield()
         }
 
@@ -243,11 +261,13 @@ public actor CleanupScanEngine {
         ])
         guard !Task.isCancelled else { return [] }
         publish(0.08)
+        let inspectionCount = LockedInspectionCount()
 
         let groups = await applicationScanner.orphanedResidues(
             installedBundleIdentifiers: installed,
             home: home
         ) { progress in
+            inspectionCount.record(progress.inspectedFiles)
             // Reserve 8% for inventory; remainder tracks residue path work.
             let categoryFraction = 0.08 + min(0.919, progress.fractionCompleted * 0.919)
             let overall = (Double(categoryIndex) + categoryFraction) / Double(categoryCount)
@@ -275,7 +295,7 @@ public actor CleanupScanEngine {
 
         matchedFiles = baselineMatchedFiles + items.count
         matchedBytes = baselineMatchedBytes + items.reduce(0) { $0 + $1.bytes }
-        inspectedFiles = baselineInspected + items.count
+        inspectedFiles = baselineInspected + inspectionCount.latest
         return items
     }
 
