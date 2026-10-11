@@ -44,7 +44,7 @@ for (const tool of tools) {
       const pageErrors: string[] = [];
       page.on("pageerror", (error) => pageErrors.push(error.message));
       await page.setViewportSize(size);
-      await page.goto(`/tools/${tool.id}/?locale=en&appearance=${appearance}`, { waitUntil: "networkidle" });
+      await page.goto(`/tools/${tool.id}/?locale=en&appearance=${appearance}`, { waitUntil: "domcontentloaded" });
 
       await expect(page.locator("main")).toHaveCount(1);
       await expect(page).toHaveTitle(/\S/);
