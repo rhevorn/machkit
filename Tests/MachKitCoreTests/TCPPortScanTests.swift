@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import MachKitCore
 
@@ -41,5 +42,37 @@ struct TCPPortScanTests {
         #expect(TCPPortScan.serviceName(for: 22) == "ssh")
         #expect(TCPPortScan.serviceName(for: 443) == "https")
         #expect(TCPPortScan.serviceName(for: 65_535) == nil)
+    }
+
+    @Test func cancellationRelayHandlesCancellationBeforeAndAfterInstallation() {
+        let beforeInstallation = TCPProbeCancellationRelay()
+        beforeInstallation.cancel()
+        let beforeCounter = LockedCounter()
+        #expect(beforeInstallation.install { beforeCounter.increment() } == false)
+        #expect(beforeCounter.value == 1)
+
+        let afterInstallation = TCPProbeCancellationRelay()
+        let afterCounter = LockedCounter()
+        #expect(afterInstallation.install { afterCounter.increment() })
+        afterInstallation.cancel()
+        afterInstallation.cancel()
+        #expect(afterCounter.value == 1)
+    }
+}
+
+private final class LockedCounter: @unchecked Sendable {
+    private let lock = NSLock()
+    private var count = 0
+
+    func increment() {
+        lock.lock()
+        count += 1
+        lock.unlock()
+    }
+
+    var value: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return count
     }
 }

@@ -2,6 +2,38 @@ import Darwin
 import Foundation
 import Network
 
+final class TCPProbeCancellationRelay: @unchecked Sendable {
+    private let lock = NSLock()
+    private var isCancelled = false
+    private var action: (@Sendable () -> Void)?
+
+    @discardableResult
+    func install(_ action: @escaping @Sendable () -> Void) -> Bool {
+        lock.lock()
+        if isCancelled {
+            lock.unlock()
+            action()
+            return false
+        }
+        self.action = action
+        lock.unlock()
+        return true
+    }
+
+    func cancel() {
+        lock.lock()
+        guard !isCancelled else {
+            lock.unlock()
+            return
+        }
+        isCancelled = true
+        let action = self.action
+        self.action = nil
+        lock.unlock()
+        action?()
+    }
+}
+
 public enum TCPPortScanError: Error, LocalizedError, Equatable, Sendable {
     case emptyHost
     case invalidHost
@@ -254,36 +286,42 @@ public enum TCPPortScan {
             return TCPPortProbeResult(port: port, status: .closed, latencyMs: nil, service: serviceName(for: port))
         }
 
-        return await withCheckedContinuation { continuation in
-            let connection = NWConnection(host: NWEndpoint.Host(host), port: nwPort, using: .tcp)
-            let gate = CompletionGate()
-            let startedAt = DispatchTime.now().uptimeNanoseconds
-            let complete: @Sendable (TCPPortProbeStatus) -> Void = { status in
-                guard gate.claim() else { return }
-                let latency = status == .open ? elapsedMilliseconds(since: startedAt) : nil
-                continuation.resume(
-                    returning: TCPPortProbeResult(
-                        port: port,
-                        status: status,
-                        latencyMs: latency,
-                        service: serviceName(for: port)
+        let cancellation = TCPProbeCancellationRelay()
+        return await withTaskCancellationHandler {
+            await withCheckedContinuation { continuation in
+                let connection = NWConnection(host: NWEndpoint.Host(host), port: nwPort, using: .tcp)
+                let gate = CompletionGate()
+                let startedAt = DispatchTime.now().uptimeNanoseconds
+                let complete: @Sendable (TCPPortProbeStatus) -> Void = { status in
+                    guard gate.claim() else { return }
+                    let latency = status == .open ? elapsedMilliseconds(since: startedAt) : nil
+                    continuation.resume(
+                        returning: TCPPortProbeResult(
+                            port: port,
+                            status: status,
+                            latencyMs: latency,
+                            service: serviceName(for: port)
+                        )
                     )
-                )
-                connection.cancel()
-            }
+                    connection.cancel()
+                }
 
-            connection.stateUpdateHandler = { state in
-                switch state {
-                case .ready: complete(.open)
-                case .failed: complete(.closed)
-                case .cancelled: complete(.cancelled)
-                default: break
+                guard cancellation.install({ complete(.cancelled) }) else { return }
+                connection.stateUpdateHandler = { state in
+                    switch state {
+                    case .ready: complete(.open)
+                    case .failed: complete(.closed)
+                    case .cancelled: complete(.cancelled)
+                    default: break
+                    }
+                }
+                connection.start(queue: probeQueue)
+                probeQueue.asyncAfter(deadline: .now() + .milliseconds(timeoutMilliseconds)) {
+                    complete(.timeout)
                 }
             }
-            connection.start(queue: probeQueue)
-            probeQueue.asyncAfter(deadline: .now() + .milliseconds(timeoutMilliseconds)) {
-                complete(.timeout)
-            }
+        } onCancel: {
+            cancellation.cancel()
         }
     }
 
