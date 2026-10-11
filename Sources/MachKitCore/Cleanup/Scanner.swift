@@ -214,7 +214,8 @@ public actor Scanner {
         let cutoff = Calendar(identifier: .gregorian)
             .date(byAdding: .day, value: -rule.minimumAgeDays, to: Date()) ?? .distantPast
 
-        /// First-level child under each rule target — never one row per nested file.
+        /// First-level child under each rule target. Directory buckets are emitted only
+        /// when every regular file in the bucket satisfies the age requirement.
         struct FolderBucket {
             var url: URL
             var totalBytes: Int64 = 0
@@ -223,6 +224,7 @@ public actor Scanner {
             var newestMatched: Date?
         }
         var buckets: [String: FolderBucket] = [:]
+        var exactMatches: [ScanItem] = []
 
         for target in targets {
             guard !Task.isCancelled else { break }
@@ -258,19 +260,35 @@ public actor Scanner {
                       values.isRegularFile == true,
                       values.isSymbolicLink != true else { continue }
 
+                let size = Int64(values.fileSize ?? 0)
+                let modified = values.contentModificationDate ?? .distantPast
+                let ext = fileURL.pathExtension.lowercased()
+                let extensionOK = rule.allowedExtensions.isEmpty || rule.allowedExtensions.contains(ext)
+                let matches = extensionOK && modified < cutoff
+
+                // Extension-filtered rules describe individual files (for example,
+                // old archives and logs). Returning their parent folder could remove
+                // unrelated content that never matched the rule.
+                if !rule.allowedExtensions.isEmpty {
+                    if matches {
+                        exactMatches.append(ScanItem(
+                            url: fileURL,
+                            bytes: size,
+                            modifiedAt: modified,
+                            rule: rule
+                        ))
+                    }
+                    continue
+                }
+
                 guard let bucketURL = aggregationFolder(for: fileURL, under: target, targetPath: targetPath) else {
                     continue
                 }
                 let bucketKey = bucketURL.standardizedFileURL.path
-                let size = Int64(values.fileSize ?? 0)
                 var bucket = buckets[bucketKey] ?? FolderBucket(url: bucketURL)
                 bucket.totalBytes += size
                 bucket.totalFiles += 1
-
-                let modified = values.contentModificationDate ?? .distantPast
-                let ext = fileURL.pathExtension.lowercased()
-                let extensionOK = rule.allowedExtensions.isEmpty || rule.allowedExtensions.contains(ext)
-                if extensionOK, modified < cutoff {
+                if matches {
                     bucket.matchedFiles += 1
                     if let newest = bucket.newestMatched {
                         bucket.newestMatched = max(newest, modified)
@@ -282,8 +300,9 @@ public actor Scanner {
             }
         }
 
-        let results: [ScanItem] = buckets.values.compactMap { bucket in
-            guard bucket.matchedFiles > 0 else { return nil }
+        let groupedMatches: [ScanItem] = buckets.values.compactMap { bucket in
+            guard bucket.matchedFiles > 0,
+                  bucket.matchedFiles == bucket.totalFiles else { return nil }
             return ScanItem(
                 url: bucket.url,
                 bytes: bucket.totalBytes,
@@ -291,7 +310,8 @@ public actor Scanner {
                 modifiedAt: bucket.newestMatched,
                 rule: rule
             )
-        }.sorted { $0.bytes > $1.bytes }
+        }
+        let results = (groupedMatches + exactMatches).sorted { $0.bytes > $1.bytes }
 
         stats.matchedFiles = results.reduce(0) { $0 + $1.fileCount }
         stats.matchedBytes = results.reduce(into: Int64(0)) { $0 += $1.bytes }

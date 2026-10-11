@@ -258,6 +258,55 @@ private func appSourceSwiftFiles(at sources: URL) throws -> [URL] {
     #expect(homebrew.bytes == 100)
 }
 
+@Test func agedFileScanNeverSelectsAFolderContainingRecentFiles() async throws {
+    let root = FileManager.default.temporaryDirectory
+        .appending(path: "machkit-mixed-age-\(UUID().uuidString)", directoryHint: .isDirectory)
+    defer { try? FileManager.default.removeItem(at: root) }
+
+    let oldFile = root.appending(path: "Library/Caches/example/old.bin")
+    let recentFile = root.appending(path: "Library/Caches/example/recent.bin")
+    try FileManager.default.createDirectory(at: oldFile.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try Data("old".utf8).write(to: oldFile)
+    try Data("recent".utf8).write(to: recentFile)
+    try FileManager.default.setAttributes(
+        [.modificationDate: Date(timeIntervalSinceNow: -40 * 24 * 60 * 60)],
+        ofItemAtPath: oldFile.path
+    )
+
+    let items = await Scanner().scan(
+        root: root,
+        rules: [ScanRule(
+            id: "mixed-cache",
+            title: "Mixed Cache",
+            relativePath: "Library/Caches",
+            minimumAgeDays: 30,
+            risk: .safe,
+            explanation: ""
+        )]
+    )
+
+    #expect(items.isEmpty)
+}
+
+@Test func extensionFilteredScanReturnsOnlyMatchingFiles() async throws {
+    let root = FileManager.default.temporaryDirectory
+        .appending(path: "machkit-filtered-files-\(UUID().uuidString)", directoryHint: .isDirectory)
+    defer { try? FileManager.default.removeItem(at: root) }
+
+    let archive = root.appending(path: "Downloads/Project/old.zip")
+    let source = root.appending(path: "Downloads/Project/source.swift")
+    try FileManager.default.createDirectory(at: archive.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try Data("archive".utf8).write(to: archive)
+    try Data("source".utf8).write(to: source)
+    let oldDate = Date(timeIntervalSinceNow: -40 * 24 * 60 * 60)
+    try FileManager.default.setAttributes([.modificationDate: oldDate], ofItemAtPath: archive.path)
+    try FileManager.default.setAttributes([.modificationDate: oldDate], ofItemAtPath: source.path)
+
+    let items = await Scanner().scan(root: root, rules: [DownloadsArchivesRule.rule])
+
+    #expect(items.map(\.url.standardizedFileURL) == [archive.standardizedFileURL])
+}
+
 @Test func cleanupScanEngineAdvancesCategoriesSerially() async throws {
     let root = FileManager.default.temporaryDirectory
         .appending(path: "machkit-cleanup-engine-\(UUID().uuidString)", directoryHint: .isDirectory)
