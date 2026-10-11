@@ -31,6 +31,8 @@ public enum CurlLabRunner {
     public static let defaultTimeoutSeconds: TimeInterval = 30
     public static let maxResponseBytes = 512 * 1_024
     public static let maxUploadBytes = 50 * 1_024 * 1_024
+    static let maxHeaderBytes = 256 * 1_024
+    private static let curlFileSizeExceededExitCode: Int32 = 63
 
     public static func run(
         payloadJSON: Data,
@@ -195,6 +197,8 @@ public enum CurlLabRunner {
             "--output", bodyFile.path,
             "--write-out", "%{http_code}\n%{time_total}\n%{url_effective}",
             "--max-time", String(Int(timeout.rounded(.up))),
+            "--max-filesize", String(maxResponseBytes),
+            "--max-redirs", "10",
             "--request", request.method
         ]
         if request.insecure { arguments.append("--insecure") }
@@ -273,11 +277,12 @@ public enum CurlLabRunner {
         let durationSeconds = trailing.count >= 2 ? Double(trailing[1]) : nil
         let effectiveURL = trailing.count >= 3 ? trailing[2] : request.url.absoluteString
 
-        let headersText = (try? String(contentsOf: headerFile, encoding: .utf8)) ?? ""
-        let bodyData = (try? Data(contentsOf: bodyFile)) ?? Data()
-        let truncated = bodyData.count > maxResponseBytes
-        let clipped = truncated ? bodyData.prefix(maxResponseBytes) : bodyData
-        let bodyText = decodeBody(clipped)
+        let headerPrefix = try? readPrefix(at: headerFile, maxBytes: maxHeaderBytes)
+        let headersText = headerPrefix.map { String(decoding: $0.data, as: UTF8.self) } ?? ""
+        let bodyPrefix = try? readPrefix(at: bodyFile, maxBytes: maxResponseBytes)
+        let bodyData = bodyPrefix?.data ?? Data()
+        let truncated = bodyPrefix?.truncated == true || output.status == curlFileSizeExceededExitCode
+        let bodyText = decodeBody(bodyData)
 
         let failed = output.status != 0 && statusCode == nil
         let error: String?
@@ -305,6 +310,16 @@ public enum CurlLabRunner {
         var allowed = CharacterSet.alphanumerics
         allowed.insert(charactersIn: "-._~")
         return value.addingPercentEncoding(withAllowedCharacters: allowed) ?? value
+    }
+
+    static func readPrefix(at url: URL, maxBytes: Int) throws -> (data: Data, truncated: Bool) {
+        guard maxBytes > 0 else { return (Data(), true) }
+        let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
+        let fileSize = (attributes[.size] as? NSNumber)?.uint64Value ?? 0
+        let handle = try FileHandle(forReadingFrom: url)
+        defer { try? handle.close() }
+        let data = try handle.read(upToCount: maxBytes) ?? Data()
+        return (data, fileSize > UInt64(data.count))
     }
 
     private static func decodeBody(_ data: Data) -> String {

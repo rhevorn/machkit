@@ -27,3 +27,15 @@ import Testing
     #expect(result.ok == false)
     #expect(result.error == "missing-file")
 }
+
+@Test func curlLabRunnerReadsOnlyTheConfiguredResponsePrefix() throws {
+    let file = FileManager.default.temporaryDirectory
+        .appending(path: "machkit-curl-prefix-\(UUID().uuidString).bin")
+    defer { try? FileManager.default.removeItem(at: file) }
+    try Data(repeating: 0x41, count: CurlLabRunner.maxResponseBytes + 4_096).write(to: file)
+
+    let result = try CurlLabRunner.readPrefix(at: file, maxBytes: CurlLabRunner.maxResponseBytes)
+
+    #expect(result.data.count == CurlLabRunner.maxResponseBytes)
+    #expect(result.truncated)
+}
