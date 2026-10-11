@@ -60,6 +60,10 @@
 		F91882353042DFB800998E0C /* SoCMetrics in Frameworks */ = {isa = PBXBuildFile; productRef = A90000000000000000000003 /* SoCMetrics */; };
 		G10000000000000000000001 /* ToolPinStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = G20000000000000000000001 /* ToolPinStore.swift */; };
 		H10000000000000000000001 /* MachKitUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = H20000000000000000000001 /* MachKitUITests.swift */; };
+		I10000000000000000000001 /* ContentViewSidebar.swift in Sources */ = {isa = PBXBuildFile; fileRef = I20000000000000000000001 /* ContentViewSidebar.swift */; };
+		I10000000000000000000002 /* ContentViewHome.swift in Sources */ = {isa = PBXBuildFile; fileRef = I20000000000000000000002 /* ContentViewHome.swift */; };
+		I10000000000000000000003 /* ContentViewJunk.swift in Sources */ = {isa = PBXBuildFile; fileRef = I20000000000000000000003 /* ContentViewJunk.swift */; };
+		I10000000000000000000004 /* ContentViewPerformance.swift in Sources */ = {isa = PBXBuildFile; fileRef = I20000000000000000000004 /* ContentViewPerformance.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -128,6 +132,10 @@
 		G20000000000000000000001 /* ToolPinStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolPinStore.swift; sourceTree = "<group>"; };
 		H20000000000000000000001 /* MachKitUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MachKitUITests.swift; sourceTree = "<group>"; };
 		H20000000000000000000002 /* MachKitUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MachKitUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		I20000000000000000000001 /* ContentViewSidebar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewSidebar.swift; sourceTree = "<group>"; };
+		I20000000000000000000002 /* ContentViewHome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewHome.swift; sourceTree = "<group>"; };
+		I20000000000000000000003 /* ContentViewJunk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewJunk.swift; sourceTree = "<group>"; };
+		I20000000000000000000004 /* ContentViewPerformance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewPerformance.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -184,6 +192,9 @@
 			children = (
 				A20000000000000000000001 /* MachKitApp.swift */,
 				A20000000000000000000002 /* ContentView.swift */,
+				I20000000000000000000001 /* ContentViewSidebar.swift */,
+				I20000000000000000000002 /* ContentViewHome.swift */,
+				I20000000000000000000003 /* ContentViewJunk.swift */,
 				C20000000000000000000002 /* ContentViewSoftware.swift */,
 				C20000000000000000000001 /* AppSnapshotStore.swift */,
 				A20000000000000000000004 /* PerformanceMonitor.swift */,
@@ -285,6 +296,7 @@
 			isa = PBXGroup;
 			children = (
 				C20000000000000000000003 /* ContentViewNetwork.swift */,
+				I20000000000000000000004 /* ContentViewPerformance.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -478,8 +490,12 @@
 			files = (
 				A10000000000000000000001 /* MachKitApp.swift in Sources */,
 				A10000000000000000000002 /* ContentView.swift in Sources */,
+				I10000000000000000000001 /* ContentViewSidebar.swift in Sources */,
+				I10000000000000000000002 /* ContentViewHome.swift in Sources */,
+				I10000000000000000000003 /* ContentViewJunk.swift in Sources */,
 				C10000000000000000000002 /* ContentViewSoftware.swift in Sources */,
 				C10000000000000000000003 /* ContentViewNetwork.swift in Sources */,
+				I10000000000000000000004 /* ContentViewPerformance.swift in Sources */,
 				C10000000000000000000004 /* ContentViewStorage.swift in Sources */,
 				A10000000000000000000003 /* CleanerViewModel.swift in Sources */,
 				C10000000000000000000001 /* AppSnapshotStore.swift in Sources */,
