@@ -80,17 +80,25 @@ private func appSourceSwiftFiles(at sources: URL) throws -> [URL] {
     #expect(workflow.contains("npm run build"))
 }
 
-@Test func closingTheLastWindowOnlyKeepsAnEnabledMenuBarAppAlive() throws {
+@Test func closingTheLastWindowMovesAnEnabledMenuBarAppToTheBackground() throws {
     let source = try String(
         contentsOf: repositoryRoot.appending(path: "App/Sources/MachKitApp.swift"),
         encoding: .utf8
     )
     #expect(source.contains("applicationShouldTerminateAfterLastWindowClosed"))
     #expect(source.contains("!UserDefaults.standard.bool(forKey: AppPreferenceKey.showMenuBar)"))
+    #expect(source.contains("moveToBackgroundIfNeeded(excluding: closingWindow)"))
+    #expect(source.contains("window !== closingWindow"))
     #expect(source.contains("isInserted: $showMenuBar"))
     #expect(!source.contains("menuBarInserted"))
     #expect(source.contains("AppPreferenceKey.menuBarCloseBehaviorRepair"))
     #expect(source.contains("defaults.set(true, forKey: AppPreferenceKey.showMenuBar)"))
+
+    let preferences = try String(
+        contentsOf: repositoryRoot.appending(path: "App/Sources/Settings/AppPreferences.swift"),
+        encoding: .utf8
+    )
+    #expect(preferences.contains("menuBarCloseBehaviorRepairV2"))
 }
 
 @Test func nativeHelpMenuIsReplacedOnceAndTargetsTheProjectPage() throws {

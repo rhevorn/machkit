@@ -164,15 +164,18 @@ enum MachKitAppLifecycle {
         bringToolWindowToFront(toolID: toolID, titled: title)
     }
 
-    static func moveToBackgroundIfNeeded() {
+    static func moveToBackgroundIfNeeded(excluding closingWindow: NSWindow? = nil) {
         guard UserDefaults.standard.bool(forKey: AppPreferenceKey.showMenuBar),
-              !hasVisibleAppWindow else { return }
+              !hasVisibleAppWindow(excluding: closingWindow) else { return }
         NSApp.setActivationPolicy(.accessory)
     }
 
-    private static var hasVisibleAppWindow: Bool {
+    private static func hasVisibleAppWindow(excluding closingWindow: NSWindow?) -> Bool {
         NSApp.windows.contains { window in
-            window.isVisible && window.canBecomeMain && !window.isMiniaturized
+            window !== closingWindow
+                && window.isVisible
+                && window.canBecomeMain
+                && !window.isMiniaturized
         }
     }
 }
@@ -347,9 +350,10 @@ final class MachKitAppDelegate: NSObject, NSApplicationDelegate {
             object: nil,
             queue: .main
         ) { notification in
-            guard !(notification.object is ScreenshotOverlayWindowMarker) else { return }
+            guard let closingWindow = notification.object as? NSWindow,
+                  !(closingWindow is ScreenshotOverlayWindowMarker) else { return }
             Task { @MainActor in
-                MachKitAppLifecycle.moveToBackgroundIfNeeded()
+                MachKitAppLifecycle.moveToBackgroundIfNeeded(excluding: closingWindow)
             }
         }
     }
